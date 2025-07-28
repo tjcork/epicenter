@@ -1,17 +1,44 @@
 ---
-import '../styles/global.css';
-import '@fontsource-variable/manrope';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Epicenter</h1>
-	</body>
-</html>
+<BaseLayout title="Epicenter">
+  <main class="min-h-screen bg-white">
+    <div class="max-w-2xl mx-auto px-6 py-24">
+      <header class="mb-16">
+        <h1 class="text-4xl font-semibold text-gray-900 mb-4">Epicenter</h1>
+        <p class="text-xl text-gray-600">Building tools that matter.</p>
+      </header>
+
+      <section class="mb-16">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Projects</h2>
+        <div class="space-y-8">
+          <article class="group">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              <a href="https://github.com/braden-w/whispering" class="hover:text-gray-600 transition-colors">
+                Whispering →
+              </a>
+            </h3>
+            <p class="text-gray-600">
+              Transcription at actual cost. Bring your own API key, pay what providers charge.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Blog</h2>
+        <div class="space-y-6">
+          <article>
+            <time class="text-sm text-gray-500">Coming soon</time>
+            <h3 class="text-lg font-medium text-gray-900 mt-1">
+              <a href="/blog" class="hover:text-gray-600 transition-colors">
+                Read the blog →
+              </a>
+            </h3>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>
