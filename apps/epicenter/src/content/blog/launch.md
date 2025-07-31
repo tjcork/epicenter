@@ -75,3 +75,54 @@ Own your data. Use any model. Free and open source ❤️
 
 Epicenter is your AI workspace — model-agnostic, privacy-first, and yours.
 
+
+
+---
+
+**launching epicenter**
+a local-first workspace for people who want to own their tools — and their context.
+
+we’re building epicenter — a growing suite of apps where **everything runs locally, works offline, and shares one unified context that *you* control.**
+
+the idea’s simple:
+all your transcripts, notes, tasks, emails, and code — in one folder, in plain text, ready to be used across whatever models or tools you prefer.
+
+you shouldn’t need a dozen SaaS accounts and syncing hacks just to get your ideas from one place to another.
+you shouldn’t have to trade privacy for functionality.
+you shouldn’t lose your digital memory every time you switch tools.
+
+### what exists right now
+
+**📝 whispering**
+a fast, minimal transcription app that runs locally and exports clean markdown.
+it supports whisper and other STT models. no lock-in, no tracking, no cloud. just your words, transcribed — and ready to be used however you want.
+
+**💻 epicenter.sh**
+talk to your codebase from anywhere — without giving it to anyone else.
+epicenter.sh spins up a local OpenCode instance, connects it via Cloudflare tunnels (or your own), and lets you chat with your repo securely.
+your code stays local. your compute stays local. your workflow stays yours.
+
+### what we’re building toward
+
+this is just the start.
+the long-term vision is a **portable, model-agnostic memory layer** — a local knowledge graph, built from your actual digital life: the things you say, write, code, and organize.
+
+apps sit on top — a text editor, a task list, an email client, maybe even an assistant.
+but underneath, it’s one simple idea:
+**everything in one place. everything under your control. everything model-agnostic.**
+
+this is how we bring context back into our tools.
+not by centralizing it on someone else's server — but by making it local, open, and composable.
+
+if you care about interoperability, longevity, and actually owning your digital mind — this is for you.
+
+### try it
+
+* whispering: [github.com/epicenter-dev/whispering](https://github.com/epicenter-dev/whispering)
+* epicenter.sh: [github.com/epicenter-dev/epicenter.sh](https://github.com/epicenter-dev/epicenter.sh)
+
+we're early. there's a lot left to build.
+but the foundation’s real — and we’re building it in public.
+
+come fork, break, extend.
+send issues. file bugs. start thinking in folders again.
