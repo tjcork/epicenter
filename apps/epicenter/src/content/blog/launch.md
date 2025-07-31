@@ -49,20 +49,13 @@ it spins up a local OpenCode instance, tunnels it via Cloudflare (or your own tu
 
 ### we're we're headed
 
+epicenter is not a single app. it’s a growing software ecosystem—a text editor, a to-do list, an email client, a personal assistant—where every tool can access the same local memory: your transcripts, your tasks, your emails, your notes, your code.
+
 in a world where every app wants to trap you, hoard your context, and lock you in, we’re building the opposite.
-
-epicenter is not a single app. it’s a growing software ecosystem for generalists. 
-
-this is software for people who move between disciplines.
-
-—a text editor, a to-do list, an email client, a personal assistant—where every tool can access the same local memory: your transcripts, your tasks, your emails, your notes, your code.
-
-
-for generalists. hackers. researchers. builders.
 
 we’re not chasing AI hype. we’re building tools that support **intentional, interdisciplinary thinking** — software for people who read, write, build, observe, and connect.
 
-your tools should work with you—not own you.
+for generalists. hackers. researchers. builders.
 
 a renaissance workflow, built on plain text and real ownership.
 
@@ -75,6 +68,10 @@ we’re early. but if you think like a generalist, build like a hacker, and valu
 
 issues, bugs, feedback—all welcome.
 
+---
+
+your tools should work with you—not own you.
+this is software for people who move between disciplines.
 
 ---
 ## Launching Epicenter — Your Personal AI OS, Starting with Whispering and OpenCode
