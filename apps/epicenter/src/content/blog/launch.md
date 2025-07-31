@@ -1,14 +1,82 @@
+Software for polymaths
+Software for interdisciplinary thinkers
+Software for the renaissance man
+Software for a jack of all trades
+Software for the endlessly curious
+Software for the liberal arts
+
+Your brain, mapped
+Software for the renaissance man. Your brain, mapped
+
+We make software for Da Vanci and Benjamin Franklin
+
+
+In the same way all in one brain, all in one folder
+When everything is in one folder, things cross pollinate. Not just within apps, but across them
+
 - We want to prove that local first apps can win.
 - Data is on the edge.
+- Open source software for generalists
+- Own your data. Use any model. Free and open source ❤️ Preserve authenticity
+- For consumers: Liberal arts
+- To developers: Local first can win
 
 
+---
+
+
+**epicenter: software for the polymath.**
+a shared workspace for everything you think, write, and build.
+
+epicenter is a growing suite of local-first tools built around a single idea:
+**creativity happens at the intersection of disciplines.**
+your tools should reflect that.
+
+whether you’re transcribing an idea, writing code, taking notes, or planning your day, everything should live in one folder, in open formats, connected by a shared context layer.
+no silos. no walled gardens. no data traps.
+
+just one continuous thread of thought: across mediums, apps, and models.
+
+### what’s here now
+
+**📝 whispering**
+a fast, minimal transcription tool that runs locally, supports whisper and other models, and exports to clean markdown. no cloud. no lock-in. just your voice, made text.
+
+**💻 epicenter.sh**
+talk to your codebase using natural language — from anywhere, without giving it away.
+it spins up a local OpenCode instance, tunnels it via Cloudflare (or your own tunnel), and lets you securely query your repo. your code, your machine, your terms.
+
+### what we’re building
+
+epicenter is not “an app.”
+it’s a **shared memory layer** — a local workspace where all your tools operate on the same context: your transcripts, your tasks, your emails, your notes, your code.
+
+apps are modular. context is portable.
+you don’t copy/paste between apps-you *move through ideas*.
+
+we’re not chasing AI hype. we’re building tools that support **intentional, interdisciplinary thinking** — software for people who read, write, build, observe, and connect.
+
+a renaissance workflow, built on plain text and real ownership.
+
+### get started
+
+* whispering: [github.com/epicenter-dev/whispering](https://github.com/epicenter-dev/whispering)
+* epicenter.sh: [github.com/epicenter-dev/epicenter.sh](https://github.com/epicenter-dev/epicenter.sh)
+
+we’re early. but if you think like a generalist, build like a hacker, and value tools that respect your mind — you might feel at home here.
+
+issues, bugs, feedback — all welcome.
+
+
+in a world where every app wants to trap you, hoard your context, and lock you in, we’re taking the opposite approach
+
+whether you’re transcribing a lecture, writing an article, debugging your code, or planning your life, your tools should work with you — not own you. that’s why we’re building an ecosystem of lightweight apps: text editors, todo lists, email clients, creative assistants — all powered by a shared foundation of local data, open protocols, and extendable interfaces.
+
+
+
+---
 ## Launching Epicenter — Your Personal AI OS, Starting with Whispering and OpenCode
 
-Own your data. Use any model. Free and open source ❤️ Preserve authenticity
-
-For consumers: Liberal arts
-
-To developers: Local first can win
 
 cross polination
 Hey everyone,
@@ -126,3 +194,4 @@ but the foundation’s real — and we’re building it in public.
 
 come fork, break, extend.
 send issues. file bugs. start thinking in folders again.
+
