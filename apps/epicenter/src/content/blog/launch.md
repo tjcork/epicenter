@@ -6,9 +6,9 @@
 
 Own your data. Use any model. Free and open source ❤️ Preserve authenticity
 
-Liberal arts
+For consumers: Liberal arts
 
-Local first
+To developers: Local first can win
 
 cross polination
 Hey everyone,
@@ -18,7 +18,7 @@ we're building epicenter—a growing suite of tools designed around a simple pri
 in a world where every app wants to trap you, hoard your context, and lock you in, we’re taking the opposite approach. epicenter is your personal suite of apps—one where everything runs locally, works offline, and connects to whatever AI models you want. no accounts. no clouds. no middlemen. just software you control.
 
 
-We’re building **Epicenter**, a personal AI operating system where *you own your data, choose your models,* and can gradually replace every siloed app in your life with open, interoperable alternatives.
+We’re building **Epicenter**, a personal AI workspace where *you own your data, choose your models,* and can gradually replace every siloed app in your life with open, interoperable alternatives.
 
 Our mission is simple: **put you at the center of your digital ecosystem** — not some API key, vendor, or closed model. Whether it’s transcription, code, writing, or planning your life, Epicenter keeps your context portable and model-agnostic. You can take it anywhere, use it with any model, and remix it however you want.
 
