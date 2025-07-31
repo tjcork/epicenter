@@ -4,11 +4,18 @@
 
 ## Launching Epicenter — Your Personal AI OS, Starting with Whispering and OpenCode
 
+Own your data. Use any model. Free and open source ❤️ Preserve authenticity
+
+Liberal arts
+
+Local first
+
+cross polination
 Hey everyone,
 
-we're building epicenter—a growing suite of tools designed around a simple principle: you own your data, and you choose how to use it.
+we're building epicenter—a growing suite of tools designed around a simple principle: you own your data, use any model you want, and you choose how to use it.
 
-in a world where every app wants to trap you, hoard your context, and lock you in, we’re taking the opposite approach. epicenter is your personal operating system — one where everything runs locally, works offline, and connects to whatever AI models you want. no accounts. no clouds. no middlemen. just software you control.
+in a world where every app wants to trap you, hoard your context, and lock you in, we’re taking the opposite approach. epicenter is your personal suite of apps—one where everything runs locally, works offline, and connects to whatever AI models you want. no accounts. no clouds. no middlemen. just software you control.
 
 
 We’re building **Epicenter**, a personal AI operating system where *you own your data, choose your models,* and can gradually replace every siloed app in your life with open, interoperable alternatives.
