@@ -29,13 +29,14 @@ When everything is in one folder, things cross pollinate. Not just within apps, 
 a shared workspace for everything you think, write, and build.
 
 epicenter is a growing suite of local-first tools built around a single idea:
-**creativity happens at the intersection of disciplines.**
-your tools should reflect that.
 
-whether you’re transcribing an idea, writing code, taking notes, or planning your day, everything should live in one folder, in open formats, under your control.
+**creativity thrives when you blur the lines between disciplines.**
+
+your tools should reflect that. whether you’re transcribing an idea, writing code, taking notes, or planning your day, everything should live in one folder, in open formats, under your control.
+
 no silos. no walled gardens. no vendor lock-in.
 
-just one continuous thread of thought, across mediums, apps, and models.
+just one continuous thinking experience, across mediums, apps, and models.
 
 ### what’s here now
 
