@@ -32,29 +32,36 @@ epicenter is a growing suite of local-first tools built around a single idea:
 **creativity happens at the intersection of disciplines.**
 your tools should reflect that.
 
-whether you’re transcribing an idea, writing code, taking notes, or planning your day, everything should live in one folder, in open formats, connected by a shared context layer.
-no silos. no walled gardens. no data traps.
+whether you’re transcribing an idea, writing code, taking notes, or planning your day, everything should live in one folder, in open formats, under your control.
+no silos. no walled gardens. no vendor lock-in.
 
-just one continuous thread of thought: across mediums, apps, and models.
+just one continuous thread of thought, across mediums, apps, and models.
 
 ### what’s here now
 
-**📝 whispering**
-a fast, minimal transcription tool that runs locally, supports whisper and other models, and exports to clean markdown. no cloud. no lock-in. just your voice, made text.
+**🎙️ whispering**
+a fast, minimal transcription tool that runs locally, supports whisper and other models, and exports to clean markdown. no model lock-in. just your voice, made text.
 
 **💻 epicenter.sh**
-talk to your codebase using natural language — from anywhere, without giving it away.
-it spins up a local OpenCode instance, tunnels it via Cloudflare (or your own tunnel), and lets you securely query your repo. your code, your machine, your terms.
+talk to your codebase using natural language—from anywhere, on your own hardware.
+it spins up a local OpenCode instance, tunnels it via Cloudflare (or your own tunnel), and lets you query your repo. your code, your machine, your terms.
 
-### what we’re building
+### we're we're headed
 
-epicenter is not “an app.”
-it’s a **shared memory layer** — a local workspace where all your tools operate on the same context: your transcripts, your tasks, your emails, your notes, your code.
+in a world where every app wants to trap you, hoard your context, and lock you in, we’re building the opposite.
 
-apps are modular. context is portable.
-you don’t copy/paste between apps-you *move through ideas*.
+epicenter is not a single app. it’s a growing software ecosystem for generalists. 
+
+this is software for people who move between disciplines.
+
+—a text editor, a to-do list, an email client, a personal assistant—where every tool can access the same local memory: your transcripts, your tasks, your emails, your notes, your code.
+
+
+for generalists. hackers. researchers. builders.
 
 we’re not chasing AI hype. we’re building tools that support **intentional, interdisciplinary thinking** — software for people who read, write, build, observe, and connect.
+
+your tools should work with you—not own you.
 
 a renaissance workflow, built on plain text and real ownership.
 
@@ -63,22 +70,14 @@ a renaissance workflow, built on plain text and real ownership.
 * whispering: [github.com/epicenter-dev/whispering](https://github.com/epicenter-dev/whispering)
 * epicenter.sh: [github.com/epicenter-dev/epicenter.sh](https://github.com/epicenter-dev/epicenter.sh)
 
-we’re early. but if you think like a generalist, build like a hacker, and value tools that respect your mind — you might feel at home here.
+we’re early. but if you think like a generalist, build like a hacker, and value tools that respect your mind—you might feel at home here.
 
-issues, bugs, feedback — all welcome.
-
-
-in a world where every app wants to trap you, hoard your context, and lock you in, we’re taking the opposite approach
-
-whether you’re transcribing a lecture, writing an article, debugging your code, or planning your life, your tools should work with you — not own you. that’s why we’re building an ecosystem of lightweight apps: text editors, todo lists, email clients, creative assistants — all powered by a shared foundation of local data, open protocols, and extendable interfaces.
-
+issues, bugs, feedback—all welcome.
 
 
 ---
 ## Launching Epicenter — Your Personal AI OS, Starting with Whispering and OpenCode
 
-
-cross polination
 Hey everyone,
 
 we're building epicenter—a growing suite of tools designed around a simple principle: you own your data, use any model you want, and you choose how to use it.
