@@ -51,7 +51,7 @@
     <div class="space-y-4">
       {#each userPrinciples as principle}
         <Card.Root class="hover:shadow-md transition-shadow">
-          <Card.Content class="py-6">
+          <Card.Content>
             <Card.Title class="text-base mb-2">{principle.title}</Card.Title>
             <Card.Description class="text-sm">{principle.description}</Card.Description>
           </Card.Content>
@@ -64,7 +64,7 @@
     <div class="space-y-4">
       {#each developerPrinciples as principle}
         <Card.Root class="hover:shadow-md transition-shadow">
-          <Card.Content class="py-6">
+          <Card.Content>
             <Card.Title class="text-base mb-2">{principle.title}</Card.Title>
             <Card.Description class="text-sm">{principle.description}</Card.Description>
           </Card.Content>

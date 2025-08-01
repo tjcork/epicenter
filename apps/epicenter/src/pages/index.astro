@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import RotatingTagline from '../components/RotatingTagline.svelte';
 import CorePrinciples from '../components/CorePrinciples.svelte';
 import WaitlistForm from '../components/WaitlistForm.svelte';
 import ToolCard from '../components/ui/ToolCard.svelte';
@@ -9,32 +8,43 @@ import { Button } from '@repo/ui/button';
 
 <BaseLayout title="Epicenter">
   <main class="min-h-screen bg-background">
-    <div class="max-w-4xl mx-auto px-6 py-16">
+    <div class="max-w-4xl mx-auto px-6 py-20">
       <!-- Hero Section -->
-      <header class="mb-20 text-center">
-        <RotatingTagline class="mb-8" client:load />
+      <header class="mb-24 text-center relative overflow-hidden">
+        <!-- Subtle background gradient -->
+        <div class="absolute inset-0 -z-10">
+          <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div class="absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        </div>
+        <!-- Tagline -->
+        <p class="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-6">
+          Software for the Renaissance mind
+        </p>
         
-        <h1 class="text-5xl font-bold text-foreground mb-6">
-          Apps that share a brain. Open, plain-text memory.
+        <!-- Main heading -->
+        <h1 class="text-7xl md:text-8xl font-bold text-foreground mb-4 tracking-tight">
+          Apps that share a brain
         </h1>
         
-        <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Epicenter is a growing suite of local-first tools built around a single idea: creativity thrives when you blur the lines between disciplines.
+        <!-- Supporting subtitle -->
+        <p class="text-2xl text-muted-foreground mb-10 font-light">
+          Open, plain-text memory for interdisciplinary thinkers
         </p>
         
-        <p class="text-lg text-muted-foreground/90 mb-10 max-w-2xl mx-auto">
-          Most tools divide you—one for writing, one for planning, one for research. We're building tools that talk to each other—so you can stay in flow across every kind of work.
+        <!-- Consolidated hero paragraph -->
+        <p class="text-lg text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
+          Your ideas don't live in silos—why should your tools? Epicenter is a growing suite of interconnected apps built on a simple truth: creativity thrives when knowledge flows freely. Every tool reads and writes plain text, giving you complete ownership of your life's work.
         </p>
         
-        <div class="flex items-center justify-center gap-6">
-          <Button href="#waitlist" size="lg" class="font-medium">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button href="#waitlist" size="lg" class="text-lg px-8 py-6 font-semibold shadow-lg hover:shadow-xl transition-all">
             Join the waitlist →
           </Button>
-          <div class="flex gap-4 text-muted-foreground">
+          <div class="flex gap-6 text-muted-foreground text-sm">
             <a href="https://github.com/epicentered" class="hover:text-foreground transition-colors">
               GitHub
             </a>
-            <span>·</span>
             <a href="https://discord.gg/epicenter" class="hover:text-foreground transition-colors">
               Discord
             </a>
@@ -43,13 +53,13 @@ import { Button } from '@repo/ui/button';
       </header>
 
       <!-- Core Principles -->
-      <section class="mb-20">
+      <section class="mb-24">
         <h2 class="text-3xl font-bold text-foreground mb-12 text-center">Our Principles</h2>
         <CorePrinciples client:visible />
       </section>
 
       <!-- Current Tools -->
-      <section class="mb-20">
+      <section class="mb-24">
         <h2 class="text-3xl font-bold text-foreground mb-12 text-center">What's Here Now</h2>
         <div class="grid md:grid-cols-2 gap-8">
           <ToolCard
@@ -71,23 +81,26 @@ import { Button } from '@repo/ui/button';
       </section>
 
       <!-- Vision -->
-      <section class="mb-20">
-        <h2 class="text-3xl font-bold text-foreground mb-6 text-center">Where We're Headed</h2>
-        <div class="prose prose-zinc dark:prose-invert max-w-2xl mx-auto text-center">
-          <p class="text-lg text-muted-foreground mb-4">
-            In a world where every app wants to trap you, hoard your context, and lock you in, we're building the opposite.
+      <section class="mb-24">
+        <h2 class="text-3xl font-bold text-foreground mb-10 text-center">Where We're Headed</h2>
+        <div class="prose prose-zinc dark:prose-invert max-w-3xl mx-auto text-center">
+          <p class="text-xl text-foreground font-medium mb-6">
+            In a world of walled gardens, we're planting an open field.
           </p>
-          <p class="text-lg text-muted-foreground">
-            Epicenter is open-source, local-first, and plain-text native—so you can trust it, tweak it, or take it with you. We're building tools that support intentional, interdisciplinary thinking: software for people who read, write, build, observe, and connect.
+          <p class="text-lg text-muted-foreground mb-6 leading-relaxed">
+            Every app today wants to trap you, hoard your context, lock you in. We're building the opposite: tools that trust you with your own data. Open-source, local-first, plain-text native. Fork it, modify it, make it yours.
           </p>
-          <p class="text-lg font-medium text-foreground mt-6">
-            A renaissance workflow, built on plain text and real ownership.
+          <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+            We believe in the Renaissance ideal—that the boundaries between art and science, theory and practice, creation and analysis are artificial. Your mind doesn't work in silos. Neither should your tools.
+          </p>
+          <p class="text-xl font-semibold text-foreground mt-8">
+            For polymaths, by polymaths. A unified workspace where all knowledge connects.
           </p>
         </div>
       </section>
 
       <!-- Waitlist Form -->
-      <section id="waitlist" class="mb-20">
+      <section id="waitlist" class="mb-24">
         <div class="max-w-md mx-auto">
           <h2 class="text-3xl font-bold text-foreground mb-6 text-center">Join the Waitlist</h2>
           <p class="text-muted-foreground text-center mb-8">
@@ -98,14 +111,40 @@ import { Button } from '@repo/ui/button';
       </section>
 
       <!-- Footer -->
-      <footer class="text-center text-muted-foreground text-sm">
-        <p class="mb-4">
-          We're early. But if you think like a generalist, build like a hacker, and value tools that respect your mind—you might feel at home here.
+      <footer class="text-center text-muted-foreground text-sm border-t border-border/40 pt-12">
+        <p class="mb-4 text-base">
+          We're building for the curious, the creators, the connectors—those who see knowledge as a web, not a hierarchy.
         </p>
-        <p>
-          Issues, bugs, feedback—all welcome.
+        <p class="text-muted-foreground/80">
+          Early days. Big dreams. All feedback welcome.
         </p>
       </footer>
     </div>
   </main>
 </BaseLayout>
+
+<style>
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+</style>
