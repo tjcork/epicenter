@@ -2,11 +2,12 @@
 import '@repo/ui/app.css';
 
 export type Props = {
-  title: string;
-  description?: string;
+	title: string;
+	description?: string;
 };
 
-const { title, description = 'Epicenter - Building tools that matter' } = Astro.props;
+const { title, description = 'Epicenter - Building tools that matter' } =
+	Astro.props;
 ---
 
 <!doctype html>
@@ -23,18 +24,3 @@ const { title, description = 'Epicenter - Building tools that matter' } = Astro.
     <slot />
   </body>
 </html>
-
-<style is:global>
-  :root {
-    --font-sans: 'Manrope Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
-  html {
-    font-family: var(--font-sans);
-    font-optical-sizing: auto;
-  }
-
-  body {
-    @apply antialiased;
-  }
-</style>
