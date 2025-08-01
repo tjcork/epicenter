@@ -26,8 +26,6 @@
 		"@sveltejs/vite-plugin-svelte": "catalog:",
 		"@tailwindcss/vite": "^4.1.11",
 		"@tauri-apps/cli": "^2.5.0",
-		"bits-ui": "catalog:",
-		"clsx": "catalog:",
 		"eslint": "catalog:",
 		"lucide-svelte": "catalog:",
 		"mode-watcher": "catalog:",
@@ -35,8 +33,6 @@
 		"svelte": "catalog:",
 		"svelte-check": "catalog:",
 		"svelte-sonner": "catalog:",
-		"tailwind-merge": "catalog:",
-		"tailwind-variants": "catalog:",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:"
