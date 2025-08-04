@@ -7,6 +7,8 @@
   <p align="center">Own your data. Use any model you want. Free and open source ❤️</p>
 </p>
 
+> **📢 Repository Update:** The [Whispering](https://github.com/braden-w/whispering/) repository has been renamed to **Epicenter**! This reflects our expanded vision of building an ecosystem of local-first apps that share one memory. Everything else remains the same—same tools, same philosophy, same team.
+
 <p align="center">
   <!-- GitHub Stars Badge -->
   <a href="https://github.com/epicenter-so/epicenter" target="_blank">
