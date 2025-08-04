@@ -105,5 +105,5 @@ Our vision is to build a personal workspace where you own your data, choose your
 </p>
 
 <p align="center">
-  <sub>Built with ❤️ for the future of personal computing</sub>
+  <sub>Built with ❤️ for data ownership, local-first, and open-souce</sub>
 </p>
