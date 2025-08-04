@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import WaitlistForm from '../components/WaitlistForm.svelte';
 import ToolCard from '../components/ui/ToolCard.svelte';
 import ScrollObserver from '../components/ScrollObserver.svelte';
 import CorePrinciples from '../components/CorePrinciples.svelte';
@@ -30,17 +29,12 @@ import { Button } from '@repo/ui/button';
           
           <!-- CTAs -->
           <div class="flex items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
-            <Button href="#waitlist" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
-              Join the waitlist
+            <Button href="https://discord.gg/epicenter" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
+              Join the Discord community
             </Button>
-            <div class="flex items-center gap-3">
-              <a href="https://github.com/epicentered" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
-                GitHub
-              </a>
-              <a href="https://discord.gg/epicenter" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
-                Discord
-              </a>
-            </div>
+            <a href="https://github.com/epicentered" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
+              GitHub
+            </a>
           </div>
         </div>
       </header>
@@ -108,8 +102,8 @@ import { Button } from '@repo/ui/button';
           <div class="text-center mt-12">
             <p class="text-lg text-muted-foreground">
               Sound familiar? 
-              <a href="#waitlist" class="text-foreground hover:underline underline-offset-4 font-medium">
-                Join the waitlist →
+              <a href="https://discord.gg/epicenter" class="text-foreground hover:underline underline-offset-4 font-medium">
+                Join our Discord community →
               </a>
             </p>
           </div>
@@ -148,8 +142,8 @@ import { Button } from '@repo/ui/button';
           
           <!-- Secondary CTA -->
           <div class="text-center mt-12">
-            <Button href="#waitlist" variant="secondary" size="lg" class="font-medium">
-              Get early access to upcoming tools
+            <Button href="https://discord.gg/epicenter" variant="secondary" size="lg" class="font-medium">
+              Join our community for early access
             </Button>
           </div>
         </div>
@@ -170,20 +164,43 @@ import { Button } from '@repo/ui/button';
               A renaissance workflow, built on plain text and real ownership.
             </p>
             <p class="text-xl font-semibold text-foreground mt-8">
-              We're early. But if you think like a generalist, build like a hacker, and value tools that respect your mind—we'd love to hear from you.
+              We're early. But if you think like a generalist, build like a hacker, and value tools that respect your mind—join our Discord community.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- Waitlist Form -->
-      <section id="waitlist" class="py-24 bg-background">
-        <div class="max-w-md mx-auto px-6">
-          <h2 class="text-3xl font-bold text-foreground mb-6 text-center">Join the Waitlist</h2>
-          <p class="text-muted-foreground text-center mb-8">
-            Be the first to know when new tools are ready. Tell us what would help your workflow.
+      <!-- Discord Community -->
+      <section id="community" class="py-24 bg-background">
+        <div class="max-w-2xl mx-auto px-6 text-center">
+          <h2 class="text-3xl font-bold text-foreground mb-6">Join Our Community</h2>
+          <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+            Connect with developers building open-source, local-first tools. Share ideas, get early access to new releases, and help shape what we build next.
           </p>
-          <WaitlistForm client:visible />
+          
+          <div class="space-y-6 mb-10">
+            <div class="flex items-center justify-center gap-3 text-muted-foreground">
+              <span class="text-success">✓</span>
+              <span>Early access to all new tools and features</span>
+            </div>
+            <div class="flex items-center justify-center gap-3 text-muted-foreground">
+              <span class="text-success">✓</span>
+              <span>Direct feedback channel with the developers</span>
+            </div>
+            <div class="flex items-center justify-center gap-3 text-muted-foreground">
+              <span class="text-success">✓</span>
+              <span>Collaborate with like-minded builders</span>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-center gap-4">
+            <Button href="https://discord.gg/epicenter" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
+              Join Discord Community
+            </Button>
+            <a href="https://github.com/epicentered" class="px-6 py-3 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
+              Explore on GitHub
+            </a>
+          </div>
         </div>
       </section>
 
