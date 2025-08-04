@@ -1,9 +1,23 @@
+---
+title: 'Hello World'
+description: 'Welcome to the Epicenter blog'
+pubDate: 2025-01-28
+---
 Software for polymaths
 Software for interdisciplinary thinkers
 Software for the renaissance man
 Software for a jack of all trades
 Software for the endlessly curious
 Software for the liberal arts
+
+"a mind you can grep"
+
+"the full-stack workspace for your full-stack brain"
+"software for the second brain and the first"
+"one system for your many selves"
+"this is what productivity looks like for polymaths
+
+not just for notes. not just for code. for you."
 
 Your brain, mapped
 Software for the renaissance man. Your brain, mapped
