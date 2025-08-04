@@ -1,107 +1,184 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CorePrinciples from '../components/CorePrinciples.svelte';
 import WaitlistForm from '../components/WaitlistForm.svelte';
 import ToolCard from '../components/ui/ToolCard.svelte';
+import ScrollObserver from '../components/ScrollObserver.svelte';
+import CorePrinciples from '../components/CorePrinciples.svelte';
+import RotatingHeadline from '../components/RotatingHeadline.svelte';
 import { Button } from '@repo/ui/button';
 ---
 
 <BaseLayout title="Epicenter">
-  <main class="min-h-screen bg-background">
-    <div class="max-w-4xl mx-auto px-6 py-20">
-      <!-- Hero Section -->
-      <header class="mb-24 text-center relative overflow-hidden">
-        <!-- Subtle background gradient -->
+  <main class="bg-background">
+      <!-- Hero Section - Full viewport height -->
+      <header class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Refined background effect -->
         <div class="absolute inset-0 -z-10">
-          <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div class="absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+          <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5"></div>
+          <div class="absolute top-1/4 -left-1/4 w-[60rem] h-[60rem] bg-primary/10 rounded-full blur-3xl"></div>
+          <div class="absolute bottom-1/4 -right-1/4 w-[60rem] h-[60rem] bg-accent/10 rounded-full blur-3xl"></div>
         </div>
-        <!-- Tagline -->
-        <p class="text-sm uppercase tracking-[0.15em] text-muted-foreground mb-6">
-          Software for the Renaissance mind
-        </p>
-        
-        <!-- Main heading -->
-        <h1 class="text-7xl md:text-8xl font-bold text-foreground mb-4 tracking-tight">
-          Apps that share a brain
-        </h1>
-        
-        <!-- Supporting subtitle -->
-        <p class="text-2xl text-muted-foreground mb-10 font-light">
-          Open, plain-text memory for interdisciplinary thinkers
-        </p>
-        
-        <!-- Consolidated hero paragraph -->
-        <p class="text-lg text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-          Your ideas don't live in silos—why should your tools? Epicenter is a growing suite of interconnected apps built on a simple truth: creativity thrives when knowledge flows freely. Every tool reads and writes plain text, giving you complete ownership of your life's work.
-        </p>
-        
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button href="#waitlist" size="lg" class="text-lg px-8 py-6 font-semibold shadow-lg hover:shadow-xl transition-all">
-            Join the waitlist →
-          </Button>
-          <div class="flex gap-6 text-muted-foreground text-sm">
-            <a href="https://github.com/epicentered" class="hover:text-foreground transition-colors">
-              GitHub
-            </a>
-            <a href="https://discord.gg/epicenter" class="hover:text-foreground transition-colors">
-              Discord
-            </a>
+
+        <div class="max-w-5xl mx-auto px-6 text-center">
+          <!-- Main headline -->
+          <RotatingHeadline client:load />
+          
+          <!-- Subheadline -->
+          <p class="text-xl sm:text-2xl text-muted-foreground mb-8 font-light animate-fade-in-up animation-delay-200">
+            All your tools—transcription, chat, writing—sharing one local, plain-text memory
+          </p>
+          
+          <!-- CTAs -->
+          <div class="flex items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
+            <Button href="#waitlist" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
+              Join the waitlist
+            </Button>
+            <div class="flex items-center gap-3">
+              <a href="https://github.com/epicentered" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
+                GitHub
+              </a>
+              <a href="https://discord.gg/epicenter" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
+                Discord
+              </a>
+            </div>
           </div>
         </div>
       </header>
 
+      <!-- Problem/Solution Section -->
+      <section id="problem" class="min-h-screen flex items-center py-24 bg-muted/30">
+        <div class="max-w-4xl mx-auto px-6">
+          <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+            <!-- Problem -->
+            <ScrollObserver client:visible>
+            <div>
+              <h2 class="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">The Problem</h2>
+              <h3 class="text-3xl md:text-4xl font-bold mb-6">
+                Modern tools fragment your thinking
+              </h3>
+              <p class="text-lg text-muted-foreground mb-6">
+                My thoughts are scattered across a dozen different apps. I journal into an app I don't trust. I plan my week in a calendar app I'll abandon next month. My notes drift aimlessly in systems I've outgrown.
+              </p>
+              <ul class="space-y-4 text-lg text-muted-foreground">
+                <li class="flex items-start gap-3">
+                  <span class="text-destructive mt-1">×</span>
+                  <span>Every time I switch apps, I forget what I was working on</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-destructive mt-1">×</span>
+                  <span>My transcriptions live in one app, my notes in another</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-destructive mt-1">×</span>
+                  <span>Every tool wants to own my data and lock me in</span>
+                </li>
+              </ul>
+            </div>
+            </ScrollObserver>
+            
+            <!-- Solution -->
+            <ScrollObserver client:visible threshold={0.2} class="delay-200">
+            <div>
+              <h2 class="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">Our Solution</h2>
+              <h3 class="text-3xl md:text-4xl font-bold mb-6">
+                One workspace.<br/>Plain text.<br/>Total control.
+              </h3>
+              <p class="text-lg text-muted-foreground mb-6">
+                A suite of open-source tools that share a single memory: a folder on your machine. Open-source, open-format, and fully yours.
+              </p>
+              <ul class="space-y-4 text-lg text-muted-foreground">
+                <li class="flex items-start gap-3">
+                  <span class="text-success">✓</span>
+                  <span>Tools that share context so you can make connections</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-success">✓</span>
+                  <span>Your ideas and data are never locked in</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="text-success">✓</span>
+                  <span>Everything in one folder, accessible by any tool</span>
+                </li>
+              </ul>
+            </div>
+            </ScrollObserver>
+          </div>
+          
+          <!-- Secondary CTA -->
+          <div class="text-center mt-12">
+            <p class="text-lg text-muted-foreground">
+              Sound familiar? 
+              <a href="#waitlist" class="text-foreground hover:underline underline-offset-4 font-medium">
+                Join the waitlist →
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <!-- Core Principles -->
-      <section class="mb-24">
-        <h2 class="text-3xl font-bold text-foreground mb-12 text-center">Our Principles</h2>
-        <CorePrinciples client:visible />
+      <section class="py-24 bg-muted/20">
+        <div class="max-w-4xl mx-auto px-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">Our Philosophy</h2>
+          <CorePrinciples client:visible />
+        </div>
       </section>
 
       <!-- Current Tools -->
-      <section class="mb-24">
-        <h2 class="text-3xl font-bold text-foreground mb-12 text-center">What's Here Now</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-          <ToolCard
-            emoji="🎙️"
-            title="Whispering"
-            description="A fast, minimal transcription tool that runs locally, supports Whisper and other models, and exports to clean Markdown. No model lock-in. Just your voice, made text."
-            href="https://github.com/braden-w/whispering"
-            client:visible
-          />
+      <section class="py-24 bg-background">
+        <div class="max-w-4xl mx-auto px-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">What's Here Now</h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            <ToolCard
+              emoji="🎙️"
+              title="Whispering"
+              description="A fast, minimal transcription tool that supports local and cloud models. No model lock-in. Just your voice, made text."
+              href="https://github.com/braden-w/whispering"
+              client:visible
+            />
+            
+            <ToolCard
+              emoji="💻"
+              title="epicenter.sh"
+              description="Talk to your codebase from anywhere—on your own hardware. It spins up a local OpenCode instance, tunnels it via Cloudflare (or your own), and lets you query it from any device."
+              href="https://github.com/epicentered/epicenter.sh"
+              client:visible
+            />
+          </div>
           
-          <ToolCard
-            emoji="💻"
-            title="epicenter.sh"
-            description="Talk to your codebase using natural language—from anywhere, on your own hardware. It spins up a local OpenCode instance and lets you query your repo. Your code, your machine, your terms."
-            href="https://github.com/epicentered/epicenter.sh"
-            client:visible
-          />
+          <!-- Secondary CTA -->
+          <div class="text-center mt-12">
+            <Button href="#waitlist" variant="secondary" size="lg" class="font-medium">
+              Get early access to upcoming tools
+            </Button>
+          </div>
         </div>
       </section>
 
       <!-- Vision -->
-      <section class="mb-24">
-        <h2 class="text-3xl font-bold text-foreground mb-10 text-center">Where We're Headed</h2>
-        <div class="prose prose-zinc dark:prose-invert max-w-3xl mx-auto text-center">
-          <p class="text-xl text-foreground font-medium mb-6">
-            In a world of walled gardens, we're planting an open field.
-          </p>
-          <p class="text-lg text-muted-foreground mb-6 leading-relaxed">
-            Every app today wants to trap you, hoard your context, lock you in. We're building the opposite: tools that trust you with your own data. Open-source, local-first, plain-text native. Fork it, modify it, make it yours.
-          </p>
-          <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
-            We believe in the Renaissance ideal—that the boundaries between art and science, theory and practice, creation and analysis are artificial. Your mind doesn't work in silos. Neither should your tools.
-          </p>
-          <p class="text-xl font-semibold text-foreground mt-8">
-            For polymaths, by polymaths. A unified workspace where all knowledge connects.
-          </p>
+      <section class="py-24 bg-muted/20">
+        <div class="max-w-4xl mx-auto px-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-10 text-center">Where We're Headed</h2>
+          <div class="prose prose-zinc dark:prose-invert max-w-3xl mx-auto text-center">
+            <p class="text-xl text-foreground font-medium mb-6">
+              In a world where every app wants to trap you and your data, we're building the opposite.
+            </p>
+            <p class="text-lg text-muted-foreground mb-6 leading-relaxed">
+              Epicenter is open-source, local-first, and plain-text native—so you can trust it, tweak it, or take it with you. We're building tools that support intentional, interdisciplinary thinking: software for people who read, write, build, and connect.
+            </p>
+            <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
+              A renaissance workflow, built on plain text and real ownership.
+            </p>
+            <p class="text-xl font-semibold text-foreground mt-8">
+              We're early. But if you think like a generalist, build like a hacker, and value tools that respect your mind—we'd love to hear from you.
+            </p>
+          </div>
         </div>
       </section>
 
       <!-- Waitlist Form -->
-      <section id="waitlist" class="mb-24">
-        <div class="max-w-md mx-auto">
+      <section id="waitlist" class="py-24 bg-background">
+        <div class="max-w-md mx-auto px-6">
           <h2 class="text-3xl font-bold text-foreground mb-6 text-center">Join the Waitlist</h2>
           <p class="text-muted-foreground text-center mb-8">
             Be the first to know when new tools are ready. Tell us what would help your workflow.
@@ -111,19 +188,31 @@ import { Button } from '@repo/ui/button';
       </section>
 
       <!-- Footer -->
-      <footer class="text-center text-muted-foreground text-sm border-t border-border/40 pt-12">
-        <p class="mb-4 text-base">
-          We're building for the curious, the creators, the connectors—those who see knowledge as a web, not a hierarchy.
-        </p>
-        <p class="text-muted-foreground/80">
-          Early days. Big dreams. All feedback welcome.
-        </p>
+      <footer class="py-12 text-center text-muted-foreground text-sm border-t border-border/40">
+        <div class="max-w-4xl mx-auto px-6">
+          <p class="mb-4">
+            Issues, bugs, feedback—all welcome.
+          </p>
+          <div class="flex items-center justify-center gap-6">
+            <a href="https://github.com/epicentered" class="hover:text-foreground transition-colors">
+              GitHub
+            </a>
+            <a href="https://discord.gg/epicenter" class="hover:text-foreground transition-colors">
+              Discord
+            </a>
+          </div>
+        </div>
       </footer>
-    </div>
   </main>
 </BaseLayout>
 
 <style>
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Blob animation */
   @keyframes blob {
     0% {
       transform: translate(0px, 0px) scale(1);
@@ -138,13 +227,94 @@ import { Button } from '@repo/ui/button';
       transform: translate(0px, 0px) scale(1);
     }
   }
+  
+  /* Fade animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .animate-blob {
     animation: blob 7s infinite;
   }
-  .animation-delay-2000 {
-    animation-delay: 2s;
+  
+  .animate-fade-in {
+    animation: fade-in 1s ease-out;
   }
-  .animation-delay-4000 {
-    animation-delay: 4s;
+
+  .animate-fade-in-up {
+    animation: fade-in-up 1s ease-out;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  /* Delay classes for scroll animations */
+  .delay-200 {
+    transition-delay: 200ms;
+  }
+  
+  .delay-400 {
+    transition-delay: 400ms;
+  }
+  
+  /* Bounce animation for arrow */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  /* Section transitions */
+  section {
+    transition: all 0.5s ease;
+  }
+  
+  /* Success/error colors */
+  .text-success {
+    color: #10b981;
+  }
+  
+  .text-destructive {
+    color: #ef4444;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .min-h-screen {
+      min-height: 100svh; /* Use safe viewport height on mobile */
+    }
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 </style>
