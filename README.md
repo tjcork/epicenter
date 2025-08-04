@@ -1,24 +1,10 @@
 # Epicenter: A Database for Your Mind, Built on Plain Text
 
-What if we could store your digital life in secure plain-text files and SQLite?
+Epicenter is an open-source, local-first ecosystem for writers, builders, and privacy enthusiasts. It stores all your work—notes, transcripts, chat histories—in a single folder of plain text. Every tool we build shares this memory: your text editor, personal assistant, etc.. It's open, tweakable, and yours. Grep it, open it in Obsidian, host it wherever you like. The choice is yours.
 
-Epicenter is a database for your mind. We store your data in a plain-text folder on your machine. It's open, tweakable, and yours. Grep it, open it in Obsidian, host it wherever you like.
+Our vision is to build a personal workspace where you own your data, choose your models, and replace siloed apps with open, interoperable alternatives. All while preserving authenticity and being free and open source. ❤️
 
-We’re building an open-source software ecosystem—text editor, transcription tool, personal assistant, and more—that built on top of this database. The tools share so you can make connections across disciplines. Your ideas and data are never locked in.
 
-Own your data. Use any model. Free and open source. ❤️
-
-## The Problem
-
-My thoughts are scattered across a dozen different apps. I journal into an app I don't trust. I plan my week in a calendar I'll abandon next month. My notes drift aimlessly in systems I've outgrown. And every time I switch apps, I forget what I was working on.
-
-I'm tired of switching tools just to finish a single thought.
-
-## The Solution
-
-Epicenter is an open-source suite of tools built around a single idea: **Creativity thrives when you blur the lines between disciplines.**
-
-Your tools should reflect that. Most tools divide you—one for writing, one for planning, one for research. We're building tools that share a folder and talk to each other—so you can stay in flow across every kind of work.
 
 ## How It Works
 
@@ -59,32 +45,6 @@ If you're passionate about open source, local-first software, or are just a crac
 If you think like a generalist, build like a hacker, and value tools that respect your mind:
 
 → [Join our Discord and DM me](https://go.epicenter.so/discord)  
-
-## Quick Start
-
-```bash
-# Try epicenter.sh
-bunx @epicenter/cli sh
-
-# Or run locally
-cd apps/sh && bun dev
-
-# Download Whispering
-# https://github.com/epicenter-so/epicenter/releases
-```
-
-## Technical Details
-
-**Built with:** Svelte 5, TypeScript, Tauri, Bun  
-**Philosophy:** Local-first, plain text, open source  
-**Architecture:** Monorepo with shared packages
-
-```bash
-# Development
-git clone https://github.com/epicenter-so/epicenter.git epicenter
-cd epicenter && bun install
-bun dev
-```
 
 ## About Me
 
