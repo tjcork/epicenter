@@ -58,7 +58,7 @@ If you're passionate about open source, local-first software, or are just a crac
 
 If you think like a generalist, build like a hacker, and value tools that respect your mind:
 
-→ [Join our Discord and DM me](https://discord.gg/YWa5YVUSxa)  
+→ [Join our Discord and DM me](https://go.epicenter.so/discord)  
 
 ## Quick Start
 
@@ -98,4 +98,4 @@ I care deeply about data ownership, open-source, and interdisciplinary thinking.
 
 ---
 
-**Contact:** [github@bradenwong.com](mailto:github@bradenwong.com) | [Discord](https://discord.gg/YWa5YVUSxa) | [@braden_wong](https://twitter.com/braden_wong)
+**Contact:** [github@bradenwong.com](mailto:github@bradenwong.com) | [Discord](https://go.epicenter.so/discord) | [@braden_wong](https://twitter.com/braden_wong)

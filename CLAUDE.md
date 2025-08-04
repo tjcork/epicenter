@@ -663,7 +663,7 @@ For complex issues, offer direct help:
 ### 4. Discord Promotion
 When appropriate, mention Discord:
 - "PS: I've also recently created a Discord group, and I'd love for you to join! You can ping me directly for more features."
-- Include link: "https://discord.gg/YWa5YVUSxa"
+- Include link: "https://go.epicenter.so/discord"
 
 ### 5. Follow-up Questions
 Ask clarifying questions to understand the issue better:
@@ -688,7 +688,7 @@ Hey @username, thank you for the issue, and good news! [Whispering v7.1.0](link)
 
 PS: I've also recently created a Discord group, and I'd love for you to join! You can ping me directly for more features.
 
-https://discord.gg/YWa5YVUSxa
+https://go.epicenter.so/discord
 ```
 
 ### Debugging Response
