@@ -13,7 +13,7 @@
 		typeof value === 'string';
 	const versionPromise = (async () => {
 		const res = await fetch(
-			'https://api.github.com/repos/braden-w/whispering/releases/latest',
+			'https://api.github.com/repos/epicenter-so/epicenter/releases/latest',
 		);
 		const { html_url: latestReleaseUrl, tag_name: latestVersion } =
 			await res.json();

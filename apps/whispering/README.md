@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://whispering.bradenwong.com">
-    <img width="180" src="./apps/app/src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
+    <img width="180" src="./src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
   <h1 align="center">Whispering</h1>
   <p align="center">Press shortcut → speak → get text. Free and open source ❤️</p>
@@ -8,10 +8,10 @@
 
 <p align="center">
   <!-- Latest Version Badge -->
-  <img src="https://img.shields.io/github/v/release/braden-w/whispering?style=flat-square&label=Latest%20Version&color=brightgreen" />
+  <img src="https://img.shields.io/github/v/release/epicenter-so/epicenter?style=flat-square&label=Latest%20Version&color=brightgreen" />
   <!-- License Badge -->
   <a href="LICENSE" target="_blank">
-    <img alt="MIT License" src="https://img.shields.io/github/license/braden-w/whispering.svg?style=flat-square" />
+    <img alt="MIT License" src="https://img.shields.io/github/license/epicenter-so/epicenter.svg?style=flat-square" />
   </a>
   <!-- Platform Support Badges -->
   <a href="https://github.com/epicenter-so/epicenter/releases" target="_blank">
@@ -570,12 +570,12 @@ To calculate the actual code sharing percentage, I analyzed the codebase:
 
 ```bash
 # Count total lines of code in the app
-find apps/app/src -name "*.ts" -o -name "*.svelte" -o -name "*.js" | \
+find src -name "*.ts" -o -name "*.svelte" -o -name "*.js" | \
   grep -v node_modules | xargs wc -l
 # Result: 22,824 lines total
 
 # Count platform-specific implementation code
-find apps/app/src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
+find src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
   xargs wc -l
 # Result: 685 lines (3%)
 
@@ -585,7 +585,7 @@ find apps/app/src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
 
 This minimal platform-specific code demonstrates how the architecture maximizes code reuse while maintaining native performance on each platform.
 
-**→ Learn more:** [Services README](./apps/app/src/lib/services/README.md) | [Constants Organization](./apps/app/src/lib/constants/README.md)
+**→ Learn more:** [Services README](./src/lib/services/README.md) | [Constants Organization](./src/lib/constants/README.md)
 
 #### Query Layer - Adding Reactivity and State Management
 
@@ -637,7 +637,7 @@ createRecording: defineMutation({
 
 This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. 
 
-**→ Learn more:** [Query README](./apps/app/src/lib/query/README.md) | [RPC Pattern Guide](./apps/app/src/lib/query/README.md#rpc-pattern)
+**→ Learn more:** [Query README](./src/lib/query/README.md) | [RPC Pattern Guide](./src/lib/query/README.md#rpc-pattern)
 
 #### Error Transformation
 
@@ -666,12 +666,12 @@ Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a
 ### Run Whispering in Local Development Mode
 
 1. Clone the repository: `git clone https://github.com/epicenter-so/epicenter.git`
-2. Change into the project directory: `cd whispering`
+2. Change into the project directory: `cd epicenter`
 3. Install the necessary dependencies: `pnpm i`
 
 To run the desktop app and website:
 ```bash
-cd apps/app
+cd apps/whispering
 pnpm tauri dev
 ```
 
@@ -683,12 +683,12 @@ If you have concerns about the installers or want more control, you can build th
 #### Desktop
 
 ```bash
-cd apps/app
+cd apps/whispering
 pnpm i
 pnpm tauri build
 ```
 
-Find the executable in `apps/app/target/release`
+Find the executable in `apps/whispering/target/release`
 
 
 ### Contributing
@@ -700,9 +700,9 @@ We welcome contributions! Whispering is built with care and attention to clean, 
 - Use Result types from the [WellCrafted library](https://github.com/wellcrafted-dev/wellcrafted) for all error handling
 - Follow WellCrafted best practices: explicit errors with `Result<T, E>`, structured `TaggedError` objects, and comprehensive error context
 - Study the existing patterns in these key directories:
-  - **[Services Architecture](./apps/app/src/lib/services/README.md)** - Platform-agnostic business logic
-  - **[Query Layer Patterns](./apps/app/src/lib/query/README.md)** - RPC pattern and reactive state  
-  - **[Constants Organization](./apps/app/src/lib/constants/README.md)** - Type-safe configuration
+  - **[Services Architecture](./src/lib/services/README.md)** - Platform-agnostic business logic
+  - **[Query Layer Patterns](./src/lib/query/README.md)** - RPC pattern and reactive state  
+  - **[Constants Organization](./src/lib/constants/README.md)** - Type-safe configuration
   
 **→ New to the codebase?** Start with the [Architecture Deep Dive](#architecture-deep-dive) to understand how everything fits together.
 
@@ -722,9 +722,9 @@ We'd love to expand Whispering's capabilities with more transcription and AI ser
 
 Adding a new transcription service involves four main steps:
 
-1. **Create the service implementation** in `apps/app/src/lib/services/transcription/`:
+1. **Create the service implementation** in `src/lib/services/transcription/`:
    ```typescript
-   // apps/app/src/lib/services/transcription/your-service.ts
+   // src/lib/services/transcription/your-service.ts
    import { WhisperingErr, type WhisperingError } from '$lib/result';
    import type { Settings } from '$lib/settings';
    import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
@@ -790,7 +790,7 @@ Adding a new transcription service involves four main steps:
    export const YourServiceTranscriptionServiceLive = createYourServiceTranscriptionService();
    ```
    
-   Don't forget to export your service in `apps/app/src/lib/services/transcription/index.ts`:
+   Don't forget to export your service in `src/lib/services/transcription/index.ts`:
    ```typescript
    import { YourServiceTranscriptionServiceLive } from './your-service';
    
@@ -800,12 +800,12 @@ Adding a new transcription service involves four main steps:
    };
    ```
    
-   And add the API key field to the settings schema in `apps/app/src/lib/settings/settings.ts`:
+   And add the API key field to the settings schema in `src/lib/settings/settings.ts`:
    ```typescript
    'apiKeys.yourservice': z.string().default(''),
    ```
 
-2. **Update the service configuration** in `apps/app/src/lib/constants/transcription/service-config.ts`:
+2. **Update the service configuration** in `src/lib/constants/transcription/service-config.ts`:
    ```typescript
    import { YourServiceIcon } from 'lucide-svelte';
    import {
@@ -838,7 +838,7 @@ Adding a new transcription service involves four main steps:
    }
    ```
 
-3. **Wire up the query layer** in `apps/app/src/lib/query/transcription.ts`:
+3. **Wire up the query layer** in `src/lib/query/transcription.ts`:
    ```typescript
    // Add to the switch statement in transcribeBlob function
    case 'YourService':
@@ -851,7 +851,7 @@ Adding a new transcription service involves four main steps:
      });
    ```
 
-4. **Update the settings UI** in `apps/app/src/routes/(config)/settings/transcription/+page.svelte`:
+4. **Update the settings UI** in `src/routes/(config)/settings/transcription/+page.svelte`:
    ```svelte
    <!-- Add after other service conditionals -->
    {:else if settings.value['transcription.selectedTranscriptionService'] === 'YourService'}
@@ -876,7 +876,7 @@ Adding a new transcription service involves four main steps:
    {/if}
    ```
    
-   Create the API key input component in `apps/app/src/lib/components/settings/api-key-inputs/YourServiceApiKeyInput.svelte`:
+   Create the API key input component in `src/lib/components/settings/api-key-inputs/YourServiceApiKeyInput.svelte`:
    ```svelte
    <script lang="ts">
      import { LabeledInput } from '$lib/components/labeled/index.js';
@@ -910,12 +910,12 @@ Adding a new transcription service involves four main steps:
    </LabeledInput>
    ```
    
-   And export it from `apps/app/src/lib/components/settings/index.ts`:
+   And export it from `src/lib/components/settings/index.ts`:
    ```typescript
    export { default as YourServiceApiKeyInput } from './api-key-inputs/YourServiceApiKeyInput.svelte';
    ```
    
-   Also update `apps/app/src/lib/constants/transcription/index.ts` to re-export your models:
+   Also update `src/lib/constants/transcription/index.ts` to re-export your models:
    ```typescript
    export {
      YOUR_SERVICE_MODELS,
@@ -927,9 +927,9 @@ Adding a new transcription service involves four main steps:
 
 AI transformations in Whispering use completion services that can be integrated into transformation workflows. Here's how to add a new AI provider:
 
-1. **Create the completion service** in `apps/app/src/lib/services/completion/`:
+1. **Create the completion service** in `src/lib/services/completion/`:
    ```typescript
-   // apps/app/src/lib/services/completion/your-provider.ts
+   // src/lib/services/completion/your-provider.ts
    import { WhisperingErr, type WhisperingError } from '$lib/result';
    import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
    
@@ -969,7 +969,7 @@ AI transformations in Whispering use completion services that can be integrated 
    export const YourProviderCompletionServiceLive = createYourProviderCompletionService();
    ```
 
-2. **Register the service** in `apps/app/src/lib/services/completion/index.ts`:
+2. **Register the service** in `src/lib/services/completion/index.ts`:
    ```typescript
    import { YourProviderCompletionServiceLive } from './your-provider';
    
@@ -979,7 +979,7 @@ AI transformations in Whispering use completion services that can be integrated 
    };
    ```
 
-3. **Wire up the transformation handler** in `apps/app/src/lib/query/transformer.ts`:
+3. **Wire up the transformation handler** in `src/lib/query/transformer.ts`:
    ```typescript
    // Add a new case in the handleStep function's prompt_transform switch statement
    case 'YourProvider': {
@@ -999,7 +999,7 @@ AI transformations in Whispering use completion services that can be integrated 
    }
    ```
 
-4. **Add API key to settings** in `apps/app/src/lib/settings/settings.ts`:
+4. **Add API key to settings** in `src/lib/settings/settings.ts`:
    ```typescript
    'apiKeys.yourprovider': z.string().default(''),
    ```
@@ -1051,7 +1051,7 @@ const { data, error } = await tryAsync({
 Create a test file alongside your service:
 
 ```typescript
-// apps/app/src/lib/services/transcription/your-service.test.ts
+// src/lib/services/transcription/your-service.test.ts
 import { describe, it, expect } from 'vitest';
 import { createYourServiceTranscriptionService } from './your-service';
 
