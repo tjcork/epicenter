@@ -41,6 +41,11 @@ export const getUser = defineQuery({
 
 export const signInWithGithub = defineMutation({
 	mutationKey: ['auth', 'signInWithGithub'] as const,
+	onSuccess: () => {
+		queryClient.invalidateQueries({
+			queryKey: ['auth', 'getSession'],
+		});
+	},
 	resultMutationFn: async () => {
 		const { data, error } = await authClient.signIn.social({
 			callbackURL: `${APPS.SH.URL}/assistants`,
@@ -49,23 +54,18 @@ export const signInWithGithub = defineMutation({
 		if (error) return AuthToShErr(error);
 		return Ok(data);
 	},
-	onSuccess: () => {
-		queryClient.invalidateQueries({
-			queryKey: ['auth', 'getSession'],
-		});
-	},
 });
 
 export const signOut = defineMutation({
 	mutationKey: ['auth', 'signOut'] as const,
-	resultMutationFn: async () => {
-		const { error } = await authClient.signOut();
-		if (error) return AuthToShErr(error);
-		return Ok(null);
-	},
 	onSuccess: () => {
 		queryClient.invalidateQueries({
 			queryKey: ['auth', 'getSession'],
 		});
+	},
+	resultMutationFn: async () => {
+		const { error } = await authClient.signOut();
+		if (error) return AuthToShErr(error);
+		return Ok(null);
 	},
 });

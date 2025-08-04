@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { assistantConfigs } from '$lib/stores/assistant-configs.svelte';
 	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
+
+	import { assistantConfigs } from '$lib/stores/assistant-configs.svelte';
 	import { Button } from '@repo/ui/button';
 	import { buttonVariants } from '@repo/ui/button';
 	import { Input } from '@repo/ui/input';
@@ -67,19 +68,21 @@
 
 		<Modal.Footer>
 			<Button variant="outline" onclick={() => (open = false)}>Cancel</Button>
-			<Button onclick={() => {
-						if (!name.trim()) {
-			toast.error('Please enter a name');
-			return;
-		}
+			<Button
+				onclick={() => {
+					if (!name.trim()) {
+						toast.error('Please enter a name');
+						return;
+					}
 
-		assistantConfigs.update(assistantConfig.id, {
-			name: name.trim(),
-			password,
-			url,
-		});
-		open = false;
-			}}>
+					assistantConfigs.update(assistantConfig.id, {
+						name: name.trim(),
+						password,
+						url,
+					});
+					open = false;
+				}}
+			>
 				Save Changes
 			</Button>
 		</Modal.Footer>

@@ -1,6 +1,7 @@
 <script lang="ts">
-	import * as rpc from '$lib/query';
 	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
+
+	import * as rpc from '$lib/query';
 	import { Badge } from '@repo/ui/badge';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckCircle2, Loader2, XCircle } from 'lucide-svelte';

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { type AssistantConfig, assistantConfigs } from '$lib/stores/assistant-configs.svelte';
+	import {
+		type AssistantConfig,
+		assistantConfigs,
+	} from '$lib/stores/assistant-configs.svelte';
 	import * as AlertDialog from '@repo/ui/alert-dialog';
 	import { Button } from '@repo/ui/button';
 	import { Trash2 } from 'lucide-svelte';
@@ -29,19 +32,19 @@
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 			<AlertDialog.Action
 				onclick={() => {
-								assistantConfigs.delete(assistantConfig.id);
-			open = false;
-			// Navigate back to assistants list if we're on the assistant page
-			if (
-				window.location.pathname.includes(
-					`/assistants/${assistantConfig.id}`,
-				)
-			) {
-				goto('/assistants');
-			}
+					assistantConfigs.delete(assistantConfig.id);
+					open = false;
+					// Navigate back to assistants list if we're on the assistant page
+					if (
+						window.location.pathname.includes(
+							`/assistants/${assistantConfig.id}`,
+						)
+					) {
+						goto('/assistants');
+					}
 				}}
 			>
-					Delete
+				Delete
 			</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>

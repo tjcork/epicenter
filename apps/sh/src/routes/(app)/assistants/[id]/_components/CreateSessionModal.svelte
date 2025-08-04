@@ -21,9 +21,7 @@
 	);
 </script>
 
-<Modal.Root
-	bind:open
->
+<Modal.Root bind:open>
 	<Modal.Content class="sm:max-w-[425px]">
 		<Modal.Header>
 			<Modal.Title>Create New Session</Modal.Title>

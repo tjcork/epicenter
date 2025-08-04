@@ -1,7 +1,8 @@
 <script lang="ts">
+	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
+
 	import { goto } from '$app/navigation';
 	import * as rpc from '$lib/query';
-	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
 	import { formatDistanceToNow } from '$lib/utils/date';
 	import { Badge } from '@repo/ui/badge';
 	import { badgeVariants } from '@repo/ui/badge';

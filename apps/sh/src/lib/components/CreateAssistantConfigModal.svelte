@@ -5,9 +5,12 @@
 	import { goto } from '$app/navigation';
 	import { createAssistantClient } from '$lib/client/client.gen';
 	import * as api from '$lib/client/sdk.gen';
-	import { assistantConfigs, type URL } from '$lib/stores/assistant-configs.svelte';
-	import { generateAvailablePort } from '$lib/utils/port';
+	import {
+		assistantConfigs,
+		type URL,
+	} from '$lib/stores/assistant-configs.svelte';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { generateAvailablePort } from '$lib/utils/port';
 	import * as Accordion from '@repo/ui/accordion';
 	import { Button, type Props as ButtonProps } from '@repo/ui/button';
 	import { Input } from '@repo/ui/input';
@@ -182,7 +185,10 @@
 							<li>No manual configuration needed</li>
 						</ul>
 						<p class="text-sm text-muted-foreground mt-2">
-							Learn more about how it works in our <a href="/faq" class="underline">FAQ</a>.
+							Learn more about how it works in our <a
+								href="/faq"
+								class="underline">FAQ</a
+							>.
 						</p>
 					</div>
 				</div>
@@ -376,7 +382,7 @@
 					onclick={handleCreate}
 					disabled={!testSuccess || !assistantName.trim()}
 				>
-						Create Assistant
+					Create Assistant
 				</Button>
 			</div>
 		</Modal.Footer>

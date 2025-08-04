@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import * as rpc from '$lib/query';
 	import { Button } from '@repo/ui/button';
@@ -86,11 +86,12 @@
 						{#if userQuery.data && !userQuery.data.isAnonymous}
 							<DropdownMenu.Item
 								class="cursor-pointer"
-								onclick={() => signOutMutation.mutate(undefined, {
-									onSuccess: () => {
-										goto('/');
-									}
-								})}
+								onclick={() =>
+									signOutMutation.mutate(undefined, {
+										onSuccess: () => {
+											goto('/');
+										},
+									})}
 							>
 								{#if signOutMutation.isPending}
 									<Loader2 class="h-4 w-4 animate-spin" />

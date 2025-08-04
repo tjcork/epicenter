@@ -41,9 +41,9 @@
 
 	// Create message subscriber
 	const messages = createMessageSubscriber({
+		assistant: () => assistantConfig,
 		initialMessages: () => data.messages ?? [],
 		sessionId: () => sessionId,
-		assistant: () => assistantConfig,
 	});
 	let messageContent = $state('');
 	let messageMode = $state(data.modes?.at(0)?.name ?? 'build');
@@ -73,6 +73,7 @@
 
 		sendMessageMutation.mutate(
 			{
+				assistantConfig,
 				body: {
 					mode: messageMode,
 					modelID: selectedModel.modelId,
@@ -80,7 +81,6 @@
 					providerID: selectedModel.providerId,
 				},
 				sessionId,
-				assistantConfig,
 			},
 			{
 				onError: (error) => {
@@ -174,7 +174,7 @@
 							variant="destructive"
 							onclick={() => {
 								abortSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -197,7 +197,7 @@
 							variant="outline"
 							onclick={() => {
 								unshareSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -219,7 +219,7 @@
 							variant="outline"
 							onclick={() => {
 								shareSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -256,7 +256,7 @@
 								<AlertDialog.Action
 									onclick={() => {
 										deleteSessionMutation.mutate(
-											{ sessionId, assistantConfig },
+											{ assistantConfig, sessionId },
 											{
 												onError: (error) => {
 													toast.error(error.title, {

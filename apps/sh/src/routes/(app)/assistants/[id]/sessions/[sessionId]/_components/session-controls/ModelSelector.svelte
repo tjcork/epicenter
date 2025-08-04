@@ -67,11 +67,17 @@
 				<Command.Empty>No models found.</Command.Empty>
 
 				{#if providersQuery.isPending}
-					<Command.Item disabled class="p-4 text-center text-sm text-muted-foreground">
+					<Command.Item
+						disabled
+						class="p-4 text-center text-sm text-muted-foreground"
+					>
 						Loading models...
 					</Command.Item>
 				{:else if providersQuery.isError}
-					<Command.Item disabled class="p-4 text-center text-sm text-destructive">
+					<Command.Item
+						disabled
+						class="p-4 text-center text-sm text-destructive"
+					>
 						Failed to load models
 					</Command.Item>
 				{:else}

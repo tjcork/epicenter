@@ -55,39 +55,36 @@
 				<h1 class="text-3xl font-bold tracking-tight">
 					{assistantConfig.name}
 				</h1>
-				<p class="text-muted-foreground">
-					Manage sessions for this assistant
-				</p>
+				<p class="text-muted-foreground">Manage sessions for this assistant</p>
 			</div>
 			<div class="flex items-center gap-4">
-					<AssistantConnectionBadge {assistantConfig} />
-					<Badge variant="secondary" class="text-sm">
-						{sessionsQuery.data?.length} session{sessionsQuery.data?.length !==
-						1
-							? 's'
-							: ''}
-					</Badge>
-					<Button onclick={() => (createDialogOpen = true)}>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="mr-2"
-						>
-							<path d="M12 5v14M5 12h14" />
-						</svg>
-						Create New Session
-					</Button>
-				</div>
+				<AssistantConnectionBadge {assistantConfig} />
+				<Badge variant="secondary" class="text-sm">
+					{sessionsQuery.data?.length} session{sessionsQuery.data?.length !== 1
+						? 's'
+						: ''}
+				</Badge>
+				<Button onclick={() => (createDialogOpen = true)}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="mr-2"
+					>
+						<path d="M12 5v14M5 12h14" />
+					</svg>
+					Create New Session
+				</Button>
 			</div>
+		</div>
 
-			<SessionList sessions={sessionsQuery.data ?? []} {assistantConfig} />
+		<SessionList sessions={sessionsQuery.data ?? []} {assistantConfig} />
 	</div>
 
 	{#if assistantConfig}

@@ -1,11 +1,11 @@
 import { goto } from '$app/navigation';
-import { type } from 'arktype';
-import { toast } from 'svelte-sonner';
 import {
 	assistantConfigs,
 	CreateAssistantParams,
 } from '$lib/stores/assistant-configs.svelte';
+import { type } from 'arktype';
 import { untrack } from 'svelte';
+import { toast } from 'svelte-sonner';
 
 import {
 	FLASH_MESSAGE_PARAMS,
@@ -84,8 +84,8 @@ export const useCreateAssistantParams = (url: URL) => {
 
 		const validated = CreateAssistantParams({
 			name,
-			url: urlParam,
 			password: null,
+			url: urlParam,
 		});
 
 		if (validated instanceof type.errors) return;

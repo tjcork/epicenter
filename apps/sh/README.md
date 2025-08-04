@@ -89,6 +89,7 @@ All data is stored locally on your machine:
 - **No Cloud Database**: epicenter.sh uses no remote storage; all data stays local
 
 This means:
+
 - Your configurations are browser-specific
 - Clearing browser data will remove assistant configs (but not your code/chats)
 - You can export/import localStorage data for backup
