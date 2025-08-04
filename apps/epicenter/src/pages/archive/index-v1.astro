@@ -1,6 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { TypewriterEffect } from '../components/typewriter-effect';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Epicenter">
@@ -8,16 +7,6 @@ import { TypewriterEffect } from '../components/typewriter-effect';
     <div class="max-w-2xl mx-auto px-6 py-24">
       <header class="mb-16">
         <div class="mb-8">
-          <TypewriterEffect 
-            words={[
-              { text: "Software" },
-              { text: "for" },
-              { text: "interdisciplinary", className: "text-blue-600" },
-              { text: "thinkers", className: "text-blue-600" }
-            ]}
-            className="text-3xl"
-            client:load
-          />
         </div>
         <h1 class="text-5xl font-semibold text-gray-900 mb-6">
           Your personal database that thinks in files, not features
