@@ -4,8 +4,6 @@ Epicenter is an open-source, local-first ecosystem for writers, builders, and pr
 
 Our vision is to build a personal workspace where you own your data, choose your models, and replace siloed apps with open, interoperable alternatives. All while preserving authenticity and being free and open source. ❤️
 
-
-
 ## How It Works
 
 All Epicenter tools share a single memory: **a plain-text folder on your machine**. 
