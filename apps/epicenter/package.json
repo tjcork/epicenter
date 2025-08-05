@@ -13,6 +13,7 @@
     "@repo/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.11",
     "astro": "^5.12.4",
+    "posthog-js": "^1.258.5",
     "svelte": "^5.37.2",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2"
