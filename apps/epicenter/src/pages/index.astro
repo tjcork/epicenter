@@ -80,30 +80,31 @@ const tools = [
 ];
 
 const ecosystem = [
-	{ 
-		name: 'Obsidian', 
+	{
+		name: 'Obsidian',
 		icon: '📝',
-		description: 'Edit your notes in your favorite knowledge management tool' 
+		description: 'Edit your notes in your favorite knowledge management tool',
 	},
-	{ 
-		name: 'grep & ripgrep', 
+	{
+		name: 'grep & ripgrep',
 		icon: '🔍',
-		description: 'Search your entire workspace with blazing fast Unix tools' 
+		description: 'Search your entire workspace with blazing fast Unix tools',
 	},
-	{ 
-		name: 'Git', 
+	{
+		name: 'Git',
 		icon: '🔀',
-		description: 'Version control your ideas, notes, and transcriptions' 
+		description: 'Version control your ideas, notes, and transcriptions',
 	},
-	{ 
-		name: 'VS Code', 
+	{
+		name: 'VS Code',
 		icon: '💻',
-		description: 'Open any file in your preferred code editor' 
+		description: 'Open any file in your preferred code editor',
 	},
 	{
 		name: 'Claude & OpenCode',
 		icon: '🤖',
-		description: 'Supercharge your workflow with AI that understands your context'
+		description:
+			'Supercharge your workflow with AI that understands your context',
 	},
 ];
 ---
@@ -160,7 +161,66 @@ const ecosystem = [
       
     </header>
 
-    
+    <!-- Product Showcase -->
+    <section class="py-24 md:py-32 bg-gradient-to-b from-muted/10 via-muted/20 to-muted/10">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+          <Badge variant="secondary" class="mb-6 px-4 py-1 text-sm">Available now</Badge>
+          <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
+            Tools that share your memory
+          </h2>
+          <p class="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Each app reads and writes to the same local folder. Your transcriptions become searchable notes. 
+            Your notes inform your AI assistant. Everything connects.
+          </p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8">
+          {tools.map((tool) => (
+            <Card.Root class="overflow-hidden border-muted/50 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 group">
+              <Card.Header class="pb-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-4">
+                    <div class="text-5xl group-hover:scale-110 transition-transform duration-300">{tool.emoji}</div>
+                    <div>
+                      <Card.Title class="text-2xl mb-2">{tool.name}</Card.Title>
+                      <Card.Description class="text-base">{tool.description}</Card.Description>
+                    </div>
+                  </div>
+                </div>
+              </Card.Header>
+              <Card.Content class="py-6">
+                <ul class="space-y-3">
+                  {tool.features.map((feature) => (
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="p-1 rounded-full bg-success/10 flex-shrink-0">
+                        <CheckIcon class="w-3 h-3 text-success" />
+                      </div>
+                      <span class="text-muted-foreground group-hover:text-foreground transition-colors">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card.Content>
+              <Card.Footer class="pt-4 border-t border-muted/50">
+                <Button href={tool.href} variant="secondary" class="w-full group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all">
+                  View on GitHub
+                  <ArrowRightIcon class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Card.Footer>
+            </Card.Root>
+          ))}
+        </div>
+        
+        <div class="mt-16 text-center">
+          <p class="text-muted-foreground mb-6 text-lg">More tools coming soon</p>
+          <Button href="https://go.epicenter.so/discord" variant="secondary" size="lg" class="shadow-sm hover:shadow-md transition-all">
+            Get early access
+            <ArrowRightIcon class="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </section>
+
     <!-- Core Principles -->
     <section class="py-24 md:py-32">
       <div class="max-w-5xl mx-auto px-6">
@@ -214,6 +274,7 @@ const ecosystem = [
       </div>
     </section>
 
+    
     <!-- Architecture -->
     <section class="py-24 relative">
       <div class="max-w-7xl mx-auto px-6">
@@ -281,66 +342,6 @@ const ecosystem = [
       </div>
     </section>
 
-        <!-- Product Showcase -->
-    <section class="py-24 md:py-32 bg-gradient-to-b from-muted/10 via-muted/20 to-muted/10">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
-          <Badge variant="secondary" class="mb-6 px-4 py-1 text-sm">Available now</Badge>
-          <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
-            Tools that share your memory
-          </h2>
-          <p class="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Each app reads and writes to the same local folder. Your transcriptions become searchable notes. 
-            Your notes inform your AI assistant. Everything connects.
-          </p>
-        </div>
-        
-        <div class="grid lg:grid-cols-2 gap-8">
-          {tools.map((tool) => (
-            <Card.Root class="overflow-hidden border-muted/50 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 group">
-              <Card.Header class="pb-4">
-                <div class="flex items-start justify-between">
-                  <div class="flex items-start gap-4">
-                    <div class="text-5xl group-hover:scale-110 transition-transform duration-300">{tool.emoji}</div>
-                    <div>
-                      <Card.Title class="text-2xl mb-2">{tool.name}</Card.Title>
-                      <Card.Description class="text-base">{tool.description}</Card.Description>
-                    </div>
-                  </div>
-                </div>
-              </Card.Header>
-              <Card.Content class="py-6">
-                <ul class="space-y-3">
-                  {tool.features.map((feature) => (
-                    <li class="flex items-center gap-3 text-sm">
-                      <div class="p-1 rounded-full bg-success/10 flex-shrink-0">
-                        <CheckIcon class="w-3 h-3 text-success" />
-                      </div>
-                      <span class="text-muted-foreground group-hover:text-foreground transition-colors">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Card.Content>
-              <Card.Footer class="pt-4 border-t border-muted/50">
-                <Button href={tool.href} variant="secondary" class="w-full group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all">
-                  View on GitHub
-                  <ArrowRightIcon class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Card.Footer>
-            </Card.Root>
-          ))}
-        </div>
-        
-        <div class="mt-16 text-center">
-          <p class="text-muted-foreground mb-6 text-lg">More tools coming soon</p>
-          <Button href="https://go.epicenter.so/discord" variant="secondary" size="lg" class="shadow-sm hover:shadow-md transition-all">
-            Get early access
-            <ArrowRightIcon class="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </section>
-
 
     <!-- Ecosystem Section -->
     <section class="py-24 bg-gradient-to-b from-muted/5 via-background to-muted/5">
@@ -393,6 +394,7 @@ const ecosystem = [
         </div>
       </div>
     </section>
+
 
     <!-- Vision -->
     <section class="py-24 md:py-32 bg-gradient-to-b from-background via-muted/10 to-background">
