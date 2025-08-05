@@ -90,11 +90,11 @@ const ecosystem = [
 <BaseLayout title="Epicenter - Your workspace. Your data. Your tools." description="An ecosystem of open-source, local-first apps that share a single memory. No cloud lock-in, no subscriptions, just tools that respect your data.">
   <main class="bg-background">
     <!-- Hero Section -->
-    <header class="relative h-screen flex items-center">
+    <header class="relative h-screen flex items-center justify-center">
       <!-- Subtle gradient background -->
       <div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background -z-10"></div>
       
-      <div class="w-full max-w-6xl mx-auto px-6 sm:px-8 md:px-12">
+      <div class="w-full max-w-6xl mx-auto px-6 sm:px-8 md:px-12 text-center">
         <div>
           <!-- Main headline -->
           <h1 class="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-snug md:leading-snug mb-8">
@@ -103,15 +103,15 @@ const ecosystem = [
           </h1>
           
           <!-- Subheadline -->
-          <p class="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12">
+          <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-12">
             One shared context across all your apps. Your transcripts inform your notes. 
             Your notes guide your AI. Everything connects through a single folder of plain text and SQLite.
           </p>
           
           <!-- CTAs -->
-          <div class="flex flex-col sm:flex-row gap-4 mb-16">
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Button href="https://go.epicenter.so/discord" size="lg" class="font-medium">
-              Join the community
+              Join the Discord
               <ArrowRightIcon class="w-4 h-4" />
             </Button>
             <Button href="https://github.com/epicenter-so/epicenter" variant="outline" size="lg" class="font-medium">
@@ -120,7 +120,7 @@ const ecosystem = [
           </div>
           
           <!-- Quick value props -->
-          <div class="flex flex-wrap gap-x-8 gap-y-4 text-sm">
+          <div class="flex flex-wrap gap-x-8 gap-y-4 justify-center text-sm">
             <div class="flex items-center gap-2 text-muted-foreground">
               <CheckIcon class="w-4 h-4 text-success flex-shrink-0" />
               <span>100% open source</span>
@@ -139,22 +139,49 @@ const ecosystem = [
       
     </header>
 
-    <!-- Core Concepts -->
-    <section class="py-24 bg-muted/20 relative">
-      <div class="absolute inset-0 bg-gradient-to-b from-background via-muted/10 to-background"></div>
-      <div class="max-w-7xl mx-auto px-6 relative">
-        <div class="grid md:grid-cols-2 gap-12 md:gap-24">
-          <div class="group">
-            <h3 class="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">One folder. All your data.</h3>
-            <p class="text-muted-foreground text-lg leading-relaxed">
-              Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
-            </p>
+    <!-- Core Philosophy -->
+    <section class="py-24 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <Badge variant="outline" class="mb-4">Core Philosophy</Badge>
+          <h2 class="text-2xl md:text-3xl font-semibold text-foreground">
+            Built different from the ground up
+          </h2>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <!-- One Folder Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <FolderOpenIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  One folder. All your data.
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="group">
-            <h3 class="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">Local-first by default</h3>
-            <p class="text-muted-foreground text-lg leading-relaxed">
-              Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
-            </p>
+          
+          <!-- Local-first Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <HardDriveIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  Local-first by default
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
