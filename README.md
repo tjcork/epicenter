@@ -41,7 +41,6 @@
   <a href="#where-were-headed">Vision</a> •
   <a href="#join-us">Contributing</a> •
   <a href="https://go.epicenter.so/discord">Discord</a> •
-  <a href="https://twitter.com/braden_wong">Twitter</a>
 </p>
 
 ---
@@ -101,7 +100,7 @@ Our vision is to build a personal workspace where you own your data, choose your
 ---
 
 <p align="center">
-  <strong>Contact:</strong> <a href="mailto:github@bradenwong.com">github@bradenwong.com</a> | <a href="https://go.epicenter.so/discord">Discord</a> | <a href="https://twitter.com/braden_wong">@braden_wong</a>
+  <strong>Contact:</strong> <a href="mailto:github@bradenwong.com">github@bradenwong.com</a> | <a href="https://go.epicenter.so/discord">Discord</a> | <a href="https://twitter.com/braden_wong_">@braden_wong_</a>
 </p>
 
 <p align="center">
