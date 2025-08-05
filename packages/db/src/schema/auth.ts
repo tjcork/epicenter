@@ -20,6 +20,7 @@ export const user = pgTable('user', {
 	updatedAt: timestamp('updated_at')
 		.$defaultFn(() => /* @__PURE__ */ new Date())
 		.notNull(),
+	isAnonymous: boolean('is_anonymous').notNull().default(false),
 });
 
 export const session = pgTable('session', {

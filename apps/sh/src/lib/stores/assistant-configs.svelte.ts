@@ -18,7 +18,7 @@ export type URL = typeof URL.infer;
  * Contains all the necessary credentials and connection details.
  *
  * Simplified architecture:
- * - port: The single port OpenCode runs on (with built-in CORS support)
+ * - URL includes the full address with port
  * - No more Caddy proxy needed for CORS
  * - Authentication handled at OpenCode level
  */
@@ -28,7 +28,6 @@ const AssistantConfig = type({
 	lastAccessedAt: 'number',
 	name: 'string',
 	password: [Password, '|', 'null'],
-	port: Port,
 	url: URL,
 });
 
@@ -36,7 +35,6 @@ export type AssistantConfig = typeof AssistantConfig.infer;
 
 export const CreateAssistantParams = AssistantConfig.pick(
 	'password',
-	'port',
 	'url',
 	'name',
 );
@@ -71,33 +69,10 @@ export const assistantConfigs = (() => {
 			}
 
 			if (error.type === 'schema_validation_failed') {
-				console.warn(
-					'Invalid assistant data, attempting recovery and migration',
-				);
-				// Try to recover and migrate valid assistants
-				if (Array.isArray(error.value)) {
-					const migrated = error.value.map((w) => {
-						// Migrate from old format if needed
-						if ('privatePort' in w) {
-							const { privatePort, publicPort, username, ...rest } = w;
-							return {
-								...rest,
-								port: privatePort || 4096,
-							};
-						}
-						return w;
-					});
-
-					const valid = migrated.filter((w) => {
-						const result = AssistantConfig(w);
-						if (result instanceof type.errors) return false;
-						return true;
-					});
-					if (valid.length > 0) {
-						toast.warning('Assistants have been migrated to the new format');
-						return valid;
-					}
-				}
+				console.error('Invalid assistant data:', error);
+				toast.error('Failed to load assistants', {
+					description: 'Your assistant data does not match the expected format',
+				});
 			}
 
 			return [];

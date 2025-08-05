@@ -11,15 +11,15 @@
 	import { CheckIcon, ChevronsUpDownIcon } from 'lucide-svelte';
 
 	let {
+		assistantConfig,
 		class: className,
 		placeholder = 'Select a model...',
 		value = $bindable<null | { modelId: string; providerId: string }>(null),
-		assistantConfig,
 	}: {
+		assistantConfig: AssistantConfig;
 		class?: string;
 		placeholder?: string;
 		value?: null | { modelId: string; providerId: string };
-		assistantConfig: AssistantConfig;
 	} = $props();
 
 	const combobox = useCombobox();
@@ -67,13 +67,19 @@
 				<Command.Empty>No models found.</Command.Empty>
 
 				{#if providersQuery.isPending}
-					<div class="p-4 text-center text-sm text-muted-foreground">
+					<Command.Item
+						disabled
+						class="p-4 text-center text-sm text-muted-foreground"
+					>
 						Loading models...
-					</div>
+					</Command.Item>
 				{:else if providersQuery.isError}
-					<div class="p-4 text-center text-sm text-destructive">
+					<Command.Item
+						disabled
+						class="p-4 text-center text-sm text-destructive"
+					>
 						Failed to load models
-					</div>
+					</Command.Item>
 				{:else}
 					{#each providers as provider (provider.id)}
 						<Command.Group heading={provider.name}>

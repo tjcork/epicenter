@@ -1,16 +1,13 @@
 <script lang="ts">
-	import {
-		UpdateAssistantParams,
-		type AssistantConfig,
-		assistantConfigs,
-	} from '$lib/stores/assistant-configs.svelte';
+	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
+
+	import { assistantConfigs } from '$lib/stores/assistant-configs.svelte';
 	import { Button } from '@repo/ui/button';
 	import { buttonVariants } from '@repo/ui/button';
 	import { Input } from '@repo/ui/input';
 	import { Label } from '@repo/ui/label';
 	import * as Modal from '@repo/ui/modal';
-	import { type } from 'arktype';
-	import { Edit } from 'lucide-svelte';
+	import { Edit, Loader2 } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
 	let { assistantConfig }: { assistantConfig: AssistantConfig } = $props();
@@ -18,29 +15,18 @@
 	let open = $state(false);
 
 	// Form state - initialize with assistant values
-	let name = $derived(assistantConfig.name);
-	let url = $derived(assistantConfig.url);
-	let port = $derived(assistantConfig.port);
-	let password = $derived(assistantConfig.password);
+	let name = $state(assistantConfig.name);
+	let url = $state(assistantConfig.url);
+	let password = $state(assistantConfig.password);
 
-	function handleSave() {
-		const validationResult = UpdateAssistantParams({
-			name: name.trim(),
-			password,
-			port,
-			url,
-		} satisfies UpdateAssistantParams);
-
-		if (validationResult instanceof type.errors) {
-			toast.error('Validation failed', {
-				description: validationResult.summary,
-			});
-			return;
+	// Reset form when modal opens
+	$effect(() => {
+		if (open) {
+			name = assistantConfig.name;
+			url = assistantConfig.url;
+			password = assistantConfig.password;
 		}
-
-		assistantConfigs.update(assistantConfig.id, validationResult);
-		open = false;
-	}
+	});
 </script>
 
 <Modal.Root bind:open>
@@ -69,17 +55,6 @@
 			</div>
 
 			<div class="space-y-2">
-				<Label for="edit-port">OpenCode Port</Label>
-				<Input
-					id="edit-port"
-					type="number"
-					bind:value={port}
-					min="1024"
-					max="65535"
-				/>
-			</div>
-
-			<div class="space-y-2">
 				<Label for="edit-password">Password</Label>
 				<Input
 					id="edit-password"
@@ -93,7 +68,23 @@
 
 		<Modal.Footer>
 			<Button variant="outline" onclick={() => (open = false)}>Cancel</Button>
-			<Button onclick={handleSave}>Save Changes</Button>
+			<Button
+				onclick={() => {
+					if (!name.trim()) {
+						toast.error('Please enter a name');
+						return;
+					}
+
+					assistantConfigs.update(assistantConfig.id, {
+						name: name.trim(),
+						password,
+						url,
+					});
+					open = false;
+				}}
+			>
+				Save Changes
+			</Button>
 		</Modal.Footer>
 	</Modal.Content>
 </Modal.Root>

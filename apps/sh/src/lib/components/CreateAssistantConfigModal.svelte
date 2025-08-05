@@ -2,13 +2,15 @@
 	import type { App } from '$lib/client/types.gen';
 	import type { Snippet } from 'svelte';
 
+	import { goto } from '$app/navigation';
 	import { createAssistantClient } from '$lib/client/client.gen';
 	import * as api from '$lib/client/sdk.gen';
-	import { settings } from '$lib/stores/settings.svelte';
 	import {
-		generateAvailablePort,
 		assistantConfigs,
+		type URL,
 	} from '$lib/stores/assistant-configs.svelte';
+	import { settings } from '$lib/stores/settings.svelte';
+	import { generateAvailablePort } from '$lib/utils/port';
 	import * as Accordion from '@repo/ui/accordion';
 	import { Button, type Props as ButtonProps } from '@repo/ui/button';
 	import { Input } from '@repo/ui/input';
@@ -16,7 +18,6 @@
 	import * as Modal from '@repo/ui/modal';
 	import { PMCommand } from '@repo/ui/pm-command';
 	import * as Tabs from '@repo/ui/tabs';
-	import { type } from 'arktype';
 	import { CheckCircle2, Copy, Loader2 } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -24,7 +25,6 @@
 		$props();
 
 	let open = $state(false);
-	let isCheckingPorts = $state(false);
 
 	// Form state
 	let password = $state(settings.value.defaultPassword);
@@ -85,8 +85,7 @@
 				lastAccessedAt: 0,
 				name: 'test',
 				password,
-				port,
-				url: ngrokUrl,
+				url: ngrokUrl as URL,
 			};
 
 			const client = createAssistantClient(testAssistant);
@@ -127,15 +126,14 @@
 			return;
 		}
 
-		assistantConfigs.create({
+		const newAssistant = assistantConfigs.create({
 			name: assistantName.trim(),
 			password,
-			port,
-			url: ngrokUrl,
+			url: ngrokUrl as URL,
 		});
-
-		toast.success(`Created assistant "${assistantName}"`);
 		open = false;
+		// Navigate to the new assistant
+		goto(`/assistants/${newAssistant.id}`);
 	}
 </script>
 
@@ -149,7 +147,7 @@
 		<Modal.Header>
 			<Modal.Title>Add New Assistant</Modal.Title>
 			<Modal.Description>
-				Connect to an OpenCode server from your CLI
+				Connect to an OpenCode server using the epicenter CLI
 			</Modal.Description>
 		</Modal.Header>
 
@@ -171,7 +169,9 @@
 
 					<PMCommand
 						command="execute"
-						args={['@getepicenter/opencode', 'serve', '--tunnel', '--open']}
+						args={['@epicenter/cli@latest', 'sh']}
+						agent="bun"
+						agents={['bun']}
 					/>
 
 					<div class="space-y-2">
@@ -179,11 +179,17 @@
 						<ul
 							class="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2"
 						>
-							<li>Starts your OpenCode server</li>
-							<li>Creates a secure tunnel automatically</li>
-							<li>Opens a new tab with your assistant pre-configured</li>
-							<li>No manual URL copying or setup needed</li>
+							<li>Starts OpenCode server (our fork with CORS support)</li>
+							<li>Creates a secure tunnel via Cloudflare</li>
+							<li>Opens epicenter.sh with your assistant pre-configured</li>
+							<li>No manual configuration needed</li>
 						</ul>
+						<p class="text-sm text-muted-foreground mt-2">
+							Learn more about how it works in our <a
+								href="/faq"
+								class="underline">FAQ</a
+							>.
+						</p>
 					</div>
 				</div>
 			</Tabs.Content>

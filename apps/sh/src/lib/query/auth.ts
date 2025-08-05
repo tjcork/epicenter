@@ -1,10 +1,11 @@
+import type { BetterFetchResponse } from 'better-auth/client';
+
 import { authClient } from '$lib/auth-client';
+import { ShErr } from '$lib/result';
 import { APPS } from '@repo/constants/vite';
 import { Err, Ok } from 'wellcrafted/result';
 
-import { defineMutation, defineQuery } from './_client';
-import { ShErr } from '$lib/result';
-import type { BetterFetchResponse } from 'better-auth/client';
+import { defineMutation, defineQuery, queryClient } from './_client';
 
 function AuthToShErr<
 	T extends BetterFetchResponse<unknown, unknown, false>['error'],
@@ -40,6 +41,11 @@ export const getUser = defineQuery({
 
 export const signInWithGithub = defineMutation({
 	mutationKey: ['auth', 'signInWithGithub'] as const,
+	onSuccess: () => {
+		queryClient.invalidateQueries({
+			queryKey: ['auth', 'getSession'],
+		});
+	},
 	resultMutationFn: async () => {
 		const { data, error } = await authClient.signIn.social({
 			callbackURL: `${APPS.SH.URL}/assistants`,
@@ -52,6 +58,11 @@ export const signInWithGithub = defineMutation({
 
 export const signOut = defineMutation({
 	mutationKey: ['auth', 'signOut'] as const,
+	onSuccess: () => {
+		queryClient.invalidateQueries({
+			queryKey: ['auth', 'getSession'],
+		});
+	},
 	resultMutationFn: async () => {
 		const { error } = await authClient.signOut();
 		if (error) return AuthToShErr(error);

@@ -3,7 +3,6 @@
 
 	import { goto } from '$app/navigation';
 	import * as rpc from '$lib/query';
-	import { assistantConfigs } from '$lib/stores/assistant-configs.svelte';
 	import { formatDistanceToNow } from '$lib/utils/date';
 	import { Badge } from '@repo/ui/badge';
 	import { badgeVariants } from '@repo/ui/badge';
@@ -13,9 +12,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { GitBranch } from 'lucide-svelte';
 
+	import AssistantConnectionBadge from './AssistantConnectionBadge.svelte';
 	import DeleteAssistantConfigButton from './DeleteAssistantConfigButton.svelte';
 	import EditAssistantConfigButton from './EditAssistantConfigButton.svelte';
-	import AssistantConnectionBadge from './AssistantConnectionBadge.svelte';
 
 	let {
 		columnVisibility,
@@ -31,10 +30,8 @@
 	}));
 
 	function handleConnect() {
-		// Update last used timestamp
-		assistantConfigs.update(config.id, {});
-
 		// Navigate to assistant sessions
+		// The server will update lastAccessedAt when fetching sessions
 		goto(`/assistants/${config.id}`);
 	}
 
@@ -66,13 +63,6 @@
 					</Tooltip.Provider>
 				{/if}
 			</div>
-		</Table.Cell>
-	{/if}
-	{#if columnVisibility.port !== false}
-		<Table.Cell>
-			<Badge variant="secondary" class="text-xs font-mono">
-				{config.port}
-			</Badge>
 		</Table.Cell>
 	{/if}
 	{#if columnVisibility.url !== false}

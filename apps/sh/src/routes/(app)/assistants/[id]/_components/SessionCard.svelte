@@ -12,9 +12,9 @@
 	import { toast } from 'svelte-sonner';
 
 	let {
-		session,
 		assistantConfig,
-	}: { session: Session; assistantConfig: AssistantConfig } = $props();
+		session,
+	}: { assistantConfig: AssistantConfig; session: Session } = $props();
 	let deleteDialogOpen = $state(false);
 
 	const shareSessionMutation = createMutation(
@@ -39,20 +39,18 @@
 			: `/session/${session.id}`}
 		class="block"
 	>
-		<Card.Header>
-			<div class="flex items-start justify-between">
-				<div class="space-y-1">
-					<Card.Title class="text-lg">
-						{session.title || 'Untitled Session'}
-					</Card.Title>
-					<Card.Description>
-						Created {formatDistanceToNow(createdAt)} ago
-					</Card.Description>
-				</div>
-				{#if isShared}
-					<Badge variant="secondary">Shared</Badge>
-				{/if}
+		<Card.Header class="flex items-start justify-between">
+			<div class="space-y-1">
+				<Card.Title class="text-lg">
+					{session.title || 'Untitled Session'}
+				</Card.Title>
+				<Card.Description>
+					Created {formatDistanceToNow(createdAt)} ago
+				</Card.Description>
 			</div>
+			{#if isShared}
+				<Badge variant="secondary">Shared</Badge>
+			{/if}
 		</Card.Header>
 		<Card.Content>
 			<div class="text-sm text-muted-foreground">
@@ -66,10 +64,9 @@
 				<Button
 					size="sm"
 					variant="outline"
-					onclick={(e) => {
-						e.preventDefault();
+					onclick={() => {
 						unshareSessionMutation.mutate(
-							{ sessionId: session.id, assistantConfig },
+							{ assistantConfig, sessionId: session.id },
 							{
 								onError: (error) => {
 									toast.error(error.title, {
@@ -89,10 +86,9 @@
 				<Button
 					size="sm"
 					variant="outline"
-					onclick={(e) => {
-						e.preventDefault();
+					onclick={() => {
 						shareSessionMutation.mutate(
-							{ sessionId: session.id, assistantConfig },
+							{ assistantConfig, sessionId: session.id },
 							{
 								onError: (error) => {
 									toast.error(error.title, {
@@ -111,9 +107,7 @@
 			{/if}
 		</div>
 		<AlertDialog.Root bind:open={deleteDialogOpen}>
-			<AlertDialog.Trigger
-				class={buttonVariants({ size: 'sm', variant: 'destructive' })}
-			>
+			<AlertDialog.Trigger>
 				<Button size="sm" variant="destructive">Delete</Button>
 			</AlertDialog.Trigger>
 			<AlertDialog.Content>
@@ -130,7 +124,7 @@
 					<AlertDialog.Action
 						onclick={() =>
 							deleteSessionMutation.mutate(
-								{ sessionId: session.id, assistantConfig },
+								{ assistantConfig, sessionId: session.id },
 								{
 									onError: (error) => {
 										toast.error(error.title, {

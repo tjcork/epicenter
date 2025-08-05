@@ -23,7 +23,7 @@
 	let { data }: { data: PageData } = $props();
 	const assistantConfig = $derived(data.assistantConfig);
 	const session = $derived(data.session);
-	const sessionId = $derived(session.id);
+	const sessionId = $derived(data.sessionId);
 
 	const sendMessageMutation = createMutation(rpc.messages.sendMessage.options);
 	const deleteSessionMutation = createMutation(
@@ -41,9 +41,9 @@
 
 	// Create message subscriber
 	const messages = createMessageSubscriber({
+		assistant: () => assistantConfig,
 		initialMessages: () => data.messages ?? [],
 		sessionId: () => sessionId,
-		assistant: () => assistantConfig,
 	});
 	let messageContent = $state('');
 	let messageMode = $state(data.modes?.at(0)?.name ?? 'build');
@@ -73,6 +73,7 @@
 
 		sendMessageMutation.mutate(
 			{
+				assistantConfig,
 				body: {
 					mode: messageMode,
 					modelID: selectedModel.modelId,
@@ -80,7 +81,6 @@
 					providerID: selectedModel.providerId,
 				},
 				sessionId,
-				assistantConfig,
 			},
 			{
 				onError: (error) => {
@@ -107,39 +107,50 @@
 	}
 </script>
 
-{#if session}
-	<div class="flex flex-col h-[calc(100vh-3.5rem)] px-4 sm:px-6 py-4">
-		<!-- Breadcrumb Navigation -->
-		<Breadcrumb.Root class="mb-3 sm:mb-4">
-			<Breadcrumb.List>
-				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/assistants" class="text-xs sm:text-sm"
-						>Assistants</Breadcrumb.Link
-					>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator>
-					<ChevronRight class="h-3 w-3 sm:h-4 sm:w-4" />
-				</Breadcrumb.Separator>
-				<Breadcrumb.Item>
-					<Breadcrumb.Link
-						href="/assistants/{assistantConfig.id}"
-						class="text-xs sm:text-sm"
-					>
-						{assistantConfig.name}
-					</Breadcrumb.Link>
-				</Breadcrumb.Item>
-				<Breadcrumb.Separator>
-					<ChevronRight class="h-3 w-3 sm:h-4 sm:w-4" />
-				</Breadcrumb.Separator>
-				<Breadcrumb.Item>
-					<Breadcrumb.Page class="text-xs sm:text-sm">
-						{session?.title || 'Untitled Session'}
-					</Breadcrumb.Page>
-				</Breadcrumb.Item>
-			</Breadcrumb.List>
-		</Breadcrumb.Root>
+<svelte:head>
+	<title
+		>{session?.title || 'Untitled Session'} - {assistantConfig?.name} | epicenter.sh</title
+	>
+	<meta
+		name="description"
+		content="Chat with your local codebase through OpenCode. Ask questions, get explanations, and work with AI that has full project context."
+	/>
+</svelte:head>
 
-		{#if session}
+{#if session}
+	<div class="flex flex-col h-[calc(100vh-3.5rem)]">
+		<!-- Header Section with centered content -->
+		<header class="mx-auto w-full max-w-3xl px-4 py-4">
+			<!-- Breadcrumb Navigation -->
+			<Breadcrumb.Root class="mb-3 sm:mb-4">
+				<Breadcrumb.List>
+					<Breadcrumb.Item>
+						<Breadcrumb.Link href="/assistants" class="text-xs sm:text-sm"
+							>Assistants</Breadcrumb.Link
+						>
+					</Breadcrumb.Item>
+					<Breadcrumb.Separator>
+						<ChevronRight class="h-3 w-3 sm:h-4 sm:w-4" />
+					</Breadcrumb.Separator>
+					<Breadcrumb.Item>
+						<Breadcrumb.Link
+							href="/assistants/{assistantConfig.id}"
+							class="text-xs sm:text-sm"
+						>
+							{assistantConfig.name}
+						</Breadcrumb.Link>
+					</Breadcrumb.Item>
+					<Breadcrumb.Separator>
+						<ChevronRight class="h-3 w-3 sm:h-4 sm:w-4" />
+					</Breadcrumb.Separator>
+					<Breadcrumb.Item>
+						<Breadcrumb.Page class="text-xs sm:text-sm">
+							{session?.title || 'Untitled Session'}
+						</Breadcrumb.Page>
+					</Breadcrumb.Item>
+				</Breadcrumb.List>
+			</Breadcrumb.Root>
+
 			<div class="flex items-center justify-between pb-4 border-b">
 				<div>
 					<h1 class="text-2xl font-bold">
@@ -163,7 +174,7 @@
 							variant="destructive"
 							onclick={() => {
 								abortSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -186,7 +197,7 @@
 							variant="outline"
 							onclick={() => {
 								unshareSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -208,7 +219,7 @@
 							variant="outline"
 							onclick={() => {
 								shareSessionMutation.mutate(
-									{ sessionId, assistantConfig },
+									{ assistantConfig, sessionId },
 									{
 										onError: (error) => {
 											toast.error(error.title, {
@@ -245,7 +256,7 @@
 								<AlertDialog.Action
 									onclick={() => {
 										deleteSessionMutation.mutate(
-											{ sessionId, assistantConfig },
+											{ assistantConfig, sessionId },
 											{
 												onError: (error) => {
 													toast.error(error.title, {
@@ -265,13 +276,13 @@
 					</AlertDialog.Root>
 				</div>
 			</div>
-		{/if}
+		</header>
 
 		<MessageList messages={messages.value} />
 
 		<Separator />
 
-		<div class="pt-4 space-y-2">
+		<div class="mx-auto w-full max-w-3xl px-4 pt-4 pb-10 space-y-2">
 			<!-- Session Controls -->
 			<div class="flex items-center gap-2">
 				<ModeSelector

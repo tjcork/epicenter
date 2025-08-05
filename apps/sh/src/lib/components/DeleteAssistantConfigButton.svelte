@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
-
-	import { assistantConfigs } from '$lib/stores/assistant-configs.svelte';
+	import { goto } from '$app/navigation';
+	import {
+		type AssistantConfig,
+		assistantConfigs,
+	} from '$lib/stores/assistant-configs.svelte';
 	import * as AlertDialog from '@repo/ui/alert-dialog';
 	import { Button } from '@repo/ui/button';
 	import { Trash2 } from 'lucide-svelte';
-	import { toast } from 'svelte-sonner';
 
 	let { assistantConfig }: { assistantConfig: AssistantConfig } = $props();
 	let open = $state(false);
@@ -33,9 +34,18 @@
 				onclick={() => {
 					assistantConfigs.delete(assistantConfig.id);
 					open = false;
-					toast.success('Deleted assistant');
-				}}>Delete</AlertDialog.Action
+					// Navigate back to assistants list if we're on the assistant page
+					if (
+						window.location.pathname.includes(
+							`/assistants/${assistantConfig.id}`,
+						)
+					) {
+						goto('/assistants');
+					}
+				}}
 			>
+				Delete
+			</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>

@@ -1,60 +1,93 @@
 @import 'tailwindcss';
 
+/* Simplified prose styles following Shadcn patterns
+   - Uses semantic color tokens that adapt to dark mode automatically
+   - Simplified selectors without repetitive :not() patterns
+   - No need for .prose-invert since colors adapt automatically
+*/
+
 .prose {
 	@apply max-w-[65ch] text-foreground;
 
-	& h1:not(.not-prose h1) {
+	/* Headings */
+	& h1 {
 		@apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl;
 	}
 
-	& h2:not(.not-prose h2) {
+	& h2 {
 		@apply scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight mt-12 first:mt-0;
 	}
 
-	& h3:not(.not-prose h3) {
+	& h3 {
 		@apply scroll-m-20 text-2xl font-semibold mt-12 tracking-tight first:mt-0;
 	}
 
-	& h4:not(.not-prose h4) {
+	& h4 {
 		@apply scroll-m-20 text-xl font-semibold mt-12 tracking-tight first:mt-0;
 	}
 
-	& h5:not(.not-prose h5) {
+	& h5 {
 		@apply scroll-m-20 text-lg font-semibold mt-12 tracking-tight first:mt-0;
 	}
 
-	& h6:not(.not-prose h6) {
+	& h6 {
 		@apply scroll-m-20 text-base font-semibold mt-12 tracking-tight first:mt-0;
 	}
 
-	& h1:not(.not-prose h1),
-	& h2:not(.not-prose h2),
-	& h3:not(.not-prose h3),
-	& h4:not(.not-prose h4),
-	& h5:not(.not-prose h5),
-	& h6:not(.not-prose h6) {
-		& + p {
-			@apply mt-0;
-		}
+	/* Remove top margin from paragraphs after headings */
+	& :where(h1, h2, h3, h4, h5, h6) + p {
+		@apply mt-0;
 	}
 
-	& p:not(.not-prose p) {
+	/* Paragraphs and text */
+	& p {
 		@apply leading-[175%] [&:not(:first-child)]:mt-6;
 	}
 
-	& li:not(.not-prose li) {
+	& li {
 		@apply leading-[175%];
 	}
 
-	& a:not(.not-prose a) {
+	& a {
 		@apply font-medium text-primary underline underline-offset-4;
 	}
 
-	& blockquote:not(.not-prose blockquote) {
+	& blockquote {
 		@apply mt-6 border-l-2 pl-6 italic;
 	}
 
-	& table:not(.not-prose table) {
+	/* Lists */
+	& ul {
+		@apply my-6 ml-6 list-disc [&>li]:mt-2;
+
+		& p {
+			@apply my-0 inline;
+		}
+	}
+
+	& ol {
+		@apply my-6 ml-6 list-decimal [&>li]:mt-2;
+
+		& p {
+			@apply my-0 inline;
+		}
+	}
+
+	/* Code blocks */
+	& pre {
+		@apply bg-muted text-foreground rounded-md p-4 my-6 text-sm overflow-y-auto;
+
+		& code {
+			@apply bg-transparent text-inherit font-mono;
+		}
+	}
+
+	& :not(pre) > code {
+		@apply relative rounded bg-muted text-foreground px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
+	}
+
+	/* Tables */
+	& table {
 		@apply my-6 w-full overflow-y-auto;
 
 		& thead tr {
@@ -74,57 +107,34 @@
 		}
 	}
 
-	& ul:not(.not-prose ul) {
-		@apply my-6 ml-6 list-disc [&>li]:mt-2;
-
-		& p {
-			@apply my-0 inline;
-		}
-	}
-
-	& ol:not(.not-prose ol) {
-		@apply my-6 ml-6 list-decimal [&>li]:mt-2;
-
-		& p {
-			@apply my-0 inline;
-		}
-	}
-
-	& pre:not(.not-prose pre) {
-		@apply bg-muted rounded-md p-4 my-6 text-sm overflow-y-auto;
-	}
-
-	& code:not(pre code):not(.not-prose code) {
-		@apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
-	}
-
-	& .lead:not(.not-prose .lead) {
+	/* Utility classes */
+	& .lead {
 		@apply text-xl text-muted-foreground;
 	}
 
-	& .large:not(.not-prose .large) {
+	& .large {
 		@apply text-lg font-semibold;
 	}
 
-	& .small:not(.not-prose .small) {
+	& .small {
 		@apply text-sm font-medium leading-none;
 	}
 
-	& .muted:not(.not-prose .muted) {
+	& .muted {
 		@apply text-sm text-muted-foreground;
 	}
 
-	& img:not(.not-prose img),
-	& picture:not(.not-prose picture),
-	& video:not(.not-prose video) {
+	/* Media */
+	& :where(img, picture, video) {
 		@apply my-6;
 	}
 
-	& picture > img:not(.not-prose picture > img) {
+	& picture > img {
 		@apply my-0;
 	}
 
-	& kbd:not(.not-prose kbd) {
+	/* Interactive elements */
+	& kbd {
 		@apply rounded-md bg-muted px-1.5 py-0.5 text-xs font-semibold;
 	}
 
@@ -132,15 +142,21 @@
 		@apply my-10;
 	}
 
-	& dl:not(.not-prose dl) {
+	/* Definition lists */
+	& dl {
 		@apply my-6;
 
 		& dt {
 			@apply font-semibold mt-6 tracking-tight first:mt-0;
 		}
+
+		& dd {
+			@apply mt-2 ml-6;
+		}
 	}
 
-	& details:not(.not-prose details) {
+	/* Details/Summary */
+	& details {
 		@apply mt-6;
 
 		& summary {
@@ -152,72 +168,80 @@
 		}
 	}
 
-	& mark:not(.not-prose mark) {
-		@apply bg-yellow-300;
+	/* Text formatting */
+	& mark {
+		@apply bg-yellow-300 dark:bg-yellow-300/20;
 	}
 
-	& small:not(.not-prose small) {
-		@apply text-xs leading-none;
+	& :where(strong, b) {
+		@apply font-bold;
+	}
+
+	& :where(em, i) {
+		@apply italic;
+	}
+
+	& :where(del, s) {
+		@apply line-through;
+	}
+
+	& ins {
+		@apply underline;
+	}
+
+	& sub {
+		@apply text-[0.75em] align-sub;
+	}
+
+	& sup {
+		@apply text-[0.75em] align-super;
+	}
+
+	& abbr[title] {
+		@apply underline decoration-dotted cursor-help;
+	}
+
+	& cite {
+		@apply italic;
+	}
+
+	& q {
+		@apply before:content-[open-quote] after:content-[close-quote];
+	}
+
+	& figure {
+		@apply my-8;
+	}
+
+	& figcaption {
+		@apply text-sm text-muted-foreground mt-2;
+	}
+
+	& u {
+		@apply underline;
+	}
+
+	& var {
+		@apply font-mono text-[0.875em] italic;
+	}
+
+	& samp {
+		@apply font-mono text-[0.875em];
+	}
+
+	& time {
+		@apply text-muted-foreground;
+	}
+
+	& address {
+		@apply italic not-italic my-6;
+	}
+
+	& dfn {
+		@apply italic font-semibold;
 	}
 }
 
 .prose-invert {
 	@apply text-primary-foreground;
-
-	& h1:not(.not-prose h1),
-	& h2:not(.not-prose h2),
-	& h3:not(.not-prose h3),
-	& h4:not(.not-prose h4),
-	& h5:not(.not-prose h5),
-	& h6:not(.not-prose h6) {
-		@apply text-primary-foreground;
-	}
-
-	& p:not(.not-prose p) {
-		@apply text-primary-foreground;
-	}
-
-	& a:not(.not-prose a) {
-		@apply text-primary-foreground underline;
-	}
-
-	& blockquote:not(.not-prose blockquote) {
-		@apply border-primary-foreground/30 text-primary-foreground/90;
-	}
-
-	& pre:not(.not-prose pre) {
-		@apply bg-primary-foreground/10 text-primary-foreground;
-	}
-
-	& code:not(pre code):not(.not-prose code) {
-		@apply bg-primary-foreground/10 text-primary-foreground;
-	}
-
-	& .lead:not(.not-prose .lead) {
-		@apply text-primary-foreground/80;
-	}
-
-	& .muted:not(.not-prose .muted) {
-		@apply text-primary-foreground/70;
-	}
-
-	& mark:not(.not-prose mark) {
-		@apply bg-yellow-400/20 text-primary-foreground;
-	}
-
-	& th {
-		@apply text-primary-foreground border-primary-foreground/20;
-	}
-
-	& td {
-		@apply text-primary-foreground border-primary-foreground/20;
-	}
-
-	& thead tr {
-		@apply border-primary-foreground/20;
-	}
-
-	& tbody tr {
-		@apply border-primary-foreground/20 even:bg-primary-foreground/5;
-	}
 }

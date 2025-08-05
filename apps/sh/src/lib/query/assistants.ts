@@ -1,9 +1,9 @@
 import type { App } from '$lib/client/types.gen';
+import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
 import type { Accessor } from '@tanstack/svelte-query';
 
 import { createAssistantClient } from '$lib/client/client.gen';
 import * as api from '$lib/client/sdk.gen';
-import type { AssistantConfig } from '$lib/stores/assistant-configs.svelte';
 import { Ok } from 'wellcrafted/result';
 
 import { defineQuery } from './_client';
@@ -20,7 +20,7 @@ import { defineQuery } from './_client';
  */
 export type Assistant = AssistantConfig &
 	({ appInfo: App; connected: true } | { connected: false }) & {
-		checkedAt: number; // Unix timestamp of last connection check
+		checkedAt: string; // ISO timestamp of last connection check
 	};
 
 /**
@@ -48,14 +48,14 @@ export const getAssistant = (config: Accessor<AssistantConfig>) =>
 				return Ok({
 					...config(),
 					appInfo: data,
-					checkedAt: Date.now(),
+					checkedAt: new Date().toISOString(),
 					connected: true,
 				});
 			}
 
 			return Ok({
 				...config(),
-				checkedAt: Date.now(),
+				checkedAt: new Date().toISOString(),
 				connected: false,
 			});
 		},

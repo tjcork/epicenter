@@ -8,15 +8,15 @@
 	import { Code, Lightbulb, MessageSquare } from 'lucide-svelte';
 
 	let {
+		assistantConfig,
 		class: className,
 		onModeChange,
 		value = $bindable(),
-		assistantConfig,
 	}: {
+		assistantConfig: AssistantConfig;
 		class?: string;
 		onModeChange?: (mode: string) => void;
 		value?: string;
-		assistantConfig: AssistantConfig;
 	} = $props();
 
 	// Create query for modes
@@ -40,9 +40,7 @@
 </script>
 
 {#if modesQuery.isPending}
-	<div class="flex items-center gap-1">
-		<Skeleton class="h-9 w-[200px]" />
-	</div>
+	<Skeleton class="h-9 w-[200px]" />
 {:else if modesQuery.isError}
 	<div class="text-sm text-destructive">Failed to load modes</div>
 {:else}

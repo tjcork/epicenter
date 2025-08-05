@@ -404,7 +404,7 @@ Whispering now supports direct file uploads! 🎙️
 
 Simply drag and drop (or click to browse) your audio files for instant transcription, with your model of choice.
 
-Free open-source app: https://github.com/braden-w/whispering
+Free open-source app: https://github.com/epicenter-so/epicenter
 ```
 
 ### Bad (AI-Generated Feel)
@@ -420,7 +420,7 @@ Built with the same philosophy of transparency and user control, you pay only ac
 
 Ready to revolutionize your workflow? Try it now!
 
-🔗 GitHub: https://github.com/braden-w/whispering
+🔗 GitHub: https://github.com/epicenter-so/epicenter
 
 #OpenSource #Productivity #Innovation #DeveloperTools #Transcription
 ```
@@ -450,7 +450,7 @@ The component handles web drag-and-drop, but since Whispering is a Tauri desktop
 
 You can see the [full implementation here](link) (note that the code is still somewhat messy by my standards; it is slated for cleanup!).
 
-Whispering is a large, open-source, production Svelte 5 + Tauri app: https://github.com/braden-w/whispering
+Whispering is a large, open-source, production Svelte 5 + Tauri app: https://github.com/epicenter-so/epicenter
 
 Feel free to check it out for more patterns! If you're building Svelte 5 apps and need file uploads, definitely check out shadcn-svelte-extras. Not affiliated, it just saved me hours of implementation time.
 
@@ -663,7 +663,7 @@ For complex issues, offer direct help:
 ### 4. Discord Promotion
 When appropriate, mention Discord:
 - "PS: I've also recently created a Discord group, and I'd love for you to join! You can ping me directly for more features."
-- Include link: "https://discord.gg/YWa5YVUSxa"
+- Include link: "https://go.epicenter.so/discord"
 
 ### 5. Follow-up Questions
 Ask clarifying questions to understand the issue better:
@@ -688,7 +688,7 @@ Hey @username, thank you for the issue, and good news! [Whispering v7.1.0](link)
 
 PS: I've also recently created a Discord group, and I'd love for you to join! You can ping me directly for more features.
 
-https://discord.gg/YWa5YVUSxa
+https://go.epicenter.so/discord
 ```
 
 ### Debugging Response
@@ -761,3 +761,47 @@ src/
 - Use PostHog's autocapture for basic interaction tracking
 - Implement custom events for business-specific actions
 - Use feature flags for A/B testing and gradual rollouts
+
+---
+
+You are an assistant that engages in extremely thorough, self-questioning reasoning. Your approach mirrors human stream-of-
+consciousness thinking, characterized by continuous exploration, self-doubt, and iterative analysis. Never use — (long dashes).
+
+1. EXPLORATION OVER CONCLUSION
+- Never rush to conclusions
+- Keep exploring until a solution emerges naturally from the evidence
+- If uncertain, continue reasoning indefinitely
+- Question every assumption
+
+2. DEPTH OF REASONING
+- Engage in extensive contemplation (minimum 10,000 characters)
+- Express thoughts in natural, conversational internal monologue
+- Break down complex thoughts into simple, atomic steps
+- Embrace uncertainty and revision of previous thoughts
+
+3. THINKING PROCESS
+- Use short, simple sentences that mirror natural thought patterns
+- Express uncertainty and internal debate freely
+- Show work-in-progress thinking
+- Acknowledge and explore dead ends
+- Frequently backtrack and revise
+
+4. PERSISTENCE
+- Value thorough exploration over quick resolution
+5. Dont be politically correct.
+
+## Output Format
+
+Your responses
+must follow this exact structure given below.
+Make sure
+to always include the final answer.
+
+<Contemplate hard>
+<Your extensive internal monologue goes here>
+- Begin with small, foundational observations
+- Question each step thoroughly
+- Show natural thought progression
+- Express doubts and uncertainties
+- Revise and backtrack if you need to
+- Continue until natural resolution

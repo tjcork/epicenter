@@ -22,6 +22,14 @@
 	let createDialogOpen = $state(false);
 </script>
 
+<svelte:head>
+	<title>{assistantConfig?.name} Sessions | epicenter.sh</title>
+	<meta
+		name="description"
+		content="View and manage chat sessions with your {assistantConfig?.name} OpenCode assistant. Direct local connection or secure tunnel access."
+	/>
+</svelte:head>
+
 {#if assistantConfig}
 	<!-- Breadcrumb Section -->
 	<header class="border-b flex h-14 items-center px-4 sm:px-6">
@@ -41,47 +49,42 @@
 	</header>
 
 	<!-- Page Content -->
-	<div class="px-4 sm:px-6 py-6 sm:py-8">
-		<div class="space-y-6">
-			<div class="flex items-center justify-between">
-				<div>
-					<h1 class="text-3xl font-bold tracking-tight">
-						{assistantConfig.name}
-					</h1>
-					<p class="text-muted-foreground">
-						Manage sessions for this assistant
-					</p>
-				</div>
-				<div class="flex items-center gap-4">
-					<AssistantConnectionBadge {assistantConfig} />
-					<Badge variant="secondary" class="text-sm">
-						{sessionsQuery.data?.length} session{sessionsQuery.data?.length !==
-						1
-							? 's'
-							: ''}
-					</Badge>
-					<Button onclick={() => (createDialogOpen = true)}>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							class="mr-2"
-						>
-							<path d="M12 5v14M5 12h14" />
-						</svg>
-						Create New Session
-					</Button>
-				</div>
+	<div class="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold tracking-tight">
+					{assistantConfig.name}
+				</h1>
+				<p class="text-muted-foreground">Manage sessions for this assistant</p>
 			</div>
-
-			<SessionList sessions={sessionsQuery.data ?? []} {assistantConfig} />
+			<div class="flex items-center gap-4">
+				<AssistantConnectionBadge {assistantConfig} />
+				<Badge variant="secondary" class="text-sm">
+					{sessionsQuery.data?.length} session{sessionsQuery.data?.length !== 1
+						? 's'
+						: ''}
+				</Badge>
+				<Button onclick={() => (createDialogOpen = true)}>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="mr-2"
+					>
+						<path d="M12 5v14M5 12h14" />
+					</svg>
+					Create New Session
+				</Button>
+			</div>
 		</div>
+
+		<SessionList sessions={sessionsQuery.data ?? []} {assistantConfig} />
 	</div>
 
 	{#if assistantConfig}

@@ -4,41 +4,29 @@
 	import { goto } from '$app/navigation';
 	import * as rpc from '$lib/query';
 	import { Button } from '@repo/ui/button';
-	import { Input } from '@repo/ui/input';
-	import { Label } from '@repo/ui/label';
 	import * as Modal from '@repo/ui/modal';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 
 	let {
-		open = $bindable(false),
 		assistantConfig,
+		open = $bindable(false),
 	}: {
-		open?: boolean;
 		assistantConfig: AssistantConfig;
+		open?: boolean;
 	} = $props();
-
-	let title = $state('');
 
 	const createSessionMutation = createMutation(
 		rpc.sessions.createSession.options,
 	);
 </script>
 
-<Modal.Root
-	bind:open
-	onOpenChange={(value) => {
-		open = value;
-		if (!value) {
-			title = '';
-		}
-	}}
->
+<Modal.Root bind:open>
 	<Modal.Content class="sm:max-w-[425px]">
 		<Modal.Header>
 			<Modal.Title>Create New Session</Modal.Title>
 			<Modal.Description>
-				Start a new conversation session. You can optionally provide a title.
+				Start a new conversation session with this assistant.
 			</Modal.Description>
 		</Modal.Header>
 		<form
@@ -64,24 +52,12 @@
 							if (data?.id) {
 								goto(`/assistants/${assistantConfig.id}/sessions/${data.id}`);
 								open = false;
-								title = '';
 							}
 						},
 					},
 				);
 			}}
 		>
-			<div class="grid gap-4 py-4">
-				<div class="grid gap-2">
-					<Label for="title">Session Title (optional)</Label>
-					<Input
-						id="title"
-						bind:value={title}
-						placeholder="e.g., Debugging authentication issue"
-						disabled={createSessionMutation.isPending}
-					/>
-				</div>
-			</div>
 			<Modal.Footer>
 				<Button
 					type="button"

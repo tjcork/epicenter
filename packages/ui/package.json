@@ -30,7 +30,6 @@
 	"devDependencies": {
 		"@internationalized/date": "^3.8.1",
 		"@repo/config": "workspace:*",
-		"@tailwindcss/typography": "^0.5.16",
 		"@types/node": "catalog:",
 		"eslint": "catalog:",
 		"mode-watcher": "catalog:",
