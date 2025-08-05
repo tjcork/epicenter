@@ -3,7 +3,7 @@
 	"name": "posthog-reverse-proxy",
 	"main": "src/index.js",
 	"compatibility_date": "2025-07-29",
-	
+
 	// Production configuration
 	"env": {
 		"production": {
@@ -15,10 +15,4 @@
 	"dev": {
 		"port": 8787
 	}
-
-	// Define environment variables if needed
-	// "vars": {
-	//   "API_HOST": "us.i.posthog.com",
-	//   "ASSET_HOST": "us-assets.i.posthog.com"
-	// }
 }
