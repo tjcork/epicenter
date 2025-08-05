@@ -3,16 +3,11 @@
 	"name": "posthog-reverse-proxy",
 	"main": "src/index.js",
 	"compatibility_date": "2025-07-29",
-
-	// Production configuration
-	"env": {
-		"production": {
-			"route": "proxy.epicenter.so/*"
+	"routes": [
+		{
+			"pattern": "proxy.epicenter.so",
+			"custom_domain": true
 		}
-	},
-
-	// For local development
-	"dev": {
-		"port": 8787
-	}
+	],
+	"port": 8788
 }
