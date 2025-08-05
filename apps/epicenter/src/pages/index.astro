@@ -92,53 +92,46 @@ const ecosystem = [
     <!-- Hero Section -->
     <header class="relative h-screen flex items-center">
       <!-- Subtle gradient background -->
-      <div class="absolute inset-0 bg-gradient-to-b from-primary/3 via-background to-background -z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background -z-10"></div>
       
-      <div class="max-w-5xl mx-auto px-8 md:px-12 lg:px-16 py-16 md:py-24 w-full">
-        <div class="max-w-3xl mx-auto">
+      <div class="w-full max-w-6xl mx-auto px-6 sm:px-8 md:px-12">
+        <div>
           <!-- Main headline -->
-          <h1 class="text-4xl md:text-7xl lg:text-8xl font-bold text-foreground mb-8 tracking-tight leading-[0.9]">
-            Your workspace.<br/>
-            Your data.<br/>
-            Your tools.
+          <h1 class="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-snug md:leading-snug mb-8">
+            A Database for Your Mind,<br/>
+            Built on Plain Text
           </h1>
           
           <!-- Subheadline -->
-          <p class="text-md md:text-2xl text-muted-foreground mb-12 max-w-2xl leading-relaxed">
-            An ecosystem of open-source, local-first apps that share a single memory. 
-            No cloud lock-in, no subscriptions, just tools that respect your data.
+          <p class="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12">
+            One shared context across all your apps. Your transcripts inform your notes. 
+            Your notes guide your AI. Everything connects through a single folder of plain text and SQLite.
           </p>
           
           <!-- CTAs -->
           <div class="flex flex-col sm:flex-row gap-4 mb-16">
-            <Button href="https://go.epicenter.so/discord" size="xl" class="font-medium shadow-sm hover:shadow-md transition-all">
+            <Button href="https://go.epicenter.so/discord" size="lg" class="font-medium">
               Join the community
               <ArrowRightIcon class="w-4 h-4" />
             </Button>
-            <Button href="https://github.com/epicenter-so/epicenter" variant="ghost" size="xl" class="font-medium transition-all">
+            <Button href="https://github.com/epicenter-so/epicenter" variant="outline" size="lg" class="font-medium">
               Explore on GitHub
             </Button>
           </div>
           
           <!-- Quick value props -->
-          <div class="flex flex-wrap gap-8 text-sm">
-            <div class="flex items-center gap-3 text-muted-foreground/80 hover:text-foreground transition-colors">
-              <div class="p-1 rounded-full bg-success/10">
-                <CheckIcon class="w-4 h-4 text-success" />
-              </div>
-              <span class="font-medium">100% open source</span>
+          <div class="flex flex-wrap gap-x-8 gap-y-4 text-sm">
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <CheckIcon class="w-4 h-4 text-success flex-shrink-0" />
+              <span>100% open source</span>
             </div>
-            <div class="flex items-center gap-3 text-muted-foreground/80 hover:text-foreground transition-colors">
-              <div class="p-1 rounded-full bg-success/10">
-                <CheckIcon class="w-4 h-4 text-success" />
-              </div>
-              <span class="font-medium">Local-first</span>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <CheckIcon class="w-4 h-4 text-success flex-shrink-0" />
+              <span>Local-first</span>
             </div>
-            <div class="flex items-center gap-3 text-muted-foreground/80 hover:text-foreground transition-colors">
-              <div class="p-1 rounded-full bg-success/10">
-                <CheckIcon class="w-4 h-4 text-success" />
-              </div>
-              <span class="font-medium">Plain text & SQLite</span>
+            <div class="flex items-center gap-2 text-muted-foreground">
+              <CheckIcon class="w-4 h-4 text-success flex-shrink-0" />
+              <span>Plain text & SQLite</span>
             </div>
           </div>
         </div>
