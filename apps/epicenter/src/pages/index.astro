@@ -80,10 +80,31 @@ const tools = [
 ];
 
 const ecosystem = [
-	{ name: 'Obsidian', description: 'Read and edit in your favorite tools' },
-	{ name: 'grep', description: 'Search with standard Unix utilities' },
-	{ name: 'Git', description: 'Version control your entire workspace' },
-	{ name: 'VS Code', description: 'Edit with any text editor' },
+	{ 
+		name: 'Obsidian', 
+		icon: '📝',
+		description: 'Edit your notes in your favorite knowledge management tool' 
+	},
+	{ 
+		name: 'grep & ripgrep', 
+		icon: '🔍',
+		description: 'Search your entire workspace with blazing fast Unix tools' 
+	},
+	{ 
+		name: 'Git', 
+		icon: '🔀',
+		description: 'Version control your ideas, notes, and transcriptions' 
+	},
+	{ 
+		name: 'VS Code', 
+		icon: '💻',
+		description: 'Open any file in your preferred code editor' 
+	},
+	{
+		name: 'Claude & OpenCode',
+		icon: '🤖',
+		description: 'Supercharge your workflow with AI that understands your context'
+	},
 ];
 ---
 
@@ -193,7 +214,74 @@ const ecosystem = [
       </div>
     </section>
 
-    <!-- Product Showcase -->
+    <!-- Architecture -->
+    <section class="py-24 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
+            Built different from the ground up
+          </h2>
+          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+            One architecture, endless possibilities
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <!-- One Folder Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <FolderOpenIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  One folder. All your data.
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Local-first Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <HardDriveIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  Local-first by default
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Works with Everything Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300 md:col-span-2 lg:col-span-1">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <GitForkIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  Works with tools you already use
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Because everything is plain text and SQLite, your entire workspace is compatible with the tools you already love.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- Product Showcase -->
     <section class="py-24 md:py-32 bg-gradient-to-b from-muted/10 via-muted/20 to-muted/10">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-20">
@@ -253,80 +341,55 @@ const ecosystem = [
       </div>
     </section>
 
-    <!-- Architecture -->
-    <section class="py-24 relative">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
-            Built different from the ground up
-          </h2>
-          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-            One architecture, endless possibilities
-          </p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <!-- One Folder Card -->
-          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
-                <FolderOpenIcon class="w-6 h-6" />
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-foreground mb-3">
-                  One folder. All your data.
-                </h3>
-                <p class="text-muted-foreground leading-relaxed">
-                  Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Local-first Card -->
-          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
-                <HardDriveIcon class="w-6 h-6" />
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-foreground mb-3">
-                  Local-first by default
-                </h3>
-                <p class="text-muted-foreground leading-relaxed">
-                  Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Ecosystem -->
-    <section class="py-24 md:py-32">
+    <!-- Ecosystem Section -->
+    <section class="py-24 bg-gradient-to-b from-muted/5 via-background to-muted/5">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-20">
+        <div class="text-center mb-16">
+          <Badge variant="outline" class="mb-6">Ecosystem</Badge>
           <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
-            Works with tools you already use
+            Infinite workflows, zero lock-in
           </h2>
           <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Because everything is plain text and SQLite, your entire workspace is compatible with existing tools.
+            Your workspace plays nicely with the tools you already love. Edit in VS Code, search with grep, version control with Git.
           </p>
         </div>
         
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {ecosystem.map((tool) => (
-            <div class="p-6 rounded-xl border border-muted/50 bg-card/50 hover:bg-card hover:border-muted hover:shadow-md transition-all duration-300 group">
-              <div class="flex items-center gap-3 mb-3">
-                <div class="p-2 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                  <TerminalIcon class="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            <div class="group p-6 rounded-xl bg-card border border-muted/50 hover:shadow-lg transition-all duration-300 cursor-default">
+              <div class="flex items-start gap-4">
+                <div class="text-4xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                  {tool.icon}
                 </div>
-                <h3 class="font-semibold text-lg">{tool.name}</h3>
+                <div>
+                  <h3 class="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    {tool.description}
+                  </p>
+                </div>
               </div>
-              <p class="text-sm text-muted-foreground leading-relaxed">{tool.description}</p>
             </div>
           ))}
+          
+          <!-- Custom Tool Card -->
+          <div class="group p-6 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-default">
+            <div class="flex items-start gap-4">
+              <div class="text-4xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                ✨
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  Your favorite tool
+                </h3>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                  Plain text and SQLite mean your tools work too. No proprietary formats.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
