@@ -1,264 +1,295 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ToolCard from '../components/ui/ToolCard.svelte';
-import ScrollObserver from '../components/ScrollObserver.svelte';
-import CorePrinciples from '../components/CorePrinciples.svelte';
-import RotatingHeadline from '../components/RotatingHeadline.svelte';
 import { Button } from '@repo/ui/button';
+import * as Card from '@repo/ui/card';
+import { Badge } from '@repo/ui/badge';
+import {
+	ArrowRight as ArrowRightIcon,
+	Check as CheckIcon,
+	FolderOpen as FolderOpenIcon,
+	GitFork as GitForkIcon,
+	Shield as ShieldIcon,
+	Terminal as TerminalIcon,
+} from '@lucide/astro';
+
+const features = [
+	{
+		icon: FolderOpenIcon,
+		title: 'One folder. All your data.',
+		description:
+			'Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.',
+	},
+	{
+		icon: ShieldIcon,
+		title: 'Local-first by default',
+		description:
+			'Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.',
+	},
+	{
+		icon: GitForkIcon,
+		title: 'Open source, always',
+		description:
+			'Every line of code is open. Fork it, extend it, or audit it. Built to be understood and modified.',
+	},
+];
+
+const tools = [
+	{
+		emoji: '🎙️',
+		name: 'Whispering',
+		description:
+			'Fast, minimal transcription that works with local and cloud models',
+		features: ['Choose your model', 'No subscriptions', 'Plain text output'],
+		href: 'https://github.com/epicenter-so/epicenter/tree/main/apps/whispering',
+	},
+	{
+		emoji: '💻',
+		name: 'epicenter.sh',
+		description: 'Talk to your codebase from anywhere using your own hardware',
+		features: [
+			'Local OpenCode instance',
+			'Secure tunneling',
+			'Query from any device',
+		],
+		href: 'https://github.com/epicenter-so/epicenter/tree/main/apps/sh',
+	},
+];
+
+const ecosystem = [
+	{ name: 'Obsidian', description: 'Read and edit in your favorite tools' },
+	{ name: 'grep', description: 'Search with standard Unix utilities' },
+	{ name: 'Git', description: 'Version control your entire workspace' },
+	{ name: 'VS Code', description: 'Edit with any text editor' },
+];
 ---
 
-<BaseLayout title="Epicenter">
+<BaseLayout title="Epicenter - Your workspace. Your data. Your tools." description="An ecosystem of open-source, local-first apps that share a single memory. No cloud lock-in, no subscriptions, just tools that respect your data.">
   <main class="bg-background">
-      <!-- Hero Section - Full viewport height -->
-      <header class="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <!-- Refined background effect -->
-        <div class="absolute inset-0 -z-10">
-          <div class="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5"></div>
-          <div class="absolute top-1/4 -left-1/4 w-[60rem] h-[60rem] bg-primary/10 rounded-full blur-3xl"></div>
-          <div class="absolute bottom-1/4 -right-1/4 w-[60rem] h-[60rem] bg-accent/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div class="max-w-5xl mx-auto px-6 text-center">
+    <!-- Hero Section -->
+    <header class="relative min-h-[90vh] flex items-center">
+      <!-- Subtle gradient background -->
+      <div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background -z-10"></div>
+      
+      <div class="max-w-7xl mx-auto px-6 py-16 md:py-24">
+        <div class="max-w-4xl">
           <!-- Main headline -->
-          <RotatingHeadline client:load />
+          <h1 class="text-5xl md:text-7xl font-bold text-foreground mb-6 tracking-tight">
+            Your workspace.<br/>
+            Your data.<br/>
+            Your tools.
+          </h1>
           
           <!-- Subheadline -->
-          <p class="text-xl sm:text-2xl text-muted-foreground mb-8 font-light animate-fade-in-up animation-delay-200">
-            All your tools—transcription, chat, writing—sharing one local, plain-text memory
+          <p class="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl">
+            An ecosystem of open-source, local-first apps that share a single memory. 
+            No cloud lock-in, no subscriptions, just tools that respect your data.
           </p>
           
           <!-- CTAs -->
-          <div class="flex items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
-            <Button href="https://go.epicenter.so/discord" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
-              Join the Discord community
+          <div class="flex flex-col sm:flex-row gap-4">
+            <Button href="https://go.epicenter.so/discord" size="lg" class="font-medium">
+              Join the community
+              <ArrowRightIcon class="w-4 h-4" />
             </Button>
-            <a href="https://github.com/epicentered" class="px-4 py-2 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
-              GitHub
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <!-- Problem/Solution Section -->
-      <section id="problem" class="min-h-screen flex items-center py-24 bg-muted/30">
-        <div class="max-w-4xl mx-auto px-6">
-          <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-            <!-- Problem -->
-            <ScrollObserver client:visible>
-            <div>
-              <h2 class="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">The Problem</h2>
-              <h3 class="text-3xl md:text-4xl font-bold mb-6">
-                Modern tools fragment your thinking
-              </h3>
-              <p class="text-lg text-muted-foreground mb-6">
-                My thoughts are scattered across a dozen different apps. I journal into an app I don't trust. I plan my week in a calendar app I'll abandon next month. My notes drift aimlessly in systems I've outgrown.
-              </p>
-              <ul class="space-y-4 text-lg text-muted-foreground">
-                <li class="flex items-start gap-3">
-                  <span class="text-destructive mt-1">×</span>
-                  <span>Every time I switch apps, I forget what I was working on</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-destructive mt-1">×</span>
-                  <span>My transcriptions live in one app, my notes in another</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-destructive mt-1">×</span>
-                  <span>Every tool wants to own my data and lock me in</span>
-                </li>
-              </ul>
-            </div>
-            </ScrollObserver>
-            
-            <!-- Solution -->
-            <ScrollObserver client:visible threshold={0.2} class="delay-200">
-            <div>
-              <h2 class="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">Our Solution</h2>
-              <h3 class="text-3xl md:text-4xl font-bold mb-6">
-                One workspace.<br/>Plain text.<br/>Total control.
-              </h3>
-              <p class="text-lg text-muted-foreground mb-6">
-                A suite of open-source tools that share a single memory: a folder on your machine. Open-source, open-format, and fully yours.
-              </p>
-              <ul class="space-y-4 text-lg text-muted-foreground">
-                <li class="flex items-start gap-3">
-                  <span class="text-success">✓</span>
-                  <span>Tools that share context so you can make connections</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-success">✓</span>
-                  <span>Your ideas and data are never locked in</span>
-                </li>
-                <li class="flex items-start gap-3">
-                  <span class="text-success">✓</span>
-                  <span>Everything in one folder, accessible by any tool</span>
-                </li>
-              </ul>
-            </div>
-            </ScrollObserver>
-          </div>
-          
-          <!-- Secondary CTA -->
-          <div class="text-center mt-12">
-            <p class="text-lg text-muted-foreground">
-              Sound familiar? 
-              <a href="https://go.epicenter.so/discord" class="text-foreground hover:underline underline-offset-4 font-medium">
-                Join our Discord community →
-              </a>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Core Principles -->
-      <section class="py-24 bg-muted/20">
-        <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">Our Philosophy</h2>
-          <CorePrinciples client:visible />
-        </div>
-      </section>
-
-      <!-- Current Tools -->
-      <section class="py-24 bg-background">
-        <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">What's Here Now</h2>
-          <div class="grid md:grid-cols-2 gap-8">
-            <ToolCard
-              emoji="🎙️"
-              title="Whispering"
-              description="A fast, minimal transcription tool that supports local and cloud models. No model lock-in. Just your voice, made text."
-              href="https://github.com/braden-w/whispering"
-              client:visible
-            />
-            
-            <ToolCard
-              emoji="💻"
-              title="epicenter.sh"
-              description="Talk to your codebase from anywhere—on your own hardware. It spins up a local OpenCode instance, tunnels it via Cloudflare (or your own), and lets you query it from any device."
-              href="https://github.com/epicentered/epicenter.sh"
-              client:visible
-            />
-          </div>
-          
-          <!-- Secondary CTA -->
-          <div class="text-center mt-12">
-            <Button href="https://go.epicenter.so/discord" variant="secondary" size="lg" class="font-medium">
-              Join our community for early access
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Vision -->
-      <section class="py-24 bg-muted/20">
-        <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-10 text-center">Where We're Headed</h2>
-          <div class="prose prose-zinc dark:prose-invert max-w-3xl mx-auto text-center">
-            <p class="text-xl text-foreground font-medium mb-6">
-              In a world where every app wants to trap you and your data, we're building the opposite.
-            </p>
-            <p class="text-lg text-muted-foreground mb-6 leading-relaxed">
-              Epicenter is open-source, local-first, and plain-text native—so you can trust it, tweak it, or take it with you. We're building tools that support intentional, interdisciplinary thinking: software for people who read, write, build, and connect.
-            </p>
-            <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
-              A renaissance workflow, built on plain text and real ownership.
-            </p>
-            <p class="text-xl font-semibold text-foreground mt-8">
-              We're early. But if you think like a generalist, build like a hacker, and value tools that respect your mind—join our Discord community.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Discord Community -->
-      <section id="community" class="py-24 bg-background">
-        <div class="max-w-2xl mx-auto px-6 text-center">
-          <h2 class="text-3xl font-bold text-foreground mb-6">Join Our Community</h2>
-          <p class="text-lg text-muted-foreground mb-8 leading-relaxed">
-            Connect with developers building open-source, local-first tools. Share ideas, get early access to new releases, and help shape what we build next.
-          </p>
-          
-          <div class="space-y-6 mb-10">
-            <div class="flex items-center justify-center gap-3 text-muted-foreground">
-              <span class="text-success">✓</span>
-              <span>Early access to all new tools and features</span>
-            </div>
-            <div class="flex items-center justify-center gap-3 text-muted-foreground">
-              <span class="text-success">✓</span>
-              <span>Direct feedback channel with the developers</span>
-            </div>
-            <div class="flex items-center justify-center gap-3 text-muted-foreground">
-              <span class="text-success">✓</span>
-              <span>Collaborate with like-minded builders</span>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-center gap-4">
-            <Button href="https://go.epicenter.so/discord" size="lg" class="text-lg px-10 py-7 font-medium shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
-              Join Discord Community
-            </Button>
-            <a href="https://github.com/epicentered" class="px-6 py-3 text-muted-foreground hover:text-foreground border border-border/50 hover:border-border rounded-md transition-all duration-200">
+            <Button href="https://github.com/epicenter-so/epicenter" variant="outline" size="lg" class="font-medium">
               Explore on GitHub
-            </a>
+            </Button>
+          </div>
+          
+          <!-- Quick value props -->
+          <div class="mt-12 flex flex-wrap gap-6 text-sm text-muted-foreground">
+            <div class="flex items-center gap-2">
+              <CheckIcon class="w-4 h-4 text-success" />
+              <span>100% open source</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <CheckIcon class="w-4 h-4 text-success" />
+              <span>Local-first</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <CheckIcon class="w-4 h-4 text-success" />
+              <span>Plain text & SQLite</span>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </header>
 
-      <!-- Footer -->
-      <footer class="py-12 text-center text-muted-foreground text-sm border-t border-border/40">
-        <div class="max-w-4xl mx-auto px-6">
-          <p class="mb-4">
-            Issues, bugs, feedback—all welcome.
+    <!-- Core Features -->
+    <section class="py-20 md:py-32">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Built on principles that matter
+          </h2>
+          <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+            We believe your tools should amplify your thinking, not fragment it.
           </p>
-          <div class="flex items-center justify-center gap-6">
-            <a href="https://github.com/epicentered" class="hover:text-foreground transition-colors">
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          {features.map((feature) => (
+            <div class="group">
+              <div class="flex items-start gap-4">
+                <div class="p-2 rounded-lg bg-primary/10 text-primary">
+                  <feature.icon class="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg mb-2">{feature.title}</h3>
+                  <p class="text-muted-foreground">{feature.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Showcase -->
+    <section class="py-20 md:py-32 bg-muted/30">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <Badge variant="secondary" class="mb-4">Available now</Badge>
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Tools that share your memory
+          </h2>
+          <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Each app reads and writes to the same local folder. Your transcriptions become searchable notes. 
+            Your notes inform your AI assistant. Everything connects.
+          </p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8">
+          {tools.map((tool) => (
+            <Card.Root class="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card.Header>
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="text-4xl">{tool.emoji}</span>
+                    <div>
+                      <Card.Title class="text-2xl">{tool.name}</Card.Title>
+                      <Card.Description class="mt-1">{tool.description}</Card.Description>
+                    </div>
+                  </div>
+                </div>
+              </Card.Header>
+              <Card.Content>
+                <ul class="space-y-2">
+                  {tool.features.map((feature) => (
+                    <li class="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckIcon class="w-4 h-4 text-success flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card.Content>
+              <Card.Footer>
+                <Button href={tool.href} variant="outline" class="w-full">
+                  View on GitHub
+                  <ArrowRightIcon class="w-4 h-4" />
+                </Button>
+              </Card.Footer>
+            </Card.Root>
+          ))}
+        </div>
+        
+        <div class="mt-12 text-center">
+          <p class="text-muted-foreground mb-4">More tools coming soon</p>
+          <Button href="https://go.epicenter.so/discord" variant="secondary">
+            Get early access
+          </Button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ecosystem -->
+    <section class="py-20 md:py-32">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Works with tools you already use
+          </h2>
+          <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Because everything is plain text and SQLite, your entire workspace is compatible with existing tools.
+          </p>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {ecosystem.map((tool) => (
+            <div class="p-6 rounded-lg border bg-background/50 backdrop-blur">
+              <div class="flex items-center gap-3 mb-2">
+                <TerminalIcon class="w-5 h-5 text-muted-foreground" />
+                <h3 class="font-semibold">{tool.name}</h3>
+              </div>
+              <p class="text-sm text-muted-foreground">{tool.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Vision -->
+    <section class="py-20 md:py-32 bg-muted/30">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          Software for people who think
+        </h2>
+        <div class="prose prose-lg prose-zinc dark:prose-invert mx-auto">
+          <p class="text-muted-foreground">
+            We're building an alternative to apps that fragment your thinking across a dozen cloud services. 
+            Epicenter is for people who read deeply, write to think, and build to understand.
+          </p>
+          <p class="text-muted-foreground">
+            Every tool is open source. Your data stays in plain files you control. 
+            Choose your own models, host your own services, or run everything locally.
+          </p>
+          <p class="text-foreground font-medium mt-8">
+            Join us in building tools that amplify human agency.
+          </p>
+        </div>
+        
+        <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+          <Button href="https://go.epicenter.so/discord" size="lg">
+            Join our Discord
+            <ArrowRightIcon class="w-4 h-4" />
+          </Button>
+          <Button href="https://github.com/epicenter-so/epicenter" variant="outline" size="lg">
+            Contribute on GitHub
+          </Button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Epicenter. Open source under MIT license.
+          </div>
+          <div class="flex gap-6 text-sm">
+            <a href="https://github.com/epicenter-so/epicenter" class="text-muted-foreground hover:text-foreground transition-colors">
               GitHub
             </a>
-            <a href="https://go.epicenter.so/discord" class="hover:text-foreground transition-colors">
+            <a href="https://go.epicenter.so/discord" class="text-muted-foreground hover:text-foreground transition-colors">
               Discord
             </a>
+            <a href="/blog" class="text-muted-foreground hover:text-foreground transition-colors">
+              Blog
+            </a>
           </div>
         </div>
-      </footer>
+      </div>
+    </footer>
   </main>
 </BaseLayout>
 
 <style>
-  /* Smooth scroll behavior */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Blob animation */
-  @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
-  }
-  
-  /* Fade animations */
+  /* Smooth animations */
   @keyframes fade-in {
     from {
       opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(10px);
     }
     to {
       opacity: 1;
@@ -266,72 +297,18 @@ import { Button } from '@repo/ui/button';
     }
   }
 
-  .animate-blob {
-    animation: blob 7s infinite;
-  }
-  
-  .animate-fade-in {
-    animation: fade-in 1s ease-out;
+  header > div > div > * {
+    animation: fade-in 0.6s ease-out forwards;
+    opacity: 0;
   }
 
-  .animate-fade-in-up {
-    animation: fade-in-up 1s ease-out;
-  }
+  header h1 { animation-delay: 0ms; }
+  header p { animation-delay: 150ms; }
+  header > div > div > div:nth-of-type(1) { animation-delay: 300ms; }
+  header > div > div > div:nth-of-type(2) { animation-delay: 450ms; }
 
-  .animation-delay-200 {
-    animation-delay: 200ms;
-  }
-
-  .animation-delay-400 {
-    animation-delay: 400ms;
-  }
-  
-  /* Delay classes for scroll animations */
-  .delay-200 {
-    transition-delay: 200ms;
-  }
-  
-  .delay-400 {
-    transition-delay: 400ms;
-  }
-  
-  /* Bounce animation for arrow */
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  /* Section transitions */
-  section {
-    transition: all 0.5s ease;
-  }
-  
-  /* Success/error colors */
+  /* Success color for checkmarks */
   .text-success {
     color: #10b981;
-  }
-  
-  .text-destructive {
-    color: #ef4444;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .min-h-screen {
-      min-height: 100svh; /* Use safe viewport height on mobile */
-    }
-  }
-  
-  /* Reduce motion for accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
   }
 </style>
