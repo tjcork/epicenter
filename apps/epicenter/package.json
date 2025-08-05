@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "wrangler pages deploy"
+		"deploy": "bun run build && wrangler pages deploy"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.1.0",
@@ -20,6 +20,7 @@
     "typescript": "^5.9.2"
   },
   "devDependencies": {
+    "@lucide/astro": "^0.536.0",
     "@repo/ui": "workspace:*",
     "@tailwindcss/typography": "^0.5.16"
   }
