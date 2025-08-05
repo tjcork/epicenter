@@ -139,58 +139,12 @@ const ecosystem = [
       
     </header>
 
-    <!-- Core Philosophy -->
-    <section class="py-24 relative">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-12">
-          <Badge variant="outline" class="mb-4">Core Philosophy</Badge>
-          <h2 class="text-2xl md:text-3xl font-semibold text-foreground">
-            Built different from the ground up
-          </h2>
-        </div>
-        
-        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <!-- One Folder Card -->
-          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
-                <FolderOpenIcon class="w-6 h-6" />
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-foreground mb-3">
-                  One folder. All your data.
-                </h3>
-                <p class="text-muted-foreground leading-relaxed">
-                  Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Local-first Card -->
-          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
-            <div class="flex items-start gap-4">
-              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
-                <HardDriveIcon class="w-6 h-6" />
-              </div>
-              <div>
-                <h3 class="text-xl font-bold text-foreground mb-3">
-                  Local-first by default
-                </h3>
-                <p class="text-muted-foreground leading-relaxed">
-                  Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
+    
     <!-- Core Principles -->
     <section class="py-24 md:py-32">
-      <div class="max-w-7xl mx-auto px-6">
+      <div class="max-w-5xl mx-auto px-6">
         <div class="text-center mb-20">
+          <Badge variant="outline" class="mb-6">Core Philosophy</Badge>
           <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
             Built on principles that matter
           </h2>
@@ -199,19 +153,19 @@ const ecosystem = [
           </p>
         </div>
         
-        <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+        <div class="grid lg:grid-cols-2 gap-12">
           <!-- User Principles -->
-          <div>
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
             <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-8">For you</h3>
-            <div class="space-y-8">
+            <div class="space-y-6">
               {userPrinciples.map((principle) => (
-                <div class="flex items-start gap-5 group">
-                  <div class="p-3 rounded-xl bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors flex-shrink-0">
-                    <principle.icon class="w-6 h-6" />
+                <div class="flex items-start gap-4">
+                  <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                    <principle.icon class="w-5 h-5" />
                   </div>
                   <div>
                     <h4 class="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">{principle.title}</h4>
-                    <p class="text-muted-foreground leading-relaxed">{principle.description}</p>
+                    <p class="text-muted-foreground leading-relaxed text-sm">{principle.description}</p>
                   </div>
                 </div>
               ))}
@@ -219,17 +173,17 @@ const ecosystem = [
           </div>
           
           <!-- Developer Principles -->
-          <div>
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
             <h3 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-8">For developers</h3>
-            <div class="space-y-8">
+            <div class="space-y-6">
               {developerPrinciples.map((principle) => (
-                <div class="flex items-start gap-5 group">
-                  <div class="p-3 rounded-xl bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors flex-shrink-0">
-                    <principle.icon class="w-6 h-6" />
+                <div class="flex items-start gap-4">
+                  <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                    <principle.icon class="w-5 h-5" />
                   </div>
                   <div>
                     <h4 class="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">{principle.title}</h4>
-                    <p class="text-muted-foreground leading-relaxed">{principle.description}</p>
+                    <p class="text-muted-foreground leading-relaxed text-sm">{principle.description}</p>
                   </div>
                 </div>
               ))}
@@ -295,6 +249,56 @@ const ecosystem = [
             Get early access
             <ArrowRightIcon class="w-4 h-4" />
           </Button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="py-24 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-5xl font-bold text-foreground mb-6">
+            Built different from the ground up
+          </h2>
+          <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+            One architecture, endless possibilities
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <!-- One Folder Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <FolderOpenIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  One folder. All your data.
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Local-first Card -->
+          <div class="group p-8 rounded-2xl bg-card border border-muted/50 hover:border-primary/20 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-start gap-4">
+              <div class="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+                <HardDriveIcon class="w-6 h-6" />
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-foreground mb-3">
+                  Local-first by default
+                </h3>
+                <p class="text-muted-foreground leading-relaxed">
+                  Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
