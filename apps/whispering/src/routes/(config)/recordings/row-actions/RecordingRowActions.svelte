@@ -16,7 +16,7 @@
 		Loader2Icon,
 		PlayIcon,
 		RepeatIcon,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 	import { nanoid } from 'nanoid/non-secure';
 	import EditRecordingModal from './EditRecordingModal.svelte';
 	import TransformationPicker from './TransformationPicker.svelte';

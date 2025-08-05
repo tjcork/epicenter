@@ -30,7 +30,7 @@
 	import * as ToggleGroup from '@repo/ui/toggle-group';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { UnlistenFn } from '@tauri-apps/api/event';
-	import { Loader2Icon } from 'lucide-svelte';
+	import { Loader2Icon } from '@lucide/svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
 

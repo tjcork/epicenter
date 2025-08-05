@@ -4,7 +4,7 @@
 	import { parseMarkdown } from '$lib/utils/markdown';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
-	import { Camera, Download, File, Image, Music, Video } from 'lucide-svelte';
+	import { Camera, Download, File, Image, Music, Video } from '@lucide/svelte';
 
 	import ToolExecutionDisplay from './ToolExecutionDisplay.svelte';
 

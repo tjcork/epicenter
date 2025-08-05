@@ -2,7 +2,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { ChromeWebStoreIcon } from '$lib/components/icons';
 	import { Button } from '@repo/ui/button';
-	import { LaptopIcon as DesktopIcon } from 'lucide-svelte';
+	import { LaptopIcon as DesktopIcon } from '@lucide/svelte';
 </script>
 
 <svelte:head>

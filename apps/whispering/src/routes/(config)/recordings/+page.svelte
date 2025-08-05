@@ -41,7 +41,7 @@
 		EllipsisIcon as LoadingTranscriptionIcon,
 		RepeatIcon as RetryTranscriptionIcon,
 		PlayIcon as StartTranscriptionIcon,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 	import { nanoid } from 'nanoid/non-secure';
 	import { createRawSnippet } from 'svelte';
 	import { z } from 'zod';

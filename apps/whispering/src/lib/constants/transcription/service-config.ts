@@ -2,7 +2,7 @@
  * Transcription service configurations
  */
 import type { Settings } from '$lib/settings';
-import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from 'lucide-svelte';
+import { CloudIcon, HexagonIcon, PauseIcon, ServerIcon } from '@lucide/svelte';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,

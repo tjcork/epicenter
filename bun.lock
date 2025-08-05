@@ -60,6 +60,7 @@
         "typescript": "^5.9.2",
       },
       "devDependencies": {
+        "@lucide/astro": "^0.536.0",
         "@repo/ui": "workspace:*",
         "@tailwindcss/typography": "^0.5.16",
       },
@@ -100,6 +101,7 @@
         "@eslint/compat": "^1.2.5",
         "@eslint/js": "^9.18.0",
         "@hey-api/openapi-ts": "^0.78.3",
+        "@lucide/svelte": "catalog:",
         "@repo/config": "workspace:*",
         "@repo/svelte-utils": "workspace:*",
         "@repo/ui": "workspace:*",
@@ -112,7 +114,6 @@
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-svelte": "^3.0.0",
         "globals": "^16.0.0",
-        "lucide-svelte": "catalog:",
         "prettier": "catalog:",
         "prettier-plugin-svelte": "^3.3.3",
         "prettier-plugin-tailwindcss": "^0.6.11",
@@ -163,6 +164,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@lucide/svelte": "catalog:",
         "@repo/config": "workspace:*",
         "@repo/ui": "workspace:*",
         "@sveltejs/adapter-static": "^3.0.8",
@@ -171,7 +173,6 @@
         "@tailwindcss/vite": "^4.1.11",
         "@tauri-apps/cli": "^2.5.0",
         "eslint": "catalog:",
-        "lucide-svelte": "catalog:",
         "mode-watcher": "catalog:",
         "prettier": "catalog:",
         "svelte": "catalog:",
@@ -233,8 +234,8 @@
       "name": "@repo/shared",
       "version": "0.0.0",
       "dependencies": {
+        "@lucide/svelte": "catalog:",
         "arktype": "catalog:",
-        "lucide-svelte": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -291,6 +292,7 @@
   },
   "catalog": {
     "@biomejs/biome": "^1.9.4",
+    "@lucide/svelte": "^0.536.0",
     "@sveltejs/kit": "^2.22.0",
     "@sveltejs/vite-plugin-svelte": "^6.1.0",
     "@tanstack/svelte-table": "9.0.0-alpha.10",
@@ -301,7 +303,6 @@
     "concurrently": "^9.1.2",
     "date-fns": "^4.1.0",
     "eslint": "^9.30.1",
-    "lucide-svelte": "^0.525.0",
     "mode-watcher": "^1.0.8",
     "nanoid": "^5.1.5",
     "prettier": "^3.6.2",
@@ -596,7 +597,9 @@
 
     "@levischuck/tiny-cbor": ["@levischuck/tiny-cbor@0.2.11", "", {}, "sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow=="],
 
-    "@lucide/svelte": ["@lucide/svelte@0.525.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-dyUxkXzepagLUzL8jHQNdeH286nC66ClLACsg+Neu/bjkRJWPWMzkT+H0DKlE70QdkicGCfs1ZGmXCc351hmZA=="],
+    "@lucide/astro": ["@lucide/astro@0.536.0", "", { "peerDependencies": { "astro": "^4 || ^5" } }, "sha512-YtnEpWuk+ETun3kcLFbfYlPWuE5fhStg76u8dmhOUsRHk7E1ZsXbtxY612GobgJRiD9tqXmhcg1qu0yVuceTvw=="],
+
+    "@lucide/svelte": ["@lucide/svelte@0.536.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-YAeoWU+0B/RriFZZ3wHno1FMkbrVrFdityuo2B0YuphD0vtJWXStzZkWLGVhT3jMb7zhugmhayIg+gI4+AZu1g=="],
 
     "@melt-ui/svelte": ["@melt-ui/svelte@0.76.2", "", { "dependencies": { "@floating-ui/core": "^1.3.1", "@floating-ui/dom": "^1.4.5", "@internationalized/date": "^3.5.0", "dequal": "^2.0.3", "focus-trap": "^7.5.2", "nanoid": "^5.0.4" }, "peerDependencies": { "svelte": ">=3 <5" } }, "sha512-7SbOa11tXUS95T3fReL+dwDs5FyJtCEqrqG3inRziDws346SYLsxOQ6HmX+4BkIsQh1R8U3XNa+EMmdMt38lMA=="],
 
@@ -1570,8 +1573,6 @@
 
     "lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
 
-    "lucide-svelte": ["lucide-svelte@0.525.0", "", { "peerDependencies": { "svelte": "^3 || ^4 || ^5.0.0-next.42" } }, "sha512-kfuN6JcCqTfCz2B76aXnyGLAzEBRSYw5GaUspM5RNHQZS5aI5yaKu06fbaofOk8cDvUtY0AUm/zAix7aUX6Q3A=="],
-
     "magic-string": ["magic-string@0.30.17", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0" } }, "sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA=="],
 
     "magicast": ["magicast@0.3.5", "", { "dependencies": { "@babel/parser": "^7.25.4", "@babel/types": "^7.25.4", "source-map-js": "^1.2.0" } }, "sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ=="],
@@ -2355,6 +2356,8 @@
     "@repo/constants/@types/node": ["@types/node@20.19.9", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-cuVNgarYWZqxRJDQHEB58GEONhOK79QVR/qYx4S7kcUObQvUwvFnYxJuuHUKm2aieN9X3yZB4LZsuYNU1Qphsw=="],
 
     "@repo/svelte-utils/svelte": ["svelte@5.14.4", "", { "dependencies": { "@ampproject/remapping": "^2.3.0", "@jridgewell/sourcemap-codec": "^1.5.0", "@types/estree": "^1.0.5", "acorn": "^8.12.1", "acorn-typescript": "^1.4.13", "aria-query": "^5.3.1", "axobject-query": "^4.1.0", "esm-env": "^1.2.1", "esrap": "^1.3.1", "is-reference": "^3.0.3", "locate-character": "^3.0.0", "magic-string": "^0.30.11", "zimmerframe": "^1.1.2" } }, "sha512-2iR/UHHA2Dsldo4JdXDcdqT+spueuh+uNYw1FoTKBbpnFEECVISeqSo0uubPS4AfBE0xI6u7DGHxcdq3DTDmoQ=="],
+
+    "@repo/ui/@lucide/svelte": ["@lucide/svelte@0.525.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-dyUxkXzepagLUzL8jHQNdeH286nC66ClLACsg+Neu/bjkRJWPWMzkT+H0DKlE70QdkicGCfs1ZGmXCc351hmZA=="],
 
     "@rollup/pluginutils/estree-walker": ["estree-walker@2.0.2", "", {}, "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w=="],
 

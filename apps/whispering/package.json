@@ -27,7 +27,7 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"@tauri-apps/cli": "^2.5.0",
 		"eslint": "catalog:",
-		"lucide-svelte": "catalog:",
+		"@lucide/svelte": "catalog:",
 		"mode-watcher": "catalog:",
 		"prettier": "catalog:",
 		"svelte": "catalog:",

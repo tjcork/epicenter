@@ -16,7 +16,7 @@
 		FilterIcon,
 		FilterXIcon,
 		LayersIcon,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,

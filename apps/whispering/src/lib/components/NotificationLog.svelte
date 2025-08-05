@@ -36,7 +36,7 @@
 		Info,
 		Loader,
 		LogsIcon,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 	import { mode } from 'mode-watcher';
 	import WhisperingButton from './WhisperingButton.svelte';
 	import { cn } from '@repo/ui/utils';

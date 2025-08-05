@@ -18,7 +18,7 @@
 	import * as Modal from '@repo/ui/modal';
 	import { PMCommand } from '@repo/ui/pm-command';
 	import * as Tabs from '@repo/ui/tabs';
-	import { CheckCircle2, Copy, Loader2 } from 'lucide-svelte';
+	import { CheckCircle2, Copy, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	let { triggerChild }: { triggerChild: Snippet<[{ props: ButtonProps }]> } =

@@ -10,7 +10,7 @@
 	import * as Table from '@repo/ui/table';
 	import * as Tooltip from '@repo/ui/tooltip';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { GitBranch } from 'lucide-svelte';
+	import { GitBranch } from '@lucide/svelte';
 
 	import AssistantConnectionBadge from './AssistantConnectionBadge.svelte';
 	import DeleteAssistantConfigButton from './DeleteAssistantConfigButton.svelte';

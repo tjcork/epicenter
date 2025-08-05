@@ -6,7 +6,7 @@
 	import { buttonVariants } from '@repo/ui/button';
 	import * as Chat from '@repo/ui/chat';
 	import * as DropdownMenu from '@repo/ui/dropdown-menu';
-	import { Copy, Edit, MoreHorizontal, RotateCcw } from 'lucide-svelte';
+	import { Copy, Edit, MoreHorizontal, RotateCcw } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	import MessagePartRenderer from './MessagePartRenderer.svelte';

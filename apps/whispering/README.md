@@ -807,7 +807,7 @@ Adding a new transcription service involves four main steps:
 
 2. **Update the service configuration** in `src/lib/constants/transcription/service-config.ts`:
    ```typescript
-   import { YourServiceIcon } from 'lucide-svelte';
+   import { YourServiceIcon } from '@lucide/svelte';
    import {
      YOUR_SERVICE_MODELS,
      type YourServiceModel,
