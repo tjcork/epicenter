@@ -10,26 +10,50 @@ import {
 	GitFork as GitForkIcon,
 	Shield as ShieldIcon,
 	Terminal as TerminalIcon,
+	HardDrive as HardDriveIcon,
+	Sparkles as SparklesIcon,
+	Link2 as Link2Icon,
+	Code2 as Code2Icon,
+	Zap as ZapIcon,
+	Rocket as RocketIcon,
 } from '@lucide/astro';
 
-const features = [
+const userPrinciples = [
 	{
-		icon: FolderOpenIcon,
-		title: 'One folder. All your data.',
+		icon: HardDriveIcon,
+		title: 'Own your data',
 		description:
-			'Everything lives in a single directory on your machine. Plain text files and SQLite databases you actually own.',
+			'Everything lives as files on your disk. Delete the app, keep your work.',
 	},
 	{
-		icon: ShieldIcon,
-		title: 'Local-first by default',
-		description:
-			'Your transcripts, notes, and ideas never leave your machine unless you want them to. No cloud lock-in.',
+		icon: SparklesIcon,
+		title: 'Use any model',
+		description: 'OpenAI, Anthropic, local LLMs. Your choice, your API key.',
 	},
 	{
-		icon: GitForkIcon,
-		title: 'Open source, always',
+		icon: Link2Icon,
+		title: 'Preserve authenticity',
+		description: 'No middleman. Direct connection to your tools and models.',
+	},
+];
+
+const developerPrinciples = [
+	{
+		icon: Code2Icon,
+		title: 'Free and open source',
+		description: 'Audit the code. Fork it. Make it yours.',
+	},
+	{
+		icon: ZapIcon,
+		title: 'Blazing fast',
 		description:
-			'Every line of code is open. Fork it, extend it, or audit it. Built to be understood and modified.',
+			'Built with Rust, Svelte 5, and obsessive performance optimization.',
+	},
+	{
+		icon: RocketIcon,
+		title: "Built on tomorrow's stack",
+		description:
+			'CRDTs, local-first architecture, and the bleeding edge of web tech.',
 	},
 ];
 
@@ -115,7 +139,7 @@ const ecosystem = [
       </div>
     </header>
 
-    <!-- Core Features -->
+    <!-- Core Principles -->
     <section class="py-20 md:py-32">
       <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16">
@@ -127,20 +151,42 @@ const ecosystem = [
           </p>
         </div>
         
-        <div class="grid md:grid-cols-3 gap-8">
-          {features.map((feature) => (
-            <div class="group">
-              <div class="flex items-start gap-4">
-                <div class="p-2 rounded-lg bg-primary/10 text-primary">
-                  <feature.icon class="w-5 h-5" />
+        <div class="grid lg:grid-cols-2 gap-12">
+          <!-- User Principles -->
+          <div>
+            <h3 class="text-sm font-medium text-muted-foreground mb-6">For you</h3>
+            <div class="space-y-6">
+              {userPrinciples.map((principle) => (
+                <div class="flex items-start gap-4">
+                  <div class="p-2 rounded-lg bg-primary/10 text-primary">
+                    <principle.icon class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-lg mb-1">{principle.title}</h4>
+                    <p class="text-muted-foreground">{principle.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="font-semibold text-lg mb-2">{feature.title}</h3>
-                  <p class="text-muted-foreground">{feature.description}</p>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+          
+          <!-- Developer Principles -->
+          <div>
+            <h3 class="text-sm font-medium text-muted-foreground mb-6">For developers</h3>
+            <div class="space-y-6">
+              {developerPrinciples.map((principle) => (
+                <div class="flex items-start gap-4">
+                  <div class="p-2 rounded-lg bg-primary/10 text-primary">
+                    <principle.icon class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-lg mb-1">{principle.title}</h4>
+                    <p class="text-muted-foreground">{principle.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
