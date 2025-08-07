@@ -115,6 +115,8 @@
 			"Bash(gh:config*get*)",
 			"Bash(gh:config*list*)",
 			"Bash(gh:extension*list*)",
+			"Bash(gh issue list:*)",
+			"Bash(gh issue view:*)",
 			"Bash(gh:label*list*)",
 			"Bash(gh:milestone*list*)",
 			"Bash(gh:project*list*)",
