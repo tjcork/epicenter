@@ -46,9 +46,9 @@ if (!/^\d+\.\d+\.\d+$/.test(newVersion)) {
  */
 const files = [
 	{ path: 'package.json', type: 'json' },
-	{ path: 'apps/app/package.json', type: 'json' },
-	{ path: 'apps/app/src-tauri/tauri.conf.json', type: 'json' },
-	{ path: 'apps/app/src-tauri/Cargo.toml', type: 'toml' },
+	{ path: 'apps/whispering/package.json', type: 'json' },
+	{ path: 'apps/whispering/src-tauri/tauri.conf.json', type: 'json' },
+	{ path: 'apps/whispering/src-tauri/Cargo.toml', type: 'toml' },
 ];
 
 /** Track the current version before updating */
@@ -90,7 +90,7 @@ for (const { path, type } of files) {
 try {
 	console.log('\n🔄 Updating Cargo.lock...');
 	const { stdout, stderr } = await execAsync(
-		'cd apps/app/src-tauri && cargo update -p whispering',
+		'cd apps/whispering/src-tauri && cargo update -p whispering',
 	);
 	if (stderr && !stderr.includes('Locking')) {
 		console.error(`⚠️  Cargo update warning: ${stderr}`);
@@ -99,7 +99,7 @@ try {
 } catch (error) {
 	console.error('❌ Failed to update Cargo.lock:', error.message);
 	console.log(
-		'   You may need to run: cd apps/app/src-tauri && cargo update -p whispering',
+		'   You may need to run: cd apps/whispering/src-tauri && cargo update -p whispering',
 	);
 }
 

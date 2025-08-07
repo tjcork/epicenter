@@ -8,8 +8,8 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": [
-			"apps/app/src-tauri/**",
-			"apps/app/.svelte-kit/**",
+			"apps/whispering/src-tauri/**",
+			"apps/whispering/.svelte-kit/**",
 			".plasmo",
 			".DS_Store",
 			".turbo",

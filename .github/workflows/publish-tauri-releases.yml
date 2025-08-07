@@ -80,7 +80,7 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           # Point to the Rust project directory
-          workspaces: './apps/app/src-tauri -> target'
+          workspaces: './apps/whispering/src-tauri -> target'
 
       # Install all JavaScript dependencies
       - name: install frontend dependencies
@@ -88,7 +88,7 @@ jobs:
 
       # Build the frontend (SvelteKit app) before Tauri packaging
       - name: Build frontend
-        run: bun --filter @repo/app build  # Targets the specific workspace package
+        run: bun --filter @repo/whispering build  # Targets the specific workspace package
 
       # Read and process release notes from the release-notes directory
       - name: Process release notes
@@ -137,7 +137,7 @@ jobs:
 
         with:
           # Path to the Tauri project (where tauri.conf.json is located)
-          projectPath: 'apps/app'
+          projectPath: 'apps/whispering'
           
           # Use the actual git tag as the release tag (e.g., v7.0.0)
           tagName: ${{ github.ref_name }}
