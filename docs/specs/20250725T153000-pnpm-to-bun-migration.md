@@ -64,7 +64,7 @@ Add the `workspaces` field with catalogs to your root `package.json`:
         "bits-ui": "2.8.10",
         "mode-watcher": "^1.0.8",
         "svelte-sonner": "^1.0.5",
-        "lucide-svelte": "^0.525.0",
+        "@lucide/svelte": "^0.525.0",
         "@tanstack/svelte-table": "9.0.0-alpha.10",
         "arktype": "^2.1.20",
         "zod": "^3.25.67"
@@ -104,7 +104,7 @@ Update workspace packages to reference catalog versions. For example, in `packag
   "dependencies": {
     "bits-ui": "catalog:",
     "clsx": "catalog:",
-    "lucide-svelte": "catalog:",
+    "@lucide/svelte": "catalog:",
     "mode-watcher": "catalog:",
     "svelte-sonner": "catalog:",
     "@tanstack/svelte-table": "catalog:",

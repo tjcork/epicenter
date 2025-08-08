@@ -23,7 +23,7 @@
 		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { CheckIcon } from 'lucide-svelte';
+	import { CheckIcon } from '@lucide/svelte';
 </script>
 
 <svelte:head>

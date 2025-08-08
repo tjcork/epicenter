@@ -12,7 +12,7 @@
 		Clock,
 		Loader2,
 		XCircle,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 
 	let { toolPart }: { toolPart: ToolPart } = $props();
 

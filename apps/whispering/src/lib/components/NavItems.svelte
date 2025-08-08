@@ -12,7 +12,7 @@
 		MoreVerticalIcon,
 		SettingsIcon,
 		SunIcon,
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 	import { toggleMode } from 'mode-watcher';
 
 	let {

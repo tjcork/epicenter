@@ -3,7 +3,7 @@
 	import { Button } from '@repo/ui/button';
 	import { Separator } from '@repo/ui/separator';
 	import { rpc } from '$lib/query';
-	import { RotateCcw } from 'lucide-svelte';
+	import { RotateCcw } from '@lucide/svelte';
 	import SidebarNav from './SidebarNav.svelte';
 	import { resetAllSettingsToDefaults } from './reset-all-settings-to-defaults';
 

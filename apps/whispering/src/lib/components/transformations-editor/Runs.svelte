@@ -9,7 +9,7 @@
 	import type { TransformationRun } from '$lib/services/db';
 	import { getTransformationStepRunTransitionId } from '$lib/utils/getRecordingTransitionId';
 	import { format } from 'date-fns';
-	import { ChevronDown, ChevronRight } from 'lucide-svelte';
+	import { ChevronDown, ChevronRight } from '@lucide/svelte';
 
 	let { runs }: { runs: TransformationRun[] } = $props();
 

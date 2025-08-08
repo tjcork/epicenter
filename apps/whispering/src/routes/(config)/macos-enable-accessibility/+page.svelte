@@ -2,7 +2,7 @@
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
 	import { invoke } from '@tauri-apps/api/core';
-	import { SettingsIcon } from 'lucide-svelte';
+	import { SettingsIcon } from '@lucide/svelte';
 </script>
 
 <svelte:head>

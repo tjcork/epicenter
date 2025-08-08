@@ -50,7 +50,7 @@ Migrate from separate private/public port configuration to a single port configu
 - [ ] Remove separate Git and Ports columns
 - [ ] Add new unnamed column after folder name column
 - [ ] In this column, display:
-  - Git icon (GitBranch from lucide-svelte) if Git is enabled
+  - Git icon (GitBranch from @lucide/svelte) if Git is enabled
   - Port number in a badge (e.g., "4096" styled as a badge)
 - [ ] Keep remaining columns: URL, Status, Last Used, Actions
 - [ ] Update column visibility logic for the new column structure
@@ -101,7 +101,7 @@ async function generateAvailablePort(): Promise<number> {
 The table will have the following columns:
 1. **Folder Name** (no header): Shows the current working directory name
 2. **[Unnamed]** (no header): Combined Git status and port info
-   - Git icon if Git is enabled (using GitBranch from lucide-svelte)
+   - Git icon if Git is enabled (using GitBranch from @lucide/svelte)
    - Port number in a badge (e.g., styled as a small badge showing "4096")
 3. **URL**: The ngrok URL
 4. **Status**: Connection status badge

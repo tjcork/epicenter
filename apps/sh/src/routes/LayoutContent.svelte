@@ -7,7 +7,7 @@
 	import * as DropdownMenu from '@repo/ui/dropdown-menu';
 	import { LightSwitch } from '@repo/ui/light-switch';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
-	import { Loader2, LogOut, Settings, User } from 'lucide-svelte';
+	import { Loader2, LogOut, Settings, User } from '@lucide/svelte';
 	import { siGithub } from 'simple-icons';
 
 	let { children } = $props();
