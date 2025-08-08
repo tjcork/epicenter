@@ -84,13 +84,13 @@
 						{getDevicesQuery.error.message}
 					</div>
 				{:else}
-					{#each getDevicesQuery.data as device (device.deviceId)}
+					{#each getDevicesQuery.data as deviceId (deviceId)}
 						<Command.Item
-							value={device.label}
+							value={deviceId}
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
 								setSelectedDeviceId(
-									currentDeviceId === device.deviceId ? null : device.deviceId,
+									currentDeviceId === deviceId ? null : deviceId,
 								);
 								combobox.closeAndFocusTrigger();
 							}}
@@ -99,12 +99,12 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									selectedDeviceId !== device.deviceId && 'text-transparent',
+									selectedDeviceId !== deviceId && 'text-transparent',
 								)}
 							/>
 							<div class="flex flex-col min-w-0">
 								<span class="font-medium truncate">
-									{device.label}
+									{deviceId}
 								</span>
 							</div>
 						</Command.Item>

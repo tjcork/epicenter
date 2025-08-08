@@ -7,12 +7,11 @@ import {
 import { createTaggedError } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
-	type DeviceAcquisitionOutcome,
-	type UpdateStatusMessageFn,
 	cleanupRecordingStream,
-	enumerateRecordingDevices,
+	enumerateRecordingDeviceIds,
 	getRecordingStream,
 } from './device-stream';
+import type { DeviceIdentifier, DeviceAcquisitionOutcome, UpdateStatusMessageFn } from './types';
 
 const { ManualRecorderServiceError, ManualRecorderServiceErr } =
 	createTaggedError('ManualRecorderServiceError');
@@ -21,7 +20,7 @@ export type ManualRecorderServiceError = ReturnType<
 >;
 
 type ActiveRecording = {
-	selectedDeviceId: string | null;
+	selectedDeviceId: DeviceIdentifier | null;
 	bitrateKbps: string;
 	stream: MediaStream;
 	mediaRecorder: MediaRecorder;
@@ -39,14 +38,14 @@ export function createManualRecorderService() {
 			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
 
-		enumerateRecordingDevices,
+		enumerateRecordingDeviceIds,
 
 		startRecording: async (
 			{
 				selectedDeviceId,
 				bitrateKbps,
 			}: {
-				selectedDeviceId: string | null;
+				selectedDeviceId: DeviceIdentifier | null;
 				bitrateKbps: string;
 			},
 			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },

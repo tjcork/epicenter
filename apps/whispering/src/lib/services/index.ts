@@ -13,11 +13,13 @@ import { ToastServiceLive } from './toast';
 import * as transcriptions from './transcription';
 import { TrayIconServiceLive } from './tray';
 import { VadServiceLive } from './vad-recorder';
+import { asDeviceIdentifier } from './types';
 
 /**
  * Unified services object providing consistent access to all services.
  */
 export {
+	asDeviceIdentifier,
 	ClipboardServiceLive as clipboard,
 	completions,
 	CpalRecorderServiceLive as cpalRecorder,

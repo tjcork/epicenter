@@ -14,7 +14,7 @@ export const device = {
 			queryKey: deviceKeys.mediaDevices,
 			resultQueryFn: () =>
 				// deviceEnumerationStrategy === 'navigator' ?
-				services.manualRecorder.enumerateRecordingDevices(),
-			// : services.cpalRecorder.enumerateRecordingDevices(),
+				services.manualRecorder.enumerateRecordingDeviceIds(),
+			// : services.cpalRecorder.enumerateRecordingDeviceIds(),
 		}),
 };

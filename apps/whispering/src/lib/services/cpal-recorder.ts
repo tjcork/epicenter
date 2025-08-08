@@ -5,77 +5,82 @@ import type {
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { createTaggedError } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import type {
+	DeviceIdentifier,
+	DeviceAcquisitionOutcome,
+	UpdateStatusMessageFn,
+} from './types';
+import { asDeviceIdentifier } from './types';
 
 const { CpalRecorderServiceError, CpalRecorderServiceErr } = createTaggedError(
 	'CpalRecorderServiceError',
 );
 type CpalRecorderServiceError = ReturnType<typeof CpalRecorderServiceError>;
 
-type UpdateStatusMessageFn = (args: {
-	title: string;
-	description: string;
-}) => void;
-
-type DeviceAcquisitionOutcome =
-	| { outcome: 'success' }
-	| {
-			outcome: 'fallback';
-			reason: 'no-device-selected' | 'preferred-device-unavailable';
-			fallbackDeviceId: string;
-	  };
-
 export function createCpalRecorderService() {
-	const enumerateRecordingDevices = async () => {
-		const { data: deviceInfos, error: enumerateRecordingDevicesError } =
-			await invoke<{ deviceId: string; label: string }[]>(
-				'enumerate_recording_devices',
-			);
+	const enumerateRecordingDeviceIds = async (): Promise<
+		Result<DeviceIdentifier[], CpalRecorderServiceError>
+	> => {
+		const { data: deviceNames, error: enumerateRecordingDevicesError } =
+			await invoke<string[]>('enumerate_recording_devices');
 		if (enumerateRecordingDevicesError) {
 			return CpalRecorderServiceErr({
 				message: 'Failed to enumerate recording devices',
 				cause: enumerateRecordingDevicesError,
 			});
 		}
-		return Ok(deviceInfos);
+		// Device names are the identifiers for CPAL
+		return Ok(deviceNames.map(asDeviceIdentifier));
 	};
 
 	return {
-		getRecorderState: async (): Promise<
-			Result<WhisperingRecordingState, CpalRecorderServiceError>
+		getCurrentRecordingId: async (): Promise<
+			Result<string | null, CpalRecorderServiceError>
 		> => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await invoke<WhisperingRecordingState>('get_recorder_state');
-			if (getRecorderStateError)
+			const { data: recordingId, error: getCurrentRecordingIdError } =
+				await invoke<string | null>('get_current_recording_id');
+			if (getCurrentRecordingIdError)
 				return CpalRecorderServiceErr({
 					message:
-						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: { error: getRecorderStateError },
-					cause: getRecorderStateError,
+						'We encountered an issue while getting the current recording. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+					context: { error: getCurrentRecordingIdError },
+					cause: getCurrentRecordingIdError,
 				});
-			return Ok(recorderState);
+
+			return Ok(recordingId);
 		},
 
-		enumerateRecordingDevices,
+		enumerateRecordingDeviceIds,
 
 		startRecording: async (
-			{ selectedDeviceId }: { selectedDeviceId: string | null },
+			{
+				selectedDeviceId,
+				recordingId,
+				outputFolder,
+				sampleRate,
+			}: {
+				selectedDeviceId: DeviceIdentifier | null;
+				recordingId: string;
+				outputFolder?: string | null;
+				sampleRate?: string;
+			},
 			{ sendStatus }: { sendStatus: UpdateStatusMessageFn },
 		): Promise<Result<DeviceAcquisitionOutcome, CpalRecorderServiceError>> => {
-			const { data: devices, error: enumerateError } =
-				await enumerateRecordingDevices();
+			const { data: deviceIds, error: enumerateError } =
+				await enumerateRecordingDeviceIds();
 			if (enumerateError) return Err(enumerateError);
 
 			const acquireDevice = (): Result<
 				{ deviceName: string; deviceOutcome: DeviceAcquisitionOutcome },
 				CpalRecorderServiceError
 			> => {
-				const fallbackDeviceCandidate = devices.at(0);
-				if (!fallbackDeviceCandidate)
+				const fallbackDeviceId = deviceIds.at(0);
+				if (!fallbackDeviceId)
 					return CpalRecorderServiceErr({
 						message: selectedDeviceId
 							? "We couldn't find the selected microphone. Make sure it's connected and try again!"
 							: "We couldn't find any microphones. Make sure they're connected and try again!",
-						context: { selectedDeviceId, devices },
+						context: { selectedDeviceId, deviceIds },
 						cause: undefined,
 					});
 
@@ -86,22 +91,21 @@ export function createCpalRecorderService() {
 							"No worries! We'll find the best microphone for you automatically...",
 					});
 					return Ok({
-						deviceName: fallbackDeviceCandidate.deviceId,
+						deviceName: fallbackDeviceId, // Just use the device name directly
 						deviceOutcome: {
 							outcome: 'fallback',
 							reason: 'no-device-selected',
-							fallbackDeviceId: fallbackDeviceCandidate.deviceId,
+							fallbackDevice: fallbackDeviceId,
 						},
 					});
 				}
 
-				const deviceExists = devices.some(
-					(d) => d.deviceId === selectedDeviceId,
-				);
+				// Check if the selected device exists in the devices array
+				const deviceExists = deviceIds.includes(selectedDeviceId);
 
 				if (deviceExists) {
 					return Ok({
-						deviceName: selectedDeviceId,
+						deviceName: selectedDeviceId, // Use the selected device name directly
 						deviceOutcome: { outcome: 'success' },
 					});
 				}
@@ -113,11 +117,11 @@ export function createCpalRecorderService() {
 				});
 
 				return Ok({
-					deviceName: fallbackDeviceCandidate.deviceId,
+					deviceName: fallbackDeviceId, // Use fallback device name directly
 					deviceOutcome: {
 						outcome: 'fallback',
 						reason: 'preferred-device-unavailable',
-						fallbackDeviceId: fallbackDeviceCandidate.deviceId,
+						fallbackDevice: fallbackDeviceId,
 					},
 				});
 			};
@@ -135,9 +139,19 @@ export function createCpalRecorderService() {
 					'Initializing your recording session and checking microphone access...',
 			});
 
+			// Convert sample rate string to number if provided
+			const sampleRateNum = sampleRate
+				? Number.parseInt(sampleRate, 10)
+				: undefined;
+
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
-				{ deviceName },
+				{
+					deviceName,
+					recordingId,
+					outputFolder: outputFolder || undefined,
+					sampleRate: sampleRateNum,
+				},
 			);
 			if (initRecordingSessionError)
 				return CpalRecorderServiceErr({
@@ -178,6 +192,7 @@ export function createCpalRecorderService() {
 				sampleRate: number;
 				channels: number;
 				durationSeconds: number;
+				filePath?: string;
 			}>('stop_recording');
 			if (stopRecordingError) {
 				return CpalRecorderServiceErr({
@@ -187,12 +202,39 @@ export function createCpalRecorderService() {
 				});
 			}
 
-			const float32Array = new Float32Array(audioRecording.audioData);
-			const blob = createWavFromFloat32(
-				float32Array,
-				audioRecording.sampleRate,
-				audioRecording.channels,
-			);
+			let blob: Blob;
+
+			// Check if we have a file path (new file-based recording) or audio data (legacy)
+			if (audioRecording.filePath) {
+				// Read the WAV file from disk using Tauri FS plugin
+				sendStatus({
+					title: '📁 Reading Recording',
+					description: 'Loading your recording from disk...',
+				});
+
+				try {
+					const { readFile } = await import('@tauri-apps/plugin-fs');
+					const fileBytes = await readFile(audioRecording.filePath);
+					blob = new Blob([fileBytes], { type: 'audio/wav' });
+				} catch (error) {
+					return CpalRecorderServiceErr({
+						message: 'Unable to read recording file. Please try again.',
+						context: {
+							operation: 'readRecordingFile',
+							filePath: audioRecording.filePath,
+						},
+						cause: error,
+					});
+				}
+			} else {
+				// Legacy: create WAV from float32 array
+				const float32Array = new Float32Array(audioRecording.audioData);
+				blob = createWavFromFloat32(
+					float32Array,
+					audioRecording.sampleRate,
+					audioRecording.channels,
+				);
+			}
 
 			// Close the recording session after stopping
 			sendStatus({
@@ -216,18 +258,19 @@ export function createCpalRecorderService() {
 			sendStatus: UpdateStatusMessageFn;
 		}): Promise<Result<CancelRecordingResult, CpalRecorderServiceError>> => {
 			// Check current state first
-			const { data: recorderState, error: getStateError } =
-				await invoke<WhisperingRecordingState>('get_recorder_state');
-			if (getStateError) {
+			const { data: recordingId, error: getRecordingIdError } = await invoke<
+				string | null
+			>('get_current_recording_id');
+			if (getRecordingIdError) {
 				return CpalRecorderServiceErr({
 					message:
 						'Unable to check recording state. Please try closing the app and starting again.',
 					context: { operation: 'cancelRecording' },
-					cause: getStateError,
+					cause: getRecordingIdError,
 				});
 			}
 
-			if (recorderState === 'IDLE') {
+			if (!recordingId) {
 				return Ok({ status: 'no-recording' });
 			}
 
@@ -236,14 +279,25 @@ export function createCpalRecorderService() {
 				description:
 					'Safely stopping your recording and cleaning up resources...',
 			});
-			const { error: cancelRecordingError } = await invoke('cancel_recording');
-			if (cancelRecordingError)
-				return CpalRecorderServiceErr({
-					message:
-						'Unable to cancel the recording. Please try closing the app and starting again.',
-					context: { recorderState },
-					cause: cancelRecordingError,
-				});
+
+			// First get the recording data to know if there's a file to delete
+			const { data: audioRecording } = await invoke<{
+				audioData: number[];
+				sampleRate: number;
+				channels: number;
+				durationSeconds: number;
+				filePath?: string;
+			}>('stop_recording');
+
+			// If there's a file path, delete the file using Tauri FS plugin
+			if (audioRecording?.filePath) {
+				try {
+					const { remove } = await import('@tauri-apps/plugin-fs');
+					await remove(audioRecording.filePath);
+				} catch (error) {
+					console.error('Failed to delete recording file:', error);
+				}
+			}
 
 			// Close the recording session after cancelling
 			sendStatus({
