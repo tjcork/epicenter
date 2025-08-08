@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { Button } from '@repo/ui/button';
 import * as Card from '@repo/ui/card';
 import { Badge } from '@repo/ui/badge';
+import PrinciplesRotatingHeadline from '../components/PrinciplesRotatingHeadline.svelte';
 import {
 	ArrowRight as ArrowRightIcon,
 	Check as CheckIcon,
@@ -109,7 +110,7 @@ const ecosystem = [
 ];
 ---
 
-<BaseLayout title="Epicenter - Your workspace. Your data. Your tools." description="An ecosystem of open-source, local-first apps that share a single memory. No cloud lock-in, no subscriptions, just tools that respect your data.">
+<BaseLayout title="Epicenter: A Database for Your Mind" description="An ecosystem of open-source, local-first apps that share a single memory. No cloud lock-in, no subscriptions, just tools that respect your data.">
   <main class="bg-background">
     <!-- Hero Section -->
     <header class="relative h-screen flex items-center justify-center">
@@ -170,8 +171,8 @@ const ecosystem = [
             Tools that share your memory
           </h2>
           <p class="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Each app reads and writes to the same local folder. Your transcriptions become searchable notes. 
-            Your notes inform your AI assistant. Everything connects.
+            Record a meeting in Whispering. Edit the transcript in Obsidian. Query it with your AI. 
+            No copy-pasting, no exports. Your tools share one memory.
           </p>
         </div>
         
