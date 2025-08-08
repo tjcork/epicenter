@@ -34,5 +34,6 @@
 	<AppShell>
 		{@render children()}
 	</AppShell>
-	<SvelteQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
 </QueryClientProvider>
+
+<SvelteQueryDevtools client={queryClient} buttonPosition="bottom-left" />

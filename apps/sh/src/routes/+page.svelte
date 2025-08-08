@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { PMCommand } from '@repo/ui/pm-command';
+	import * as Alert from '@repo/ui/alert';
+	import { InfoIcon } from 'lucide-svelte';
+	import { Link } from '@repo/ui/link';
 </script>
 
 <svelte:head>
@@ -38,4 +41,22 @@
 		<a href="/faq" class="underline underline-offset-4">Learn how it works</a> under
 		the hood.
 	</p>
+
+	<Alert.Root class="mt-8">
+		<InfoIcon class="h-4 w-4" />
+		<Alert.Title>Service Update</Alert.Title>
+		<Alert.Description>
+			<p>
+				We're currently experiencing some client instability. We're waiting for <Link
+					href="https://github.com/sst/opencode/pull/1218"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium underline underline-offset-4"
+				>
+					PR #1218
+				</Link> to be merged, which will allow us to use the OpenCode binary directly
+				in our CLI and improve stability.
+			</p>
+		</Alert.Description>
+	</Alert.Root>
 </div>
