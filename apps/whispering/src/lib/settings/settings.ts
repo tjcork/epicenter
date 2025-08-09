@@ -43,6 +43,7 @@ import type { ElevenLabsModel } from '$lib/services/transcription/elevenlabs';
 import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
+import { type DeviceIdentifier, asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 
 /**
@@ -106,16 +107,27 @@ export const settingsSchema = z.object({
 
 	// Recording mode settings
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
+	/**
+	 * Platform-agnostic device identifier for audio recording devices.
+	 * @see DeviceIdentifier
+	 */
+	'recording.selectedDeviceId': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asDeviceIdentifier(val) : null))
+		.default(null),
 
 	// Navigator settings (shared by manual, VAD, and live modes)
-	'recording.navigator.selectedDeviceId': z.string().nullable().default(null),
 	'recording.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
 	// CPAL mode settings (native only)
-	'recording.cpal.selectedDeviceId': z.string().nullable().default(null),
+	'recording.cpal.outputFolder': z.string().nullable().default(null), // null = use app data dir
+	'recording.cpal.sampleRate': z
+		.enum(['16000', '44100', '48000'])
+		.default('16000'),
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)

@@ -71,7 +71,7 @@ export function createCpalRecorderService() {
 			if (enumerateError) return Err(enumerateError);
 
 			const acquireDevice = (): Result<
-				{ deviceName: string; deviceOutcome: DeviceAcquisitionOutcome },
+				DeviceAcquisitionOutcome,
 				CpalRecorderServiceError
 			> => {
 				const fallbackDeviceId = deviceIds.at(0);
@@ -91,12 +91,9 @@ export function createCpalRecorderService() {
 							"No worries! We'll find the best microphone for you automatically...",
 					});
 					return Ok({
-						deviceName: fallbackDeviceId, // Just use the device name directly
-						deviceOutcome: {
-							outcome: 'fallback',
-							reason: 'no-device-selected',
-							fallbackDevice: fallbackDeviceId,
-						},
+						outcome: 'fallback',
+						reason: 'no-device-selected',
+						fallbackDeviceId,
 					});
 				}
 
@@ -104,10 +101,7 @@ export function createCpalRecorderService() {
 				const deviceExists = deviceIds.includes(selectedDeviceId);
 
 				if (deviceExists) {
-					return Ok({
-						deviceName: selectedDeviceId, // Use the selected device name directly
-						deviceOutcome: { outcome: 'success' },
-					});
+					return Ok({ outcome: 'success' });
 				}
 
 				sendStatus({
@@ -117,20 +111,21 @@ export function createCpalRecorderService() {
 				});
 
 				return Ok({
-					deviceName: fallbackDeviceId, // Use fallback device name directly
-					deviceOutcome: {
-						outcome: 'fallback',
-						reason: 'preferred-device-unavailable',
-						fallbackDevice: fallbackDeviceId,
-					},
+					outcome: 'fallback',
+					reason: 'preferred-device-unavailable',
+					fallbackDeviceId,
 				});
 			};
 
-			const { data: deviceAcquisitionOutcome, error: acquireDeviceError } =
+			const { data: deviceOutcome, error: acquireDeviceError } =
 				acquireDevice();
 			if (acquireDeviceError) return Err(acquireDeviceError);
 
-			const { deviceName, deviceOutcome } = deviceAcquisitionOutcome;
+			// Determine which device name to use based on the outcome
+			const deviceIdentifier =
+				deviceOutcome.outcome === 'success'
+					? selectedDeviceId
+					: deviceOutcome.fallbackDeviceId;
 
 			// Now initialize recording with the chosen device
 			sendStatus({
@@ -147,7 +142,7 @@ export function createCpalRecorderService() {
 			const { error: initRecordingSessionError } = await invoke(
 				'init_recording_session',
 				{
-					deviceName,
+					deviceIdentifier,
 					recordingId,
 					outputFolder: outputFolder || undefined,
 					sampleRate: sampleRateNum,
@@ -159,7 +154,7 @@ export function createCpalRecorderService() {
 						'We encountered an issue while setting up your recording session. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
 					context: {
 						selectedDeviceId,
-						deviceName,
+						deviceIdentifier,
 					},
 					cause: initRecordingSessionError,
 				});
@@ -175,7 +170,7 @@ export function createCpalRecorderService() {
 				return CpalRecorderServiceErr({
 					message:
 						'Unable to start recording. Please check your microphone and try again.',
-					context: { deviceName, deviceOutcome },
+					context: { deviceIdentifier, deviceOutcome },
 					cause: startRecordingError,
 				});
 

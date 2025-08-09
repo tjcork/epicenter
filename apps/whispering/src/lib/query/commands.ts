@@ -45,7 +45,7 @@ const startManualRecording = defineMutation({
 			case 'fallback': {
 				settings.value = {
 					...settings.value,
-					'recording.navigator.selectedDeviceId':
+					'recording.selectedDeviceId':
 						deviceAcquisitionOutcome.fallbackDeviceId,
 				};
 				switch (deviceAcquisitionOutcome.reason) {
@@ -134,7 +134,7 @@ const startCpalRecording = defineMutation({
 		const { error: startRecordingError } =
 			await cpalRecorder.startRecording.execute({
 				toastId,
-				selectedDeviceId: settings.value['recording.cpal.selectedDeviceId'],
+				selectedDeviceId: settings.value['recording.selectedDeviceId'],
 			});
 
 		if (startRecordingError) {

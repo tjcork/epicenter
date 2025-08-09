@@ -28,8 +28,7 @@ export const manualRecorder = {
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
 			const recordingSettings = {
-				selectedDeviceId:
-					settings.value['recording.navigator.selectedDeviceId'],
+				selectedDeviceId: settings.value['recording.selectedDeviceId'],
 				bitrateKbps: settings.value['recording.navigator.bitrateKbps'] ?? '128',
 			};
 			// Switch to manual mode (handles stopping other recordings)

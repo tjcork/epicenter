@@ -200,7 +200,7 @@ export async function getRecordingStream(
 			deviceOutcome: {
 				outcome: 'fallback',
 				reason: 'no-device-selected',
-				fallbackDevice: fallbackStreamData.deviceId,
+				fallbackDeviceId: fallbackStreamData.deviceId,
 			},
 		});
 	}
@@ -209,7 +209,7 @@ export async function getRecordingStream(
 		deviceOutcome: {
 			outcome: 'fallback',
 			reason: 'preferred-device-unavailable',
-			fallbackDevice: fallbackStreamData.deviceId,
+			fallbackDeviceId: fallbackStreamData.deviceId,
 		},
 	});
 }
