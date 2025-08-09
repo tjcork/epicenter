@@ -2,7 +2,7 @@ import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from 'wellcrafted/result';
+import { Ok, resolve } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
 
@@ -55,11 +55,7 @@ export const recorder = {
 			}
 			return Ok(recordingId);
 		},
-		select: (data) => {
-			// Transform recording ID to state
-			const state: WhisperingRecordingState = data ? 'RECORDING' : 'IDLE';
-			return state;
-		},
+		select: (state): WhisperingRecordingState => resolve(state) ? 'RECORDING' : 'IDLE',
 		initialData: null as string | null,
 	}),
 
