@@ -130,13 +130,8 @@ export const commands = {
 			const { data: recorderState, error: getRecorderStateError } =
 				await recorder.getRecorderState.fetch();
 			if (getRecorderStateError) {
-				const whisperingError = fromTaggedError(getRecorderStateError, {
-					title:
-						'❌ Failed to get recorder state before toggling manual recording',
-					action: { type: 'more-details', error: getRecorderStateError },
-				});
-				notify.error.execute(whisperingError);
-				return Err(whisperingError);
+				notify.error.execute(getRecorderStateError);
+				return Err(getRecorderStateError);
 			}
 			if (recorderState === 'RECORDING') {
 				return await stopManualRecording.execute(undefined);
