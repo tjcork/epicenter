@@ -42,11 +42,10 @@ const startManualRecording = defineMutation({
 				break;
 			}
 			case 'fallback': {
-				settings.value = {
-					...settings.value,
-					'recording.selectedDeviceId':
-						deviceAcquisitionOutcome.fallbackDeviceId,
-				};
+				settings.updateKey(
+					'recording.selectedDeviceId',
+					deviceAcquisitionOutcome.fallbackDeviceId,
+				);
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
 						notify.info.execute({
@@ -266,11 +265,10 @@ export const commands = {
 					break;
 				}
 				case 'fallback': {
-					settings.value = {
-						...settings.value,
-						'recording.navigator.selectedDeviceId':
-							deviceAcquisitionOutcome.fallbackDeviceId,
-					};
+					settings.updateKey(
+						'recording.selectedDeviceId',
+						deviceAcquisitionOutcome.fallbackDeviceId,
+					);
 					switch (deviceAcquisitionOutcome.reason) {
 						case 'no-device-selected': {
 							notify.info.execute({
@@ -476,10 +474,7 @@ async function processRecordingPipeline({
 	}
 
 	if (transformationNoLongerExists) {
-		settings.value = {
-			...settings.value,
-			'transformations.selectedTransformationId': null,
-		};
+		settings.updateKey('transformations.selectedTransformationId', null);
 		notify.warning.execute({
 			title: '⚠️ No matching transformation found',
 			description:

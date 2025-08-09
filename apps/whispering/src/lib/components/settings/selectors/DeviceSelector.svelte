@@ -12,12 +12,6 @@
 	const combobox = useCombobox();
 	
 	const selectedDeviceId = $derived(settings.value['recording.selectedDeviceId']);
-	function setSelectedDeviceId(deviceId: string | null) {
-		settings.value = {
-			...settings.value,
-			'recording.selectedDeviceId': deviceId,
-		};
-	}
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
@@ -76,7 +70,8 @@
 							value={deviceId}
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
-								setSelectedDeviceId(
+								settings.updateKey(
+									'recording.selectedDeviceId',
 									currentDeviceId === deviceId ? null : deviceId,
 								);
 								combobox.closeAndFocusTrigger();
