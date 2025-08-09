@@ -13,25 +13,26 @@ const { DeviceStreamServiceError, DeviceStreamServiceErr } = createTaggedError(
 );
 type DeviceStreamServiceError = ReturnType<typeof DeviceStreamServiceError>;
 
-export async function hasExistingAudioPermission(): Promise<boolean> {
-	try {
-		const permissions = await navigator.permissions.query({
-			name: 'microphone',
-		});
-		return permissions.state === 'granted';
-	} catch {
+/**
+ * Check if we already have microphone permissions granted.
+ * Uses Permissions API if available, otherwise returns false to trigger proper permission flow.
+ */
+async function hasExistingAudioPermission(): Promise<boolean> {
+	// Try the Permissions API first (not all browsers support it)
+	if ('permissions' in navigator) {
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS,
+			const result = await navigator.permissions.query({
+				name: 'microphone' as PermissionName,
 			});
-			for (const track of stream.getTracks()) {
-				track.stop();
-			}
-			return true;
+			return result.state === 'granted';
 		} catch {
-			return false;
+			// Permissions API failed, fall through
 		}
 	}
+
+	// Return false to let the actual getUserMedia call handle permissions
+	// This avoids unnecessary stream creation just for checking
+	return false;
 }
 
 export async function enumerateRecordingDeviceIds(): Promise<
@@ -191,7 +192,6 @@ export async function getRecordingStream(
 			cause: getFallbackStreamError,
 		});
 	}
-
 
 	// Return the stream with appropriate device outcome
 	if (!selectedDeviceId) {
