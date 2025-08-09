@@ -1,6 +1,6 @@
 import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audio';
 import { createTaggedError } from 'wellcrafted/error';
-import { Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { Err, isOk, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type {
 	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
@@ -20,14 +20,21 @@ type DeviceStreamServiceError = ReturnType<typeof DeviceStreamServiceError>;
 async function hasExistingAudioPermission(): Promise<boolean> {
 	// Try the Permissions API first (not all browsers support it)
 	if ('permissions' in navigator) {
-		try {
-			const result = await navigator.permissions.query({
-				name: 'microphone' as PermissionName,
-			});
-			return result.state === 'granted';
-		} catch {
-			// Permissions API failed, fall through
-		}
+		const { data: permissionStatus, error } = await tryAsync({
+			try: async () => {
+				const permissionStatus = await navigator.permissions.query({
+					name: 'microphone',
+				});
+				return permissionStatus;
+			},
+			mapErr: (error) =>
+				DeviceStreamServiceErr({
+					message:
+						'We need permission to see your microphones. Check your browser settings and try again.',
+					cause: error,
+				}),
+		});
+		if (!error) return permissionStatus.state === 'granted';
 	}
 
 	// Return false to let the actual getUserMedia call handle permissions
@@ -63,7 +70,6 @@ export async function enumerateRecordingDeviceIds(): Promise<
 			DeviceStreamServiceErr({
 				message:
 					'We need permission to see your microphones. Check your browser settings and try again.',
-				context: { permissionRequired: 'microphone' },
 				cause: error,
 			}),
 	});
