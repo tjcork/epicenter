@@ -62,7 +62,6 @@
 			selected={settings.value['transcription.openai.model']}
 			onSelectedChange={(selected) => {
 				settings.updateKey('transcription.openai.model', selected);
-				};
 			}}
 			renderOption={renderModelOption}
 		>
