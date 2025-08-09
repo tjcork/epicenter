@@ -55,7 +55,8 @@ export const recorder = {
 			}
 			return Ok(recordingId);
 		},
-		select: (state): WhisperingRecordingState => resolve(state) ? 'RECORDING' : 'IDLE',
+		select: (state): WhisperingRecordingState =>
+			resolve(state) ? 'RECORDING' : 'IDLE',
 		initialData: null as string | null,
 	}),
 
