@@ -77,16 +77,13 @@ export const settingsSchema = z.object({
 		'sound.playOn.manual-start': z.boolean().default(true),
 		'sound.playOn.manual-stop': z.boolean().default(true),
 		'sound.playOn.manual-cancel': z.boolean().default(true),
-		'sound.playOn.cpal-start': z.boolean().default(true),
-		'sound.playOn.cpal-stop': z.boolean().default(true),
-		'sound.playOn.cpal-cancel': z.boolean().default(true),
 		'sound.playOn.vad-start': z.boolean().default(true),
 		'sound.playOn.vad-capture': z.boolean().default(true),
 		'sound.playOn.vad-stop': z.boolean().default(true),
 		'sound.playOn.transcriptionComplete': z.boolean().default(true),
 		'sound.playOn.transformationComplete': z.boolean().default(true),
 	} satisfies Record<
-		`sound.playOn.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`,
+		`sound.playOn.${WhisperingSoundNames}`,
 		z.ZodDefault<ZodBoolean>
 	>),
 
@@ -123,9 +120,9 @@ export const settingsSchema = z.object({
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	// CPAL mode settings (native only)
-	'recording.cpal.outputFolder': z.string().nullable().default(null), // null = use app data dir
-	'recording.cpal.sampleRate': z
+	// Desktop recording settings
+	'recording.desktop.outputFolder': z.string().nullable().default(null), // null = use app data dir
+	'recording.desktop.sampleRate': z
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
 
@@ -169,8 +166,6 @@ export const settingsSchema = z.object({
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable().default(' '),
 		'shortcuts.local.cancelManualRecording': z.string().nullable().default('c'),
-		'shortcuts.local.toggleCpalRecording': z.string().nullable().default(null),
-		'shortcuts.local.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.toggleVadRecording': z.string().nullable().default('v'),
 		'shortcuts.local.pushToTalk': z.string().nullable().default('p'),
 	} satisfies Record<
@@ -187,8 +182,6 @@ export const settingsSchema = z.object({
 			.string()
 			.nullable()
 			.default(`${CommandOrControl}+Shift+'`),
-		'shortcuts.global.toggleCpalRecording': z.string().nullable().default(null),
-		'shortcuts.global.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.toggleVadRecording': z.string().nullable().default(null),
 		'shortcuts.global.pushToTalk': z
 			.string()

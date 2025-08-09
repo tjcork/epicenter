@@ -27,7 +27,7 @@ pub async fn enumerate_recording_devices(state: State<'_, AppData>) -> Result<Ve
 
 #[tauri::command]
 pub async fn init_recording_session(
-    device_name: String,
+    device_identifier: String,
     recording_id: String,
     output_folder: Option<String>,
     sample_rate: Option<u32>,
@@ -35,7 +35,7 @@ pub async fn init_recording_session(
     app_handle: tauri::AppHandle,
 ) -> Result<()> {
     info!("Initializing recording session: device={}, id={}, folder={:?}, sample_rate={:?}", 
-          device_name, recording_id, output_folder, sample_rate);
+          device_identifier, recording_id, output_folder, sample_rate);
     
     // Determine output directory
     let recordings_dir = if let Some(folder) = output_folder {
@@ -65,7 +65,7 @@ pub async fn init_recording_session(
     // Initialize the session with optional sample rate
     let mut recorder = state.recorder.lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
-    recorder.init_session(device_name, recordings_dir, recording_id, sample_rate)
+    recorder.init_session(device_identifier, recordings_dir, recording_id, sample_rate)
 }
 
 #[tauri::command]
