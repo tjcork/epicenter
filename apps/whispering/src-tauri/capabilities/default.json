@@ -42,6 +42,14 @@
         { "url": "https://*:*" }
       ]
     },
+     {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
     "updater:default",
     "shell:default"
   ]
