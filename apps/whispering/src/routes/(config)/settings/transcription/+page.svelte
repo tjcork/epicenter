@@ -119,10 +119,7 @@
 			}))}
 			selected={settings.value['transcription.deepgram.model']}
 			onSelectedChange={(selected) => {
-				settings.value = {
-					...settings.value,
-					'transcription.deepgram.model': selected,
-				};
+				settings.updateKey('transcription.deepgram.model', selected);
 			}}
 			renderOption={renderModelOption}
 		/>
