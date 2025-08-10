@@ -1,7 +1,7 @@
 import type { CancelRecordingResult } from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import type { DeviceAcquisitionOutcome, DeviceIdentifier } from '../types';
+import type { Device, DeviceAcquisitionOutcome, DeviceIdentifier } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	RecorderService,
@@ -11,8 +11,8 @@ import type {
 import { RecorderServiceErr } from './types';
 
 export function createDesktopRecorderService(): RecorderService {
-	const enumerateRecordingDeviceIds = async (): Promise<
-		Result<DeviceIdentifier[], RecorderServiceError>
+	const enumerateDevices = async (): Promise<
+		Result<Device[], RecorderServiceError>
 	> => {
 		const { data: deviceNames, error: enumerateRecordingDevicesError } =
 			await invoke<string[]>('enumerate_recording_devices');
@@ -22,8 +22,11 @@ export function createDesktopRecorderService(): RecorderService {
 				cause: enumerateRecordingDevicesError,
 			});
 		}
-		// Device names are the identifiers for desktop recording
-		return Ok(deviceNames.map(asDeviceIdentifier));
+		// On desktop, device names serve as both ID and label
+		return Ok(deviceNames.map(name => ({
+			id: asDeviceIdentifier(name),
+			label: name,
+		})));
 	};
 
 	return {
@@ -43,7 +46,7 @@ export function createDesktopRecorderService(): RecorderService {
 			return Ok(recordingId);
 		},
 
-		enumerateRecordingDeviceIds,
+		enumerateDevices,
 
 		startRecording: async (
 			params: StartRecordingParams,
@@ -60,14 +63,15 @@ export function createDesktopRecorderService(): RecorderService {
 
 			const { selectedDeviceId, recordingId, outputFolder, sampleRate } =
 				params;
-			const { data: deviceIds, error: enumerateError } =
-				await enumerateRecordingDeviceIds();
+			const { data: devices, error: enumerateError } =
+				await enumerateDevices();
 			if (enumerateError) return Err(enumerateError);
 
 			const acquireDevice = (): Result<
 				DeviceAcquisitionOutcome,
 				RecorderServiceError
 			> => {
+				const deviceIds = devices.map(d => d.id);
 				const fallbackDeviceId = deviceIds.at(0);
 				if (!fallbackDeviceId) {
 					return RecorderServiceErr({

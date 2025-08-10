@@ -18,10 +18,10 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.currentRecordingId });
 
 export const recorder = {
-	// Query that enumerates available recording devices
+	// Query that enumerates available recording devices with labels
 	enumerateDevices: defineQuery({
 		queryKey: recorderKeys.devices,
-		resultQueryFn: () => services.recorder.enumerateRecordingDeviceIds(),
+		resultQueryFn: () => services.recorder.enumerateDevices(),
 	}),
 
 	// Query that returns the raw recording ID (null if not recording)

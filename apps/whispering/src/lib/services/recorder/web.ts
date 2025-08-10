@@ -2,7 +2,7 @@ import { TIMESLICE_MS } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
 	cleanupRecordingStream,
-	enumerateRecordingDeviceIds,
+	enumerateDevices,
 	getRecordingStream,
 } from '../device-stream';
 import type {
@@ -37,7 +37,17 @@ export function createWebRecorderService(): RecorderService {
 			return Ok(activeRecording?.recordingId || null);
 		},
 
-		enumerateRecordingDeviceIds,
+		enumerateDevices: async () => {
+			const { data: devices, error } = await enumerateDevices();
+			if (error) {
+				return RecorderServiceErr({
+					message: error.message,
+					context: error.context,
+					cause: error,
+				});
+			}
+			return Ok(devices);
+		},
 
 		startRecording: async (
 			params: StartRecordingParams,

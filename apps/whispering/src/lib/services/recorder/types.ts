@@ -2,6 +2,7 @@ import type { CancelRecordingResult } from '$lib/constants/audio';
 import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 import type {
+	Device,
 	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
 	UpdateStatusMessageFn,
@@ -56,10 +57,10 @@ export type RecorderService = {
 	getCurrentRecordingId(): Promise<Result<string | null, RecorderServiceError>>;
 
 	/**
-	 * Enumerate available recording device identifiers
+	 * Enumerate available recording devices with their labels and identifiers
 	 */
-	enumerateRecordingDeviceIds(): Promise<
-		Result<DeviceIdentifier[], RecorderServiceError>
+	enumerateDevices(): Promise<
+		Result<Device[], RecorderServiceError>
 	>;
 
 	/**
