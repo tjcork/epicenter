@@ -74,92 +74,83 @@
 	/>
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-		<div class="pl-4 border-l-2 border-muted space-y-6">
-			<div>
-				<h4 class="text-md font-medium">Recording Settings</h4>
-				<p class="text-muted-foreground text-sm">
-					Configure your audio recording preferences.
+		<SelectRecordingDevice
+			selected={settings.value['recording.selectedDeviceId']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('recording.selectedDeviceId', selected);
+			}}
+		></SelectRecordingDevice>
+
+		{#if !window.__TAURI_INTERNALS__}
+			<!-- Web-specific settings -->
+			<LabeledSelect
+				id="bit-rate"
+				label="Bitrate"
+				items={BITRATE_OPTIONS.map((option) => ({
+					value: option.value,
+					label: option.label,
+				}))}
+				selected={settings.value['recording.navigator.bitrateKbps']}
+				onSelectedChange={(selected) => {
+					settings.updateKey('recording.navigator.bitrateKbps', selected);
+				}}
+				placeholder="Select a bitrate"
+				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
+			/>
+		{:else}
+			<!-- Desktop-specific settings -->
+			<LabeledSelect
+				id="sample-rate"
+				label="Sample Rate"
+				items={SAMPLE_RATE_OPTIONS}
+				selected={settings.value['recording.desktop.sampleRate']}
+				onSelectedChange={(selected) => {
+					settings.updateKey('recording.desktop.sampleRate', selected as typeof SAMPLE_RATE_OPTIONS[number]['value']);
+				}}
+				placeholder="Select sample rate"
+				description="Higher sample rates provide better quality but create larger files"
+			/>
+
+			<div class="space-y-2">
+				<label for="output-folder" class="text-sm font-medium">
+					Recording Output Folder
+				</label>
+				<div class="flex gap-2">
+					<div class="flex-1 px-3 py-2 text-sm border rounded-md bg-muted">
+						{settings.value['recording.desktop.outputFolder'] ?? 'Default (App Data Folder)'}
+					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={selectOutputFolder}
+					>
+						<FolderOpen class="w-4 h-4 mr-2" />
+						Browse
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={openOutputFolder}
+					>
+						<ExternalLink class="w-4 h-4 mr-2" />
+						Open
+					</Button>
+					{#if settings.value['recording.desktop.outputFolder']}
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={() => {
+								settings.updateKey('recording.desktop.outputFolder', null);
+							}}
+						>
+							Reset
+						</Button>
+					{/if}
+				</div>
+				<p class="text-xs text-muted-foreground">
+					Choose where to save your recordings. Default location is secure and managed by the app.
 				</p>
 			</div>
-
-			<SelectRecordingDevice
-				selected={settings.value['recording.selectedDeviceId'] ?? asDeviceIdentifier('')}
-				onSelectedChange={(selected) => {
-					settings.updateKey('recording.selectedDeviceId', selected);
-				}}
-			></SelectRecordingDevice>
-
-			{#if !window.__TAURI_INTERNALS__}
-				<!-- Web-specific settings -->
-				<LabeledSelect
-					id="bit-rate"
-					label="Bitrate"
-					items={BITRATE_OPTIONS.map((option) => ({
-						value: option.value,
-						label: option.label,
-					}))}
-					selected={settings.value['recording.navigator.bitrateKbps']}
-					onSelectedChange={(selected) => {
-						settings.updateKey('recording.navigator.bitrateKbps', selected);
-					}}
-					placeholder="Select a bitrate"
-					description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
-				/>
-			{:else}
-				<!-- Desktop-specific settings -->
-				<LabeledSelect
-					id="sample-rate"
-					label="Sample Rate"
-					items={SAMPLE_RATE_OPTIONS}
-					selected={settings.value['recording.desktop.sampleRate']}
-					onSelectedChange={(selected) => {
-						settings.updateKey('recording.desktop.sampleRate', selected as typeof SAMPLE_RATE_OPTIONS[number]['value']);
-					}}
-					placeholder="Select sample rate"
-					description="Higher sample rates provide better quality but create larger files"
-				/>
-
-				<div class="space-y-2">
-					<label for="output-folder" class="text-sm font-medium">
-						Recording Output Folder
-					</label>
-					<div class="flex gap-2">
-						<div class="flex-1 px-3 py-2 text-sm border rounded-md bg-muted">
-							{settings.value['recording.desktop.outputFolder'] ?? 'Default (App Data Folder)'}
-						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={selectOutputFolder}
-						>
-							<FolderOpen class="w-4 h-4 mr-2" />
-							Browse
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={openOutputFolder}
-						>
-							<ExternalLink class="w-4 h-4 mr-2" />
-							Open
-						</Button>
-						{#if settings.value['recording.desktop.outputFolder']}
-							<Button
-								variant="outline"
-								size="sm"
-								onclick={() => {
-									settings.updateKey('recording.desktop.outputFolder', null);
-								}}
-							>
-								Reset
-							</Button>
-						{/if}
-					</div>
-					<p class="text-xs text-muted-foreground">
-						Choose where to save your recordings. Default location is secure and managed by the app.
-					</p>
-				</div>
-			{/if}
-		</div>
+		{/if}
 	{/if}
 </div>
