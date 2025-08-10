@@ -22,25 +22,6 @@ type AudioRecording = {
 	filePath?: string;
 };
 
-/**
- * Audio recording with a guaranteed file path
- */
-type AudioRecordingWithFile = {
-	sampleRate: number;
-	channels: number;
-	durationSeconds: number;
-	filePath: string;
-};
-
-/**
- * Type guard to ensure an audio recording has a file path
- */
-function hasFilePath(
-	recording: AudioRecording,
-): recording is AudioRecordingWithFile {
-	return recording.filePath !== undefined;
-}
-
 export function createDesktopRecorderService(): RecorderService {
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
@@ -219,8 +200,9 @@ export function createDesktopRecorderService(): RecorderService {
 				});
 			}
 
+			const { filePath } = audioRecording;
 			// Desktop recorder should always write to a file
-			if (!hasFilePath(audioRecording)) {
+			if (!filePath) {
 				return RecorderServiceErr({
 					message: 'Recording file path not provided by backend.',
 					context: {
@@ -240,7 +222,7 @@ export function createDesktopRecorderService(): RecorderService {
 
 			const { data: blob, error: readRecordingFileError } = await tryAsync({
 				try: async () => {
-					const fileBytes = await readFile(audioRecording.filePath);
+					const fileBytes = await readFile(filePath);
 					return new Blob([fileBytes], { type: 'audio/wav' });
 				},
 				mapErr: (error) =>
@@ -299,9 +281,10 @@ export function createDesktopRecorderService(): RecorderService {
 				await invoke<AudioRecording>('stop_recording');
 
 			// If there's a file path, delete the file using Tauri FS plugin
-			if (audioRecording && hasFilePath(audioRecording)) {
+			if (audioRecording?.filePath) {
+				const { filePath } = audioRecording;
 				const { error: removeError } = await tryAsync({
-					try: () => remove(audioRecording.filePath),
+					try: () => remove(filePath),
 					mapErr: (error) =>
 						RecorderServiceErr({
 							message: 'Failed to delete recording file.',
