@@ -121,7 +121,6 @@
 					</div>
 					<Button
 						variant="outline"
-						size="sm"
 						onclick={selectOutputFolder}
 					>
 						<FolderOpen class="w-4 h-4 mr-2" />
@@ -129,7 +128,6 @@
 					</Button>
 					<Button
 						variant="outline"
-						size="sm"
 						onclick={openOutputFolder}
 					>
 						<ExternalLink class="w-4 h-4 mr-2" />
@@ -138,7 +136,6 @@
 					{#if settings.value['recording.desktop.outputFolder']}
 						<Button
 							variant="outline"
-							size="sm"
 							onclick={() => {
 								settings.updateKey('recording.desktop.outputFolder', null);
 							}}
