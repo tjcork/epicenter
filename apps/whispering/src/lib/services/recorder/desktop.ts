@@ -3,7 +3,11 @@ import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { DeviceAcquisitionOutcome, DeviceIdentifier } from '../types';
 import { asDeviceIdentifier } from '../types';
-import type { RecorderService, RecorderServiceError, StartRecordingParams } from './types';
+import type {
+	RecorderService,
+	RecorderServiceError,
+	StartRecordingParams,
+} from './types';
 import { RecorderServiceErr } from './types';
 
 export function createDesktopRecorderService(): RecorderService {
@@ -49,12 +53,13 @@ export function createDesktopRecorderService(): RecorderService {
 			if (params.platform !== 'desktop') {
 				return RecorderServiceErr({
 					message: 'Desktop recorder received non-desktop parameters',
-					context: { platform: (params as any).platform },
+					context: { params },
 					cause: undefined,
 				});
 			}
-			
-			const { selectedDeviceId, recordingId, outputFolder, sampleRate } = params;
+
+			const { selectedDeviceId, recordingId, outputFolder, sampleRate } =
+				params;
 			const { data: deviceIds, error: enumerateError } =
 				await enumerateRecordingDeviceIds();
 			if (enumerateError) return Err(enumerateError);
