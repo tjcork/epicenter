@@ -12,6 +12,35 @@ import { RecorderServiceErr } from './types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { remove } from '@tauri-apps/plugin-fs';
 
+/**
+ * Audio recording data returned from the Rust backend
+ */
+type AudioRecording = {
+	sampleRate: number;
+	channels: number;
+	durationSeconds: number;
+	filePath?: string;
+};
+
+/**
+ * Audio recording with a guaranteed file path
+ */
+type AudioRecordingWithFile = {
+	sampleRate: number;
+	channels: number;
+	durationSeconds: number;
+	filePath: string;
+};
+
+/**
+ * Type guard to ensure an audio recording has a file path
+ */
+function hasFilePath(
+	recording: AudioRecording,
+): recording is AudioRecordingWithFile {
+	return recording.filePath !== undefined;
+}
+
 export function createDesktopRecorderService(): RecorderService {
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
@@ -180,12 +209,8 @@ export function createDesktopRecorderService(): RecorderService {
 		stopRecording: async ({
 			sendStatus,
 		}): Promise<Result<Blob, RecorderServiceError>> => {
-			const { data: audioRecording, error: stopRecordingError } = await invoke<{
-				sampleRate: number;
-				channels: number;
-				durationSeconds: number;
-				filePath?: string;
-			}>('stop_recording');
+			const { data: audioRecording, error: stopRecordingError } =
+				await invoke<AudioRecording>('stop_recording');
 			if (stopRecordingError) {
 				return RecorderServiceErr({
 					message: 'Unable to save your recording. Please try again.',
@@ -194,8 +219,8 @@ export function createDesktopRecorderService(): RecorderService {
 				});
 			}
 
-			// Desktop recorder always writes to a file
-			if (!audioRecording.filePath) {
+			// Desktop recorder should always write to a file
+			if (!hasFilePath(audioRecording)) {
 				return RecorderServiceErr({
 					message: 'Recording file path not provided by backend.',
 					context: {
@@ -205,6 +230,7 @@ export function createDesktopRecorderService(): RecorderService {
 					cause: undefined,
 				});
 			}
+			// audioRecording is now AudioRecordingWithFile
 
 			// Read the WAV file from disk
 			sendStatus({
@@ -269,15 +295,11 @@ export function createDesktopRecorderService(): RecorderService {
 			});
 
 			// First get the recording data to know if there's a file to delete
-			const { data: audioRecording } = await invoke<{
-				sampleRate: number;
-				channels: number;
-				durationSeconds: number;
-				filePath?: string;
-			}>('stop_recording');
+			const { data: audioRecording } =
+				await invoke<AudioRecording>('stop_recording');
 
 			// If there's a file path, delete the file using Tauri FS plugin
-			if (audioRecording?.filePath) {
+			if (audioRecording && hasFilePath(audioRecording)) {
 				const { error: removeError } = await tryAsync({
 					try: () => remove(audioRecording.filePath),
 					mapErr: (error) =>
