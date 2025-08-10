@@ -20,7 +20,9 @@ impl AppData {
 #[tauri::command]
 pub async fn enumerate_recording_devices(state: State<'_, AppData>) -> Result<Vec<String>> {
     debug!("Enumerating recording devices");
-    let recorder = state.recorder.lock()
+    let recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.enumerate_devices()
 }
@@ -34,9 +36,11 @@ pub async fn init_recording_session(
     state: State<'_, AppData>,
     app_handle: tauri::AppHandle,
 ) -> Result<()> {
-    info!("Initializing recording session: device={}, id={}, folder={:?}, sample_rate={:?}", 
-          device_identifier, recording_id, output_folder, sample_rate);
-    
+    info!(
+        "Initializing recording session: device={}, id={}, folder={:?}, sample_rate={:?}",
+        device_identifier, recording_id, output_folder, sample_rate
+    );
+
     // Determine output directory
     let recordings_dir = if let Some(folder) = output_folder {
         // Use user-specified folder
@@ -55,15 +59,17 @@ pub async fn init_recording_session(
             .path()
             .app_data_dir()
             .map_err(|e| format!("Failed to get app data dir: {}", e))?;
-        
+
         let default_dir = app_data_dir.join("recordings");
         std::fs::create_dir_all(&default_dir)
             .map_err(|e| format!("Failed to create recordings dir: {}", e))?;
         default_dir
     };
-    
+
     // Initialize the session with optional sample rate
-    let mut recorder = state.recorder.lock()
+    let mut recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.init_session(device_identifier, recordings_dir, recording_id, sample_rate)
 }
@@ -71,7 +77,9 @@ pub async fn init_recording_session(
 #[tauri::command]
 pub async fn start_recording(state: State<'_, AppData>) -> Result<()> {
     info!("Starting recording");
-    let mut recorder = state.recorder.lock()
+    let mut recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.start_recording()
 }
@@ -79,7 +87,9 @@ pub async fn start_recording(state: State<'_, AppData>) -> Result<()> {
 #[tauri::command]
 pub async fn stop_recording(state: State<'_, AppData>) -> Result<AudioRecording> {
     info!("Stopping recording");
-    let mut recorder = state.recorder.lock()
+    let mut recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.stop_recording()
 }
@@ -87,7 +97,9 @@ pub async fn stop_recording(state: State<'_, AppData>) -> Result<AudioRecording>
 #[tauri::command]
 pub async fn cancel_recording(state: State<'_, AppData>) -> Result<()> {
     info!("Cancelling recording");
-    let mut recorder = state.recorder.lock()
+    let mut recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.cancel_recording()
 }
@@ -95,7 +107,9 @@ pub async fn cancel_recording(state: State<'_, AppData>) -> Result<()> {
 #[tauri::command]
 pub async fn close_recording_session(state: State<'_, AppData>) -> Result<()> {
     info!("Closing recording session");
-    let mut recorder = state.recorder.lock()
+    let mut recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     recorder.close_session()
 }
@@ -103,8 +117,9 @@ pub async fn close_recording_session(state: State<'_, AppData>) -> Result<()> {
 #[tauri::command]
 pub async fn get_current_recording_id(state: State<'_, AppData>) -> Result<Option<String>> {
     debug!("Getting current recording ID");
-    let recorder = state.recorder.lock()
+    let recorder = state
+        .recorder
+        .lock()
         .map_err(|e| format!("Failed to lock recorder: {}", e))?;
     Ok(recorder.get_current_recording_id())
 }
-
