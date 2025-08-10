@@ -315,7 +315,7 @@
     "turbo": "^2.3.3",
     "typescript": "^5.8.3",
     "vite": "^7.0.5",
-    "wellcrafted": "^0.21.2",
+    "wellcrafted": "^0.21.3",
     "zod": "^3.25.67",
   },
   "packages": {
@@ -2247,7 +2247,7 @@
 
     "webidl-conversions": ["webidl-conversions@7.0.0", "", {}, "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="],
 
-    "wellcrafted": ["wellcrafted@0.21.2", "", {}, "sha512-2KUCDqHmTUQmBWlB0mY3vqhsluwrmiL1SBwH8Hf1FvKwzpsvS4WB+RrjqKKvvCJijJGbScqhVGPe4s2rte/EIQ=="],
+    "wellcrafted": ["wellcrafted@0.21.3", "", {}, "sha512-shh2yofZDxLEpGz0L+WyniLRlqGvSg3YJJLqfox4dxLj079cgnO5nZgrU/o0uBu8WTq0BDuoQUzobaBUfJhuGw=="],
 
     "whatwg-encoding": ["whatwg-encoding@3.1.1", "", { "dependencies": { "iconv-lite": "0.6.3" } }, "sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ=="],
 
@@ -2330,6 +2330,8 @@
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 
     "@deepgram/sdk/@types/node": ["@types/node@18.19.121", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-bHOrbyztmyYIi4f1R0s17QsPs1uyyYnGcXeZoGEd227oZjry0q6XQBQxd82X1I57zEfwO8h9Xo+Kl5gX1d9MwQ=="],
+
+    "@epicenter/cli/wellcrafted": ["wellcrafted@0.21.2", "", {}, "sha512-2KUCDqHmTUQmBWlB0mY3vqhsluwrmiL1SBwH8Hf1FvKwzpsvS4WB+RrjqKKvvCJijJGbScqhVGPe4s2rte/EIQ=="],
 
     "@epicenter/opencode/hono": ["hono@4.7.10", "", {}, "sha512-QkACju9MiN59CKSY5JsGZCYmPZkA6sIW6OFCUp7qDjZu6S6KHtJHhAc9Uy9mV9F8PJ1/HQ3ybZF2yjCa/73fvQ=="],
 
