@@ -127,13 +127,13 @@ export const commands = {
 	toggleManualRecording: defineMutation({
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await recorder.getRecorderState.fetch();
-			if (getRecorderStateError) {
-				notify.error.execute(getRecorderStateError);
-				return Err(getRecorderStateError);
+			const { data: currentRecordingId, error: getRecordingIdError } =
+				await recorder.getCurrentRecordingId.fetch();
+			if (getRecordingIdError) {
+				notify.error.execute(getRecordingIdError);
+				return Err(getRecordingIdError);
 			}
-			if (recorderState === 'RECORDING') {
+			if (currentRecordingId) {
 				return await stopManualRecording.execute(undefined);
 			}
 			return await startManualRecording.execute(undefined);
