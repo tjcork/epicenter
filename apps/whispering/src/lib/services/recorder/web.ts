@@ -5,10 +5,18 @@ import {
 	enumerateRecordingDeviceIds,
 	getRecordingStream,
 } from '../device-stream';
-import type { RecorderService, RecorderServiceError, StartRecordingParams } from './types';
+import type {
+	RecorderService,
+	RecorderServiceError,
+	StartRecordingParams,
+} from './types';
 import { RecorderServiceErr } from './types';
 import type { CancelRecordingResult } from '$lib/constants/audio';
-import type { DeviceIdentifier, DeviceAcquisitionOutcome, UpdateStatusMessageFn } from '../types';
+import type {
+	DeviceIdentifier,
+	DeviceAcquisitionOutcome,
+	UpdateStatusMessageFn,
+} from '../types';
 
 type ActiveRecording = {
 	recordingId: string;
@@ -34,18 +42,16 @@ export function createWebRecorderService(): RecorderService {
 		startRecording: async (
 			params: StartRecordingParams,
 			{ sendStatus },
-		): Promise<
-			Result<DeviceAcquisitionOutcome, RecorderServiceError>
-		> => {
+		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
 			// Web implementation only handles web params
 			if (params.platform !== 'web') {
 				return RecorderServiceErr({
 					message: 'Web recorder received non-web parameters',
-					context: { platform: (params as any).platform },
+					context: { params },
 					cause: undefined,
 				});
 			}
-			
+
 			const { selectedDeviceId, recordingId, bitrateKbps } = params;
 			// Ensure we're not already recording
 			if (activeRecording) {
