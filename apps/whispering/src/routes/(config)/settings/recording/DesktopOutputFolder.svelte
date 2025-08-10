@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Input } from '@repo/ui/input';
-	import { Button } from '@repo/ui/button';
-	import { FolderOpen, ExternalLink } from 'lucide-svelte';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { FolderOpen, ExternalLink, RotateCcw } from '@lucide/svelte';
 	import { settings } from '$lib/stores/settings.svelte';
 
 	// Top-level await to get the default app data directory
@@ -60,32 +60,35 @@
 		/>
 	{/if}
 	
-	<Button 
+	<WhisperingButton 
+		tooltipContent="Select output folder"
 		variant="outline" 
 		size="icon"
 		onclick={selectOutputFolder}
-		title="Select Folder"
 	>
 		<FolderOpen class="h-4 w-4" />
-	</Button>
+	</WhisperingButton>
 	
-	<Button 
+	<WhisperingButton 
+		tooltipContent="Open output folder"
 		variant="outline" 
 		size="icon"
 		onclick={openOutputFolder}
-		title="Open Folder"
 		disabled={displayPath === null}
 	>
 		<ExternalLink class="h-4 w-4" />
-	</Button>
+	</WhisperingButton>
+	
 	{#if settings.value['recording.desktop.outputFolder']}
-			<Button
+		<WhisperingButton
+			tooltipContent="Reset to default folder"
 			variant="outline"
+			size="icon"
 			onclick={() => {
 				settings.updateKey('recording.desktop.outputFolder', null);
 			}}
 		>
-			Reset
-		</Button>
+			<RotateCcw class="h-4 w-4" />
+		</WhisperingButton>
 	{/if}
 </div>
