@@ -50,7 +50,6 @@
         }
       ]
     },
-    "updater:default",
-    "shell:default"
+    "updater:default"
   ]
 }
