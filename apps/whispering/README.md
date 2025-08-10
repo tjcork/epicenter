@@ -865,10 +865,7 @@ Adding a new transcription service involves four main steps:
        }))}
        selected={settings.value['transcription.yourservice.model']}
        onSelectedChange={(selected) => {
-         settings.value = {
-           ...settings.value,
-           'transcription.yourservice.model': selected,
-         };
+         settings.updateKey('transcription.yourservice.model', selected);
        }}
        renderOption={renderModelOption}
      />
@@ -891,7 +888,7 @@ Adding a new transcription service involves four main steps:
      placeholder="Your YourService API Key"
      value={settings.value['apiKeys.yourservice']}
      oninput={({ currentTarget: { value } }) => {
-       settings.value = { ...settings.value, 'apiKeys.yourservice': value };
+       settings.updateKey('apiKeys.yourservice', value);
      }}
    >
      {#snippet description()}
