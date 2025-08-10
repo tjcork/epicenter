@@ -12,14 +12,19 @@ import {
 	OPENAI_TRANSCRIPTION_MODELS,
 	type OpenAIModel,
 } from '$lib/services/transcription/openai';
+import {
+	DEEPGRAM_TRANSCRIPTION_MODELS,
+	type DeepgramModel,
+} from '$lib/services/transcription/deepgram';
 
-type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel;
+type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel | DeepgramModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'OpenAI',
 	'Groq',
 	'speaches',
 	'ElevenLabs',
+	'Deepgram',
 ] as const;
 
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -84,6 +89,16 @@ export const TRANSCRIPTION_SERVICES = [
 		icon: ServerIcon,
 		serverUrlField: 'transcription.speaches.baseUrl',
 		type: 'server',
+	},
+	{
+		id: 'Deepgram',
+		name: 'Deepgram',
+		icon: ServerIcon,
+		models: DEEPGRAM_TRANSCRIPTION_MODELS,
+		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
+		modelSettingKey: 'transcription.deepgram.model',
+		apiKeyField: 'apiKeys.deepgram',
+		type: 'api',
 	},
 ] as const satisfies SatisfiedTranscriptionService[];
 

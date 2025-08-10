@@ -148,5 +148,13 @@ async function transcribeBlob(
 				apiKey: settings.value['apiKeys.elevenlabs'],
 				modelName: settings.value['transcription.elevenlabs.model'],
 			});
+		case 'Deepgram':
+			return services.transcriptions.deepgram.transcribe(blob, {
+				outputLanguage: settings.value['transcription.outputLanguage'],
+				prompt: settings.value['transcription.prompt'],
+				temperature: settings.value['transcription.temperature'],
+				apiKey: settings.value['apiKeys.deepgram'],
+				modelName: settings.value['transcription.deepgram.model'],
+			});
 	}
 }

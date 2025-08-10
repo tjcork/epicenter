@@ -11,6 +11,11 @@ export {
 } from '$lib/services/transcription/elevenlabs';
 
 export {
+	DEEPGRAM_TRANSCRIPTION_MODELS,
+	type DeepgramModel,
+} from '$lib/services/transcription/deepgram';
+
+export {
 	TRANSCRIPTION_SERVICE_IDS,
 	TRANSCRIPTION_SERVICES,
 	TRANSCRIPTION_SERVICE_OPTIONS,
