@@ -645,7 +645,7 @@ The query layer also transforms service-specific errors into `WhisperingError` t
 
 ```typescript
 // Service returns domain-specific error
-const { data, error: serviceError } = await services.manualRecorder.startRecording(...);
+const { data, error: serviceError } = await services.recorder.startRecording(...);
 
 if (serviceError) {
   // Query layer transforms to UI-friendly WhisperingError

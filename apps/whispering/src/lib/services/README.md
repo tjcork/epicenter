@@ -127,7 +127,7 @@ Each service defines its own `TaggedError` type to represent domain-specific fai
 
 ```typescript
 // From manual-recorder.ts
-type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
+type RecorderServiceError = TaggedError<'RecorderServiceError'>;
 
 // From cpal-recorder.ts
 type CpalRecorderServiceError = TaggedError<'CpalRecorderServiceError'>;
@@ -158,7 +158,7 @@ This pattern ensures consistent error handling and avoids double-wrapping errors
 
    ```typescript
    return Err({
-   	name: 'ManualRecorderServiceError',
+   	name: 'RecorderServiceError',
    	message:
    		'A recording is already in progress. Please stop the current recording before starting a new one.',
    	context: { activeRecording },
@@ -223,11 +223,11 @@ export function createManualRecorderService() {
 			recordingSettings,
 			{ sendStatus },
 		): Promise<
-			Result<DeviceAcquisitionOutcome, ManualRecorderServiceError>
+			Result<DeviceAcquisitionOutcome, RecorderServiceError>
 		> => {
 			if (activeRecording) {
 				return Err({
-					name: 'ManualRecorderServiceError',
+					name: 'RecorderServiceError',
 					message:
 						'A recording is already in progress. Please stop the current recording before starting a new one.',
 					context: { activeRecording },
@@ -240,9 +240,9 @@ export function createManualRecorderService() {
 				await getRecordingStream(selectedDeviceId, sendStatus);
 
 			if (acquireStreamError) {
-				// Transform DeviceStreamServiceError → ManualRecorderServiceError
+				// Transform DeviceStreamServiceError → RecorderServiceError
 				return Err({
-					name: 'ManualRecorderServiceError',
+					name: 'RecorderServiceError',
 					message: acquireStreamError.message,
 					context: acquireStreamError.context,
 					cause: acquireStreamError,
@@ -257,7 +257,7 @@ export function createManualRecorderService() {
 
 This example shows:
 
-- Service-specific error type (`ManualRecorderServiceError`)
+- Service-specific error type (`RecorderServiceError`)
 - Detailed error messages for different failure scenarios
 - Error mapping when consuming other services
 - Rich context for debugging

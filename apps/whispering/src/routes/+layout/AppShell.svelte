@@ -25,24 +25,24 @@
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
 	const getRecorderStateQuery = createQuery(
-		rpc.manualRecorder.getRecorderState.options,
+		rpc.recorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
 
-	onMount(() => {
+	onMount(async () => {
 		window.commands = commandCallbacks;
 		window.goto = goto;
 		syncLocalShortcutsWithSettings();
 		resetLocalShortcutsToDefaultIfDuplicates();
-		registerOnboarding();
 		if (window.__TAURI_INTERNALS__) {
 			syncGlobalShortcutsWithSettings();
 			resetGlobalShortcutsToDefaultIfDuplicates();
-			checkForUpdates();
+			await checkForUpdates();
 		} else {
 			// const _notifyWhisperingTabReadyResult =
 			// await extension.notifyWhisperingTabReady(undefined);
 		}
+		registerOnboarding();
 	});
 
 	if (window.__TAURI_INTERNALS__) {

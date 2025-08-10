@@ -589,12 +589,66 @@ This change enables proper vertical scrolling for drawer components when content
 
 To accomplish this, I wrapped the `{@render children?.()}` in a `<div class="flex-1 overflow-y-auto">` container. The `flex-1` class ensures the content area takes up all remaining space after the fixed drag handle at the top, while `overflow-y-auto` enables vertical scrolling when the content height exceeds the available space. This maintains the drag handle as a fixed element while allowing the content to scroll independently, preserving the expected drawer interaction pattern.
 ```
+#### Body Structure
+1. **Context Section** (if needed for complex changes):
+   - Use bullet points for multiple related observations
+   - Mix technical detail with accessible explanations
+   - Acknowledge trade-offs: "we'd like to X, but at the same time Y is problematic"
 
-**Avoid**:
+2. **Solution Description**:
+   - Lead with what changed in plain language
+   - Show code examples inline to illustrate the improvement
+   - Compare before/after when it clarifies the change
+
+3. **Technical Details**:
+   - Explain the "why" behind architectural decisions
+   - Reference philosophical goals: "This doubles down on what people love about..."
+   - Connect to long-term vision when relevant
+
+4. **Outstanding Work** (if applicable):
+   - List TODOs candidly
+   - Be specific about what remains
+   - No need to apologize; just state what's left
+
+#### Voice and Tone
+- **Conversational but precise**: Write like explaining to a colleague
+- **Direct and honest**: "This has been painful" rather than "This presented challenges"
+- **Show your thinking**: "We considered X, but Y made more sense because..."
+- **Use "we" for team decisions, "I" for personal observations**
+
+#### Example PR Description:
+```
+This fixes the long-standing issue with nested reactivity in state management. 
+
+First, some context: users have consistently found it cumbersome to create deeply reactive state. The current approach requires manual get/set properties, which doesn't feel sufficiently Svelte-like. Meanwhile, we want to move away from object mutation for future performance optimizations, but `obj = { ...obj, x: obj.x + 1 }` is ugly and creates overhead.
+
+This PR introduces proxy-based reactivity that lets you write idiomatic JavaScript:
+
+```javascript
+let todos = $state([]);
+todos.push({ done: false, text: 'Learn Svelte' }); // just works
+```
+
+Under the hood, we're using Proxies to lazily create signals as necessary. This gives us the ergonomics of mutation with the performance benefits of immutability.
+
+Still TODO:
+- Performance optimizations for large arrays
+- Documentation updates
+- Migration guide for existing codebases
+
+This doubles down on Svelte's philosophy of writing less, more intuitive code while setting us up for the fine-grained reactivity improvements planned for v6.
+```
+
+#### What to Avoid
 - Bullet points or structured lists
 - Section headers like "## Summary" or "## Changes Made"
 - Test plans or checklists (unless specifically requested)
 - Marketing language or excessive formatting
+- Corporate language: "This PR enhances our solution by leveraging..."
+- Excessive structure: Multiple heading levels and subsections
+- Marketing speak: "game-changing", "revolutionary", "seamless"
+- Over-explaining simple changes
+- Apologetic tone for reasonable decisions
 
 ## What NOT to Include:
 - `🤖 Generated with [Claude Code](https://claude.ai/code)`

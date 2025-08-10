@@ -1,12 +1,11 @@
 import type { RecordingMode } from '$lib/constants/audio';
 import { rpc } from '$lib/query';
 import * as services from '$lib/services';
-import type { ManualRecorderServiceError } from '$lib/services/manual-recorder';
+import type { RecorderServiceError } from '$lib/services/recorder';
 import type { VadRecorderServiceError } from '$lib/services/vad-recorder';
 import { settings as settingsStore } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
-import type { TaggedError } from 'wellcrafted/error';
-import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
+import { Ok, type Result, partitionResults } from 'wellcrafted/result';
 import { defineMutation } from './_client';
 
 /**
@@ -49,10 +48,7 @@ export const settings = {
 
 			// Update the settings if not already in new mode
 			if (settingsStore.value['recording.mode'] !== newMode) {
-				settingsStore.value = {
-					...settingsStore.value,
-					'recording.mode': newMode,
-				};
+				settingsStore.updateKey('recording.mode', newMode);
 
 				// Show success notification
 				rpc.notify.success.execute({
@@ -74,14 +70,15 @@ export const settings = {
  * @returns Object containing array of errors that occurred while stopping recordings
  */
 async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
+	const { data: currentRecordingId } =
+		await services.recorder.getCurrentRecordingId();
 	// Each recording mode with its check and stop logic
 	const recordingModes = [
 		{
 			mode: 'manual' as const,
-			isActive: () =>
-				services.manualRecorder.getRecorderState().data === 'RECORDING',
+			isActive: () => currentRecordingId === 'RECORDING',
 			stop: () =>
-				services.manualRecorder.stopRecording({
+				services.recorder.stopRecording({
 					sendStatus: () => {}, // Silent cancel - no UI notifications
 				}),
 		},
@@ -119,7 +116,7 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 	// Execute all stops in parallel
 	const results: Result<
 		Blob | undefined,
-		ManualRecorderServiceError | VadRecorderServiceError
+		RecorderServiceError | VadRecorderServiceError
 	>[] = await Promise.all(stopPromises);
 
 	// Partition results into successes and errors
