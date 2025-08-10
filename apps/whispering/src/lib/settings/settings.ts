@@ -44,6 +44,7 @@ import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { type ZodBoolean, type ZodString, z } from 'zod';
+import type { DeepgramModel } from '$lib/services/transcription/deepgram';
 
 /**
  * The main settings schema that defines all application settings.
@@ -138,6 +139,10 @@ export const settingsSchema = z.object({
 		.string()
 		.transform((val) => val as (string & {}) | GroqModel['name'])
 		.default('whisper-large-v3-turbo' satisfies GroqModel['name']),
+	'transcription.deepgram.model': z
+		.string()
+		.transform((val) => val as (string & {}) | DeepgramModel['name'])
+		.default('nova-2' satisfies DeepgramModel['name']),
 	'transcription.speaches.baseUrl': z.string().default('http://localhost:8000'),
 	'transcription.speaches.modelId': z
 		.string()
@@ -152,6 +157,7 @@ export const settingsSchema = z.object({
 	'apiKeys.anthropic': z.string().default(''),
 	'apiKeys.groq': z.string().default(''),
 	'apiKeys.google': z.string().default(''),
+	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
 
 	...({

@@ -39,6 +39,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@deepgram/sdk": "^4.11.2",
 		"@repo/constants": "workspace:*",
 		"@anthropic-ai/sdk": "^0.55.0",
 		"@repo/svelte-utils": "workspace:*",
