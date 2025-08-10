@@ -11,7 +11,7 @@
     placeholder="Your Deepgram API Key"
     value={settings.value['apiKeys.deepgram']}
     oninput={({ currentTarget: { value } }) => {
-        settings.value = { ...settings.value, 'apiKeys.deepgram': value };
+        settings.updateKey('apiKeys.deepgram', value);
     }}
 >
     {#snippet description()}
