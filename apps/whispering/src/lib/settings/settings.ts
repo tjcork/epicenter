@@ -163,6 +163,9 @@ export const settingsSchema = z.object({
 	'apiKeys.google': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
 
+	// Analytics settings
+	'analytics.enabled': z.boolean().default(true),
+
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable().default(' '),
 		'shortcuts.local.startManualRecording': z.string().nullable().default(null),

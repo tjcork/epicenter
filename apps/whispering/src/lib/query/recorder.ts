@@ -5,7 +5,6 @@ import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
-
 const recorderKeys = {
 	currentRecordingId: ['recorder', 'currentRecordingId'] as const,
 	devices: ['recorder', 'devices'] as const,
@@ -117,6 +116,7 @@ export const recorder = {
 					action: { type: 'more-details', error: stopRecordingError },
 				});
 			}
+
 			return Ok(blob);
 		},
 		onSettled: invalidateRecorderState,
@@ -137,6 +137,7 @@ export const recorder = {
 					action: { type: 'more-details', error: cancelRecordingError },
 				});
 			}
+
 			return Ok(cancelResult);
 		},
 		onSettled: invalidateRecorderState,

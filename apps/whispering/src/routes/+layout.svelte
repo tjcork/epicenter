@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onNavigate } from '$app/navigation';
 	import { queryClient } from '$lib/query/_client';
+	import { rpc } from '$lib/query';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import '@repo/ui/app.css';
@@ -23,6 +24,11 @@
 	$effect(() => {
 		const unlisten = services.localShortcutManager.listen();
 		return () => unlisten();
+	});
+
+	// Log app started event once on mount
+	$effect(() => {
+		rpc.analytics.logEvent.execute({ type: 'app_started' });
 	});
 </script>
 
