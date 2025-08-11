@@ -1,5 +1,5 @@
-import { trackEvent as aptabaseLogEvent } from '@aptabase/tauri';
 import type { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
+import { invoke } from '@tauri-apps/api/core';
 
 // Use the TranscriptionServiceId type directly
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -59,3 +59,12 @@ export const analytics = {
 		}
 	},
 };
+
+export async function aptabaseLogEvent(
+	name: string,
+	props?: {
+		[key: string]: string | number;
+	},
+): Promise<void> {
+	await invoke<string>('plugin:aptabase|track_event', { name, props });
+}
