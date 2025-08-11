@@ -44,13 +44,25 @@
 		).join(', ')}`}
 	/>
 
-	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
+	{#if settings.value['recording.mode'] === 'manual'}
 		<SelectRecordingDevice
-			selected={settings.value['recording.selectedDeviceId']}
+			selected={settings.value['recording.manual.selectedDeviceId']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.selectedDeviceId', selected);
+				settings.updateKey('recording.manual.selectedDeviceId', selected);
 			}}
+			strategy={window.__TAURI_INTERNALS__ ? 'cpal' : 'navigator'}
 		></SelectRecordingDevice>
+	{:else if settings.value['recording.mode'] === 'vad'}
+		<SelectRecordingDevice
+			selected={settings.value['recording.vad.selectedDeviceId']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('recording.vad.selectedDeviceId', selected);
+			}}
+			strategy="navigator"
+		></SelectRecordingDevice>
+	{/if}
+
+	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
 
 		{#if !window.__TAURI_INTERNALS__}
 			<!-- Web-specific settings -->

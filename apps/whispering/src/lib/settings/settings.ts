@@ -106,10 +106,23 @@ export const settingsSchema = z.object({
 	// Recording mode settings
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
 	/**
-	 * Platform-agnostic device identifier for audio recording devices.
+	 * Device identifier for manual recording.
+	 * Can be either a desktop device identifier or navigator device ID.
 	 * @see DeviceIdentifier
 	 */
-	'recording.selectedDeviceId': z
+	'recording.manual.selectedDeviceId': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asDeviceIdentifier(val) : null))
+		.default(null),
+
+	/**
+	 * Device identifier for VAD recording.
+	 * Always a navigator device ID due to the nature of VAD recording
+	 * (it uses a MediaStream to track voice activity)
+	 * @see DeviceIdentifier
+	 */
+	'recording.vad.selectedDeviceId': z
 		.string()
 		.nullable()
 		.transform((val) => (val ? asDeviceIdentifier(val) : null))

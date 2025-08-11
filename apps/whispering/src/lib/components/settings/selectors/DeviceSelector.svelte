@@ -9,23 +9,39 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
+	let {
+		strategy
+	}: {
+		strategy: 'cpal' | 'navigator'
+	} = $props();
+
 	const combobox = useCombobox();
 	
-	const selectedDeviceId = $derived(settings.value['recording.selectedDeviceId']);
+	// Derive the setting key from the strategy
+	const settingKey = $derived(
+		strategy === 'navigator' 
+			? 'recording.vad.selectedDeviceId'
+			: 'recording.manual.selectedDeviceId'
+	) 
+
+	$inspect(strategy);
+	
+	const selectedDeviceId = $derived(settings.value[settingKey]);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...rpc.recorder.enumerateDevices.options(),
+		...(strategy === 'navigator' 
+			? rpc.vadRecorder.enumerateDevices.options()
+			: rpc.recorder.enumerateDevices.options()),
 		enabled: combobox.open,
 	}));
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute({
-				title: 'Error loading devices',
-				description: getDevicesQuery.error.message,
-			});
+			rpc.notify.warning.execute(
+				getDevicesQuery.error
+			);
 		}
 	});
 </script>
@@ -62,7 +78,7 @@
 					</div>
 				{:else if getDevicesQuery.isError}
 					<div class="p-4 text-center text-sm text-destructive">
-						{getDevicesQuery.error.message}
+						{getDevicesQuery.error.title}
 					</div>
 				{:else}
 					{#each getDevicesQuery.data as device (device.id)}
@@ -71,7 +87,7 @@
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
 								settings.updateKey(
-									'recording.selectedDeviceId',
+									settingKey,
 									currentDeviceId === device.id ? null : device.id,
 								);
 								combobox.closeAndFocusTrigger();

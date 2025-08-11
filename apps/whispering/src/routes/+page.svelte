@@ -275,7 +275,7 @@
 							🚫
 						</WhisperingButton>
 					{:else}
-						<DeviceSelector />
+						<DeviceSelector strategy={window.__TAURI_INTERNALS__ ? 'cpal' : 'navigator'} />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
@@ -300,7 +300,7 @@
 				<!-- Right column: Selectors -->
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
-						<DeviceSelector />
+						<DeviceSelector strategy="navigator" />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}

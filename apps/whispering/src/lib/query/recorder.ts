@@ -22,7 +22,16 @@ export const recorder = {
 	// Query that enumerates available recording devices with labels
 	enumerateDevices: defineQuery({
 		queryKey: recorderKeys.devices,
-		resultQueryFn: () => services.recorder.enumerateDevices(),
+		resultQueryFn: async () => {
+			const { data, error } = await services.recorder.enumerateDevices();
+			if (error) {
+				return fromTaggedErr(error, {
+					title: '❌ Failed to enumerate devices',
+					action: { type: 'more-details', error },
+				});
+			}
+			return Ok(data);
+		},
 	}),
 
 	// Query that returns the raw recording ID (null if not recording)
@@ -69,7 +78,7 @@ export const recorder = {
 
 			// Prepare recording parameters based on platform
 			const params = {
-				selectedDeviceId: settings.value['recording.selectedDeviceId'],
+				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				recordingId,
 				...(window.__TAURI_INTERNALS__
 					? {

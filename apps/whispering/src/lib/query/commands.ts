@@ -1,3 +1,4 @@
+import type { RecordingMode } from '$lib/constants/audio';
 import { fromTaggedErr, fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
@@ -22,6 +23,8 @@ let manualRecordingStartTime: number | null = null;
 const startManualRecording = defineMutation({
 	mutationKey: ['commands', 'startManualRecording'] as const,
 	resultMutationFn: async () => {
+		await rpc.settings.switchRecordingMode.execute('manual');
+
 		const toastId = nanoid();
 		notify.loading.execute({
 			id: toastId,
@@ -47,7 +50,7 @@ const startManualRecording = defineMutation({
 			}
 			case 'fallback': {
 				settings.updateKey(
-					'recording.selectedDeviceId',
+					'recording.manual.selectedDeviceId',
 					deviceAcquisitionOutcome.fallbackDeviceId,
 				);
 				switch (deviceAcquisitionOutcome.reason) {
@@ -141,6 +144,8 @@ const stopManualRecording = defineMutation({
 const startVadRecording = defineMutation({
 	mutationKey: ['commands', 'startVadRecording'] as const,
 	resultMutationFn: async () => {
+		await rpc.settings.switchRecordingMode.execute('vad');
+
 		const toastId = nanoid();
 		console.info('Starting voice activated capture');
 		notify.loading.execute({
@@ -199,7 +204,7 @@ const startVadRecording = defineMutation({
 			}
 			case 'fallback': {
 				settings.updateKey(
-					'recording.selectedDeviceId',
+					'recording.vad.selectedDeviceId',
 					deviceAcquisitionOutcome.fallbackDeviceId,
 				);
 				switch (deviceAcquisitionOutcome.reason) {
