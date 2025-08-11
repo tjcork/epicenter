@@ -40,6 +40,18 @@ export const commands = [
 		callback: () => rpc.commands.cancelManualRecording.execute(undefined),
 	},
 	{
+		id: 'startVadRecording',
+		title: 'Start voice activated recording',
+		on: 'Pressed',
+		callback: () => rpc.commands.startVadRecording.execute(undefined),
+	},
+	{
+		id: 'stopVadRecording',
+		title: 'Stop voice activated recording',
+		on: 'Pressed',
+		callback: () => rpc.commands.stopVadRecording.execute(undefined),
+	},
+	{
 		id: 'toggleVadRecording',
 		title: 'Toggle voice activated recording',
 		on: 'Pressed',

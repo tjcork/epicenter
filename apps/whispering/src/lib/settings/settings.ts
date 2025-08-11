@@ -175,6 +175,8 @@ export const settingsSchema = z.object({
 		'shortcuts.local.stopManualRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelManualRecording': z.string().nullable().default('c'),
 		'shortcuts.local.toggleVadRecording': z.string().nullable().default('v'),
+		'shortcuts.local.startVadRecording': z.string().nullable().default(null),
+		'shortcuts.local.stopVadRecording': z.string().nullable().default(null),
 		'shortcuts.local.pushToTalk': z.string().nullable().default('p'),
 	} satisfies Record<
 		`shortcuts.local.${Command['id']}`,
@@ -196,6 +198,8 @@ export const settingsSchema = z.object({
 			.nullable()
 			.default(`${CommandOrControl}+Shift+'`),
 		'shortcuts.global.toggleVadRecording': z.string().nullable().default(null),
+		'shortcuts.global.startVadRecording': z.string().nullable().default(null),
+		'shortcuts.global.stopVadRecording': z.string().nullable().default(null),
 		'shortcuts.global.pushToTalk': z
 			.string()
 			.nullable()
