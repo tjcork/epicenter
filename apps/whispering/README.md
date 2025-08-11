@@ -421,7 +421,7 @@ I was paying $30/month for a transcription app. Then I did the math: the actual 
 
 That's when I realized these apps are just middlemen. They take your audio, send it to OpenAI's Whisper API, and charge you 10x markup. Plus your recordings go through their servers, get stored who knows where, and you're locked into their ecosystem.
 
-So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no data collection, no lock-in. Just transcription at cost.
+So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no tracking, no lock-in. Just transcription at cost.
 
 The code is open source because I believe tools this fundamental should be free. Companies pivot, get acquired, or shut down. But open source is forever.
 
@@ -459,11 +459,9 @@ You can change both the transcription and transformation services in the setting
 
 ### How is this different from other transcription apps?
 
-Most apps are middlemen charging $30/month for API calls that cost pennies. With Whispering, you bring your own API key and pay providers directly. Your audio goes straight from your device to the API - no servers in between, no data collection, no subscriptions.
+Most apps are middlemen charging $30/month for API calls that cost pennies. With Whispering, you bring your own API key and pay providers directly. Your audio goes straight from your device to the API. No servers in between, no data collection, no subscriptions.
 
-### What's the catch?
-
-There isn't one. I built this for myself and use it every day. The code is open source so you can verify exactly what it does. No telemetry, no premium tiers, no upsells.
+I built this for myself and use it every day. The code is open source so you can verify exactly what it does.
 
 ### What's it built with?
 
@@ -471,7 +469,7 @@ Svelte 5 + Tauri. The app is tiny (~22MB), starts instantly, and uses minimal re
 
 ### Can I use it offline?
 
-Yes - use the Speaches provider for local transcription. No internet, no API keys, completely private.
+Yes, use the Speaches provider for local transcription. No internet, no API keys, completely private.
 
 ### How much does it actually cost?
 
@@ -480,6 +478,8 @@ With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local 
 ### Is it really private?
 
 Your recordings stay on your device in IndexedDB. When you transcribe, audio goes directly to your chosen provider using your API key. No middleman servers. For maximum privacy, use local transcription.
+
+Note: we use anonymized event logging with [Aptabase](https://github.com/aptabase), an open-source, privacy-first analytics service. No personal data is attached to any of these events. You can see exactly what events we log [in `analytics.ts`](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering/src/lib/services/analytics.ts) and where they are logged [by searching for `rpc.analytics.logEvent` in our codebase](https://github.com/search?q=repo%3Aepicenter-so%2Fepicenter+rpc.analytics.logEvent&type=code). You can turn this off in settings at any time.
 
 ### Can I format the output automatically?
 

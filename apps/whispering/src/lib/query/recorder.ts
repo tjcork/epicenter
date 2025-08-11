@@ -115,6 +115,7 @@ export const recorder = {
 					action: { type: 'more-details', error: stopRecordingError },
 				});
 			}
+
 			return Ok(blob);
 		},
 		onSettled: invalidateRecorderState,
@@ -135,6 +136,7 @@ export const recorder = {
 					action: { type: 'more-details', error: cancelRecordingError },
 				});
 			}
+
 			return Ok(cancelResult);
 		},
 		onSettled: invalidateRecorderState,

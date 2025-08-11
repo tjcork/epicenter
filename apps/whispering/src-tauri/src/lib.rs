@@ -6,7 +6,9 @@ mod accessibility;
 #[cfg(target_os = "macos")]
 use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
+use dotenvy_macro::dotenv;
 use tauri::Manager;
+use tauri_plugin_aptabase::EventTracker;
 
 pub mod recorder;
 use recorder::commands::{
@@ -15,8 +17,10 @@ use recorder::commands::{
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+#[tokio::main]
+pub async fn run() {
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_aptabase::Builder::new(dotenv!("APTABASE_KEY")).build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -70,9 +74,20 @@ pub fn run() {
         cancel_recording,
     ]);
 
-    builder
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    let app = builder
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+    
+    app.run(|handler, event| match event {
+        tauri::RunEvent::Exit { .. } => {
+            let _ = handler.track_event("app_exited", None);
+            handler.flush_events_blocking();
+        }
+        tauri::RunEvent::Ready { .. } => {
+            let _ = handler.track_event("app_started", None);
+        }
+        _ => {}
+    });
 }
 
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};
