@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
+	import { Badge } from '@repo/ui/badge';
 	import { Label } from '@repo/ui/label';
 	import { Switch } from '@repo/ui/switch';
 	import { rpc } from '$lib/query';
@@ -16,124 +16,156 @@
 	}
 </script>
 
-<div class="space-y-6">
-	<div>
-		<h3 class="text-lg font-medium">Privacy & Analytics</h3>
-		<p class="text-sm text-muted-foreground">
-			Control how Whispering collects anonymous usage data to improve the application
+<div class="space-y-8">
+	<!-- Page Header -->
+	<div class="space-y-2">
+		<div class="flex items-center gap-3">
+			<h3 class="text-xl font-semibold tracking-tight">Analytics</h3>
+			{#if settings.value['analytics.enabled']}
+				<Badge variant="outline" class="text-xs text-green-700 dark:text-green-400 border-green-200 dark:border-green-400/30">
+					Enabled
+				</Badge>
+			{:else}
+				<Badge variant="outline" class="text-xs text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-400/30">
+					Disabled
+				</Badge>
+			{/if}
+		</div>
+		<p class="text-sm text-muted-foreground max-w-2xl">
+			Help us understand which features are used most. We use anonymized event logging to improve Whispering.
 		</p>
 	</div>
 
-	<Card.Root>
-		<Card.Header>
-			<Card.Title>Anonymous Analytics</Card.Title>
-			<Card.Description>
-				Help improve Whispering by sharing anonymous usage patterns
-			</Card.Description>
-		</Card.Header>
-		<Card.Content class="space-y-6">
-			<div class="flex items-center justify-between space-x-4">
-				<div class="flex-1 space-y-1">
-					<Label for="analytics-toggle" class="text-base">
-						Enable Anonymous Analytics
+	<!-- Main Toggle Section -->
+	<Card.Root class="transition-colors duration-200">
+		<Card.Content class="p-6">
+			<div class="flex items-start justify-between gap-4">
+				<div class="space-y-2 flex-1">
+					<Label for="analytics-toggle" class="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+						Share anonymized events
 					</Label>
-					<p class="text-sm text-muted-foreground">
-						Share anonymous usage data to help improve Whispering. No personal information or
-						transcription content is ever collected.
+					<p class="text-sm text-muted-foreground leading-relaxed">
+						We log simple events like "recording started" or "transcription completed". No personal data is attached to any of these events.
 					</p>
 				</div>
 				<Switch
 					id="analytics-toggle"
 					checked={settings.value['analytics.enabled']}
 					onCheckedChange={handleAnalyticsToggle}
+					class="shrink-0"
 				/>
 			</div>
-
-			<div class="rounded-lg border bg-muted/50 p-4">
-				<h4 class="mb-2 font-medium">What we collect:</h4>
-				<ul class="space-y-1 text-sm text-muted-foreground">
-					<li>• Application lifecycle events (start, stop)</li>
-					<li>• Feature usage patterns (recordings, transcriptions)</li>
-					<li>• Error information (title and description only, no stack traces)</li>
-					<li>• Performance metrics (actual durations in milliseconds)</li>
-					<li>• Settings changes (which section was modified)</li>
-				</ul>
-			</div>
-
-			<div class="rounded-lg border bg-muted/50 p-4">
-				<h4 class="mb-2 font-medium">What we NEVER collect:</h4>
-				<ul class="space-y-1 text-sm text-muted-foreground">
-					<li>• Your transcriptions or any text content</li>
-					<li>• Personal identifiers or device IDs</li>
-					<li>• API keys or credentials</li>
-					<li>• File paths or names</li>
-					<li>• IP addresses or location data</li>
-				</ul>
-			</div>
-
-			<div class="rounded-lg border bg-background p-4">
-				<p class="text-sm">
-					<strong>Privacy First:</strong> Whispering uses{' '}
-					<a
-						href="https://aptabase.com"
-						target="_blank"
-						rel="noopener noreferrer"
-						class="text-primary underline-offset-4 hover:underline"
-					>
-						Aptabase
-					</a>, an open-source, privacy-first analytics platform. All data is truly anonymous and
-					cannot be linked back to you. This helps us understand which features are used most and
-					where to focus improvements.
-				</p>
-			</div>
-
-			<div class="flex items-center space-x-2">
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => window.open('https://github.com/epicenter-so/epicenter/blob/main/PRIVACY.md', '_blank')}
-				>
-					View Privacy Policy
-				</Button>
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => window.open('https://aptabase.com/privacy', '_blank')}
-				>
-					Aptabase Privacy
-				</Button>
-			</div>
 		</Card.Content>
 	</Card.Root>
 
-	<Card.Root>
+	<!-- Data Collection Information -->
+	<div class="grid gap-4 md:grid-cols-2">
+		<Card.Root class="border-green-100 dark:border-green-900/20">
+			<Card.Header class="pb-3">
+				<Card.Title class="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
+					<div class="w-2 h-2 bg-green-500 rounded-full"></div>
+					Events we log
+				</Card.Title>
+			</Card.Header>
+			<Card.Content class="pt-0">
+				<ul class="text-sm text-muted-foreground space-y-1.5 leading-relaxed">
+					<li class="flex items-start gap-2">
+						<span class="text-green-500 mt-1">•</span>
+						<span>Button clicks (which features you use)</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="text-green-500 mt-1">•</span>
+						<span>Completion times (how long things take)</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="text-green-500 mt-1">•</span>
+						<span>Error messages (when something fails)</span>
+					</li>
+				</ul>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root class="border-amber-100 dark:border-amber-900/20">
+			<Card.Header class="pb-3">
+				<Card.Title class="text-sm font-medium text-amber-700 dark:text-amber-400 flex items-center gap-2">
+					<div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+					Never collected
+				</Card.Title>
+			</Card.Header>
+			<Card.Content class="pt-0">
+				<ul class="text-sm text-muted-foreground space-y-1.5 leading-relaxed">
+					<li class="flex items-start gap-2">
+						<span class="text-amber-500 mt-1">•</span>
+						<span>Your actual transcriptions or recordings</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="text-amber-500 mt-1">•</span>
+						<span>Device IDs or user identifiers</span>
+					</li>
+					<li class="flex items-start gap-2">
+						<span class="text-amber-500 mt-1">•</span>
+						<span>API keys or any personal data</span>
+					</li>
+				</ul>
+			</Card.Content>
+		</Card.Root>
+	</div>
+
+	<!-- Transparency Section -->
+	<Card.Root class="bg-muted/30 border-dashed">
 		<Card.Header>
-			<Card.Title>Data Transparency</Card.Title>
+			<Card.Title class="text-base font-medium">Full Transparency</Card.Title>
 			<Card.Description>
-				Complete transparency about analytics collection
+				All analytics code is open source and auditable. See exactly what data is collected and when.
 			</Card.Description>
 		</Card.Header>
-		<Card.Content class="space-y-4">
-			<div class="text-sm text-muted-foreground">
-				<p class="mb-2">Analytics Status:</p>
-				<p class="font-mono text-xs">
-					{#if settings.value['analytics.enabled']}
-						<span class="text-green-600 dark:text-green-400">● ENABLED</span> - Anonymous events are
-						being collected
-					{:else}
-						<span class="text-yellow-600 dark:text-yellow-400">● DISABLED</span> - No data is being
-						collected
-					{/if}
-				</p>
-			</div>
-
-			<div class="rounded-lg border bg-muted/30 p-3">
-				<p class="text-xs text-muted-foreground">
-					<strong>Note:</strong> Changes to analytics settings take effect immediately. If you disable
-					analytics, no further data will be collected. Previously collected anonymous data cannot
-					be deleted as it's not associated with you in any way.
-				</p>
+		<Card.Content class="space-y-3">
+			<div class="grid gap-2 text-sm">
+				<a
+					href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering/src/lib/services/analytics.ts"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="group flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+				>
+					<span class="text-muted-foreground group-hover:text-primary/60 transition-colors">→</span>
+					<span class="underline underline-offset-4 decoration-transparent group-hover:decoration-current transition-colors">View event definitions</span>
+				</a>
+				<a
+					href="https://github.com/search?q=repo%3Aepicenter-so%2Fepicenter+rpc.analytics.logEvent&type=code"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="group flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+				>
+					<span class="text-muted-foreground group-hover:text-primary/60 transition-colors">→</span>
+					<span class="underline underline-offset-4 decoration-transparent group-hover:decoration-current transition-colors">See where events are logged</span>
+				</a>
+				<a
+					href="https://github.com/aptabase"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="group flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+				>
+					<span class="text-muted-foreground group-hover:text-primary/60 transition-colors">→</span>
+					<span class="underline underline-offset-4 decoration-transparent group-hover:decoration-current transition-colors">Learn about Aptabase</span>
+				</a>
 			</div>
 		</Card.Content>
 	</Card.Root>
+
+	<!-- Status Footer -->
+	<div class="flex items-center gap-2 text-xs">
+		{#if settings.value['analytics.enabled']}
+			<div class="flex items-center gap-2 text-green-700 dark:text-green-400">
+				<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+				<span class="font-medium">Analytics active</span>
+				<span class="text-muted-foreground">• Changes take effect immediately</span>
+			</div>
+		{:else}
+			<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+				<div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+				<span class="font-medium">Analytics disabled</span>
+				<span class="text-muted-foreground">• No data is being collected</span>
+			</div>
+		{/if}
+	</div>
 </div>
