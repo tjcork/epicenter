@@ -114,10 +114,13 @@ async function getStreamForDeviceIdentifier(
 	});
 }
 
-export async function getRecordingStream(
-	selectedDeviceId: DeviceIdentifier | null,
-	sendStatus: UpdateStatusMessageFn,
-): Promise<
+export async function getRecordingStream({
+	selectedDeviceId,
+	sendStatus,
+}: {
+	selectedDeviceId: DeviceIdentifier | null;
+	sendStatus: UpdateStatusMessageFn;
+}): Promise<
 	Result<
 		{ stream: MediaStream; deviceOutcome: DeviceAcquisitionOutcome },
 		DeviceStreamServiceError
@@ -163,8 +166,8 @@ export async function getRecordingStream(
 			DeviceStreamServiceError
 		>
 	> => {
-		const { data: recordingDeviceIds, error: enumerateDevicesError } =
-			await enumerateRecordingDeviceIds();
+		const { data: devices, error: enumerateDevicesError } =
+			await enumerateDevices();
 		if (enumerateDevicesError)
 			return DeviceStreamServiceErr({
 				message:
@@ -172,17 +175,18 @@ export async function getRecordingStream(
 				cause: enumerateDevicesError,
 			});
 
-		for (const deviceId of recordingDeviceIds) {
-			const { data: stream, error } =
-				await getStreamForDeviceIdentifier(deviceId);
+		for (const device of devices) {
+			const { data: stream, error } = await getStreamForDeviceIdentifier(
+				device.id,
+			);
 			if (!error) {
-				return Ok({ stream, deviceId });
+				return Ok({ stream, deviceId: device.id });
 			}
 		}
 
 		return DeviceStreamServiceErr({
 			message: 'Unable to connect to any available microphone',
-			context: { recordingDeviceIds },
+			context: { devices },
 			cause: undefined,
 		});
 	};

@@ -5,6 +5,7 @@ import { settings } from '$lib/stores/settings.svelte';
 import { Ok, resolve } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
+import { nanoid } from 'nanoid/non-secure';
 
 const recorderKeys = {
 	currentRecordingId: ['recorder', 'currentRecordingId'] as const,
@@ -63,8 +64,8 @@ export const recorder = {
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
-			// Generate a unique recording ID
-			const recordingId = `recording_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+			// Generate a unique recording ID that will serve as the file name
+			const recordingId = nanoid();
 
 			// Prepare recording parameters based on platform
 			const params = {

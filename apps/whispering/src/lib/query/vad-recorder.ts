@@ -47,6 +47,12 @@ export const vadRecorder = {
 						invalidateVadState();
 						onSpeechEnd(blob);
 					},
+					onVADMisfire: () => {
+						invalidateVadState();
+					},
+					onSpeechRealStart: () => {
+						invalidateVadState();
+					},
 				});
 
 			if (startListeningError) {

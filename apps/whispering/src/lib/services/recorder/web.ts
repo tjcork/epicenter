@@ -80,7 +80,7 @@ export function createWebRecorderService(): RecorderService {
 
 			// Get the recording stream
 			const { data: streamResult, error: acquireStreamError } =
-				await getRecordingStream(selectedDeviceId, sendStatus);
+				await getRecordingStream({ selectedDeviceId, sendStatus });
 			if (acquireStreamError) {
 				return RecorderServiceErr({
 					message: acquireStreamError.message,
