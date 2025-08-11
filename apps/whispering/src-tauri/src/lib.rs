@@ -15,11 +15,12 @@ use recorder::commands::{
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+#[tokio::main]
+pub async fn run() {
     // Initialize Aptabase with the app key from environment variable
     let aptabase_key = std::env::var("APTABASE_KEY").unwrap_or_else(|_| "APP-0000000000".to_string());
     
-    let builder = tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_aptabase::Builder::new(&aptabase_key).build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
