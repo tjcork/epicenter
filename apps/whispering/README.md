@@ -34,7 +34,7 @@
 
 Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
 
-I built this because I was tired of paying $30/month for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it 3-4 hours daily and pay about $3/month.
+I built this because I was tired of paying monthly subscriptions for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it several hours daily and pay less than $1/month.
 
 The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
@@ -53,7 +53,7 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
 
 ## Key Features
 
-Choose from multiple transcription providers (Groq at $0.02/hour is my favorite). The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
+Choose from multiple transcription providers. With Groq Cloud, you'll get nearly instantaneous transcription at $0.04/hour plus a generous free tier. The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
 
 Everything is stored locally on your device. Your audio goes directly from your machine to your chosen API provider. No middleman servers, no data collection, no tracking.
 
@@ -473,7 +473,7 @@ Yes, use the Speaches provider for local transcription. No internet, no API keys
 
 ### How much does it actually cost?
 
-With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local transcription: free forever. I use it 3-4 hours daily and pay about $3/month total.
+With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local transcription: free forever. I use it several hours daily and pay about $3/month total.
 
 ### Is it really private?
 
