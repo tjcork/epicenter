@@ -137,26 +137,152 @@ const stopManualRecording = defineMutation({
 	},
 });
 
+// Internal mutations for VAD recording
+const startVadRecording = defineMutation({
+	mutationKey: ['commands', 'startVadRecording'] as const,
+	resultMutationFn: async () => {
+		const toastId = nanoid();
+		console.info('Starting voice activated capture');
+		notify.loading.execute({
+			id: toastId,
+			title: '🎙️ Starting voice activated capture',
+			description: 'Your voice activated capture is starting...',
+		});
+		const { data: deviceAcquisitionOutcome, error: startActiveListeningError } =
+			await vadRecorder.startActiveListening.execute({
+				onSpeechStart: () => {
+					notify.success.execute({
+						title: '🎙️ Speech started',
+						description: 'Recording started. Speak clearly and loudly.',
+					});
+				},
+				onSpeechEnd: async (blob) => {
+					const toastId = nanoid();
+					notify.success.execute({
+						id: toastId,
+						title: '🎙️ Voice activated speech captured',
+						description: 'Your voice activated speech has been captured.',
+					});
+					console.info('Voice activated speech captured');
+					sound.playSoundIfEnabled.execute('vad-capture');
+
+					// Log VAD recording completion
+					rpc.analytics.logEvent.execute({
+						type: 'vad_recording_completed',
+						blob_size: blob.size,
+						// VAD doesn't track duration by default
+					});
+
+					await processRecordingPipeline({
+						blob,
+						toastId,
+						completionTitle: '✨ Voice activated capture complete!',
+						completionDescription:
+							'Voice activated capture complete! Ready for another take',
+					});
+				},
+			});
+		if (startActiveListeningError) {
+			notify.error.execute({ id: toastId, ...startActiveListeningError });
+			return Err(startActiveListeningError);
+		}
+
+		// Handle device acquisition outcome
+		switch (deviceAcquisitionOutcome.outcome) {
+			case 'success': {
+				notify.success.execute({
+					id: toastId,
+					title: '🎙️ Voice activated capture started',
+					description: 'Your voice activated capture has been started.',
+				});
+				break;
+			}
+			case 'fallback': {
+				settings.updateKey(
+					'recording.selectedDeviceId',
+					deviceAcquisitionOutcome.fallbackDeviceId,
+				);
+				switch (deviceAcquisitionOutcome.reason) {
+					case 'no-device-selected': {
+						notify.info.execute({
+							id: toastId,
+							title: '🎙️ VAD started with available microphone',
+							description:
+								'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
+							action: {
+								type: 'link',
+								label: 'Open Settings',
+								href: '/settings/recording',
+							},
+						});
+						break;
+					}
+					case 'preferred-device-unavailable': {
+						notify.info.execute({
+							id: toastId,
+							title: '🎙️ VAD switched to different microphone',
+							description:
+								"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
+							action: {
+								type: 'link',
+								label: 'Open Settings',
+								href: '/settings/recording',
+							},
+						});
+						break;
+					}
+				}
+			}
+		}
+
+		sound.playSoundIfEnabled.execute('vad-start');
+		return Ok(undefined);
+	},
+});
+
+const stopVadRecording = defineMutation({
+	mutationKey: ['commands', 'stopVadRecording'] as const,
+	resultMutationFn: async () => {
+		const toastId = nanoid();
+		console.info('Stopping voice activated capture');
+		notify.loading.execute({
+			id: toastId,
+			title: '⏸️ Stopping voice activated capture...',
+			description: 'Finalizing your voice activated capture...',
+		});
+		const { error: stopVadError } =
+			await vadRecorder.stopActiveListening.execute(undefined);
+		if (stopVadError) {
+			notify.error.execute({ id: toastId, ...stopVadError });
+			return Err(stopVadError);
+		}
+		notify.success.execute({
+			id: toastId,
+			title: '🎙️ Voice activated capture stopped',
+			description: 'Your voice activated capture has been stopped.',
+		});
+		sound.playSoundIfEnabled.execute('vad-stop');
+		return Ok(undefined);
+	},
+});
+
 export const commands = {
 	startManualRecording,
 	stopManualRecording,
+	startVadRecording,
+	stopVadRecording,
 
 	// Toggle manual recording
 	toggleManualRecording: defineMutation({
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await recorder.getRecorderState.fetch();
-			if (getRecorderStateError) {
-				const whisperingError = fromTaggedError(getRecorderStateError, {
-					title:
-						'❌ Failed to get recorder state before toggling manual recording',
-					action: { type: 'more-details', error: getRecorderStateError },
-				});
-				notify.error.execute(whisperingError);
-				return Err(whisperingError);
+			const { data: currentRecordingId, error: getRecordingIdError } =
+				await recorder.getCurrentRecordingId.fetch();
+			if (getRecordingIdError) {
+				notify.error.execute(getRecordingIdError);
+				return Err(getRecordingIdError);
 			}
-			if (recorderState === 'RECORDING') {
+			if (currentRecordingId) {
 				return await stopManualRecording.execute(undefined);
 			}
 			return await startManualRecording.execute(undefined);
@@ -212,125 +338,9 @@ export const commands = {
 		resultMutationFn: async () => {
 			const { data: vadState } = await vadRecorder.getVadState.fetch();
 			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
-				const toastId = nanoid();
-				console.info('Stopping voice activated capture');
-				notify.loading.execute({
-					id: toastId,
-					title: '⏸️ Stopping voice activated capture...',
-					description: 'Finalizing your voice activated capture...',
-				});
-				const { error: stopVadError } =
-					await vadRecorder.stopActiveListening.execute(undefined);
-				if (stopVadError) {
-					notify.error.execute({ id: toastId, ...stopVadError });
-					return Err(stopVadError);
-				}
-				notify.success.execute({
-					id: toastId,
-					title: '🎙️ Voice activated capture stopped',
-					description: 'Your voice activated capture has been stopped.',
-				});
-				sound.playSoundIfEnabled.execute('vad-stop');
-				return Ok(undefined);
+				return await stopVadRecording.execute(undefined);
 			}
-			const toastId = nanoid();
-			console.info('Starting voice activated capture');
-			notify.loading.execute({
-				id: toastId,
-				title: '🎙️ Starting voice activated capture',
-				description: 'Your voice activated capture is starting...',
-			});
-			const {
-				data: deviceAcquisitionOutcome,
-				error: startActiveListeningError,
-			} = await vadRecorder.startActiveListening.execute({
-				onSpeechStart: () => {
-					notify.success.execute({
-						title: '🎙️ Speech started',
-						description: 'Recording started. Speak clearly and loudly.',
-					});
-				},
-				onSpeechEnd: async (blob) => {
-					const toastId = nanoid();
-					notify.success.execute({
-						id: toastId,
-						title: '🎙️ Voice activated speech captured',
-						description: 'Your voice activated speech has been captured.',
-					});
-					console.info('Voice activated speech captured');
-					sound.playSoundIfEnabled.execute('vad-capture');
-
-					// Log VAD recording completion
-					rpc.analytics.logEvent.execute({
-						type: 'vad_recording_completed',
-						blob_size: blob.size,
-						// VAD doesn't track duration by default
-					});
-
-					await processRecordingPipeline({
-						blob,
-						toastId,
-						completionTitle: '✨ Voice activated capture complete!',
-						completionDescription:
-							'Voice activated capture complete! Ready for another take',
-					});
-				},
-			});
-			if (startActiveListeningError) {
-				notify.error.execute({ id: toastId, ...startActiveListeningError });
-				return Err(startActiveListeningError);
-			}
-
-			// Handle device acquisition outcome
-			switch (deviceAcquisitionOutcome.outcome) {
-				case 'success': {
-					notify.success.execute({
-						id: toastId,
-						title: '🎙️ Voice activated capture started',
-						description: 'Your voice activated capture has been started.',
-					});
-					break;
-				}
-				case 'fallback': {
-					settings.updateKey(
-						'recording.selectedDeviceId',
-						deviceAcquisitionOutcome.fallbackDeviceId,
-					);
-					switch (deviceAcquisitionOutcome.reason) {
-						case 'no-device-selected': {
-							notify.info.execute({
-								id: toastId,
-								title: '🎙️ VAD started with available microphone',
-								description:
-									'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
-								action: {
-									type: 'link',
-									label: 'Open Settings',
-									href: '/settings/recording',
-								},
-							});
-							break;
-						}
-						case 'preferred-device-unavailable': {
-							notify.info.execute({
-								id: toastId,
-								title: '🎙️ VAD switched to different microphone',
-								description:
-									"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
-								action: {
-									type: 'link',
-									label: 'Open Settings',
-									href: '/settings/recording',
-								},
-							});
-							break;
-						}
-					}
-				}
-			}
-
-			sound.playSoundIfEnabled.execute('vad-start');
-			return Ok(undefined);
+			return await startVadRecording.execute(undefined);
 		},
 	}),
 

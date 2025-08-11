@@ -645,7 +645,7 @@ The query layer also transforms service-specific errors into `WhisperingError` t
 
 ```typescript
 // Service returns domain-specific error
-const { data, error: serviceError } = await services.manualRecorder.startRecording(...);
+const { data, error: serviceError } = await services.recorder.startRecording(...);
 
 if (serviceError) {
   // Query layer transforms to UI-friendly WhisperingError
@@ -807,7 +807,7 @@ Adding a new transcription service involves four main steps:
 
 2. **Update the service configuration** in `src/lib/constants/transcription/service-config.ts`:
    ```typescript
-   import { YourServiceIcon } from 'lucide-svelte';
+   import { YourServiceIcon } from '@lucide/svelte';
    import {
      YOUR_SERVICE_MODELS,
      type YourServiceModel,
@@ -865,10 +865,7 @@ Adding a new transcription service involves four main steps:
        }))}
        selected={settings.value['transcription.yourservice.model']}
        onSelectedChange={(selected) => {
-         settings.value = {
-           ...settings.value,
-           'transcription.yourservice.model': selected,
-         };
+         settings.updateKey('transcription.yourservice.model', selected);
        }}
        renderOption={renderModelOption}
      />
@@ -891,7 +888,7 @@ Adding a new transcription service involves four main steps:
      placeholder="Your YourService API Key"
      value={settings.value['apiKeys.yourservice']}
      oninput={({ currentTarget: { value } }) => {
-       settings.value = { ...settings.value, 'apiKeys.yourservice': value };
+       settings.updateKey('apiKeys.yourservice', value);
      }}
    >
      {#snippet description()}

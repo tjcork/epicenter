@@ -6,7 +6,7 @@
 	} from '$lib/stores/assistant-configs.svelte';
 	import * as AlertDialog from '@repo/ui/alert-dialog';
 	import { Button } from '@repo/ui/button';
-	import { Trash2 } from 'lucide-svelte';
+	import { Trash2 } from '@lucide/svelte';
 
 	let { assistantConfig }: { assistantConfig: AssistantConfig } = $props();
 	let open = $state(false);

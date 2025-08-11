@@ -4,7 +4,7 @@
 	import * as rpc from '$lib/query';
 	import { Badge } from '@repo/ui/badge';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { CheckCircle2, Loader2, XCircle } from 'lucide-svelte';
+	import { CheckCircle2, Loader2, XCircle } from '@lucide/svelte';
 
 	let {
 		assistantConfig,

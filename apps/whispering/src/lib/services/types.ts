@@ -2,30 +2,6 @@ import type { Brand } from 'wellcrafted/brand';
 import type { Result } from 'wellcrafted/result';
 
 /**
- * Platform-agnostic device identifier for audio recording devices.
- *
- * On Web (Navigator API):
- *   - This is the unique `deviceId` from MediaDeviceInfo (e.g., "default" or a GUID)
- *   - NOT the device label. We use the actual deviceId for uniqueness
- *
- * On Desktop (CPAL):
- *   - This is the device name as a string (e.g., "MacBook Pro Microphone")
- *   - The name serves as both identifier and label
- *
- * While these represent different concepts on each platform, they serve the same
- * purpose: uniquely identifying a recording device for selection and persistence.
- * The branded type ensures type safety and makes the dual nature explicit.
- *
- * @example
- * // Web: Stores the deviceId (unique identifier, NOT the label)
- * const deviceIdentifier: DeviceIdentifier = "8a7b9c..." as DeviceIdentifier;
- *
- * // Desktop: Stores the device name (which is both ID and label)
- * const deviceIdentifier: DeviceIdentifier = "MacBook Pro Microphone" as DeviceIdentifier;
- */
-export type DeviceIdentifier = string & Brand<'DeviceIdentifier'>;
-
-/**
  * Callback function for providing real-time status updates during multi-step recording operations.
  * These status messages become user-facing toast notifications that provide encouraging progress
  * feedback during recording workflows. The messages are displayed as loading toasts in the UI,
@@ -134,6 +110,62 @@ export type RecordingService = {
 	 * Cancel the current recording without saving
 	 */
 	cancelRecording(): Promise<Result<void, unknown>>;
+};
+
+/**
+ * Platform-agnostic device identifier for audio recording devices.
+ *
+ * On Web (Navigator API):
+ *   - This is the unique `deviceId` from MediaDeviceInfo (e.g., "default" or a GUID)
+ *   - NOT the device label. We use the actual deviceId for uniqueness
+ *
+ * On Desktop (CPAL):
+ *   - This is the device name as a string (e.g., "MacBook Pro Microphone")
+ *   - The name serves as both identifier and label
+ *
+ * While these represent different concepts on each platform, they serve the same
+ * purpose: uniquely identifying a recording device for selection and persistence.
+ * The branded type ensures type safety and makes the dual nature explicit.
+ *
+ * @example
+ * // Web: Stores the deviceId (unique identifier, NOT the label)
+ * const deviceIdentifier: DeviceIdentifier = "8a7b9c..." as DeviceIdentifier;
+ *
+ * // Desktop: Stores the device name (which is both ID and label)
+ * const deviceIdentifier: DeviceIdentifier = "MacBook Pro Microphone" as DeviceIdentifier;
+ */
+export type DeviceIdentifier = string & Brand<'DeviceIdentifier'>;
+
+/**
+ * Represents an audio recording device with both a unique identifier and human-readable label.
+ *
+ * On Web (Navigator API):
+ *   - `id`: The unique deviceId from MediaDeviceInfo (e.g., "default" or a GUID)
+ *   - `label`: The human-readable device label (e.g., "Built-in Microphone")
+ *
+ * On Desktop (CPAL):
+ *   - `id`: The device name (e.g., "MacBook Pro Microphone")
+ *   - `label`: The same device name (identical to id for desktop)
+ *
+ * This separation allows for better UX (showing readable names) while maintaining
+ * stable identifiers for settings persistence.
+ *
+ * @example
+ * // Web device
+ * const device: Device = {
+ *   id: "8a7b9c..." as DeviceIdentifier,
+ *   label: "Blue Yeti USB Microphone"
+ * };
+ *
+ * // Desktop device
+ * const device: Device = {
+ *   id: "MacBook Pro Microphone" as DeviceIdentifier,
+ *   label: "MacBook Pro Microphone"
+ * };
+ */
+export type Device = {
+	id: DeviceIdentifier;
+	label: string;
 };
 
 /**

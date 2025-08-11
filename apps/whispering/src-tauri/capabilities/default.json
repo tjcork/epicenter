@@ -20,7 +20,19 @@
     "process:allow-exit",
     "notification:default",
     "clipboard-manager:allow-write-text",
-    "fs:allow-app-write",
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-exists",
+    "fs:allow-create",
+    "fs:allow-mkdir",
+    "fs:allow-remove",
+    "dialog:allow-open",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "**" }
+      ]
+    },
     {
       "identifier": "http:default",
       "allow": [
@@ -30,8 +42,16 @@
         { "url": "https://*:*" }
       ]
     },
+     {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "**"
+        }
+      ]
+    },
+    "opener:allow-default-urls",
     "updater:default",
-    "shell:default",
     "aptabase:allow-track-event"
   ]
 }

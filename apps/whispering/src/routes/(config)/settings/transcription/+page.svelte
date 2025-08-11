@@ -10,6 +10,7 @@
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
+		DeepgramApiKeyInput
 	} from '$lib/components/settings';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
@@ -21,9 +22,10 @@
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
+		DEEPGRAM_TRANSCRIPTION_MODELS
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { CheckIcon } from 'lucide-svelte';
+	import { CheckIcon } from '@lucide/svelte';
 </script>
 
 <svelte:head>
@@ -106,6 +108,22 @@
 			{/snippet}
 		</LabeledSelect>
 		<GroqApiKeyInput />
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'Deepgram'}
+		<LabeledSelect
+			id="deepgram-model"
+			label="Deepgram Model"
+			items={DEEPGRAM_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
+			selected={settings.value['transcription.deepgram.model']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('transcription.deepgram.model', selected);
+			}}
+			renderOption={renderModelOption}
+		/>
+		<DeepgramApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
 		<LabeledSelect
 			id="elevenlabs-model"

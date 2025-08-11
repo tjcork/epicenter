@@ -8,7 +8,7 @@
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { LayersIcon } from 'lucide-svelte';
+	import { LayersIcon } from '@lucide/svelte';
 
 	const transformationsQuery = createQuery(
 		rpc.transformations.queries.getAllTransformations.options,

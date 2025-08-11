@@ -8,7 +8,7 @@
 	import * as DropdownMenu from '@repo/ui/dropdown-menu';
 	import * as Table from '@repo/ui/table';
 	import { cn } from '@repo/ui/utils';
-	import { ChevronDown, Plus } from 'lucide-svelte';
+	import { ChevronDown, Plus } from '@lucide/svelte';
 
 	// Define available columns
 	const columns = [

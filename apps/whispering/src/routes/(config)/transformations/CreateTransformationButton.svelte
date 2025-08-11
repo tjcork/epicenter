@@ -7,7 +7,7 @@
 	import { rpc } from '$lib/query';
 	import { generateDefaultTransformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { PlusIcon } from 'lucide-svelte';
+	import { PlusIcon } from '@lucide/svelte';
 
 	const createTransformation = createMutation(
 		rpc.transformations.mutations.createTransformation.options,

@@ -7,7 +7,7 @@
 	import type { KeyboardEventSupportedKey } from '$lib/constants/keyboard';
 	import { IS_MACOS } from '$lib/constants/platform';
 	import { cn } from '@repo/ui/utils';
-	import { AlertTriangle, Keyboard, Pencil, XIcon } from 'lucide-svelte';
+	import { AlertTriangle, Keyboard, Pencil, XIcon } from '@lucide/svelte';
 	import { type KeyRecorder } from './create-key-recorder.svelte';
 
 	const {

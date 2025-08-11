@@ -7,7 +7,7 @@
 	import { Input } from '@repo/ui/input';
 	import { Label } from '@repo/ui/label';
 	import * as Modal from '@repo/ui/modal';
-	import { Edit, Loader2 } from 'lucide-svelte';
+	import { Edit, Loader2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	let { assistantConfig }: { assistantConfig: AssistantConfig } = $props();

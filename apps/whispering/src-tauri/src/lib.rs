@@ -6,11 +6,12 @@ mod accessibility;
 #[cfg(target_os = "macos")]
 use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
+use tauri::Manager;
+
 pub mod recorder;
 use recorder::commands::{
     cancel_recording, close_recording_session, enumerate_recording_devices,
-    get_current_recording_id, init_recording_session, start_recording,
-    stop_recording, AppData,
+    get_current_recording_id, init_recording_session, start_recording, stop_recording, AppData,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -28,10 +29,19 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .manage(AppData::new());
+
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }));
+    }
 
     // Platform-specific command handlers
     #[cfg(target_os = "macos")]

@@ -6,7 +6,7 @@
 	import * as AlertDialog from '@repo/ui/alert-dialog';
 	import { Button } from '@repo/ui/button';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { Trash2 } from 'lucide-svelte';
+	import { Trash2 } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	let {

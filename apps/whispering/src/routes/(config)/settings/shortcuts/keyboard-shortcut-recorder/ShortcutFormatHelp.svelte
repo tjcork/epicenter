@@ -13,7 +13,7 @@
 		OPTION_DEAD_KEYS,
 	} from '$lib/constants/keyboard';
 	import { IS_MACOS } from '$lib/constants/platform';
-	import { AlertTriangle, ExternalLink, HelpCircle } from 'lucide-svelte';
+	import { AlertTriangle, ExternalLink, HelpCircle } from '@lucide/svelte';
 
 	let { type }: { type: 'local' | 'global' } = $props();
 	let dialogOpen = $state(false);

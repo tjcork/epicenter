@@ -2,9 +2,11 @@ import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
 import { settings } from '$lib/stores/settings.svelte';
-import { Ok } from 'wellcrafted/result';
+import { Ok, resolve } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
+import { nanoid } from 'nanoid/non-secure';
+
 const recorderKeys = {
 	currentRecordingId: ['recorder', 'currentRecordingId'] as const,
 	devices: ['recorder', 'devices'] as const,
@@ -17,10 +19,10 @@ const invalidateRecorderState = () =>
 	queryClient.invalidateQueries({ queryKey: recorderKeys.currentRecordingId });
 
 export const recorder = {
-	// Query that enumerates available recording devices
+	// Query that enumerates available recording devices with labels
 	enumerateDevices: defineQuery({
 		queryKey: recorderKeys.devices,
-		resultQueryFn: () => services.recorder.enumerateRecordingDeviceIds(),
+		resultQueryFn: () => services.recorder.enumerateDevices(),
 	}),
 
 	// Query that returns the raw recording ID (null if not recording)
@@ -54,19 +56,16 @@ export const recorder = {
 			}
 			return Ok(recordingId);
 		},
-		select: (data) => {
-			// Transform recording ID to state
-			const state: WhisperingRecordingState = data ? 'RECORDING' : 'IDLE';
-			return state;
-		},
+		select: (state): WhisperingRecordingState =>
+			resolve(state) ? 'RECORDING' : 'IDLE',
 		initialData: null as string | null,
 	}),
 
 	startRecording: defineMutation({
 		mutationKey: recorderKeys.startRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
-			// Generate a unique recording ID
-			const recordingId = `recording_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+			// Generate a unique recording ID that will serve as the file name
+			const recordingId = nanoid();
 
 			// Prepare recording parameters based on platform
 			const params = {

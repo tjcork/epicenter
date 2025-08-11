@@ -13,7 +13,7 @@
 	},
 	"dependencies": {
 		"arktype": "catalog:",
-		"lucide-svelte": "catalog:",
+		"@lucide/svelte": "catalog:",
 		"zod": "catalog:"
 	}
 }

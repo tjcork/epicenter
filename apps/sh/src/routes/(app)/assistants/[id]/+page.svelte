@@ -5,7 +5,7 @@
 	import * as Breadcrumb from '@repo/ui/breadcrumb';
 	import { Button } from '@repo/ui/button';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { ChevronRight } from 'lucide-svelte';
+	import { ChevronRight } from '@lucide/svelte';
 
 	import CreateSessionModal from './_components/CreateSessionModal.svelte';
 	import SessionList from './_components/SessionList.svelte';

@@ -5,7 +5,7 @@
 	import { Skeleton } from '@repo/ui/skeleton';
 	import * as ToggleGroup from '@repo/ui/toggle-group';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { Code, Lightbulb, MessageSquare } from 'lucide-svelte';
+	import { Code, Lightbulb, MessageSquare } from '@lucide/svelte';
 
 	let {
 		assistantConfig,

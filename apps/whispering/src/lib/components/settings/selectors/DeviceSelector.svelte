@@ -7,7 +7,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { CheckIcon, MicIcon, RefreshCwIcon } from 'lucide-svelte';
+	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
 	const combobox = useCombobox();
 	
@@ -65,14 +65,14 @@
 						{getDevicesQuery.error.message}
 					</div>
 				{:else}
-					{#each getDevicesQuery.data as deviceId (deviceId)}
+					{#each getDevicesQuery.data as device (device.id)}
 						<Command.Item
-							value={deviceId}
+							value={device.id}
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
 								settings.updateKey(
 									'recording.selectedDeviceId',
-									currentDeviceId === deviceId ? null : deviceId,
+									currentDeviceId === device.id ? null : device.id,
 								);
 								combobox.closeAndFocusTrigger();
 							}}
@@ -81,12 +81,12 @@
 							<CheckIcon
 								class={cn(
 									'size-4 shrink-0 mx-2',
-									selectedDeviceId !== deviceId && 'text-transparent',
+									selectedDeviceId !== device.id && 'text-transparent',
 								)}
 							/>
 							<div class="flex flex-col min-w-0">
 								<span class="font-medium truncate">
-									{deviceId}
+									{device.label}
 								</span>
 							</div>
 						</Command.Item>

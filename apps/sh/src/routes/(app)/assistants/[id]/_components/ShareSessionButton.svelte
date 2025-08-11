@@ -5,7 +5,7 @@
 	import * as rpc from '$lib/query';
 	import { Button } from '@repo/ui/button';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { Link, Share } from 'lucide-svelte';
+	import { Link, Share } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	let {

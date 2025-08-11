@@ -15,7 +15,7 @@
 	} from '$lib/settings/transcription-validation';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
-	import { CheckIcon, MicIcon, SettingsIcon } from 'lucide-svelte';
+	import { CheckIcon, MicIcon, SettingsIcon } from '@lucide/svelte';
 
 	let { class: className }: { class?: string } = $props();
 

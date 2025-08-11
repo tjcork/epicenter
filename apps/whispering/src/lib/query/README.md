@@ -127,7 +127,7 @@ A critical responsibility of the query layer is transforming service-specific er
 
 The error handling follows a clear pattern across three layers:
 
-1. **Service Layer**: Returns domain-specific tagged errors (e.g., `ManualRecorderServiceError`)
+1. **Service Layer**: Returns domain-specific tagged errors (e.g., `RecorderServiceError`)
 2. **Query Layer**: Wraps service errors into `WhisperingError` objects
 3. **UI Layer**: Uses `WhisperingError` directly without re-wrapping
 
@@ -135,14 +135,14 @@ This pattern ensures consistent error handling and avoids double-wrapping errors
 
 ### How It Works
 
-Services return their own specific error types (e.g., `ManualRecorderServiceError`, `CpalRecorderServiceError`), which contain detailed error information. The query layer transforms these into `WhisperingError` with UI-friendly formatting:
+Services return their own specific error types (e.g., `RecorderServiceError`, `CpalRecorderServiceError`), which contain detailed error information. The query layer transforms these into `WhisperingError` with UI-friendly formatting:
 
 ```typescript
 // From manualRecorder.ts - Error transformation in resultMutationFn
 startRecording: defineMutation({
 	resultMutationFn: async ({ toastId }: { toastId: string }) => {
 		const { data: deviceAcquisitionOutcome, error: startRecordingError } =
-			await services.manualRecorder.startRecording(recordingSettings, {
+			await services.recorder.startRecording(recordingSettings, {
 				sendStatus: (options) =>
 					notify.loading.execute({ id: toastId, ...options }),
 			});
@@ -173,7 +173,7 @@ startRecording: defineMutation({
 
    ```typescript
    // In manual-recorder.ts
-   type ManualRecorderServiceError = TaggedError<'ManualRecorderServiceError'>;
+   type RecorderServiceError = TaggedError<'RecorderServiceError'>;
    ```
 
 2. **Query Layer**: Transforms to `WhisperingError` in `resultMutationFn`/`resultQueryFn`
@@ -250,7 +250,7 @@ if (getRecorderStateError) {
 // BAD: Query layer should wrap errors, not return raw service errors
 getRecorderState: defineQuery({
 	queryKey: recorderKeys.state,
-	resultQueryFn: () => services.manualRecorder.getRecorderState(), // Missing error wrapping!
+	resultQueryFn: () => services.recorder.getRecorderState(), // Missing error wrapping!
 	initialData: 'IDLE' as WhisperingRecordingState,
 });
 ```
@@ -261,7 +261,7 @@ getRecorderState: defineQuery({
 // GOOD: Query wraps service errors, UI uses them directly
 getRecorderState: defineQuery({
 	resultQueryFn: async () => {
-		const { data, error } = await services.manualRecorder.getRecorderState();
+		const { data, error } = await services.recorder.getRecorderState();
 		if (error) {
 			return Err(
 				WhisperingError({

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DesktopOutputFolder from './DesktopOutputFolder.svelte';
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '@repo/ui/separator';
 	import {
@@ -7,6 +8,13 @@
 	} from '$lib/constants/audio';
 	import { settings } from '$lib/stores/settings.svelte';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
+
+	const SAMPLE_RATE_OPTIONS = [
+		{ value: '16000', label: 'Voice Quality (16kHz): Optimized for speech' },
+		{ value: '44100', label: 'Standard Quality (44.1kHz): CD quality' },
+		{ value: '48000', label: 'High Quality (48kHz): Professional audio' },
+	] as const;
+
 </script>
 
 <svelte:head>
@@ -37,22 +45,15 @@
 	/>
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-		<div class="pl-4 border-l-2 border-muted space-y-6">
-			<div>
-				<h4 class="text-md font-medium">Navigator Settings</h4>
-				<p class="text-muted-foreground text-sm">
-					These settings apply to browser-based recording modes (Manual and
-					Voice Activated).
-				</p>
-			</div>
+		<SelectRecordingDevice
+			selected={settings.value['recording.selectedDeviceId']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('recording.selectedDeviceId', selected);
+			}}
+		></SelectRecordingDevice>
 
-			<SelectRecordingDevice
-				selected={settings.value['recording.selectedDeviceId'] ?? asDeviceIdentifier('')}
-				onSelectedChange={(selected) => {
-					settings.updateKey('recording.selectedDeviceId', selected);
-				}}
-			></SelectRecordingDevice>
-
+		{#if !window.__TAURI_INTERNALS__}
+			<!-- Web-specific settings -->
 			<LabeledSelect
 				id="bit-rate"
 				label="Bitrate"
@@ -60,47 +61,35 @@
 					value: option.value,
 					label: option.label,
 				}))}
-				selected={settings.value['recording.navigator.bitrateKbps'] ?? ''}
+				selected={settings.value['recording.navigator.bitrateKbps']}
 				onSelectedChange={(selected) => {
-					settings.value = {
-						...settings.value,
-						'recording.navigator.bitrateKbps': selected,
-					};
+					settings.updateKey('recording.navigator.bitrateKbps', selected);
 				}}
 				placeholder="Select a bitrate"
 				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
-		</div>
-	{:else if settings.value['recording.mode'] === 'cpal'}
-		{#if window.__TAURI_INTERNALS__}
-			<div class="pl-4 border-l-2 border-muted space-y-6">
-				<div>
-					<h4 class="text-md font-medium">CPAL Recording Settings</h4>
-					<p class="text-muted-foreground text-sm">
-						Native CPAL recording uses your system's audio APIs for better
-						performance.
-					</p>
-				</div>
-
-				<SelectRecordingDevice
-					deviceEnumerationStrategy="cpal"
-					selected={settings.value['recording.cpal.selectedDeviceId'] ?? ''}
-					onSelectedChange={(selected) => {
-						settings.value = {
-							...settings.value,
-							'recording.cpal.selectedDeviceId': selected,
-						};
-					}}
-				></SelectRecordingDevice>
-			</div>
 		{:else}
-			<div class="pl-4 border-l-2 border-muted space-y-6">
-				<div>
-					<h4 class="text-md font-medium">CPAL Recording Not Available</h4>
-					<p class="text-muted-foreground text-sm">
-						CPAL recording is only available in the desktop app.
-					</p>
-				</div>
+			<!-- Desktop-specific settings -->
+			<LabeledSelect
+				id="sample-rate"
+				label="Sample Rate"
+				items={SAMPLE_RATE_OPTIONS}
+				selected={settings.value['recording.desktop.sampleRate']}
+				onSelectedChange={(selected) => {
+					settings.updateKey('recording.desktop.sampleRate', selected as typeof SAMPLE_RATE_OPTIONS[number]['value']);
+				}}
+				placeholder="Select sample rate"
+				description="Higher sample rates provide better quality but create larger files"
+			/>
+
+			<div class="space-y-2">
+				<label for="output-folder" class="text-sm font-medium">
+					Recording Output Folder
+				</label>
+				<DesktopOutputFolder></DesktopOutputFolder>
+				<p class="text-xs text-muted-foreground">
+					Choose where to save your recordings. Default location is secure and managed by the app.
+				</p>
 			</div>
 		{/if}
 	{/if}

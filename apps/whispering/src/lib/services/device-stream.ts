@@ -2,6 +2,7 @@ import { WHISPER_RECOMMENDED_MEDIA_TRACK_CONSTRAINTS } from '$lib/constants/audi
 import { createTaggedError } from 'wellcrafted/error';
 import { Err, isOk, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type {
+	Device,
 	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
 	UpdateStatusMessageFn,
@@ -42,8 +43,8 @@ async function hasExistingAudioPermission(): Promise<boolean> {
 	return false;
 }
 
-export async function enumerateRecordingDeviceIds(): Promise<
-	Result<DeviceIdentifier[], DeviceStreamServiceError>
+export async function enumerateDevices(): Promise<
+	Result<Device[], DeviceStreamServiceError>
 > {
 	const hasPermission = await hasExistingAudioPermission();
 	if (!hasPermission) {
@@ -61,10 +62,11 @@ export async function enumerateRecordingDeviceIds(): Promise<
 			const audioInputDevices = devices.filter(
 				(device) => device.kind === 'audioinput',
 			);
-			// On Web: Return deviceIds as identifiers (NOT labels)
-			return audioInputDevices.map((device) =>
-				asDeviceIdentifier(device.deviceId),
-			);
+			// On Web: Return Device objects with both ID and label
+			return audioInputDevices.map((device) => ({
+				id: asDeviceIdentifier(device.deviceId),
+				label: device.label,
+			}));
 		},
 		mapErr: (error) =>
 			DeviceStreamServiceErr({
@@ -112,10 +114,13 @@ async function getStreamForDeviceIdentifier(
 	});
 }
 
-export async function getRecordingStream(
-	selectedDeviceId: DeviceIdentifier | null,
-	sendStatus: UpdateStatusMessageFn,
-): Promise<
+export async function getRecordingStream({
+	selectedDeviceId,
+	sendStatus,
+}: {
+	selectedDeviceId: DeviceIdentifier | null;
+	sendStatus: UpdateStatusMessageFn;
+}): Promise<
 	Result<
 		{ stream: MediaStream; deviceOutcome: DeviceAcquisitionOutcome },
 		DeviceStreamServiceError
@@ -161,8 +166,8 @@ export async function getRecordingStream(
 			DeviceStreamServiceError
 		>
 	> => {
-		const { data: recordingDeviceIds, error: enumerateDevicesError } =
-			await enumerateRecordingDeviceIds();
+		const { data: devices, error: enumerateDevicesError } =
+			await enumerateDevices();
 		if (enumerateDevicesError)
 			return DeviceStreamServiceErr({
 				message:
@@ -170,17 +175,18 @@ export async function getRecordingStream(
 				cause: enumerateDevicesError,
 			});
 
-		for (const deviceId of recordingDeviceIds) {
-			const { data: stream, error } =
-				await getStreamForDeviceIdentifier(deviceId);
+		for (const device of devices) {
+			const { data: stream, error } = await getStreamForDeviceIdentifier(
+				device.id,
+			);
 			if (!error) {
-				return Ok({ stream, deviceId });
+				return Ok({ stream, deviceId: device.id });
 			}
 		}
 
 		return DeviceStreamServiceErr({
 			message: 'Unable to connect to any available microphone',
-			context: { recordingDeviceIds },
+			context: { devices },
 			cause: undefined,
 		});
 	};

@@ -8,8 +8,8 @@
 		selected,
 		onSelectedChange,
 	}: {
-		selected: DeviceIdentifier;
-		onSelectedChange: (selected: DeviceIdentifier) => void;
+		selected: DeviceIdentifier | null;
+		onSelectedChange: (selected: DeviceIdentifier | null) => void;
 	} = $props();
 
 	const getDevicesQuery = createQuery(rpc.recorder.enumerateDevices.options);
@@ -39,16 +39,16 @@
 		{getDevicesQuery.error.message}
 	</p>
 {:else}
-	{@const items = getDevicesQuery.data.map((deviceId) => ({
-		value: deviceId,
-		label: deviceId,
+	{@const items = getDevicesQuery.data.map((device) => ({
+		value: device.id,
+		label: device.label,
 	}))}
 	<LabeledSelect
 		id="recording-device"
 		label="Recording Device"
 		{items}
-		{selected}
-		{onSelectedChange}
+		selected={selected || ''}
+		onSelectedChange={(value) => onSelectedChange(value ? value as DeviceIdentifier : null)}
 		placeholder="Select a device"
 	/>
 {/if}

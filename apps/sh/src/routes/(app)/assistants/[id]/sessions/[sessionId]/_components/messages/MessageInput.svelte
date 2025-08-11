@@ -8,7 +8,7 @@
 		MEGABYTE,
 	} from '@repo/ui/file-drop-zone';
 	import { Textarea } from '@repo/ui/textarea';
-	import { PaperclipIcon, X } from 'lucide-svelte';
+	import { PaperclipIcon, X } from '@lucide/svelte';
 
 	let {
 		disabled = false,

@@ -8,7 +8,7 @@ Components in this directory:
 
 - Import and use the global `settings` store from `$lib/stores/settings.svelte`
 - Either take **no props** or only take a **`settingsKey` prop** to determine which setting to bind to
-- Update settings directly using `settings.value = {...settings.value, ...}`
+- Update settings directly using `settings.updateKey()` or `settings.update()` methods
 - Are self-contained and can be used globally throughout the application
 
 ## Criteria for Inclusion
@@ -92,7 +92,7 @@ When creating a new settings component for this folder:
    <Input
    	value={settings.value[settingsKey]}
    	oninput={({ currentTarget: { value } }) => {
-   		settings.value = { ...settings.value, [settingsKey]: value };
+   		settings.updateKey(settingsKey, value);
    	}}
    />
    ```

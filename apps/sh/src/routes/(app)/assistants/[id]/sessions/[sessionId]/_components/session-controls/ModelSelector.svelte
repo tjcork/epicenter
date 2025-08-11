@@ -8,7 +8,7 @@
 	import * as Popover from '@repo/ui/popover';
 	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { CheckIcon, ChevronsUpDownIcon } from 'lucide-svelte';
+	import { CheckIcon, ChevronsUpDownIcon } from '@lucide/svelte';
 
 	let {
 		assistantConfig,

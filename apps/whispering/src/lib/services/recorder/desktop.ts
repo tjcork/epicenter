@@ -1,14 +1,30 @@
 import type { CancelRecordingResult } from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import type { DeviceAcquisitionOutcome, DeviceIdentifier } from '../types';
+import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
-import type { RecorderService, RecorderServiceError, StartRecordingParams } from './types';
+import type {
+	RecorderService,
+	RecorderServiceError,
+	StartRecordingParams,
+} from './types';
 import { RecorderServiceErr } from './types';
+import { readFile } from '@tauri-apps/plugin-fs';
+import { remove } from '@tauri-apps/plugin-fs';
+
+/**
+ * Audio recording data returned from the Rust backend
+ */
+type AudioRecording = {
+	sampleRate: number;
+	channels: number;
+	durationSeconds: number;
+	filePath?: string;
+};
 
 export function createDesktopRecorderService(): RecorderService {
-	const enumerateRecordingDeviceIds = async (): Promise<
-		Result<DeviceIdentifier[], RecorderServiceError>
+	const enumerateDevices = async (): Promise<
+		Result<Device[], RecorderServiceError>
 	> => {
 		const { data: deviceNames, error: enumerateRecordingDevicesError } =
 			await invoke<string[]>('enumerate_recording_devices');
@@ -18,8 +34,13 @@ export function createDesktopRecorderService(): RecorderService {
 				cause: enumerateRecordingDevicesError,
 			});
 		}
-		// Device names are the identifiers for desktop recording
-		return Ok(deviceNames.map(asDeviceIdentifier));
+		// On desktop, device names serve as both ID and label
+		return Ok(
+			deviceNames.map((name) => ({
+				id: asDeviceIdentifier(name),
+				label: name,
+			})),
+		);
 	};
 
 	return {
@@ -39,7 +60,7 @@ export function createDesktopRecorderService(): RecorderService {
 			return Ok(recordingId);
 		},
 
-		enumerateRecordingDeviceIds,
+		enumerateDevices,
 
 		startRecording: async (
 			params: StartRecordingParams,
@@ -49,20 +70,21 @@ export function createDesktopRecorderService(): RecorderService {
 			if (params.platform !== 'desktop') {
 				return RecorderServiceErr({
 					message: 'Desktop recorder received non-desktop parameters',
-					context: { platform: (params as any).platform },
+					context: { params },
 					cause: undefined,
 				});
 			}
-			
-			const { selectedDeviceId, recordingId, outputFolder, sampleRate } = params;
-			const { data: deviceIds, error: enumerateError } =
-				await enumerateRecordingDeviceIds();
+
+			const { selectedDeviceId, recordingId, outputFolder, sampleRate } =
+				params;
+			const { data: devices, error: enumerateError } = await enumerateDevices();
 			if (enumerateError) return Err(enumerateError);
 
 			const acquireDevice = (): Result<
 				DeviceAcquisitionOutcome,
 				RecorderServiceError
 			> => {
+				const deviceIds = devices.map((d) => d.id);
 				const fallbackDeviceId = deviceIds.at(0);
 				if (!fallbackDeviceId) {
 					return RecorderServiceErr({
@@ -168,13 +190,8 @@ export function createDesktopRecorderService(): RecorderService {
 		stopRecording: async ({
 			sendStatus,
 		}): Promise<Result<Blob, RecorderServiceError>> => {
-			const { data: audioRecording, error: stopRecordingError } = await invoke<{
-				audioData: number[];
-				sampleRate: number;
-				channels: number;
-				durationSeconds: number;
-				filePath?: string;
-			}>('stop_recording');
+			const { data: audioRecording, error: stopRecordingError } =
+				await invoke<AudioRecording>('stop_recording');
 			if (stopRecordingError) {
 				return RecorderServiceErr({
 					message: 'Unable to save your recording. Please try again.',
@@ -183,39 +200,39 @@ export function createDesktopRecorderService(): RecorderService {
 				});
 			}
 
-			let blob: Blob;
-
-			// Check if we have a file path (new file-based recording) or audio data (legacy)
-			if (audioRecording.filePath) {
-				// Read the WAV file from disk using Tauri FS plugin
-				sendStatus({
-					title: '📁 Reading Recording',
-					description: 'Loading your recording from disk...',
+			const { filePath } = audioRecording;
+			// Desktop recorder should always write to a file
+			if (!filePath) {
+				return RecorderServiceErr({
+					message: 'Recording file path not provided by backend.',
+					context: {
+						operation: 'stopRecording',
+						audioRecording,
+					},
+					cause: undefined,
 				});
-
-				try {
-					const { readFile } = await import('@tauri-apps/plugin-fs');
-					const fileBytes = await readFile(audioRecording.filePath);
-					blob = new Blob([fileBytes], { type: 'audio/wav' });
-				} catch (error) {
-					return RecorderServiceErr({
-						message: 'Unable to read recording file. Please try again.',
-						context: {
-							operation: 'readRecordingFile',
-							filePath: audioRecording.filePath,
-						},
-						cause: error,
-					});
-				}
-			} else {
-				// Legacy: create WAV from float32 array
-				const float32Array = new Float32Array(audioRecording.audioData);
-				blob = createWavFromFloat32(
-					float32Array,
-					audioRecording.sampleRate,
-					audioRecording.channels,
-				);
 			}
+			// audioRecording is now AudioRecordingWithFile
+
+			// Read the WAV file from disk
+			sendStatus({
+				title: '📁 Reading Recording',
+				description: 'Loading your recording from disk...',
+			});
+
+			const { data: blob, error: readRecordingFileError } = await tryAsync({
+				try: async () => {
+					const fileBytes = await readFile(filePath);
+					return new Blob([fileBytes], { type: 'audio/wav' });
+				},
+				mapErr: (error) =>
+					RecorderServiceErr({
+						message: 'Unable to read recording file. Please try again.',
+						context: { audioRecording },
+						cause: error,
+					}),
+			});
+			if (readRecordingFileError) return Err(readRecordingFileError);
 
 			// Close the recording session after stopping
 			sendStatus({
@@ -260,22 +277,27 @@ export function createDesktopRecorderService(): RecorderService {
 			});
 
 			// First get the recording data to know if there's a file to delete
-			const { data: audioRecording } = await invoke<{
-				audioData: number[];
-				sampleRate: number;
-				channels: number;
-				durationSeconds: number;
-				filePath?: string;
-			}>('stop_recording');
+			const { data: audioRecording } =
+				await invoke<AudioRecording>('stop_recording');
 
 			// If there's a file path, delete the file using Tauri FS plugin
 			if (audioRecording?.filePath) {
-				try {
-					const { remove } = await import('@tauri-apps/plugin-fs');
-					await remove(audioRecording.filePath);
-				} catch (error) {
-					console.error('Failed to delete recording file:', error);
-				}
+				const { filePath } = audioRecording;
+				const { error: removeError } = await tryAsync({
+					try: () => remove(filePath),
+					mapErr: (error) =>
+						RecorderServiceErr({
+							message: 'Failed to delete recording file.',
+							context: { audioRecording },
+							cause: error,
+						}),
+				});
+				if (removeError)
+					sendStatus({
+						title: '❌ Error Deleting Recording File',
+						description:
+							"We couldn't delete the recording file. Continuing with the cancellation process...",
+					});
 			}
 
 			// Close the recording session after cancelling
@@ -302,58 +324,6 @@ async function invoke<T>(command: string, args?: Record<string, unknown>) {
 		mapErr: (error) =>
 			Err({ name: 'TauriInvokeError', command, error } as const),
 	});
-}
-
-function createWavFromFloat32(
-	float32Array: Float32Array,
-	sampleRate: number,
-	numChannels: number,
-) {
-	// WAV header parameters
-	const bitsPerSample = 32;
-	const bytesPerSample = bitsPerSample / 8;
-
-	// Calculate sizes
-	const dataSize = float32Array.length * bytesPerSample;
-	const headerSize = 44; // Standard WAV header size
-	const totalSize = headerSize + dataSize;
-
-	// Create the buffer
-	const buffer = new ArrayBuffer(totalSize);
-	const view = new DataView(buffer);
-
-	// Write WAV header
-	// "RIFF" chunk descriptor
-	writeString(view, 0, 'RIFF');
-	view.setUint32(4, totalSize - 8, true);
-	writeString(view, 8, 'WAVE');
-
-	// "fmt " sub-chunk
-	writeString(view, 12, 'fmt ');
-	view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
-	view.setUint16(20, 3, true); // AudioFormat (3 for Float)
-	view.setUint16(22, numChannels, true);
-	view.setUint32(24, sampleRate, true);
-	view.setUint32(28, sampleRate * numChannels * bytesPerSample, true); // ByteRate
-	view.setUint16(32, numChannels * bytesPerSample, true); // BlockAlign
-	view.setUint16(34, bitsPerSample, true);
-
-	// "data" sub-chunk
-	writeString(view, 36, 'data');
-	view.setUint32(40, dataSize, true);
-
-	// Write audio data
-	const dataView = new Float32Array(buffer, headerSize);
-	dataView.set(float32Array);
-
-	// Create and return blob
-	return new Blob([buffer], { type: 'audio/wav' });
-}
-
-function writeString(view: DataView, offset: number, string: string) {
-	for (let i = 0; i < string.length; i++) {
-		view.setUint8(offset + i, string.charCodeAt(i));
-	}
 }
 
 export const DesktopRecorderServiceLive = createDesktopRecorderService();

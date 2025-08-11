@@ -10,7 +10,7 @@
 	import { buttonVariants } from '@repo/ui/button';
 	import { Separator } from '@repo/ui/separator';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { ChevronRight } from 'lucide-svelte';
+	import { ChevronRight } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	import type { PageData } from './$types';

@@ -2,13 +2,21 @@ import { TIMESLICE_MS } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
 	cleanupRecordingStream,
-	enumerateRecordingDeviceIds,
+	enumerateDevices,
 	getRecordingStream,
 } from '../device-stream';
-import type { RecorderService, RecorderServiceError, StartRecordingParams } from './types';
+import type {
+	RecorderService,
+	RecorderServiceError,
+	StartRecordingParams,
+} from './types';
 import { RecorderServiceErr } from './types';
 import type { CancelRecordingResult } from '$lib/constants/audio';
-import type { DeviceIdentifier, DeviceAcquisitionOutcome, UpdateStatusMessageFn } from '../types';
+import type {
+	DeviceIdentifier,
+	DeviceAcquisitionOutcome,
+	UpdateStatusMessageFn,
+} from '../types';
 
 type ActiveRecording = {
 	recordingId: string;
@@ -29,23 +37,31 @@ export function createWebRecorderService(): RecorderService {
 			return Ok(activeRecording?.recordingId || null);
 		},
 
-		enumerateRecordingDeviceIds,
+		enumerateDevices: async () => {
+			const { data: devices, error } = await enumerateDevices();
+			if (error) {
+				return RecorderServiceErr({
+					message: error.message,
+					context: error.context,
+					cause: error,
+				});
+			}
+			return Ok(devices);
+		},
 
 		startRecording: async (
 			params: StartRecordingParams,
 			{ sendStatus },
-		): Promise<
-			Result<DeviceAcquisitionOutcome, RecorderServiceError>
-		> => {
+		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
 			// Web implementation only handles web params
 			if (params.platform !== 'web') {
 				return RecorderServiceErr({
 					message: 'Web recorder received non-web parameters',
-					context: { platform: (params as any).platform },
+					context: { params },
 					cause: undefined,
 				});
 			}
-			
+
 			const { selectedDeviceId, recordingId, bitrateKbps } = params;
 			// Ensure we're not already recording
 			if (activeRecording) {
@@ -64,7 +80,7 @@ export function createWebRecorderService(): RecorderService {
 
 			// Get the recording stream
 			const { data: streamResult, error: acquireStreamError } =
-				await getRecordingStream(selectedDeviceId, sendStatus);
+				await getRecordingStream({ selectedDeviceId, sendStatus });
 			if (acquireStreamError) {
 				return RecorderServiceErr({
 					message: acquireStreamError.message,
