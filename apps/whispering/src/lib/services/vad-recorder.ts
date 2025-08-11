@@ -23,14 +23,16 @@ export function createVadService() {
 		},
 
 		startActiveListening: async ({
+			deviceId,
 			onSpeechStart,
 			onSpeechEnd,
-			deviceId,
+			onVADMisfire,
+			onSpeechRealStart,
 		}: {
+			deviceId: DeviceIdentifier | null;
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
-			deviceId: DeviceIdentifier | null;
-		}) => {
+		} & Pick<MicVAD['options'], 'onVADMisfire' | 'onSpeechRealStart'>) => {
 			// Always start fresh - no reuse
 			if (maybeVad) {
 				return VadRecorderServiceErr({
@@ -75,7 +77,10 @@ export function createVadService() {
 							onSpeechEnd(blob);
 						},
 						onVADMisfire: () => {
-							console.log('VAD misfire');
+							onVADMisfire();
+						},
+						onSpeechRealStart: () => {
+							onSpeechRealStart();
 						},
 						model: 'v5',
 					}),
