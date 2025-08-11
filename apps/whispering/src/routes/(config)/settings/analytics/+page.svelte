@@ -38,7 +38,7 @@
 
 	<!-- Main Toggle Section -->
 	<Card.Root class="transition-colors duration-200">
-		<Card.Content class="p-6">
+		<Card.Content>
 			<div class="flex items-start justify-between gap-4">
 				<div class="space-y-2 flex-1">
 					<Label for="analytics-toggle" class="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -61,13 +61,13 @@
 	<!-- Data Collection Information -->
 	<div class="grid gap-4 md:grid-cols-2">
 		<Card.Root class="border-green-100 dark:border-green-900/20">
-			<Card.Header class="pb-3">
+			<Card.Header>
 				<Card.Title class="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
 					<div class="w-2 h-2 bg-green-500 rounded-full"></div>
 					Events we log
 				</Card.Title>
 			</Card.Header>
-			<Card.Content class="pt-0">
+			<Card.Content>
 				<ul class="text-sm text-muted-foreground space-y-1.5 leading-relaxed">
 					<li class="flex items-start gap-2">
 						<span class="text-green-500 mt-1">•</span>
@@ -86,13 +86,13 @@
 		</Card.Root>
 
 		<Card.Root class="border-amber-100 dark:border-amber-900/20">
-			<Card.Header class="pb-3">
+			<Card.Header>
 				<Card.Title class="text-sm font-medium text-amber-700 dark:text-amber-400 flex items-center gap-2">
 					<div class="w-2 h-2 bg-amber-500 rounded-full"></div>
 					Never collected
 				</Card.Title>
 			</Card.Header>
-			<Card.Content class="pt-0">
+			<Card.Content>
 				<ul class="text-sm text-muted-foreground space-y-1.5 leading-relaxed">
 					<li class="flex items-start gap-2">
 						<span class="text-amber-500 mt-1">•</span>
