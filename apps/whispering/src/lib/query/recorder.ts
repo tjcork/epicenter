@@ -23,7 +23,7 @@ export const recorder = {
 	enumerateDevices: defineQuery({
 		queryKey: recorderKeys.devices,
 		resultQueryFn: async () => {
-			const { data, error } = await services.recorder.enumerateDevices();
+			const { data, error } = await recorderService().enumerateDevices();
 			if (error) {
 				return fromTaggedErr(error, {
 					title: '❌ Failed to enumerate devices',
@@ -39,7 +39,7 @@ export const recorder = {
 		queryKey: recorderKeys.currentRecordingId,
 		resultQueryFn: async () => {
 			const { data: recordingId, error: getRecordingIdError } =
-				await services.recorder.getCurrentRecordingId();
+				await recorderService().getCurrentRecordingId();
 			if (getRecordingIdError) {
 				return fromTaggedErr(getRecordingIdError, {
 					title: '❌ Failed to get current recording',
@@ -56,7 +56,7 @@ export const recorder = {
 		queryKey: recorderKeys.currentRecordingId, // Same key as getCurrentRecordingId!
 		resultQueryFn: async () => {
 			const { data: recordingId, error: getRecordingIdError } =
-				await services.recorder.getCurrentRecordingId();
+				await recorderService().getCurrentRecordingId();
 			if (getRecordingIdError) {
 				return fromTaggedErr(getRecordingIdError, {
 					title: '❌ Failed to get recorder state',
@@ -76,24 +76,28 @@ export const recorder = {
 			// Generate a unique recording ID that will serve as the file name
 			const recordingId = nanoid();
 
-			// Prepare recording parameters based on platform
+			const isUsingBrowserBackend =
+				settings.value['recording.backend'] === 'browser' ||
+				!window.__TAURI_INTERNALS__;
+
+			// Prepare recording parameters based on which backend we're using
 			const params = {
 				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				recordingId,
-				...(window.__TAURI_INTERNALS__
+				...(isUsingBrowserBackend
 					? {
+							platform: 'web' as const,
+							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+						}
+					: {
 							platform: 'desktop' as const,
 							outputFolder: settings.value['recording.desktop.outputFolder'],
 							sampleRate: settings.value['recording.desktop.sampleRate'],
-						}
-					: {
-							platform: 'web' as const,
-							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 						}),
 			};
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
-				await services.recorder.startRecording(params, {
+				await recorderService().startRecording(params, {
 					sendStatus: (options) =>
 						notify.loading.execute({ id: toastId, ...options }),
 				});
@@ -113,7 +117,7 @@ export const recorder = {
 		mutationKey: recorderKeys.stopRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
 			const { data: blob, error: stopRecordingError } =
-				await services.recorder.stopRecording({
+				await recorderService().stopRecording({
 					sendStatus: (options) =>
 						notify.loading.execute({ id: toastId, ...options }),
 				});
@@ -134,7 +138,7 @@ export const recorder = {
 		mutationKey: recorderKeys.cancelRecording,
 		resultMutationFn: async ({ toastId }: { toastId: string }) => {
 			const { data: cancelResult, error: cancelRecordingError } =
-				await services.recorder.cancelRecording({
+				await recorderService().cancelRecording({
 					sendStatus: (options) =>
 						notify.loading.execute({ id: toastId, ...options }),
 				});
@@ -151,3 +155,16 @@ export const recorder = {
 		onSettled: invalidateRecorderState,
 	}),
 };
+
+/**
+ * Get the appropriate recorder service based on settings and environment
+ */
+export function recorderService() {
+	// In browser, always use browser recorder
+	if (!window.__TAURI_INTERNALS__) return services.browserRecorder;
+
+	// In desktop, check user preference
+	return settings.value['recording.backend'] === 'browser'
+		? services.browserRecorder
+		: services.nativeRecorder;
+}

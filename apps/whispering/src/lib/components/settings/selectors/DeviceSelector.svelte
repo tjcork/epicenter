@@ -10,28 +10,34 @@
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
 	let {
-		strategy
+		mode = 'manual'
 	}: {
-		strategy: 'cpal' | 'navigator'
+		mode: 'manual' | 'vad'
 	} = $props();
 
 	const combobox = useCombobox();
 	
-	// Derive the setting key from the strategy
+	// Setting key is based on mode
 	const settingKey = $derived(
-		strategy === 'navigator' 
+		mode === 'vad' 
 			? 'recording.vad.selectedDeviceId'
 			: 'recording.manual.selectedDeviceId'
 	) 
-
-	$inspect(strategy);
+	
+	// Determine which backend to use for device enumeration
+	// VAD always uses browser, manual uses the configured backend
+	const isUsingBrowserBackend = $derived(
+		mode === 'vad' || 
+		!window.__TAURI_INTERNALS__ ||
+		settings.value['recording.backend'] === 'browser'
+	);
 	
 	const selectedDeviceId = $derived(settings.value[settingKey]);
-
+	
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...(strategy === 'navigator' 
+		...(isUsingBrowserBackend 
 			? rpc.vadRecorder.enumerateDevices.options()
 			: rpc.recorder.enumerateDevices.options()),
 		enabled: combobox.open,

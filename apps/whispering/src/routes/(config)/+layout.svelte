@@ -56,7 +56,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector strategy={window.__TAURI_INTERNALS__ ? 'cpal' : 'navigator'} />
+			<DeviceSelector mode="manual" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -73,7 +73,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector strategy="navigator" />
+			<DeviceSelector mode="vad" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -88,7 +88,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
-			<DeviceSelector strategy={window.__TAURI_INTERNALS__ ? 'cpal' : 'navigator'} />
+			<DeviceSelector mode="manual" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
