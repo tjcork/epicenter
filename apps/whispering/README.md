@@ -59,9 +59,9 @@ Everything is stored locally on your device. Your audio goes directly from your 
 
 Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn.
 
-## Installation
+## Install Whispering
 
-Takes about 2 minutes to get running.
+Set up Whispering and be ready to transcribe in about two minutes.
 
 ### 1️⃣ Download Whispering
 
