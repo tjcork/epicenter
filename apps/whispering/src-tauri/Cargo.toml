@@ -52,9 +52,22 @@ tauri-plugin-updater = "2"
 incremental = true # Compile your binary in smaller steps.
 
 [profile.release]
-codegen-units = 1 # Allows LLVM to perform better optimization.
-lto = false # Disabled to prevent FFI/CoreAudio crashes
-opt-level = "s" # Prioritizes small binary size. Use `3` if you prefer speed.
+# The following optimizations are disabled due to CoreAudio FFI crashes on macOS.
+# These aggressive optimizations can cause segmentation faults when CPAL interfaces
+# with CoreAudio, resulting in null pointer dereferences in HALDeviceList::GetData.
+# 
+# We may re-enable these in the future when:
+# - CPAL fixes the underlying FFI safety issues
+# - Rust's optimization passes better handle FFI boundaries
+# - We implement our own audio backend that doesn't rely on CPAL
+#
+# For more information on Tauri app size optimization, see:
+# https://v2.tauri.app/concept/size/
+#
+# codegen-units = 1 # Allows LLVM to perform better optimization.
+# lto = true # Enables link-time-optimizations.
+# opt-level = "s" # Prioritizes small binary size. Use `3` if you prefer speed.
 panic = "abort" # Higher performance by disabling panic handlers.
 strip = true # Ensures debug symbols are removed.
+
 
