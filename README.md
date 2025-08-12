@@ -56,14 +56,14 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
 <table>
   <tr>
     <td align="center" width="50%">
-      <h3>🎙️ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Whispering</a></h3>
+      <h3>🎙️ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Epicenter:Whispering</a></h3>
       <p>Press shortcut → speak → get text. Desktop transcription that cuts out the middleman. Bring your own API key.</p>
-      <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Explore Whispering</a></strong></p>
+      <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Explore the git repo</a></strong></p>
     </td>
     <td align="center" width="50%">
-      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">epicenter.sh</a></h3>
+      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter:Shell</a></h3>
       <p>A local-first assistant you can chat with. It lives in your folder, becoming the access point to everything you've ever written, thought, or built.</p>
-      <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Explore epicenter.sh</a></strong></p>
+      <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Explore the git repo</a></strong></p>
     </td>
   </tr>
 </table>
