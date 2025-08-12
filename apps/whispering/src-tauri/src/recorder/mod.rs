@@ -1,4 +1,3 @@
-pub mod audio_manager;
 pub mod commands;
 pub mod recorder;
 pub mod wav_writer;

@@ -1,8 +1,8 @@
-use crate::recorder::audio_manager::AudioManager;
 use crate::recorder::wav_writer::WavWriter;
-use cpal::traits::{DeviceTrait, StreamTrait};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{Device, SampleFormat, Stream};
 use serde::Serialize;
+use std::panic::{self, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -104,13 +104,36 @@ impl RecorderState {
 
     /// List available recording devices by name
     pub fn enumerate_devices(&self) -> Result<Vec<String>> {
-        // Use the audio manager to enumerate devices on a dedicated thread
-        let manager = AudioManager::global();
-        let manager = manager
-            .lock()
-            .map_err(|e| format!("Failed to lock audio manager: {}", e))?;
+        let host = cpal::default_host();
         
-        manager.enumerate_devices()
+        // First check if we can access input devices at all
+        let devices_iter = host
+            .input_devices()
+            .map_err(|e| format!("Failed to get input devices: {}", e))?;
+        
+        let mut device_names = Vec::new();
+        
+        // Safely iterate through devices, catching any panics
+        for device in devices_iter {
+            // Wrap device.name() in a catch_unwind to prevent crashes
+            let name_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                device.name()
+            }));
+            
+            match name_result {
+                Ok(Ok(name)) => device_names.push(name),
+                Ok(Err(e)) => {
+                    debug!("Failed to get device name: {}", e);
+                    // Skip this device but continue
+                }
+                Err(_) => {
+                    error!("Panic while getting device name, skipping device");
+                    // Skip this device but continue
+                }
+            }
+        }
+
+        Ok(device_names)
     }
 
     /// Initialize recording session - creates stream and WAV writer
@@ -127,12 +150,9 @@ impl RecorderState {
         // Create file path
         let file_path = output_folder.join(format!("{}.wav", recording_id));
 
-        // Get the device through the audio manager
-        let manager = AudioManager::global();
-        let manager = manager
-            .lock()
-            .map_err(|e| format!("Failed to lock audio manager: {}", e))?;
-        let device = manager.get_device(device_name)?;
+        // Find the device
+        let host = cpal::default_host();
+        let device = find_device(&host, &device_name)?;
 
         // Get optimal config for voice with optional preferred sample rate
         let config = get_optimal_config(&device, preferred_sample_rate)?;
@@ -293,6 +313,55 @@ impl RecorderState {
     }
 }
 
+/// Find a recording device by name
+fn find_device(host: &cpal::Host, device_name: &str) -> Result<Device> {
+    // Handle "default" device
+    if device_name.to_lowercase() == "default" {
+        return host
+            .default_input_device()
+            .ok_or_else(|| "No default input device available".to_string());
+    }
+
+    // Find specific device
+    let devices_iter = host.input_devices().map_err(|e| e.to_string())?;
+    
+    for device in devices_iter {
+        // Safely get device name with panic protection
+        let name_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            device.name()
+        }));
+        
+        match name_result {
+            Ok(Ok(name)) if name == device_name => {
+                // Verify the device is still valid by trying to get its config
+                let config_check = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    device.default_input_config()
+                }));
+                
+                match config_check {
+                    Ok(Ok(_)) => return Ok(device),
+                    Ok(Err(e)) => {
+                        error!("Device '{}' exists but config unavailable: {}", device_name, e);
+                    }
+                    Err(_) => {
+                        error!("Device '{}' exists but caused panic when accessing config", device_name);
+                    }
+                }
+            }
+            Ok(Ok(_)) => {
+                // Different name, continue
+            }
+            Ok(Err(e)) => {
+                debug!("Failed to get device name: {}", e);
+            }
+            Err(_) => {
+                error!("Panic while getting device name");
+            }
+        }
+    }
+
+    Err(format!("Device '{}' not found or not accessible", device_name))
+}
 
 /// Get optimal configuration for voice recording
 fn get_optimal_config(
@@ -302,10 +371,28 @@ fn get_optimal_config(
     // Use preferred sample rate or default to 16kHz for voice
     let target_sample_rate = preferred_sample_rate.unwrap_or(16000);
 
-    // Get supported configurations
-    let configs_iter = device
-        .supported_input_configs()
-        .map_err(|e| format!("Failed to get supported input configs: {}", e))?;
+    // Safely get supported configurations with panic protection
+    let configs_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        device.supported_input_configs()
+    }));
+    
+    let configs_iter = match configs_result {
+        Ok(Ok(iter)) => iter,
+        Ok(Err(e)) => {
+            error!("Failed to get supported input configs: {}", e);
+            // Try to fall back to default config
+            return device
+                .default_input_config()
+                .map_err(|e| format!("Failed to get any audio configuration: {}", e));
+        }
+        Err(_) => {
+            error!("Panic while getting supported configs, trying default");
+            // Try to fall back to default config
+            return device
+                .default_input_config()
+                .map_err(|_| "Failed to get audio configuration (device may be disconnected)".to_string());
+        }
+    };
     
     let configs: Vec<_> = configs_iter.collect();
 
