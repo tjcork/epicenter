@@ -1,12 +1,21 @@
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{Device, Host};
+use std::collections::HashMap;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::thread;
-use std::time::Duration;
-use tracing::{debug, info};
+use std::time::{Duration, Instant};
+use tracing::{debug, error, info, warn};
 
 type Result<T> = std::result::Result<T, String>;
+
+/// Cached device information
+#[derive(Clone, Debug)]
+struct DeviceInfo {
+    name: String,
+    is_available: bool,
+    last_checked: Instant,
+}
 
 /// Commands for the audio manager thread
 enum AudioCommand {
@@ -17,6 +26,7 @@ enum AudioCommand {
         name: String,
         response: Sender<Result<Device>>,
     },
+    RefreshCache,
     Shutdown,
 }
 
@@ -85,6 +95,12 @@ impl AudioManager {
             .map_err(|e| format!("Failed to receive device: {}", e))?
     }
 
+    /// Refresh the device cache
+    pub fn refresh_cache(&self) -> Result<()> {
+        self.sender
+            .send(AudioCommand::RefreshCache)
+            .map_err(|e| format!("Failed to send refresh command: {}", e))
+    }
 }
 
 impl Drop for AudioManager {
@@ -101,6 +117,9 @@ impl Drop for AudioManager {
 struct AudioManagerWorker {
     receiver: Receiver<AudioCommand>,
     host: Host,
+    device_cache: HashMap<String, DeviceInfo>,
+    cache_duration: Duration,
+    last_full_refresh: Option<Instant>,
 }
 
 impl AudioManagerWorker {
@@ -108,6 +127,9 @@ impl AudioManagerWorker {
         Self {
             receiver,
             host: cpal::default_host(),
+            device_cache: HashMap::new(),
+            cache_duration: Duration::from_secs(10),
+            last_full_refresh: None,
         }
     }
 
@@ -115,12 +137,15 @@ impl AudioManagerWorker {
         loop {
             match self.receiver.recv() {
                 Ok(AudioCommand::EnumerateDevices { response }) => {
-                    let result = self.enumerate_devices();
+                    let result = self.enumerate_devices_cached();
                     let _ = response.send(result);
                 }
                 Ok(AudioCommand::GetDevice { name, response }) => {
                     let result = self.get_device(&name);
                     let _ = response.send(result);
+                }
+                Ok(AudioCommand::RefreshCache) => {
+                    self.refresh_cache();
                 }
                 Ok(AudioCommand::Shutdown) | Err(_) => {
                     debug!("Audio manager worker shutting down");
@@ -130,32 +155,93 @@ impl AudioManagerWorker {
         }
     }
 
-    /// Enumerate devices directly
-    fn enumerate_devices(&mut self) -> Result<Vec<String>> {
-        let devices = self.host
-            .input_devices()
-            .map_err(|e| format!("Failed to get input devices: {}", e))?;
+    /// Enumerate devices with caching
+    fn enumerate_devices_cached(&mut self) -> Result<Vec<String>> {
+        // Check if cache needs refresh
+        let needs_refresh = self.last_full_refresh
+            .map(|t| t.elapsed() > self.cache_duration)
+            .unwrap_or(true);
+
+        if needs_refresh {
+            self.refresh_cache();
+        }
+
+        // Return cached device names
+        let mut devices: Vec<String> = self.device_cache
+            .values()
+            .filter(|info| info.is_available)
+            .map(|info| info.name.clone())
+            .collect();
         
-        let mut device_names = Vec::new();
-        for device in devices {
-            match device.name() {
-                Ok(name) => {
-                    // Verify device is actually usable by trying to get its config
-                    if device.default_input_config().is_ok() {
-                        debug!("Found available device: {}", &name);
-                        device_names.push(name);
-                    } else {
-                        debug!("Device '{}' found but not available", name);
+        devices.sort();
+        
+        if devices.is_empty() {
+            warn!("No audio input devices found");
+            // Try one more refresh
+            self.refresh_cache();
+            devices = self.device_cache
+                .values()
+                .filter(|info| info.is_available)
+                .map(|info| info.name.clone())
+                .collect();
+            devices.sort();
+        }
+        
+        Ok(devices)
+    }
+
+    /// Refresh the device cache
+    fn refresh_cache(&mut self) {
+        debug!("Refreshing audio device cache");
+        
+        // Mark all existing devices as potentially unavailable
+        for info in self.device_cache.values_mut() {
+            info.is_available = false;
+        }
+
+        // Try to enumerate devices safely
+        match self.host.input_devices() {
+            Ok(devices) => {
+                for device in devices {
+                    // Try to get device name
+                    match device.name() {
+                        Ok(name) => {
+                            // Verify device is actually usable by trying to get its config
+                            let is_available = device.default_input_config().is_ok();
+                            
+                            self.device_cache.insert(
+                                name.clone(),
+                                DeviceInfo {
+                                    name: name.clone(),
+                                    is_available,
+                                    last_checked: Instant::now(),
+                                },
+                            );
+                            
+                            if is_available {
+                                debug!("Found available device: {}", name);
+                            } else {
+                                warn!("Device '{}' found but not available", name);
+                            }
+                        }
+                        Err(e) => {
+                            debug!("Failed to get device name: {}", e);
+                        }
                     }
                 }
-                Err(e) => {
-                    debug!("Failed to get device name: {}", e);
+            }
+            Err(e) => {
+                error!("Failed to enumerate input devices: {}", e);
+                // Don't clear the cache on error - keep whatever we had
+                for info in self.device_cache.values_mut() {
+                    info.is_available = true; // Assume cached devices are still available
                 }
             }
         }
-        
-        device_names.sort();
-        Ok(device_names)
+
+        self.last_full_refresh = Some(Instant::now());
+        info!("Device cache refreshed: {} devices available", 
+              self.device_cache.values().filter(|i| i.is_available).count());
     }
 
     /// Get a specific device
@@ -167,24 +253,68 @@ impl AudioManagerWorker {
                 .ok_or_else(|| "No default input device available".to_string());
         }
 
-        // Find the specific device
-        let devices = self.host
-            .input_devices()
-            .map_err(|e| format!("Failed to enumerate devices: {}", e))?;
-        
-        for device in devices {
-            if let Ok(device_name) = device.name() {
-                if device_name == name {
-                    // Verify it's actually usable
-                    if device.default_input_config().is_ok() {
-                        return Ok(device);
-                    } else {
-                        return Err(format!("Device '{}' exists but is not accessible", name));
+        // Check cache first
+        if let Some(info) = self.device_cache.get(name) {
+            if !info.is_available {
+                return Err(format!("Device '{}' is not available", name));
+            }
+            
+            // Cache says it's available, but let's verify it still exists
+            if info.last_checked.elapsed() > Duration::from_secs(5) {
+                // Cache is stale, refresh for this specific device
+                self.refresh_single_device(name);
+            }
+        } else {
+            // Device not in cache, try a refresh
+            self.refresh_cache();
+        }
+
+        // Now try to get the actual device
+        match self.host.input_devices() {
+            Ok(devices) => {
+                for device in devices {
+                    if let Ok(device_name) = device.name() {
+                        if device_name == name {
+                            // Verify it's actually usable
+                            if device.default_input_config().is_ok() {
+                                return Ok(device);
+                            } else {
+                                return Err(format!("Device '{}' exists but is not accessible", name));
+                            }
+                        }
+                    }
+                }
+                Err(format!("Device '{}' not found", name))
+            }
+            Err(e) => Err(format!("Failed to enumerate devices: {}", e)),
+        }
+    }
+
+    /// Refresh cache for a single device
+    fn refresh_single_device(&mut self, name: &str) {
+        if let Ok(devices) = self.host.input_devices() {
+            for device in devices {
+                if let Ok(device_name) = device.name() {
+                    if device_name == name {
+                        let is_available = device.default_input_config().is_ok();
+                        self.device_cache.insert(
+                            name.to_string(),
+                            DeviceInfo {
+                                name: name.to_string(),
+                                is_available,
+                                last_checked: Instant::now(),
+                            },
+                        );
+                        return;
                     }
                 }
             }
         }
         
-        Err(format!("Device '{}' not found", name))
+        // Device not found, mark as unavailable
+        if let Some(info) = self.device_cache.get_mut(name) {
+            info.is_available = false;
+            info.last_checked = Instant::now();
+        }
     }
 }
