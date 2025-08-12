@@ -2,7 +2,7 @@
   <a href="https://whispering.bradenwong.com">
     <img width="180" src="./src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
-  <h1 align="center">Whispering</h1>
+  <h1 align="center">Epicenter:Whispering</h1>
   <p align="center">Press shortcut → speak → get text. Free and open source ❤️</p>
 </p>
 
@@ -30,7 +30,7 @@
   <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
 
-## What is Whispering?
+## What is Epicenter:Whispering?
 
 Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
 
@@ -155,7 +155,7 @@ sudo rpm -i Whispering-7.1.1-1.x86_64.rpm
 
 <br>
 
-**[🚀 Open Whispering Web App →](https://whispering.bradenwong.com)**
+**[🚀 Open Epicenter:Whispering Web App →](https://whispering.bradenwong.com)**
 
 No installation needed! Works in any modern browser.
 
@@ -415,7 +415,7 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
-## Why Whispering Exists
+## Why Epicenter:Whispering Exists
 
 I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
 
