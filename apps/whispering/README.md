@@ -30,7 +30,7 @@
   <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
 
-## What is Epicenter Whispering?
+## What is Whispering?
 
 Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
 
@@ -38,8 +38,13 @@ I built this because I was tired of paying monthly subscriptions for transcripti
 
 The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
-> [!NOTE]
+> [!TIP]
 > Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
+> [!NOTE]
+> The terms **Epicenter Whispering** and **Whispering** are interchangeable and refer to the same app.
+> - *Epicenter Whispering* emphasizes the app's place in the larger ecosystem.
+> - *Whispering* may be used for brevity and/or to focus on the standalone app.
 
 ## Demo
 
