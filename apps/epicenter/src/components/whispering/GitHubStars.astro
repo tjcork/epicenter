@@ -2,22 +2,27 @@
 import { type } from 'arktype';
 
 const stars = await (async () => {
-	const response = await fetch(
-		'https://api.github.com/repos/epicenter-so/epicenter',
-	);
-	const data = await response.json();
+	try {
+		const response = await fetch(
+			'https://api.github.com/repos/epicenter-so/epicenter',
+		);
+		const data = await response.json();
 
-	const parsed = type({
-		stargazers_count: 'number',
-	})(data);
+		const parsed = type({
+			stargazers_count: 'number',
+		})(data);
 
-	if (parsed instanceof type.errors) {
-		throw new Error(`Invalid GitHub API response shape: ${parsed.summary}`);
+		if (parsed instanceof type.errors) {
+			throw new Error(`Invalid GitHub API response shape: ${parsed.summary}`);
+		}
+
+		const count = parsed.stargazers_count;
+		if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
+		return count.toString();
+	} catch (error) {
+		console.error('Failed to fetch GitHub stars:', error);
+		return '100+';
 	}
-
-	const count = parsed.stargazers_count;
-	if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
-	return count.toString();
 })();
 ---
 
