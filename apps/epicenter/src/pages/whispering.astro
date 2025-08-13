@@ -194,16 +194,16 @@ const downloads = [
       </div>
       
       <!-- Floating GitHub Star Button -->
-      <div class="fixed top-4 right-4 z-50">
+      <div id="floating-github-button" class="fixed top-4 right-4 z-50 transition-all duration-300">
         <Button 
           href="https://github.com/epicenter-so/epicenter" 
           target="_blank"
           variant="secondary" 
           size="sm" 
-          class="bg-background/90 backdrop-blur-md hover:bg-background border shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 lg:min-w-[140px]"
+          class="github-star-button bg-background/90 backdrop-blur-md hover:bg-background border shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 lg:min-w-[140px]"
         >
-          <GithubIcon class="w-4 h-4 lg:mr-2" />
-          <span class="hidden lg:inline">Star on GitHub</span>
+          <GithubIcon class="github-icon w-4 h-4 lg:mr-2 transition-all duration-300" />
+          <span class="github-text hidden lg:inline transition-opacity duration-300">Star on GitHub</span>
           <GitHubStars />
         </Button>
       </div>
@@ -550,7 +550,7 @@ const downloads = [
   </main>
 </BaseLayout>
 
-<script>
+<script is:inline>
   // Simple intersection observer for scroll animations
   document.addEventListener('DOMContentLoaded', () => {
     const observerOptions = {
@@ -575,6 +575,57 @@ const downloads = [
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
       observer.observe(el);
     });
+
+    // Floating GitHub button scroll behavior
+    const floatingButton = document.getElementById('floating-github-button');
+    const button = floatingButton?.querySelector('.github-star-button');
+    const text = floatingButton?.querySelector('.github-text');
+    const icon = floatingButton?.querySelector('.github-icon');
+    
+    if (floatingButton && button && text && icon) {
+      let lastScrollY = 0;
+      let ticking = false;
+
+      function updateButtonState() {
+        const scrollY = window.scrollY;
+        const isScrolled = scrollY > 100; // Start transition after 100px scroll
+        
+        if (isScrolled) {
+          // Compact state
+          floatingButton.classList.add('scrolled');
+          button.classList.add('compact');
+          text.style.opacity = '0';
+          text.style.maxWidth = '0';
+          icon.classList.remove('lg:mr-2');
+          icon.classList.add('mr-0');
+          floatingButton.style.opacity = '0.85';
+        } else {
+          // Full state
+          floatingButton.classList.remove('scrolled');
+          button.classList.remove('compact');
+          text.style.opacity = '1';
+          text.style.maxWidth = '150px';
+          icon.classList.add('lg:mr-2');
+          icon.classList.remove('mr-0');
+          floatingButton.style.opacity = '1';
+        }
+        
+        lastScrollY = scrollY;
+        ticking = false;
+      }
+
+      function requestTick() {
+        if (!ticking) {
+          requestAnimationFrame(updateButtonState);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', requestTick, { passive: true });
+      
+      // Initial state
+      updateButtonState();
+    }
   });
 </script>
 
@@ -756,5 +807,37 @@ const downloads = [
 
   .counter-animation {
     animation: count-up 0.6s ease-out;
+  }
+
+  /* Floating GitHub button styles */
+  .github-text {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 150px;
+  }
+
+  .github-star-button.compact {
+    min-width: auto !important;
+    padding: 0.5rem !important;
+  }
+
+  #floating-github-button.scrolled {
+    transform: scale(0.9);
+  }
+
+  .github-icon {
+    flex-shrink: 0;
+  }
+
+  /* Ensure smooth transitions on mobile */
+  @media (max-width: 1023px) {
+    .github-text {
+      display: none !important;
+    }
+    
+    .github-star-button.compact {
+      padding: 0.4rem !important;
+    }
   }
 </style>
