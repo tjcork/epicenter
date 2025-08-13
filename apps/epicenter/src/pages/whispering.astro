@@ -5,7 +5,6 @@ import { Button } from '@repo/ui/button';
 import * as Card from '@repo/ui/card';
 import { Badge } from '@repo/ui/badge';
 import MicrophoneHero from '../components/whispering/MicrophoneHero.svelte';
-import MobileMenu from '../components/whispering/MobileMenu.svelte';
 import OSDetector from '../components/whispering/OSDetector.svelte';
 import GitHubStars from '../components/whispering/GitHubStars.astro';
 import {
@@ -142,44 +141,9 @@ const downloads = [
 ---
 
 <BaseLayout title="Whispering - Open Source Transcription" description="Truly open source transcription you control. Local or cloud, always transparent. No middleman markup.">
-  <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 glass-effect">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo -->
-        <div class="flex items-center space-x-3">
-          <div class="text-2xl">🎙️</div>
-          <span class="text-xl font-semibold">Whispering</span>
-        </div>
-
-        <!-- Desktop Navigation -->
-        <div class="hidden md:flex items-center space-x-6">
-          <a href="#features" class="text-foreground/65 hover:text-foreground transition-colors font-medium py-3 px-3 rounded-md hover:bg-muted/50">Features</a>
-          <a href="#pricing" class="text-foreground/65 hover:text-foreground transition-colors font-medium py-3 px-3 rounded-md hover:bg-muted/50">Pricing</a>
-          <a href="#download" class="text-foreground/65 hover:text-foreground transition-colors font-medium py-3 px-3 rounded-md hover:bg-muted/50">Download</a>
-        </div>
-
-        <!-- CTA Buttons -->
-        <div class="hidden md:flex items-center space-x-3">
-          <Button href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering" variant="ghost" class="min-h-[44px] px-4">
-            <GithubIcon class="w-4 h-4 mr-2" />
-            GitHub
-          </Button>
-          <Button href="https://whispering.bradenwong.com" variant="outline" class="min-h-[44px] px-4">
-                      <GlobeIcon class="w-5 h-5 mr-2" />
-            Launch Web
-          </Button>
-        </div>
-
-        <!-- Mobile menu button -->
-        <MobileMenu client:load />
-      </div>
-    </div>
-  </nav>
-
   <main>
     <!-- Hero Section -->
-    <section class="grid-hero pt-24 pb-20 lg:pb-32 relative overflow-hidden">
+    <section class="grid-hero pt-12 pb-20 lg:pb-32 relative overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hero-content">
         <div class="text-center max-w-5xl mx-auto">
           
