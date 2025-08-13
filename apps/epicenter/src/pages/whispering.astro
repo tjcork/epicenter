@@ -19,6 +19,7 @@ import {
 	Monitor as MonitorIcon,
 	Apple as AppleIcon,
 	Lock as LockIcon,
+	Terminal as TerminalIcon,
 	Star as StarIcon,
 	ChevronDown as ChevronDownIcon,
 	Menu as MenuIcon,
@@ -130,11 +131,19 @@ const downloads = [
 		extension: '.msi',
 	},
 	{
+		platform: 'Linux',
+		description: 'All distributions',
+		icon: TerminalIcon,
+		url: 'https://github.com/epicenter-so/epicenter/releases',
+		extension: 'View Releases',
+		isReleases: true,
+	},
+	{
 		platform: 'Web App',
 		description: 'Try in your browser',
 		icon: GlobeIcon,
 		url: 'https://whispering.bradenwong.com',
-		extension: 'Launch',
+		extension: 'Try Now',
 		isWebApp: true,
 	},
 ];
@@ -499,7 +508,7 @@ const downloads = [
 
           <!-- Copyright -->
           <div class="text-foreground/65 text-sm border-t pt-8">
-            © 2024 Whispering. MIT License. Built for the open source community.
+            © {new Date().getFullYear()} Whispering. MIT License. Built for the open source community.
           </div>
         </div>
       </div>
