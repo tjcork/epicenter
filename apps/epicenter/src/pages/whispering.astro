@@ -110,18 +110,12 @@ const faqItems = [
 
 const downloads = [
 	{
-		platform: 'macOS (Apple Silicon)',
-		description: 'M1/M2/M3 optimized',
+		platform: 'macOS',
+		description: 'Native app for all Macs',
 		icon: AppleIcon,
-		url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`,
-		extension: '.dmg',
-	},
-	{
-		platform: 'macOS (Intel)',
-		description: 'Intel-based Macs',
-		icon: AppleIcon,
-		url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`,
-		extension: '.dmg',
+		isMacOS: true,
+		appleSiliconUrl: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`,
+		intelUrl: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`,
 	},
 	{
 		platform: 'Windows',
@@ -375,8 +369,33 @@ const downloads = [
                   <Card.Description>{download.description}</Card.Description>
                 </Card.Header>
                 <Card.Content>
-                  {download.isWebApp ? (
+                  {download.isMacOS ? (
+                    <div class="space-y-2">
+                      <Button 
+                        href={download.appleSiliconUrl} 
+                        class="w-full min-h-[40px] group-hover:shadow-md transition-shadow duration-300"
+                        size="sm"
+                      >
+                        <DownloadIcon class="w-3.5 h-3.5 mr-1.5 group-hover:translate-y-0.5 transition-transform duration-300" />
+                        Apple Silicon
+                      </Button>
+                      <Button 
+                        href={download.intelUrl} 
+                        variant="secondary"
+                        class="w-full min-h-[40px] group-hover:shadow-md transition-shadow duration-300"
+                        size="sm"
+                      >
+                        <DownloadIcon class="w-3.5 h-3.5 mr-1.5 group-hover:translate-y-0.5 transition-transform duration-300" />
+                        Intel
+                      </Button>
+                    </div>
+                  ) : download.isWebApp ? (
                     <Button href={download.url} variant="secondary" class="w-full min-h-[44px] group-hover:shadow-md transition-shadow duration-300">
+                      <ExternalLinkIcon class="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                      {download.extension}
+                    </Button>
+                  ) : download.isReleases ? (
+                    <Button href={download.url} variant="outline" class="w-full min-h-[44px] group-hover:shadow-md transition-shadow duration-300">
                       <ExternalLinkIcon class="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                       {download.extension}
                     </Button>
