@@ -110,7 +110,7 @@ export const settingsSchema = z.object({
 	 * - 'native': Uses Rust audio recording backend (CPAL)
 	 * - 'browser': Uses browser MediaRecorder API even in desktop
 	 */
-	'recording.backend': z.enum(['native', 'browser']).default('native'),
+	'recording.backend': z.enum(['native', 'browser']).default('browser'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
