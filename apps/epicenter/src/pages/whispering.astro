@@ -32,23 +32,24 @@ import {
 const features = [
 	{
 		icon: ZapIcon,
-		title: 'Your Provider, Your Choice',
-		description: 'Ultra-fast Groq cloud or completely offline with Speaches',
+		title: 'Multiple Providers',
+		description:
+			'Choose between cloud (Groq, OpenAI) or local (Speaches) models',
 	},
 	{
 		icon: MicIcon,
-		title: 'System-Wide Shortcuts',
-		description: 'Press, speak, paste. Works in any app, instantly',
+		title: 'Keyboard Shortcuts',
+		description: 'Press shortcut, speak, get text anywhere on your system',
 	},
 	{
 		icon: LightbulbIcon,
-		title: 'Custom Transformations',
-		description: 'Chain AI models to fix grammar, translate, or format',
+		title: 'AI Processing',
+		description: 'Format text, fix grammar, create custom workflows',
 	},
 	{
-		icon: DollarSignIcon,
-		title: 'No Middleman Markup',
-		description: 'Pay providers directly. $0.02/hour instead of $30/month',
+		icon: LockIcon,
+		title: 'Privacy First',
+		description: 'Local storage, direct provider APIs, no middleman servers',
 	},
 ];
 
@@ -140,7 +141,7 @@ const downloads = [
 ];
 ---
 
-<BaseLayout title="Whispering - Open Source Transcription" description="Open source transcription you control. Local or cloud, always transparent. No middleman markup.">
+<BaseLayout title="Whispering - Open Source Transcription" description="Truly open source transcription you control. Local or cloud, always transparent. No middleman markup.">
   <!-- Navigation -->
   <nav class="fixed top-0 left-0 right-0 z-50 glass-effect">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -160,13 +161,13 @@ const downloads = [
 
         <!-- CTA Buttons -->
         <div class="hidden md:flex items-center space-x-3">
-          <Button href="https://whispering.bradenwong.com" variant="outline" class="min-h-[44px] px-4">
-            <GlobeIcon class="w-5 h-5 mr-2" />
-            Launch Web
-          </Button>
           <Button href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering" variant="ghost" class="min-h-[44px] px-4">
             <GithubIcon class="w-4 h-4 mr-2" />
             GitHub
+          </Button>
+          <Button href="https://whispering.bradenwong.com" variant="outline" class="min-h-[44px] px-4">
+                      <GlobeIcon class="w-5 h-5 mr-2" />
+            Launch Web
           </Button>
         </div>
 
@@ -189,17 +190,17 @@ const downloads = [
           <div class="mb-10 lg:mb-12 animate-fade-up space-y-4 lg:space-y-6">
             <!-- Headline -->
             <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight">
-              Your transcription, your choice
+              Transparent transcription, truly yours
             </h1>
             
             <!-- Subheading -->
             <p class="text-lg sm:text-xl lg:text-2xl font-medium text-foreground/85 max-w-3xl mx-auto">
-              Cut out the middleman. Use ultra-fast cloud APIs or run completely offline.
+              Open-source transcription you actually own. No black boxes.
             </p>
             
             <!-- Support line -->
             <p class="text-sm sm:text-base lg:text-lg text-foreground/65 max-w-2xl mx-auto">
-              Maximum speed when you want it, maximum privacy when you need it. Transparency always.
+              See exactly where your audio goes. Local or cloud, always transparent.
             </p>
           </div>
 
@@ -209,9 +210,9 @@ const downloads = [
             <OSDetector client:load />
             
             <!-- Secondary CTA -->
-            <Button href="https://github.com/epicenter-so/epicenter" variant="outline" size="lg" class="w-full sm:w-auto min-w-[200px] min-h-[48px] font-semibold">
-              <GithubIcon class="w-5 h-5 mr-2" />
-              View on GitHub
+            <Button href="https://whispering.bradenwong.com" variant="outline" size="lg" class="w-full sm:w-auto min-w-[200px] min-h-[48px] font-semibold">
+              <GlobeIcon class="w-5 h-5 mr-2" />
+              Launch Web
             </Button>
           </div>
           
@@ -258,11 +259,11 @@ const downloads = [
           <div class="space-y-8">
             <div class="space-y-6">
               <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
-                Cut out the middleman
+                Transcription without the black box
               </h2>
               <p class="text-lg text-foreground/70 leading-relaxed">
-                Most transcription apps charge $30/month for what costs $0.02/hour. 
-                Whispering cuts out the middleman: you choose your provider, you pay them directly.
+                Most transcription apps are closed-source mysteries charging 10-100x markup.
+                Whispering is truly open: see the code, trace your data, pay providers directly.
               </p>
             </div>
             
@@ -271,19 +272,19 @@ const downloads = [
                 <div class="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                   <CheckIcon class="w-4 h-4 text-foreground" />
                 </div>
-                <span class="text-lg font-medium">Choose: Fast cloud or private local</span>
+                <span class="text-lg font-medium">Use your own API keys</span>
               </div>
               <div class="flex items-center space-x-4">
                 <div class="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                   <CheckIcon class="w-4 h-4 text-foreground" />
                 </div>
-                <span class="text-lg font-medium">Pay providers directly, no markup</span>
+                <span class="text-lg font-medium">Pay providers directly</span>
               </div>
               <div class="flex items-center space-x-4">
                 <div class="w-6 h-6 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                   <CheckIcon class="w-4 h-4 text-foreground" />
                 </div>
-                <span class="text-lg font-medium">Switch providers anytime</span>
+                <span class="text-lg font-medium">Save up to 90% on costs</span>
               </div>
             </div>
           </div>
@@ -311,7 +312,7 @@ const downloads = [
         <div class="text-center mb-20 space-y-6">
           <h2 class="text-3xl lg:text-5xl font-bold">Everything you need</h2>
           <p class="text-xl text-foreground/75 max-w-3xl mx-auto">
-            Powerful features for efficient speech-to-text conversion
+            Everything you need in transcription software you actually own
           </p>
         </div>
 
@@ -342,7 +343,7 @@ const downloads = [
         <div class="text-center mb-16 space-y-6">
           <h2 class="text-3xl lg:text-5xl font-bold">Transparent pricing</h2>
           <p class="text-xl text-foreground/75 max-w-3xl mx-auto">
-            Pay providers directly, skip the markup. Start free with local transcription.
+            Start local for free, scale to cloud at cost. No middleman markup.
           </p>
         </div>
 
@@ -351,23 +352,23 @@ const downloads = [
             <table class="w-full">
               <thead class="bg-muted">
                 <tr>
-                  <th class="px-6 py-4 text-left font-medium text-sm">Provider</th>
-                  <th class="px-6 py-4 text-left font-medium text-sm">Per Hour</th>
-                  <th class="px-6 py-4 text-left font-medium text-sm">Light Use</th>
-                  <th class="px-6 py-4 text-left font-medium text-sm">Heavy Use</th>
-                  <th class="px-6 py-4 text-left font-medium text-sm">Typical Apps</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Provider</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Per Hour</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Light Use</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Heavy Use</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Subscription</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-border">
                 {pricingData.map((row) => (
-                  <tr class="hover:bg-muted/30" style="transition: all 0.2s ease">
-                    <td class="px-6 py-4 font-medium text-sm">
+                  <tr class="hover:bg-muted/50" style="transition: all 0.2s ease">
+                    <td class="px-6 py-5 font-medium">
                       {row.provider}
                     </td>
-                    <td class="px-6 py-4 text-lg font-semibold">{row.perHour}</td>
-                    <td class="px-6 py-4 text-foreground/75 text-sm">{row.lightUse}</td>
-                    <td class="px-6 py-4 text-foreground/75 text-sm">{row.heavyUse}</td>
-                    <td class="px-6 py-4 text-foreground/50 line-through text-sm">{row.subscription}</td>
+                    <td class="px-6 py-5 text-2xl font-bold">{row.perHour}</td>
+                    <td class="px-6 py-5 text-foreground/75">{row.lightUse}</td>
+                    <td class="px-6 py-5 text-foreground/75">{row.heavyUse}</td>
+                    <td class="px-6 py-5 text-foreground/60 line-through">{row.subscription}</td>
                   </tr>
                 ))}
               </tbody>
@@ -475,7 +476,7 @@ const downloads = [
             <div class="space-y-4">
               <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Get started</h2>
               <p class="text-lg opacity-90 max-w-2xl mx-auto">
-                Choose your speed and privacy. Transparent, open source, no markup.
+                Free, open source transcription with your choice of providers
               </p>
             </div>
 
@@ -501,7 +502,7 @@ const downloads = [
               </div>
               <div class="flex items-center space-x-2">
                 <CheckIcon class="w-4 h-4" />
-                <span class="text-sm font-medium">Your choice</span>
+                <span class="text-sm font-medium">Privacy first</span>
               </div>
             </div>
           </div>
@@ -520,7 +521,7 @@ const downloads = [
           </div>
 
           <p class="text-foreground/75 max-w-md mx-auto">
-            Open source transcription with choice and transparency at its core.
+            Truly open source transcription. Built with ❤️ for transparency.
           </p>
 
           <!-- Open Source Info -->
