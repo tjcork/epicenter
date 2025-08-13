@@ -325,5 +325,3 @@ async function invoke<T>(command: string, args?: Record<string, unknown>) {
 			Err({ name: 'TauriInvokeError', command, error } as const),
 	});
 }
-
-export const DesktopRecorderServiceLive = createDesktopRecorderService();

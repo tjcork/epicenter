@@ -106,6 +106,12 @@ export const settingsSchema = z.object({
 	// Recording mode settings
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
 	/**
+	 * Recording backend to use in desktop app.
+	 * - 'native': Uses Rust audio recording backend (CPAL)
+	 * - 'browser': Uses browser MediaRecorder API even in desktop
+	 */
+	'recording.backend': z.enum(['native', 'browser']).default('native'),
+	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
 	 * @see DeviceIdentifier
@@ -128,7 +134,7 @@ export const settingsSchema = z.object({
 		.transform((val) => (val ? asDeviceIdentifier(val) : null))
 		.default(null),
 
-	// Navigator settings (shared by manual, VAD, and live modes)
+	// Browser recording settings (used when browser backend is selected)
 	'recording.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
