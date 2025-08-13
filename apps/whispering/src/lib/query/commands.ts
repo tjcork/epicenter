@@ -1,12 +1,12 @@
+import type { RecordingMode } from '$lib/constants/audio';
 import { fromTaggedErr, fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok } from 'wellcrafted/result';
 import { defineMutation } from './_client';
-import { cpalRecorder } from './cpal-recorder';
 import { delivery } from './delivery';
-import { manualRecorder } from './manual-recorder';
+import { recorder } from './recorder';
 import { notify } from './notify';
 import { recordings } from './recordings';
 import { sound } from './sound';
@@ -14,11 +14,17 @@ import { transcription } from './transcription';
 import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
+import { rpc } from './';
+
+// Track manual recording start time for duration calculation
+let manualRecordingStartTime: number | null = null;
 
 // Internal mutations for manual recording
 const startManualRecording = defineMutation({
 	mutationKey: ['commands', 'startManualRecording'] as const,
 	resultMutationFn: async () => {
+		await rpc.settings.switchRecordingMode.execute('manual');
+
 		const toastId = nanoid();
 		notify.loading.execute({
 			id: toastId,
@@ -26,7 +32,7 @@ const startManualRecording = defineMutation({
 			description: 'Setting up your recording environment...',
 		});
 		const { data: deviceAcquisitionOutcome, error: startRecordingError } =
-			await manualRecorder.startRecording.execute({ toastId });
+			await recorder.startRecording.execute({ toastId });
 
 		if (startRecordingError) {
 			notify.error.execute({ id: toastId, ...startRecordingError });
@@ -43,11 +49,10 @@ const startManualRecording = defineMutation({
 				break;
 			}
 			case 'fallback': {
-				settings.value = {
-					...settings.value,
-					'recording.navigator.selectedDeviceId':
-						deviceAcquisitionOutcome.fallbackDeviceId,
-				};
+				settings.updateKey(
+					'recording.manual.selectedDeviceId',
+					deviceAcquisitionOutcome.fallbackDeviceId,
+				);
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
 						notify.info.execute({
@@ -80,6 +85,8 @@ const startManualRecording = defineMutation({
 				}
 			}
 		}
+		// Track start time for duration calculation
+		manualRecordingStartTime = Date.now();
 		console.info('Recording started');
 		sound.playSoundIfEnabled.execute('manual-start');
 		return Ok(undefined);
@@ -96,7 +103,7 @@ const stopManualRecording = defineMutation({
 			description: 'Finalizing your audio capture...',
 		});
 		const { data: blob, error: stopRecordingError } =
-			await manualRecorder.stopRecording.execute({ toastId });
+			await recorder.stopRecording.execute({ toastId });
 		if (stopRecordingError) {
 			notify.error.execute({ id: toastId, ...stopRecordingError });
 			return Err(stopRecordingError);
@@ -110,6 +117,18 @@ const stopManualRecording = defineMutation({
 		console.info('Recording stopped');
 		sound.playSoundIfEnabled.execute('manual-stop');
 
+		// Log manual recording completion
+		let duration: number | undefined;
+		if (manualRecordingStartTime) {
+			duration = Date.now() - manualRecordingStartTime;
+			manualRecordingStartTime = null; // Reset for next recording
+		}
+		rpc.analytics.logEvent.execute({
+			type: 'manual_recording_completed',
+			blob_size: blob.size,
+			duration,
+		});
+
 		await processRecordingPipeline({
 			blob,
 			toastId,
@@ -121,69 +140,133 @@ const stopManualRecording = defineMutation({
 	},
 });
 
-// Internal mutations for CPAL recording
-const startCpalRecording = defineMutation({
-	mutationKey: ['commands', 'startCpalRecording'] as const,
+// Internal mutations for VAD recording
+const startVadRecording = defineMutation({
+	mutationKey: ['commands', 'startVadRecording'] as const,
 	resultMutationFn: async () => {
+		await rpc.settings.switchRecordingMode.execute('vad');
+
 		const toastId = nanoid();
+		console.info('Starting voice activated capture');
 		notify.loading.execute({
 			id: toastId,
-			title: '🔊 Preparing CPAL recording...',
-			description: 'Setting up native audio recording...',
+			title: '🎙️ Starting voice activated capture',
+			description: 'Your voice activated capture is starting...',
 		});
-		const { error: startRecordingError } =
-			await cpalRecorder.startRecording.execute({
-				toastId,
-				selectedDeviceId: settings.value['recording.cpal.selectedDeviceId'],
-			});
+		const { data: deviceAcquisitionOutcome, error: startActiveListeningError } =
+			await vadRecorder.startActiveListening.execute({
+				onSpeechStart: () => {
+					notify.success.execute({
+						title: '🎙️ Speech started',
+						description: 'Recording started. Speak clearly and loudly.',
+					});
+				},
+				onSpeechEnd: async (blob) => {
+					const toastId = nanoid();
+					notify.success.execute({
+						id: toastId,
+						title: '🎙️ Voice activated speech captured',
+						description: 'Your voice activated speech has been captured.',
+					});
+					console.info('Voice activated speech captured');
+					sound.playSoundIfEnabled.execute('vad-capture');
 
-		if (startRecordingError) {
-			notify.error.execute({ id: toastId, ...startRecordingError });
-			return Err(startRecordingError);
+					// Log VAD recording completion
+					rpc.analytics.logEvent.execute({
+						type: 'vad_recording_completed',
+						blob_size: blob.size,
+						// VAD doesn't track duration by default
+					});
+
+					await processRecordingPipeline({
+						blob,
+						toastId,
+						completionTitle: '✨ Voice activated capture complete!',
+						completionDescription:
+							'Voice activated capture complete! Ready for another take',
+					});
+				},
+			});
+		if (startActiveListeningError) {
+			notify.error.execute({ id: toastId, ...startActiveListeningError });
+			return Err(startActiveListeningError);
 		}
 
-		notify.success.execute({
-			id: toastId,
-			title: '🔊 CPAL is recording...',
-			description: 'Speak now and stop recording when done',
-		});
-		console.info('CPAL Recording started');
-		sound.playSoundIfEnabled.execute('cpal-start');
+		// Handle device acquisition outcome
+		switch (deviceAcquisitionOutcome.outcome) {
+			case 'success': {
+				notify.success.execute({
+					id: toastId,
+					title: '🎙️ Voice activated capture started',
+					description: 'Your voice activated capture has been started.',
+				});
+				break;
+			}
+			case 'fallback': {
+				settings.updateKey(
+					'recording.vad.selectedDeviceId',
+					deviceAcquisitionOutcome.fallbackDeviceId,
+				);
+				switch (deviceAcquisitionOutcome.reason) {
+					case 'no-device-selected': {
+						notify.info.execute({
+							id: toastId,
+							title: '🎙️ VAD started with available microphone',
+							description:
+								'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
+							action: {
+								type: 'link',
+								label: 'Open Settings',
+								href: '/settings/recording',
+							},
+						});
+						break;
+					}
+					case 'preferred-device-unavailable': {
+						notify.info.execute({
+							id: toastId,
+							title: '🎙️ VAD switched to different microphone',
+							description:
+								"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
+							action: {
+								type: 'link',
+								label: 'Open Settings',
+								href: '/settings/recording',
+							},
+						});
+						break;
+					}
+				}
+			}
+		}
+
+		sound.playSoundIfEnabled.execute('vad-start');
 		return Ok(undefined);
 	},
 });
 
-const stopCpalRecording = defineMutation({
-	mutationKey: ['commands', 'stopCpalRecording'] as const,
+const stopVadRecording = defineMutation({
+	mutationKey: ['commands', 'stopVadRecording'] as const,
 	resultMutationFn: async () => {
 		const toastId = nanoid();
+		console.info('Stopping voice activated capture');
 		notify.loading.execute({
 			id: toastId,
-			title: '⏸️ Stopping CPAL recording...',
-			description: 'Finalizing your audio capture...',
+			title: '⏸️ Stopping voice activated capture...',
+			description: 'Finalizing your voice activated capture...',
 		});
-		const { data: blob, error: stopRecordingError } =
-			await cpalRecorder.stopRecording.execute({ toastId });
-		if (stopRecordingError) {
-			notify.error.execute({ id: toastId, ...stopRecordingError });
-			return Err(stopRecordingError);
+		const { error: stopVadError } =
+			await vadRecorder.stopActiveListening.execute(undefined);
+		if (stopVadError) {
+			notify.error.execute({ id: toastId, ...stopVadError });
+			return Err(stopVadError);
 		}
-
 		notify.success.execute({
 			id: toastId,
-			title: '🔊 CPAL Recording stopped',
-			description: 'Your recording has been saved',
+			title: '🎙️ Voice activated capture stopped',
+			description: 'Your voice activated capture has been stopped.',
 		});
-		console.info('CPAL Recording stopped');
-		sound.playSoundIfEnabled.execute('cpal-stop');
-
-		await processRecordingPipeline({
-			blob,
-			toastId,
-			completionTitle: '✨ CPAL Recording Complete!',
-			completionDescription: 'Recording saved and session closed successfully',
-		});
-
+		sound.playSoundIfEnabled.execute('vad-stop');
 		return Ok(undefined);
 	},
 });
@@ -191,23 +274,20 @@ const stopCpalRecording = defineMutation({
 export const commands = {
 	startManualRecording,
 	stopManualRecording,
+	startVadRecording,
+	stopVadRecording,
 
 	// Toggle manual recording
 	toggleManualRecording: defineMutation({
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: recorderState, error: getRecorderStateError } =
-				await manualRecorder.getRecorderState.fetch();
-			if (getRecorderStateError) {
-				const whisperingError = fromTaggedError(getRecorderStateError, {
-					title:
-						'❌ Failed to get recorder state before toggling manual recording',
-					action: { type: 'more-details', error: getRecorderStateError },
-				});
-				notify.error.execute(whisperingError);
-				return Err(whisperingError);
+			const { data: currentRecordingId, error: getRecordingIdError } =
+				await recorder.getCurrentRecordingId.fetch();
+			if (getRecordingIdError) {
+				notify.error.execute(getRecordingIdError);
+				return Err(getRecordingIdError);
 			}
-			if (recorderState === 'RECORDING') {
+			if (currentRecordingId) {
 				return await stopManualRecording.execute(undefined);
 			}
 			return await startManualRecording.execute(undefined);
@@ -225,7 +305,7 @@ export const commands = {
 				description: 'Cleaning up recording session...',
 			});
 			const { data: cancelRecordingResult, error: cancelRecordingError } =
-				await manualRecorder.cancelRecording.execute({ toastId });
+				await recorder.cancelRecording.execute({ toastId });
 			if (cancelRecordingError) {
 				notify.error.execute({ id: toastId, ...cancelRecordingError });
 				return Err(cancelRecordingError);
@@ -241,6 +321,8 @@ export const commands = {
 				}
 				case 'cancelled': {
 					// Session cleanup is now handled internally by the recorder service
+					// Reset start time if recording was cancelled
+					manualRecordingStartTime = null;
 					notify.success.execute({
 						id: toastId,
 						title: '✅ All Done!',
@@ -261,182 +343,11 @@ export const commands = {
 		resultMutationFn: async () => {
 			const { data: vadState } = await vadRecorder.getVadState.fetch();
 			if (vadState === 'LISTENING' || vadState === 'SPEECH_DETECTED') {
-				const toastId = nanoid();
-				console.info('Stopping voice activated capture');
-				notify.loading.execute({
-					id: toastId,
-					title: '⏸️ Stopping voice activated capture...',
-					description: 'Finalizing your voice activated capture...',
-				});
-				const { error: stopVadError } =
-					await vadRecorder.stopActiveListening.execute(undefined);
-				if (stopVadError) {
-					notify.error.execute({ id: toastId, ...stopVadError });
-					return Err(stopVadError);
-				}
-				notify.success.execute({
-					id: toastId,
-					title: '🎙️ Voice activated capture stopped',
-					description: 'Your voice activated capture has been stopped.',
-				});
-				sound.playSoundIfEnabled.execute('vad-stop');
-				return Ok(undefined);
+				return await stopVadRecording.execute(undefined);
 			}
-			const toastId = nanoid();
-			console.info('Starting voice activated capture');
-			notify.loading.execute({
-				id: toastId,
-				title: '🎙️ Starting voice activated capture',
-				description: 'Your voice activated capture is starting...',
-			});
-			const {
-				data: deviceAcquisitionOutcome,
-				error: startActiveListeningError,
-			} = await vadRecorder.startActiveListening.execute({
-				onSpeechStart: () => {
-					notify.success.execute({
-						title: '🎙️ Speech started',
-						description: 'Recording started. Speak clearly and loudly.',
-					});
-				},
-				onSpeechEnd: async (blob) => {
-					const toastId = nanoid();
-					notify.success.execute({
-						id: toastId,
-						title: '🎙️ Voice activated speech captured',
-						description: 'Your voice activated speech has been captured.',
-					});
-					console.info('Voice activated speech captured');
-					sound.playSoundIfEnabled.execute('vad-capture');
-
-					await processRecordingPipeline({
-						blob,
-						toastId,
-						completionTitle: '✨ Voice activated capture complete!',
-						completionDescription:
-							'Voice activated capture complete! Ready for another take',
-					});
-				},
-			});
-			if (startActiveListeningError) {
-				notify.error.execute({ id: toastId, ...startActiveListeningError });
-				return Err(startActiveListeningError);
-			}
-
-			// Handle device acquisition outcome
-			switch (deviceAcquisitionOutcome.outcome) {
-				case 'success': {
-					notify.success.execute({
-						id: toastId,
-						title: '🎙️ Voice activated capture started',
-						description: 'Your voice activated capture has been started.',
-					});
-					break;
-				}
-				case 'fallback': {
-					settings.value = {
-						...settings.value,
-						'recording.navigator.selectedDeviceId':
-							deviceAcquisitionOutcome.fallbackDeviceId,
-					};
-					switch (deviceAcquisitionOutcome.reason) {
-						case 'no-device-selected': {
-							notify.info.execute({
-								id: toastId,
-								title: '🎙️ VAD started with available microphone',
-								description:
-									'No microphone was selected for VAD, so we automatically connected to an available one. You can update your selection in settings.',
-								action: {
-									type: 'link',
-									label: 'Open Settings',
-									href: '/settings/recording',
-								},
-							});
-							break;
-						}
-						case 'preferred-device-unavailable': {
-							notify.info.execute({
-								id: toastId,
-								title: '🎙️ VAD switched to different microphone',
-								description:
-									"Your previously selected VAD microphone wasn't found, so we automatically connected to an available one.",
-								action: {
-									type: 'link',
-									label: 'Open Settings',
-									href: '/settings/recording',
-								},
-							});
-							break;
-						}
-					}
-				}
-			}
-
-			sound.playSoundIfEnabled.execute('vad-start');
-			return Ok(undefined);
+			return await startVadRecording.execute(undefined);
 		},
 	}),
-
-	// CPAL commands (conditionally included)
-	...(window.__TAURI_INTERNALS__
-		? {
-				toggleCpalRecording: defineMutation({
-					mutationKey: ['commands', 'toggleCpalRecording'] as const,
-					resultMutationFn: async () => {
-						const { data: recorderState, error: getRecorderStateError } =
-							await cpalRecorder.getRecorderState.fetch();
-						if (getRecorderStateError) {
-							notify.error.execute(getRecorderStateError);
-							return Err(getRecorderStateError);
-						}
-						if (recorderState === 'RECORDING') {
-							return await stopCpalRecording.execute(undefined);
-						}
-						return await startCpalRecording.execute(undefined);
-					},
-				}),
-
-				cancelCpalRecording: defineMutation({
-					mutationKey: ['commands', 'cancelCpalRecording'] as const,
-					resultMutationFn: async () => {
-						const toastId = nanoid();
-						notify.loading.execute({
-							id: toastId,
-							title: '⏸️ Canceling CPAL recording...',
-							description: 'Cleaning up recording session...',
-						});
-						const { data: cancelRecordingResult, error: cancelRecordingError } =
-							await cpalRecorder.cancelRecording.execute({ toastId });
-						if (cancelRecordingError) {
-							notify.error.execute({ id: toastId, ...cancelRecordingError });
-							return Err(cancelRecordingError);
-						}
-						switch (cancelRecordingResult.status) {
-							case 'no-recording': {
-								notify.info.execute({
-									id: toastId,
-									title: 'No active recording',
-									description:
-										'There is no CPAL recording in progress to cancel.',
-								});
-								break;
-							}
-							case 'cancelled': {
-								notify.success.execute({
-									id: toastId,
-									title: '✅ All Done!',
-									description: 'CPAL recording cancelled successfully',
-								});
-								sound.playSoundIfEnabled.execute('cpal-cancel');
-								console.info('CPAL Recording cancelled');
-								break;
-							}
-						}
-						return Ok(undefined);
-					},
-				}),
-			}
-		: {}),
 
 	// Upload recordings (supports multiple files)
 	uploadRecordings: defineMutation({
@@ -476,6 +387,12 @@ export const commands = {
 				validFiles.map(async (file) => {
 					const arrayBuffer = await file.arrayBuffer();
 					const audioBlob = new Blob([arrayBuffer], { type: file.type });
+					
+					// Log file upload event
+					rpc.analytics.logEvent.execute({
+						type: 'file_uploaded',
+						blob_size: audioBlob.size,
+					});
 
 					// Each file gets its own toast notification
 					const toastId = nanoid();
@@ -605,10 +522,7 @@ async function processRecordingPipeline({
 	}
 
 	if (transformationNoLongerExists) {
-		settings.value = {
-			...settings.value,
-			'transformations.selectedTransformationId': null,
-		};
+		settings.updateKey('transformations.selectedTransformationId', null);
 		notify.warning.execute({
 			title: '⚠️ No matching transformation found',
 			description:

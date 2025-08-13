@@ -34,7 +34,7 @@
 
 Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
 
-I built this because I was tired of paying $30/month for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it 3-4 hours daily and pay about $3/month.
+I built this because I was tired of paying monthly subscriptions for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it several hours daily and pay less than $1/month.
 
 The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
@@ -53,15 +53,15 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
 
 ## Key Features
 
-Choose from multiple transcription providers (Groq at $0.02/hour is my favorite). The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
+Choose from multiple transcription providers. With Groq Cloud, you'll get nearly instantaneous transcription at $0.04/hour plus a generous free tier. The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
 
 Everything is stored locally on your device. Your audio goes directly from your machine to your chosen API provider. No middleman servers, no data collection, no tracking.
 
 Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn.
 
-## Installation
+## Install Whispering
 
-Takes about 2 minutes to get running.
+Set up Whispering and be ready to transcribe in about two minutes.
 
 ### 1️⃣ Download Whispering
 
@@ -74,8 +74,8 @@ Choose your operating system below and click the download link:
 
 | Architecture | Download | Requirements |
 |-------------|----------|--------------|
-| **Apple Silicon** | [Whispering_7.1.1_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
-| **Intel** | [Whispering_7.1.1_x64.dmg](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64.dmg) | Intel-based Macs |
+| **Apple Silicon** | [Whispering_7.2.0_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_aarch64.dmg) | M1/M2/M3/M4 Macs |
+| **Intel** | [Whispering_7.2.0_x64.dmg](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_x64.dmg) | Intel-based Macs |
 
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
@@ -100,8 +100,8 @@ Choose your operating system below and click the download link:
 
 | Installer Type | Download | Description |
 |---------------|----------|-------------|
-| **MSI Installer** | [Whispering_7.1.1_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64_en-US.msi) | Recommended Standard Windows installer |
-| **EXE Installer** | [Whispering_7.1.1_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64-setup.exe) | Alternative installer option |
+| **MSI Installer** | [Whispering_7.2.0_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_x64_en-US.msi) | Recommended Standard Windows installer |
+| **EXE Installer** | [Whispering_7.2.0_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_x64-setup.exe) | Alternative installer option |
 
 #### Installation
 
@@ -121,29 +121,29 @@ Whispering will appear in your Start Menu when complete.
 
 | Package Format | Download | Compatible With |
 |---------------|----------|-----------------|
-| **AppImage** | [Whispering_7.1.1_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_amd64.AppImage) | All Linux distributions |
-| **DEB Package** | [Whispering_7.1.1_amd64.deb](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_amd64.deb) | Debian, Ubuntu, Pop!_OS |
-| **RPM Package** | [Whispering-7.1.1-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering-7.1.1-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
+| **AppImage** | [Whispering_7.2.0_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_amd64.AppImage) | All Linux distributions |
+| **DEB Package** | [Whispering_7.2.0_amd64.deb](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
+| **RPM Package** | [Whispering-7.2.0-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering-7.2.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
 
 #### Quick Install Commands
 
 **AppImage** (Universal)
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_amd64.AppImage
-chmod +x Whispering_7.1.1_amd64.AppImage
-./Whispering_7.1.1_amd64.AppImage
+wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_amd64.AppImage
+chmod +x Whispering_7.2.0_amd64.AppImage
+./Whispering_7.2.0_amd64.AppImage
 ```
 
 **Debian/Ubuntu**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_amd64.deb
-sudo dpkg -i Whispering_7.1.1_amd64.deb
+wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.2.0_amd64.deb
+sudo dpkg -i Whispering_7.2.0_amd64.deb
 ```
 
 **Fedora/RHEL**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering-7.1.1-1.x86_64.rpm
-sudo rpm -i Whispering-7.1.1-1.x86_64.rpm
+wget https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering-7.2.0-1.x86_64.rpm
+sudo rpm -i Whispering-7.2.0-1.x86_64.rpm
 ```
 
 </details>
@@ -421,7 +421,7 @@ I was paying $30/month for a transcription app. Then I did the math: the actual 
 
 That's when I realized these apps are just middlemen. They take your audio, send it to OpenAI's Whisper API, and charge you 10x markup. Plus your recordings go through their servers, get stored who knows where, and you're locked into their ecosystem.
 
-So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no data collection, no lock-in. Just transcription at cost.
+So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no tracking, no lock-in. Just transcription at cost.
 
 The code is open source because I believe tools this fundamental should be free. Companies pivot, get acquired, or shut down. But open source is forever.
 
@@ -459,11 +459,9 @@ You can change both the transcription and transformation services in the setting
 
 ### How is this different from other transcription apps?
 
-Most apps are middlemen charging $30/month for API calls that cost pennies. With Whispering, you bring your own API key and pay providers directly. Your audio goes straight from your device to the API - no servers in between, no data collection, no subscriptions.
+Most apps are middlemen charging $30/month for API calls that cost pennies. With Whispering, you bring your own API key and pay providers directly. Your audio goes straight from your device to the API. No servers in between, no data collection, no subscriptions.
 
-### What's the catch?
-
-There isn't one. I built this for myself and use it every day. The code is open source so you can verify exactly what it does. No telemetry, no premium tiers, no upsells.
+I built this for myself and use it every day. The code is open source so you can verify exactly what it does.
 
 ### What's it built with?
 
@@ -471,15 +469,17 @@ Svelte 5 + Tauri. The app is tiny (~22MB), starts instantly, and uses minimal re
 
 ### Can I use it offline?
 
-Yes - use the Speaches provider for local transcription. No internet, no API keys, completely private.
+Yes, use the Speaches provider for local transcription. No internet, no API keys, completely private.
 
 ### How much does it actually cost?
 
-With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local transcription: free forever. I use it 3-4 hours daily and pay about $3/month total.
+With Groq (my favorite): $0.02-$0.06/hour. With OpenAI: $0.18-$0.36/hour. Local transcription: free forever. I use it several hours daily and pay about $3/month total.
 
 ### Is it really private?
 
 Your recordings stay on your device in IndexedDB. When you transcribe, audio goes directly to your chosen provider using your API key. No middleman servers. For maximum privacy, use local transcription.
+
+Note: we use anonymized event logging with [Aptabase](https://github.com/aptabase), an open-source, privacy-first analytics service. No personal data is attached to any of these events. You can see exactly what events we log [in `analytics.ts`](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering/src/lib/services/analytics.ts) and where they are logged [by searching for `rpc.analytics.logEvent` in our codebase](https://github.com/search?q=repo%3Aepicenter-so%2Fepicenter+rpc.analytics.logEvent&type=code). You can turn this off in settings at any time.
 
 ### Can I format the output automatically?
 
@@ -645,7 +645,7 @@ The query layer also transforms service-specific errors into `WhisperingError` t
 
 ```typescript
 // Service returns domain-specific error
-const { data, error: serviceError } = await services.manualRecorder.startRecording(...);
+const { data, error: serviceError } = await services.recorder.startRecording(...);
 
 if (serviceError) {
   // Query layer transforms to UI-friendly WhisperingError
@@ -865,10 +865,7 @@ Adding a new transcription service involves four main steps:
        }))}
        selected={settings.value['transcription.yourservice.model']}
        onSelectedChange={(selected) => {
-         settings.value = {
-           ...settings.value,
-           'transcription.yourservice.model': selected,
-         };
+         settings.updateKey('transcription.yourservice.model', selected);
        }}
        renderOption={renderModelOption}
      />
@@ -891,7 +888,7 @@ Adding a new transcription service involves four main steps:
      placeholder="Your YourService API Key"
      value={settings.value['apiKeys.yourservice']}
      oninput={({ currentTarget: { value } }) => {
-       settings.value = { ...settings.value, 'apiKeys.yourservice': value };
+       settings.updateKey('apiKeys.yourservice', value);
      }}
    >
      {#snippet description()}

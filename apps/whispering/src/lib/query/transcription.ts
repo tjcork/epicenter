@@ -6,6 +6,7 @@ import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
 import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
+import { rpc } from './';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -115,38 +116,75 @@ async function transcribeBlob(
 	const selectedService =
 		settings.value['transcription.selectedTranscriptionService'];
 
-	switch (selectedService) {
-		case 'OpenAI':
-			return services.transcriptions.openai.transcribe(blob, {
-				outputLanguage: settings.value['transcription.outputLanguage'],
-				prompt: settings.value['transcription.prompt'],
-				temperature: settings.value['transcription.temperature'],
-				apiKey: settings.value['apiKeys.openai'],
-				modelName: settings.value['transcription.openai.model'],
-			});
-		case 'Groq':
-			return services.transcriptions.groq.transcribe(blob, {
-				outputLanguage: settings.value['transcription.outputLanguage'],
-				prompt: settings.value['transcription.prompt'],
-				temperature: settings.value['transcription.temperature'],
-				apiKey: settings.value['apiKeys.groq'],
-				modelName: settings.value['transcription.groq.model'],
-			});
-		case 'speaches':
-			return services.transcriptions.speaches.transcribe(blob, {
-				outputLanguage: settings.value['transcription.outputLanguage'],
-				prompt: settings.value['transcription.prompt'],
-				temperature: settings.value['transcription.temperature'],
-				modelId: settings.value['transcription.speaches.modelId'],
-				baseUrl: settings.value['transcription.speaches.baseUrl'],
-			});
-		case 'ElevenLabs':
-			return services.transcriptions.elevenlabs.transcribe(blob, {
-				outputLanguage: settings.value['transcription.outputLanguage'],
-				prompt: settings.value['transcription.prompt'],
-				temperature: settings.value['transcription.temperature'],
-				apiKey: settings.value['apiKeys.elevenlabs'],
-				modelName: settings.value['transcription.elevenlabs.model'],
-			});
+	// Log transcription request
+	const startTime = Date.now();
+	rpc.analytics.logEvent.execute({
+		type: 'transcription_requested',
+		provider: selectedService,
+	});
+
+	const transcriptionResult: Result<string, WhisperingError> =
+		await (async () => {
+			switch (selectedService) {
+				case 'OpenAI':
+					return await services.transcriptions.openai.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						apiKey: settings.value['apiKeys.openai'],
+						modelName: settings.value['transcription.openai.model'],
+					});
+				case 'Groq':
+					return await services.transcriptions.groq.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						apiKey: settings.value['apiKeys.groq'],
+						modelName: settings.value['transcription.groq.model'],
+					});
+				case 'speaches':
+					return await services.transcriptions.speaches.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						modelId: settings.value['transcription.speaches.modelId'],
+						baseUrl: settings.value['transcription.speaches.baseUrl'],
+					});
+				case 'ElevenLabs':
+					return await services.transcriptions.elevenlabs.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						apiKey: settings.value['apiKeys.elevenlabs'],
+						modelName: settings.value['transcription.elevenlabs.model'],
+					});
+				case 'Deepgram':
+					return await services.transcriptions.deepgram.transcribe(blob, {
+						outputLanguage: settings.value['transcription.outputLanguage'],
+						prompt: settings.value['transcription.prompt'],
+						temperature: settings.value['transcription.temperature'],
+						apiKey: settings.value['apiKeys.deepgram'],
+						modelName: settings.value['transcription.deepgram.model'],
+					});
+			}
+		})();
+
+	// Log transcription result
+	const duration = Date.now() - startTime;
+	if (transcriptionResult.error) {
+		rpc.analytics.logEvent.execute({
+			type: 'transcription_failed',
+			provider: selectedService,
+			error_title: transcriptionResult.error.title,
+			error_description: transcriptionResult.error.description,
+		});
+	} else {
+		rpc.analytics.logEvent.execute({
+			type: 'transcription_completed',
+			provider: selectedService,
+			duration,
+		});
 	}
+
+	return transcriptionResult;
 }

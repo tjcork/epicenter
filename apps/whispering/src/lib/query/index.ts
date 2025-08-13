@@ -1,12 +1,11 @@
 // Import all query modules
+import { analytics } from './analytics';
 import { clipboard } from './clipboard';
 import { commands } from './commands';
-import { cpalRecorder } from './cpal-recorder';
 import { delivery } from './delivery';
-import { device } from './device';
 import { download } from './download';
-import { manualRecorder } from './manual-recorder';
 import { notify } from './notify';
+import { recorder } from './recorder';
 import { recordings } from './recordings';
 import { settings } from './settings';
 import { shortcuts } from './shortcuts';
@@ -23,12 +22,11 @@ import { vadRecorder } from './vad-recorder';
  * Provides a single entry point for all TanStack Query-based operations.
  */
 export const rpc = {
+	analytics,
 	clipboard,
 	commands,
-	cpalRecorder,
-	device,
 	download,
-	manualRecorder,
+	recorder,
 	vadRecorder,
 	recordings,
 	tray,

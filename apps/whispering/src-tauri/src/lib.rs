@@ -6,15 +6,32 @@ mod accessibility;
 #[cfg(target_os = "macos")]
 use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
+use tauri::Manager;
+use tauri_plugin_aptabase::EventTracker;
+
 pub mod recorder;
 use recorder::commands::{
-    cancel_recording, close_recording_session, enumerate_recording_devices, get_recorder_state,
-    init_recording_session, start_recording, stop_recording, AppData,
+    cancel_recording, close_recording_session, enumerate_recording_devices,
+    get_current_recording_id, init_recording_session, start_recording, stop_recording, AppData,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    let mut builder = tauri::Builder::default()
+#[tokio::main]
+pub async fn run() {
+    let mut builder = tauri::Builder::default();
+    
+    // Try to get APTABASE_KEY from environment, use empty string if not found
+    let aptabase_key = option_env!("APTABASE_KEY").unwrap_or("");
+    
+    // Only add Aptabase plugin if key is not empty
+    if !aptabase_key.is_empty() {
+        println!("Aptabase analytics enabled");
+        builder = builder.plugin(tauri_plugin_aptabase::Builder::new(aptabase_key).build());
+    } else {
+        println!("Warning: APTABASE_KEY not found, analytics disabled");
+    }
+    
+    builder = builder
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -23,10 +40,19 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .manage(AppData::new());
+
+    #[cfg(desktop)]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }));
+    }
 
     // Platform-specific command handlers
     #[cfg(target_os = "macos")]
@@ -36,7 +62,7 @@ pub fn run() {
         open_apple_accessibility,
         is_macos_accessibility_enabled,
         // Audio recorder commands
-        get_recorder_state,
+        get_current_recording_id,
         enumerate_recording_devices,
         init_recording_session,
         close_recording_session,
@@ -50,7 +76,7 @@ pub fn run() {
         write_text,
         paste,
         // Audio recorder commands
-        get_recorder_state,
+        get_current_recording_id,
         enumerate_recording_devices,
         init_recording_session,
         close_recording_session,
@@ -59,9 +85,25 @@ pub fn run() {
         cancel_recording,
     ]);
 
-    builder
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    let app = builder
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+    
+    app.run(|handler, event| {
+        // Only track events if Aptabase is enabled (key is not empty)
+        if !aptabase_key.is_empty() {
+            match event {
+                tauri::RunEvent::Exit { .. } => {
+                    let _ = handler.track_event("app_exited", None);
+                    handler.flush_events_blocking();
+                }
+                tauri::RunEvent::Ready { .. } => {
+                    let _ = handler.track_event("app_started", None);
+                }
+                _ => {}
+            }
+        }
+    });
 }
 
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};

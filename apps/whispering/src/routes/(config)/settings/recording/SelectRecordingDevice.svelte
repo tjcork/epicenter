@@ -1,29 +1,31 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
-	import type { DeviceEnumerationStrategy } from '$lib/query/device';
 	import { createQuery } from '@tanstack/svelte-query';
+	import type { DeviceIdentifier } from '$lib/services/types';
+	import { asDeviceIdentifier } from '$lib/services/types';
 
 	let {
-		deviceEnumerationStrategy,
 		selected,
 		onSelectedChange,
+		strategy = 'cpal',
 	}: {
-		deviceEnumerationStrategy: DeviceEnumerationStrategy;
-		selected: string;
-		onSelectedChange: (selected: string) => void;
+		selected: DeviceIdentifier | null;
+		onSelectedChange: (selected: DeviceIdentifier | null) => void;
+		strategy?: 'cpal' | 'navigator';
 	} = $props();
 
 	const getDevicesQuery = createQuery(
-		rpc.device.getDevices(deviceEnumerationStrategy).options,
+		strategy === 'navigator' 
+			? rpc.vadRecorder.enumerateDevices.options
+			: rpc.recorder.enumerateDevices.options
 	);
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute({
-				title: 'Error loading devices',
-				description: getDevicesQuery.error.message,
-			});
+			rpc.notify.warning.execute(
+				getDevicesQuery.error
+			);
 		}
 	});
 </script>
@@ -33,26 +35,26 @@
 		id="recording-device"
 		label="Recording Device"
 		placeholder="Loading devices..."
-		items={[]}
-		selected=""
+		items={[{ value: '', label: 'Loading devices...' }]}
+		selected={''}
 		onSelectedChange={() => {}}
 		disabled
 	/>
 {:else if getDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getDevicesQuery.error.message}
+		{getDevicesQuery.error.title}
 	</p>
 {:else}
 	{@const items = getDevicesQuery.data.map((device) => ({
-		value: device.deviceId,
+		value: device.id,
 		label: device.label,
 	}))}
 	<LabeledSelect
 		id="recording-device"
 		label="Recording Device"
 		{items}
-		{selected}
-		{onSelectedChange}
+		selected={selected ?? asDeviceIdentifier('')}
+		onSelectedChange={(value) => onSelectedChange(value ? asDeviceIdentifier(value) : null)}
 		placeholder="Select a device"
 	/>
 {/if}

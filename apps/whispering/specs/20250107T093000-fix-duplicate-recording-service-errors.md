@@ -14,7 +14,7 @@
 ## Todo List
 
 - [x] Rename RecordingServiceError types to be service-specific
-  - [x] manual-recorder.ts: RecordingServiceError → ManualRecorderServiceError
+  - [x] manual-recorder.ts: RecordingServiceError → RecorderServiceError
   - [x] cpal-recorder.ts: RecordingServiceError → CpalRecorderServiceError
   - [x] device-stream.ts: RecordingServiceError → DeviceStreamServiceError
 - [x] Update error handling in commands.ts to use error messages from services
@@ -29,7 +29,7 @@
 
 Each service should have its own specific error type:
 
-- `ManualRecorderServiceError` for manual-recorder.ts
+- `RecorderServiceError` for manual-recorder.ts
 - `CpalRecorderServiceError` for cpal-recorder.ts
 - `DeviceStreamServiceError` for device-stream.ts
 
@@ -64,7 +64,7 @@ This will ensure the detailed error messages from services are shown to users.
 ### Changes Made
 
 1. **Renamed Service Error Types**
-   - `ManualRecorderServiceError` for manual-recorder.ts
+   - `RecorderServiceError` for manual-recorder.ts
    - `CpalRecorderServiceError` for cpal-recorder.ts
    - `DeviceStreamServiceError` for device-stream.ts
    - Fixed error mapping in manual-recorder.ts when using device-stream functions

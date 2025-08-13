@@ -43,7 +43,9 @@ import type { ElevenLabsModel } from '$lib/services/transcription/elevenlabs';
 import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
+import { type DeviceIdentifier, asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
+import type { DeepgramModel } from '$lib/services/transcription/deepgram';
 
 /**
  * The main settings schema that defines all application settings.
@@ -76,16 +78,13 @@ export const settingsSchema = z.object({
 		'sound.playOn.manual-start': z.boolean().default(true),
 		'sound.playOn.manual-stop': z.boolean().default(true),
 		'sound.playOn.manual-cancel': z.boolean().default(true),
-		'sound.playOn.cpal-start': z.boolean().default(true),
-		'sound.playOn.cpal-stop': z.boolean().default(true),
-		'sound.playOn.cpal-cancel': z.boolean().default(true),
 		'sound.playOn.vad-start': z.boolean().default(true),
 		'sound.playOn.vad-capture': z.boolean().default(true),
 		'sound.playOn.vad-stop': z.boolean().default(true),
 		'sound.playOn.transcriptionComplete': z.boolean().default(true),
 		'sound.playOn.transformationComplete': z.boolean().default(true),
 	} satisfies Record<
-		`sound.playOn.${WhisperingSoundNames | 'cpal-start' | 'cpal-stop' | 'cpal-cancel'}`,
+		`sound.playOn.${WhisperingSoundNames}`,
 		z.ZodDefault<ZodBoolean>
 	>),
 
@@ -106,16 +105,40 @@ export const settingsSchema = z.object({
 
 	// Recording mode settings
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
+	/**
+	 * Device identifier for manual recording.
+	 * Can be either a desktop device identifier or navigator device ID.
+	 * @see DeviceIdentifier
+	 */
+	'recording.manual.selectedDeviceId': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asDeviceIdentifier(val) : null))
+		.default(null),
+
+	/**
+	 * Device identifier for VAD recording.
+	 * Always a navigator device ID due to the nature of VAD recording
+	 * (it uses a MediaStream to track voice activity)
+	 * @see DeviceIdentifier
+	 */
+	'recording.vad.selectedDeviceId': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asDeviceIdentifier(val) : null))
+		.default(null),
 
 	// Navigator settings (shared by manual, VAD, and live modes)
-	'recording.navigator.selectedDeviceId': z.string().nullable().default(null),
 	'recording.navigator.bitrateKbps': z
 		.enum(BITRATE_VALUES_KBPS)
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	// CPAL mode settings (native only)
-	'recording.cpal.selectedDeviceId': z.string().nullable().default(null),
+	// Desktop recording settings
+	'recording.desktop.outputFolder': z.string().nullable().default(null), // null = use app data dir
+	'recording.desktop.sampleRate': z
+		.enum(['16000', '44100', '48000'])
+		.default('16000'),
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
@@ -138,6 +161,10 @@ export const settingsSchema = z.object({
 		.string()
 		.transform((val) => val as (string & {}) | GroqModel['name'])
 		.default('whisper-large-v3-turbo' satisfies GroqModel['name']),
+	'transcription.deepgram.model': z
+		.string()
+		.transform((val) => val as (string & {}) | DeepgramModel['name'])
+		.default('nova-2' satisfies DeepgramModel['name']),
 	'transcription.speaches.baseUrl': z.string().default('http://localhost:8000'),
 	'transcription.speaches.modelId': z
 		.string()
@@ -152,14 +179,20 @@ export const settingsSchema = z.object({
 	'apiKeys.anthropic': z.string().default(''),
 	'apiKeys.groq': z.string().default(''),
 	'apiKeys.google': z.string().default(''),
+	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
+
+	// Analytics settings
+	'analytics.enabled': z.boolean().default(true),
 
 	...({
 		'shortcuts.local.toggleManualRecording': z.string().nullable().default(' '),
+		'shortcuts.local.startManualRecording': z.string().nullable().default(null),
+		'shortcuts.local.stopManualRecording': z.string().nullable().default(null),
 		'shortcuts.local.cancelManualRecording': z.string().nullable().default('c'),
-		'shortcuts.local.toggleCpalRecording': z.string().nullable().default(null),
-		'shortcuts.local.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.local.toggleVadRecording': z.string().nullable().default('v'),
+		'shortcuts.local.startVadRecording': z.string().nullable().default(null),
+		'shortcuts.local.stopVadRecording': z.string().nullable().default(null),
 		'shortcuts.local.pushToTalk': z.string().nullable().default('p'),
 	} satisfies Record<
 		`shortcuts.local.${Command['id']}`,
@@ -171,13 +204,18 @@ export const settingsSchema = z.object({
 			.string()
 			.nullable()
 			.default(`${CommandOrControl}+Shift+;`),
+		'shortcuts.global.startManualRecording': z
+			.string()
+			.nullable()
+			.default(null),
+		'shortcuts.global.stopManualRecording': z.string().nullable().default(null),
 		'shortcuts.global.cancelManualRecording': z
 			.string()
 			.nullable()
 			.default(`${CommandOrControl}+Shift+'`),
-		'shortcuts.global.toggleCpalRecording': z.string().nullable().default(null),
-		'shortcuts.global.cancelCpalRecording': z.string().nullable().default(null),
 		'shortcuts.global.toggleVadRecording': z.string().nullable().default(null),
+		'shortcuts.global.startVadRecording': z.string().nullable().default(null),
+		'shortcuts.global.stopVadRecording': z.string().nullable().default(null),
 		'shortcuts.global.pushToTalk': z
 			.string()
 			.nullable()

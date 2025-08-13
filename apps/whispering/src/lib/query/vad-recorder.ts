@@ -1,14 +1,15 @@
 import type { VadState } from '$lib/constants/audio';
 import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
+import { enumerateDevices } from '$lib/services/device-stream';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
-import { rpc } from './index';
 
 const vadRecorderKeys = {
 	all: ['vadRecorder'] as const,
 	state: ['vadRecorder', 'state'] as const,
+	devices: ['vadRecorder', 'devices'] as const,
 } as const;
 
 const invalidateVadState = () =>
@@ -24,6 +25,20 @@ export const vadRecorder = {
 		initialData: 'IDLE' as VadState,
 	}),
 
+	enumerateDevices: defineQuery({
+		queryKey: vadRecorderKeys.devices,
+		resultQueryFn: async () => {
+			const { data, error } = await enumerateDevices();
+			if (error) {
+				return fromTaggedErr(error, {
+					title: '❌ Failed to enumerate devices',
+					action: { type: 'more-details', error },
+				});
+			}
+			return Ok(data);
+		},
+	}),
+
 	startActiveListening: defineMutation({
 		mutationKey: ['vadRecorder', 'startActiveListening'] as const,
 		resultMutationFn: async ({
@@ -33,12 +48,9 @@ export const vadRecorder = {
 			onSpeechStart: () => void;
 			onSpeechEnd: (blob: Blob) => void;
 		}) => {
-			// Switch to VAD mode (handles stopping other recordings)
-			await rpc.settings.switchRecordingMode.execute('vad');
-
 			const { data: deviceOutcome, error: startListeningError } =
 				await services.vad.startActiveListening({
-					deviceId: settings.value['recording.navigator.selectedDeviceId'],
+					deviceId: settings.value['recording.vad.selectedDeviceId'],
 					onSpeechStart: () => {
 						invalidateVadState();
 						onSpeechStart();
@@ -46,6 +58,12 @@ export const vadRecorder = {
 					onSpeechEnd: (blob) => {
 						invalidateVadState();
 						onSpeechEnd(blob);
+					},
+					onVADMisfire: () => {
+						invalidateVadState();
+					},
+					onSpeechRealStart: () => {
+						invalidateVadState();
 					},
 				});
 

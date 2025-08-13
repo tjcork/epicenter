@@ -4,7 +4,7 @@ export { default as GroqApiKeyInput } from './api-key-inputs/GroqApiKeyInput.sve
 export { default as AnthropicApiKeyInput } from './api-key-inputs/AnthropicApiKeyInput.svelte';
 export { default as ElevenLabsApiKeyInput } from './api-key-inputs/ElevenLabsApiKeyInput.svelte';
 export { default as GoogleApiKeyInput } from './api-key-inputs/GoogleApiKeyInput.svelte';
-
+export { default as DeepgramApiKeyInput } from './api-key-inputs/DeepgramApiKeyInput.svelte';
 // Selector components
 export { default as DeviceSelector } from './selectors/DeviceSelector.svelte';
 export { default as TransformationSelector } from './selectors/TransformationSelector.svelte';
