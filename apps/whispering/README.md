@@ -55,6 +55,7 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
 </div>
 
+> [!TIP]
 > **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
 ## Key Features
@@ -83,6 +84,7 @@ Choose your operating system below and click the download link:
 | **Apple Silicon** | [Whispering_7.2.1_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
 | **Intel** | [Whispering_7.2.1_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_x64.dmg) | Intel-based Macs |
 
+> [!TIP]
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
@@ -154,6 +156,7 @@ sudo rpm -i Whispering-7.2.1-1.x86_64.rpm
 
 </details>
 
+> [!TIP]
 > **Links not working?** Find all downloads at [GitHub Releases](https://github.com/epicenter-so/epicenter/releases/latest)
 
 <details>
@@ -173,7 +176,8 @@ No installation needed! Works in any modern browser.
 
 Right now, I personally use **Groq** for almost all my transcriptions.
 
-> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
+> [!TIP]
+> **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
 2. Sign up → Create API key → Copy it
