@@ -82,11 +82,11 @@ const pricingData = [
 const faqItems = [
   {
     question: 'How is this different from other transcription apps?',
-    answer: 'Most apps charge $10-30/month for API calls that cost pennies. Whispering gives you control: run completely local for free with Speaches, or connect your own API keys to cloud providers (Groq, OpenAI) and pay them directly. No middleman markup, your data stays yours.',
+    answer: 'We\'re one of the few truly open source transcription apps with this level of polish. Unlike closed-source alternatives, you get complete transparency: see exactly where your audio goes, audit the code, and maintain full control. No middleman servers collecting your data—your audio goes directly to providers using your API keys, or stays completely local with Speaches. You own the tool, not rent access to it.',
   },
   {
     question: 'Can I use it completely free?',
-    answer: 'Yes! You have two options: Use Speaches for completely local transcription (no internet, no API keys, completely private), or connect to cloud providers at cost. The app itself is free and open source forever.',
+    answer: 'Absolutely! You have multiple free options: Use Speaches for completely local transcription (no internet, no API keys, completely private), use Groq\'s generous free tier (multiple hours of transcription daily), or bring your own API key. Many users never pay anything. The app itself is free and open source forever.',
   },
   {
     question: 'Is my data secure?',
@@ -286,12 +286,12 @@ const downloads = [
           <Card.Root class="p-8 lg:p-10 hover:shadow-lg transition-all duration-300 animate-on-scroll border-0 shadow-sm">
             <div class="text-center space-y-6">
               <div class="space-y-2">
-                <div class="text-4xl lg:text-5xl font-bold counter-animation">$3</div>
+                <div class="text-4xl lg:text-5xl font-bold counter-animation">$0-5</div>
                 <div class="text-foreground/70 text-base">per month</div>
                 <div class="text-sm text-foreground/50 line-through">Instead of $10-30/month</div>
               </div>
               <div class="bg-muted border border-border rounded-lg p-4">
-                <div class="text-foreground font-medium text-base mb-1">Save $324/year</div>
+                <div class="text-foreground font-medium text-base mb-1">Save $120-360/year</div>
                 <div class="text-foreground/70 text-sm">Based on typical usage</div>
               </div>
             </div>
@@ -420,7 +420,7 @@ const downloads = [
               <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-6 text-foreground/70">
                 <span class="font-medium">Version {VERSIONS.whispering}</span>
                 <span class="hidden sm:inline">•</span>
-                <span>15MB Install</span>
+                <span>~22MB Install</span>
                 <span class="hidden sm:inline">•</span>
                 <a href="https://www.youtube.com/watch?v=1jYgBMrfVZs" class="text-primary hover:text-primary/80 font-medium transition-colors">
                   Setup Guide →
