@@ -49,6 +49,7 @@
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
 	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
 	import { RecordingRowActions } from './row-actions';
+	import { format } from 'date-fns';
 
 	const getAllRecordingsQuery = createQuery(
 		rpc.recordings.getAllRecordings.options,
@@ -60,6 +61,8 @@
 		rpc.recordings.deleteRecordings.options,
 	);
 	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
+
+	const DATE_FORMAT = "PP p"; // e.g., Aug 13, 2025, 10:00 AM
 
 	const columns: ColumnDef<Recording>[] = [
 		{
@@ -126,6 +129,17 @@
 					column,
 					headerText: 'Timestamp',
 				}),
+			cell: ({ getValue }) => {
+				const value = getValue<string>();
+				if (!value) return '';
+				const date = new Date(value);
+				if (isNaN(date.getTime())) return value;
+				try {
+					return format(date, DATE_FORMAT);
+				} catch {
+					return value;
+				}
+			},
 		},
 		{
 			id: 'Created At',
@@ -135,6 +149,17 @@
 					column,
 					headerText: 'Created At',
 				}),
+			cell: ({ getValue }) => {
+				const value = getValue<string>();
+				if (!value) return '';
+				const date = new Date(value);
+				if (isNaN(date.getTime())) return value;
+				try {
+					return format(date, DATE_FORMAT);
+				} catch {
+					return value;
+				}
+			},
 		},
 		{
 			id: 'Updated At',
@@ -144,6 +169,17 @@
 					column,
 					headerText: 'Updated At',
 				}),
+			cell: ({ getValue }) => {
+				const value = getValue<string>();
+				if (!value) return '';
+				const date = new Date(value);
+				if (isNaN(date.getTime())) return value;
+				try {
+					return format(date, DATE_FORMAT);
+				} catch {
+					return value;
+				}
+			},
 		},
 		{
 			id: 'Transcribed Text',
