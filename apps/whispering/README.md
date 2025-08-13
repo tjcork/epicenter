@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://whispering.bradenwong.com">
+  <a href="https://whispering.epicenter.so">
     <img width="180" src="./src-tauri/recorder-state-icons/studio_microphone.png" alt="Whispering">
   </a>
   <h1 align="center">Whispering</h1>
@@ -155,7 +155,7 @@ sudo rpm -i Whispering-7.2.1-1.x86_64.rpm
 
 <br>
 
-**[🚀 Open Whispering Web App →](https://whispering.bradenwong.com)**
+**[🚀 Open Whispering Web App →](https://whispering.epicenter.so)**
 
 No installation needed! Works in any modern browser.
 
@@ -487,7 +487,7 @@ Yes - set up AI transformations to fix grammar, translate languages, or reformat
 
 ### What platforms work?
 
-Desktop: Mac (Intel & Apple Silicon), Windows, Linux. Web: Any modern browser at [whispering.bradenwong.com](https://whispering.bradenwong.com).
+Desktop: Mac (Intel & Apple Silicon), Windows, Linux. Web: Any modern browser at [whispering.epicenter.so](https://whispering.epicenter.so).
 
 ### Found a bug?
 
