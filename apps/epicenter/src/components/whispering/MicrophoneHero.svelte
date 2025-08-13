@@ -5,7 +5,7 @@
 <div class="relative inline-block mb-16 lg:mb-20">
 
   <!-- Microphone Icon -->
-  <div class="relative z-20 text-8xl lg:text-9xl animate-pulse-gentle select-none">
+  <div class="relative z-20 text-8xl lg:text-9xl select-none">
     🎙️
   </div>
 
@@ -29,17 +29,6 @@
 </div>
 
 <style>
-  @keyframes pulse-gentle {
-    0%, 100% {
-      transform: scale(1);
-      filter: drop-shadow(0 0 20px rgba(0,0,0,0.1));
-    }
-    50% {
-      transform: scale(1.05);
-      filter: drop-shadow(0 0 30px rgba(0,0,0,0.2));
-    }
-  }
-
   @keyframes sound-wave {
     0%, 100% {
       transform: scaleY(0.5);
@@ -49,10 +38,6 @@
       transform: scaleY(1.2);
       opacity: 0.9;
     }
-  }
-
-  .animate-pulse-gentle {
-    animation: pulse-gentle 3s ease-in-out infinite;
   }
 
   .animate-sound-wave {
