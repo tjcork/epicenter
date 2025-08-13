@@ -2,9 +2,8 @@ import { init, trackEvent } from '@aptabase/web';
 import { tryAsync } from 'wellcrafted/result';
 import type { AnalyticsService } from './types';
 import { AnalyticsServiceErr } from './types';
-import { env } from '@repo/constants/vite';
 
-init(env.APTABASE_APP_KEY);
+init('A-US-5744332458');
 
 export function createAnalyticsServiceWeb(): AnalyticsService {
 	return {
