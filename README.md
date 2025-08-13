@@ -56,7 +56,13 @@
 
 Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is to store all of your data—notes, transcripts, chat histories—in a single folder of plain text and SQLite. Every tool we build shares this memory. It's open, tweakable, and yours. Grep it, open it in Obsidian, host it wherever you like. The choice is yours.
 
+### The Vision (How the ecosystem will work):
 
+- Long-time Epicenter Whispering users may have configured numerous LLM API keys, transformations, and even local models.
+- When the Epicenter Shell is started for the very first time, all these API keys, transformations and local models seamlessly work.
+- Epicenter Shell may even access Whispering transcription history to provide personalized results out of the box.
+- Of course, this works the other way, too: Whispering can take advantage of your Epicenter Shell history to optimize transcriptions and transformations!
+- In a siloed ecosystem, this requires much more effort, or may not even be possible.
 
 ## Current Tools
 
