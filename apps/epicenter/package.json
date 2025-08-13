@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^7.1.0",
+    "@repo/constants": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tailwindcss/vite": "^4.1.11",
     "astro": "^5.12.4",

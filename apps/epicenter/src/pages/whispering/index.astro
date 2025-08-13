@@ -1,4 +1,5 @@
 ---
+import { VERSIONS } from '@repo/constants/versions';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { Button } from '@repo/ui/button';
 import * as Card from '@repo/ui/card';
@@ -115,21 +116,21 @@ const downloads = [
     platform: 'macOS (Apple Silicon)',
     description: 'M1/M2/M3 optimized',
     icon: AppleIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_aarch64.dmg`,
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`,
     extension: '.dmg',
   },
   {
     platform: 'macOS (Intel)',
     description: 'Intel-based Macs',
     icon: AppleIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_x64.dmg`,
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`,
     extension: '.dmg',
   },
   {
     platform: 'Windows',
     description: 'Windows 10/11',
     icon: MonitorIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_x64_en-US.msi`,
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64_en-US.msi`,
     extension: '.msi',
   },
 ];
@@ -423,7 +424,7 @@ const downloads = [
           <Card.Root class="inline-block border-0 shadow-sm">
             <Card.Content class="px-6 py-4">
               <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-6 text-foreground/70">
-                <span class="font-medium">Version {version}</span>
+                <span class="font-medium">Version {VERSIONS.whispering}</span>
                 <span class="hidden sm:inline">•</span>
                 <span>15MB Install</span>
                 <span class="hidden sm:inline">•</span>
