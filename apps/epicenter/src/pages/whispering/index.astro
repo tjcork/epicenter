@@ -57,7 +57,7 @@ const pricingData = [
     perHour: '$0.02',
     lightUse: '$0.20/month',
     heavyUse: '$1.80/month',
-    traditional: '$15-30/month',
+    subscription: '$15-30/month',
     highlight: false,
   },
   {
@@ -65,7 +65,7 @@ const pricingData = [
     perHour: '$0.04',
     lightUse: '$0.40/month',
     heavyUse: '$3.60/month',
-    traditional: '$15-30/month',
+    subscription: '$15-30/month',
     highlight: false,
   },
   {
@@ -73,7 +73,7 @@ const pricingData = [
     perHour: '$0.00',
     lightUse: 'Free',
     heavyUse: 'Free',
-    traditional: '$15-30/month',
+    subscription: '$15-30/month',
     highlight: true,
     badge: 'FREE',
   },
@@ -115,21 +115,21 @@ const downloads = [
     platform: 'macOS (Apple Silicon)',
     description: 'M1/M2/M3 optimized',
     icon: AppleIcon,
-    url: 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_aarch64.dmg',
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_aarch64.dmg`,
     extension: '.dmg',
   },
   {
     platform: 'macOS (Intel)',
     description: 'Intel-based Macs',
     icon: AppleIcon,
-    url: 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64.dmg',
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_x64.dmg`,
     extension: '.dmg',
   },
   {
     platform: 'Windows',
     description: 'Windows 10/11',
     icon: MonitorIcon,
-    url: 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64_en-US.msi',
+    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${version}_x64_en-US.msi`,
     extension: '.msi',
   },
 ];
@@ -225,14 +225,14 @@ const downloads = [
     <section class="py-24 bg-background">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16 space-y-4 animate-on-scroll">
-          <h2 class="text-3xl lg:text-4xl font-bold">See it in action</h2>
-          <p class="text-xl text-foreground/75 max-w-2xl mx-auto">
-            Complete setup and usage guide in under 5 minutes
+          <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Demo</h2>
+          <p class="text-lg text-foreground/70 max-w-2xl mx-auto">
+            Complete setup guide in 5 minutes
           </p>
         </div>
 
         <div class="max-w-4xl mx-auto">
-          <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] cursor-pointer">
+          <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-[1.01] hover:shadow-xl cursor-pointer">
             <iframe 
               src="https://www.youtube.com/embed/1jYgBMrfVZs?controls=1&showinfo=0&rel=0&modestbranding=1"
               title="Whispering Setup Guide" 
@@ -252,12 +252,12 @@ const downloads = [
         <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="space-y-8">
             <div class="space-y-6">
-              <h2 class="text-3xl lg:text-5xl font-bold leading-tight">
-                Why pay $30/month for pennies of API costs?
+              <h2 class="text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
+                Direct API access eliminates markup
               </h2>
-              <p class="text-xl text-foreground/75 leading-relaxed">
-                Most transcription services charge premium prices for basic API calls.
-                Whispering eliminates the middleman—connect your own API keys and pay providers directly.
+              <p class="text-lg text-foreground/70 leading-relaxed">
+                Most transcription services add 10-100x markup to API calls.
+                Connect your own keys and pay providers directly at cost.
               </p>
             </div>
             
@@ -283,16 +283,16 @@ const downloads = [
             </div>
           </div>
           
-          <Card.Root class="p-8 lg:p-10 hover:shadow-2xl transition-all duration-300 animate-on-scroll">
+          <Card.Root class="p-8 lg:p-10 hover:shadow-lg transition-all duration-300 animate-on-scroll border-0 shadow-sm">
             <div class="text-center space-y-6">
               <div class="space-y-2">
-                <div class="text-5xl lg:text-6xl font-bold counter-animation">$3</div>
-                <div class="text-foreground/75 text-lg">per month</div>
-                <div class="text-sm text-foreground/60 line-through">Instead of $30/month</div>
+                <div class="text-4xl lg:text-5xl font-bold counter-animation">$3</div>
+                <div class="text-foreground/70 text-base">per month</div>
+                <div class="text-sm text-foreground/50 line-through">Instead of $30/month</div>
               </div>
-              <div class="bg-green-50 border border-green-200 rounded-xl p-6 hover:bg-green-100 transition-colors duration-300">
-                <div class="text-green-800 font-semibold text-lg mb-2">You save $324/year</div>
-                <div class="text-green-600 text-sm">Based on average usage</div>
+              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="text-green-800 font-medium text-base mb-1">Save $324/year</div>
+                <div class="text-green-600 text-sm">Based on typical usage</div>
               </div>
             </div>
           </Card.Root>
@@ -314,7 +314,7 @@ const downloads = [
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card.Root class={`text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-default stagger-item stagger-delay-${index}`}>
+              <Card.Root class={`text-center hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group cursor-default stagger-item stagger-delay-${index} border-0 shadow-sm`}>
                 <Card.Header>
                   <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
                     <Icon class="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
@@ -341,7 +341,7 @@ const downloads = [
           </p>
         </div>
 
-        <Card.Root class="max-w-6xl mx-auto overflow-hidden hover:shadow-2xl transition-all duration-300">
+        <Card.Root class="max-w-6xl mx-auto overflow-hidden hover:shadow-lg transition-all duration-200 border-0 shadow-sm">
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-muted">
@@ -350,7 +350,7 @@ const downloads = [
                   <th class="px-6 py-5 text-left font-semibold text-base">Per Hour</th>
                   <th class="px-6 py-5 text-left font-semibold text-base">Light Use</th>
                   <th class="px-6 py-5 text-left font-semibold text-base">Heavy Use</th>
-                  <th class="px-6 py-5 text-left font-semibold text-base">Traditional</th>
+                  <th class="px-6 py-5 text-left font-semibold text-base">Subscription</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-border">
@@ -367,7 +367,7 @@ const downloads = [
                     <td class="px-6 py-5 text-2xl font-bold text-green-600">{row.perHour}</td>
                     <td class="px-6 py-5 text-foreground/75">{row.lightUse}</td>
                     <td class="px-6 py-5 text-foreground/75">{row.heavyUse}</td>
-                    <td class="px-6 py-5 text-foreground/60 line-through">{row.traditional}</td>
+                    <td class="px-6 py-5 text-foreground/60 line-through">{row.subscription}</td>
                   </tr>
                 ))}
               </tbody>
@@ -375,13 +375,6 @@ const downloads = [
           </div>
         </Card.Root>
 
-        <div class="text-center mt-12">
-          <Card.Root class="inline-block">
-            <Card.Content class="px-8 py-4">
-              <p class="font-medium">💡 Start free with local transcription, upgrade when needed</p>
-            </Card.Content>
-          </Card.Root>
-        </div>
       </div>
     </section>
 
@@ -399,7 +392,7 @@ const downloads = [
           {downloads.map((download, index) => {
             const Icon = download.icon;
             return (
-              <Card.Root class={`text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group stagger-item stagger-delay-${index}`}>
+              <Card.Root class={`text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group stagger-item stagger-delay-${index} border-0 shadow-sm`}>
                 <Card.Header>
                   <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 group-hover:rotate-3 transition-all duration-300">
                     <Icon class="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
@@ -427,10 +420,10 @@ const downloads = [
 
         <!-- Version info -->
         <div class="text-center mt-12">
-          <Card.Root class="inline-block">
+          <Card.Root class="inline-block border-0 shadow-sm">
             <Card.Content class="px-6 py-4">
-              <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-6 text-foreground/75">
-                <span class="font-medium">Version 7.1.1</span>
+              <div class="flex flex-wrap items-center justify-center gap-4 lg:gap-6 text-foreground/70">
+                <span class="font-medium">Version {version}</span>
                 <span class="hidden sm:inline">•</span>
                 <span>15MB Install</span>
                 <span class="hidden sm:inline">•</span>
@@ -447,16 +440,16 @@ const downloads = [
     <!-- FAQ Section -->
     <section class="py-24 bg-muted/50">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16 space-y-6">
-          <h2 class="text-3xl lg:text-5xl font-bold">Frequently asked questions</h2>
-          <p class="text-xl text-foreground/75">
-            Everything you need to know about Whispering
+        <div class="text-center mb-16 space-y-4">
+          <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">FAQ</h2>
+          <p class="text-lg text-foreground/70">
+            Common questions about Whispering
           </p>
         </div>
 
         <div class="space-y-6">
           {faqItems.map((item) => (
-            <Card.Root class="hover:shadow-lg transition-all duration-300">
+            <Card.Root class="hover:shadow-md transition-all duration-200 border-0 shadow-sm">
               <Card.Header>
                 <details class="group">
                   <summary class="font-semibold cursor-pointer flex items-center justify-between text-lg">
@@ -477,12 +470,12 @@ const downloads = [
     <!-- Final CTA Section -->
     <section class="py-24 bg-background">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <Card.Root class="bg-primary text-primary-foreground p-12 lg:p-16">
+        <Card.Root class="bg-primary text-primary-foreground p-12 lg:p-16 border-0 shadow-lg">
           <div class="space-y-8">
-            <div class="space-y-6">
-              <h2 class="text-3xl lg:text-4xl font-bold">Ready to get started?</h2>
-              <p class="text-xl opacity-90 max-w-2xl mx-auto">
-                Join thousands of users who've switched to cost-effective, private transcription
+            <div class="space-y-4">
+              <h2 class="text-3xl lg:text-4xl font-bold tracking-tight">Get started</h2>
+              <p class="text-lg opacity-90 max-w-2xl mx-auto">
+                Free, open source transcription with your choice of providers
               </p>
             </div>
 
@@ -493,7 +486,7 @@ const downloads = [
               </Button>
               <Button href="https://whispering.bradenwong.com" size="lg" class="min-w-[180px] min-h-[48px] bg-white/10 border-2 border-white text-white hover:bg-white hover:text-primary">
                 <ExternalLinkIcon class="w-4 h-4 mr-2" />
-                Lauch Web
+                Launch Web
               </Button>
             </div>
 
