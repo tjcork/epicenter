@@ -20,6 +20,7 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@lucide/svelte": "catalog:",
 		"@repo/config": "workspace:*",
 		"@repo/ui": "workspace:*",
 		"@sveltejs/adapter-static": "^3.0.8",
@@ -28,7 +29,6 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"@tauri-apps/cli": "^2.7.1",
 		"eslint": "catalog:",
-		"@lucide/svelte": "catalog:",
 		"mode-watcher": "catalog:",
 		"prettier": "catalog:",
 		"svelte": "catalog:",
@@ -36,7 +36,8 @@
 		"svelte-sonner": "catalog:",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"wrangler": "^4.29.1"
 	},
 	"type": "module",
 	"dependencies": {
