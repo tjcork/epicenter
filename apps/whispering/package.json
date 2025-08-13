@@ -41,6 +41,7 @@
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.55.0",
 		"@aptabase/tauri": "^0.4.1",
+		"@aptabase/web": "^0.4.3",
 		"@google/generative-ai": "^0.24.1",
 		"@repo/constants": "workspace:*",
 		"@repo/svelte-utils": "workspace:*",

@@ -1,4 +1,4 @@
-import { analytics } from './analytics';
+import { AnalyticsServiceLive } from './analytics';
 import { ClipboardServiceLive } from './clipboard';
 import * as completions from './completion';
 import { DbServiceLive } from './db';
@@ -19,7 +19,7 @@ import { asDeviceIdentifier } from './types';
  * Unified services object providing consistent access to all services.
  */
 export {
-	analytics,
+	AnalyticsServiceLive as analytics,
 	asDeviceIdentifier,
 	ClipboardServiceLive as clipboard,
 	completions,

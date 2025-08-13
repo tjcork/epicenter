@@ -9,6 +9,7 @@ import { createApps, createAppUrls } from '#apps';
 // Schema
 const viteEnvSchema = type({
 	MODE: "'development' | 'production'",
+	APTABASE_APP_KEY: 'string',
 });
 
 export function validateViteEnv(env: unknown): ViteEnv {
@@ -18,6 +19,8 @@ export function validateViteEnv(env: unknown): ViteEnv {
 }
 
 export type ViteEnv = typeof viteEnvSchema.infer;
+
+export const env = validateViteEnv(import.meta.env);
 
 /**
  * Vite build-time URLs.
