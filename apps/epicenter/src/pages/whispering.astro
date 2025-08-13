@@ -1,137 +1,142 @@
 ---
 import { VERSIONS } from '@repo/constants/versions';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import { Button } from '@repo/ui/button';
 import * as Card from '@repo/ui/card';
 import { Badge } from '@repo/ui/badge';
-import MicrophoneHero from '../../components/whispering/MicrophoneHero.svelte';
-import MobileMenu from '../../components/whispering/MobileMenu.svelte';
-import OSDetector from '../../components/whispering/OSDetector.svelte';
-import GitHubStars from '../../components/whispering/GitHubStars.astro';
+import MicrophoneHero from '../components/whispering/MicrophoneHero.svelte';
+import MobileMenu from '../components/whispering/MobileMenu.svelte';
+import OSDetector from '../components/whispering/OSDetector.svelte';
+import GitHubStars from '../components/whispering/GitHubStars.astro';
 import {
-  ArrowRight as ArrowRightIcon,
-  Check as CheckIcon,
-  Mic as MicIcon,
-  Zap as ZapIcon,
-  Shield as ShieldIcon,
-  Globe as GlobeIcon,
-  Download as DownloadIcon,
-  Github as GithubIcon,
-  Monitor as MonitorIcon,
-  Apple as AppleIcon,
-  Lock as LockIcon,
-  Star as StarIcon,
-  ChevronDown as ChevronDownIcon,
-  Menu as MenuIcon,
-  ExternalLink as ExternalLinkIcon,
-  Cloud as CloudIcon,
-  Lightbulb as LightbulbIcon,
-  DollarSign as DollarSignIcon,
+	ArrowRight as ArrowRightIcon,
+	Check as CheckIcon,
+	Mic as MicIcon,
+	Zap as ZapIcon,
+	Shield as ShieldIcon,
+	Globe as GlobeIcon,
+	Download as DownloadIcon,
+	Github as GithubIcon,
+	Monitor as MonitorIcon,
+	Apple as AppleIcon,
+	Lock as LockIcon,
+	Star as StarIcon,
+	ChevronDown as ChevronDownIcon,
+	Menu as MenuIcon,
+	ExternalLink as ExternalLinkIcon,
+	Cloud as CloudIcon,
+	Lightbulb as LightbulbIcon,
+	DollarSign as DollarSignIcon,
 } from '@lucide/astro';
 
 const features = [
-  {
-    icon: ZapIcon,
-    title: 'Your Provider, Your Choice',
-    description: 'Ultra-fast Groq cloud or completely offline with Speaches',
-  },
-  {
-    icon: MicIcon,
-    title: 'System-Wide Shortcuts',
-    description: 'Press, speak, paste. Works in any app, instantly',
-  },
-  {
-    icon: LightbulbIcon,
-    title: 'Custom Transformations',
-    description: 'Chain AI models to fix grammar, translate, or format',
-  },
-  {
-    icon: DollarSignIcon,
-    title: 'No Middleman Markup',
-    description: 'Pay providers directly. $0.02/hour instead of $30/month',
-  },
+	{
+		icon: ZapIcon,
+		title: 'Your Provider, Your Choice',
+		description: 'Ultra-fast Groq cloud or completely offline with Speaches',
+	},
+	{
+		icon: MicIcon,
+		title: 'System-Wide Shortcuts',
+		description: 'Press, speak, paste. Works in any app, instantly',
+	},
+	{
+		icon: LightbulbIcon,
+		title: 'Custom Transformations',
+		description: 'Chain AI models to fix grammar, translate, or format',
+	},
+	{
+		icon: DollarSignIcon,
+		title: 'No Middleman Markup',
+		description: 'Pay providers directly. $0.02/hour instead of $30/month',
+	},
 ];
 
 const pricingData = [
-  {
-    provider: 'Groq (Distil)',
-    perHour: '$0.02',
-    lightUse: '$0.20/month',
-    heavyUse: '$1.80/month',
-    subscription: '$10-30/month',
-    highlight: false,
-  },
-  {
-    provider: 'Groq (Large)',
-    perHour: '$0.04',
-    lightUse: '$0.40/month',
-    heavyUse: '$3.60/month',
-    subscription: '$10-30/month',
-    highlight: false,
-  },
-  {
-    provider: 'Local (Speaches)',
-    perHour: '$0.00',
-    lightUse: 'Free',
-    heavyUse: 'Free',
-    subscription: '$10-30/month',
-    highlight: false,
-  },
+	{
+		provider: 'Groq (Distil)',
+		perHour: '$0.02',
+		lightUse: '$0.20/month',
+		heavyUse: '$1.80/month',
+		subscription: '$10-30/month',
+		highlight: false,
+	},
+	{
+		provider: 'Groq (Large)',
+		perHour: '$0.04',
+		lightUse: '$0.40/month',
+		heavyUse: '$3.60/month',
+		subscription: '$10-30/month',
+		highlight: false,
+	},
+	{
+		provider: 'Local (Speaches)',
+		perHour: '$0.00',
+		lightUse: 'Free',
+		heavyUse: 'Free',
+		subscription: '$10-30/month',
+		highlight: false,
+	},
 ];
 
 const faqItems = [
-  {
-    question: 'How is this different from other transcription apps?',
-    answer: 'We\'re one of the few truly open source transcription apps with this level of polish. Unlike closed-source alternatives, you get complete transparency: see exactly where your audio goes, audit the code, and maintain full control. No middleman servers collecting your data—your audio goes directly to providers using your API keys, or stays completely local with Speaches. You own the tool, not rent access to it.',
-  },
-  {
-    question: 'Can I use it completely free?',
-    answer: 'Absolutely! You have multiple free options: Use Speaches for completely local transcription (no internet, no API keys, completely private), use Groq\'s generous free tier (multiple hours of transcription daily), or bring your own API key. Many users never pay anything. The app itself is free and open source forever.',
-  },
-  {
-    question: 'Is my data secure?',
-    answer: 'Absolutely. Your recordings stay on your device. When using cloud providers, audio goes directly to them using your API key. When using local models, everything stays on your machine. No middleman servers, no data collection, no vendor lock-in.',
-  },
-  {
-    question: 'Which providers are supported?',
-    answer: 'For cloud: Groq (fastest and cheapest), OpenAI Whisper, and ElevenLabs. For local: Speaches runs completely offline. You choose based on your needs—speed or privacy. More providers are added based on community feedback.',
-  },
-  {
-    question: 'Is Whispering suitable for long recordings?',
-    answer: 'Whispering is optimized for quick transcriptions with keyboard shortcuts. For extended recording sessions, we recommend using a dedicated recording app first, then processing the audio with Whispering.',
-  },
+	{
+		question: 'How is this different from other transcription apps?',
+		answer:
+			"We're one of the few truly open source transcription apps with this level of polish. Unlike closed-source alternatives, you get complete transparency: see exactly where your audio goes, audit the code, and maintain full control. No middleman servers collecting your data—your audio goes directly to providers using your API keys, or stays completely local with Speaches. You own the tool, not rent access to it.",
+	},
+	{
+		question: 'Can I use it completely free?',
+		answer:
+			"Absolutely! You have multiple free options: Use Speaches for completely local transcription (no internet, no API keys, completely private), use Groq's generous free tier (multiple hours of transcription daily), or bring your own API key. Many users never pay anything. The app itself is free and open source forever.",
+	},
+	{
+		question: 'Is my data secure?',
+		answer:
+			'Absolutely. Your recordings stay on your device. When using cloud providers, audio goes directly to them using your API key. When using local models, everything stays on your machine. No middleman servers, no data collection, no vendor lock-in.',
+	},
+	{
+		question: 'Which providers are supported?',
+		answer:
+			'For cloud: Groq (fastest and cheapest), OpenAI Whisper, and ElevenLabs. For local: Speaches runs completely offline. You choose based on your needs—speed or privacy. More providers are added based on community feedback.',
+	},
+	{
+		question: 'Is Whispering suitable for long recordings?',
+		answer:
+			'Whispering is optimized for quick transcriptions with keyboard shortcuts. For extended recording sessions, we recommend using a dedicated recording app first, then processing the audio with Whispering.',
+	},
 ];
 
 const downloads = [
-  {
-    platform: 'macOS (Apple Silicon)',
-    description: 'M1/M2/M3 optimized',
-    icon: AppleIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`,
-    extension: '.dmg',
-  },
-  {
-    platform: 'macOS (Intel)',
-    description: 'Intel-based Macs',
-    icon: AppleIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`,
-    extension: '.dmg',
-  },
-  {
-    platform: 'Windows',
-    description: 'Windows 10/11',
-    icon: MonitorIcon,
-    url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64_en-US.msi`,
-    extension: '.msi',
-  },
-  {
-    platform: 'Web App',
-    description: 'Try in your browser',
-    icon: GlobeIcon,
-    url: 'https://whispering.bradenwong.com',
-    extension: 'Launch',
-    isWebApp: true,
-  },
+	{
+		platform: 'macOS (Apple Silicon)',
+		description: 'M1/M2/M3 optimized',
+		icon: AppleIcon,
+		url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`,
+		extension: '.dmg',
+	},
+	{
+		platform: 'macOS (Intel)',
+		description: 'Intel-based Macs',
+		icon: AppleIcon,
+		url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`,
+		extension: '.dmg',
+	},
+	{
+		platform: 'Windows',
+		description: 'Windows 10/11',
+		icon: MonitorIcon,
+		url: `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64_en-US.msi`,
+		extension: '.msi',
+	},
+	{
+		platform: 'Web App',
+		description: 'Try in your browser',
+		icon: GlobeIcon,
+		url: 'https://whispering.bradenwong.com',
+		extension: 'Launch',
+		isWebApp: true,
+	},
 ];
 ---
 
