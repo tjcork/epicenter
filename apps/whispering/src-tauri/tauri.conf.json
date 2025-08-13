@@ -34,7 +34,7 @@
 		}
 	},
 	"productName": "Whispering",
-	"version": "7.2.0",
+	"version": "7.2.1",
 	"identifier": "com.bradenwong.whispering",
 	"plugins": {
 		"updater": {

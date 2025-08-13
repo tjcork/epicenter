@@ -5,18 +5,28 @@
 	import type { DeviceIdentifier } from '$lib/services/types';
 	import { asDeviceIdentifier } from '$lib/services/types';
 
+	import { settings } from '$lib/stores/settings.svelte';
+	
 	let {
 		selected,
 		onSelectedChange,
-		strategy = 'cpal',
+		mode 
 	}: {
 		selected: DeviceIdentifier | null;
 		onSelectedChange: (selected: DeviceIdentifier | null) => void;
-		strategy?: 'cpal' | 'navigator';
+		mode: 'manual' | 'vad';
 	} = $props();
 
+	// Determine which backend to use for device enumeration
+	// VAD always uses browser, manual uses the configured backend
+	const isUsingBrowserBackend = $derived(
+		mode === 'vad' || 
+		!window.__TAURI_INTERNALS__ ||
+		settings.value['recording.backend'] === 'browser' 
+	);
+
 	const getDevicesQuery = createQuery(
-		strategy === 'navigator' 
+		isUsingBrowserBackend 
 			? rpc.vadRecorder.enumerateDevices.options
 			: rpc.recorder.enumerateDevices.options
 	);
