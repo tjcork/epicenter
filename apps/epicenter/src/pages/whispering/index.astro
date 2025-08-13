@@ -6,7 +6,7 @@ import { Badge } from '@repo/ui/badge';
 import MicrophoneHero from '../../components/whispering/MicrophoneHero.svelte';
 import MobileMenu from '../../components/whispering/MobileMenu.svelte';
 import OSDetector from '../../components/whispering/OSDetector.svelte';
-import GitHubStars from '../../components/whispering/GitHubStars.svelte';
+import GitHubStars from '../../components/whispering/GitHubStars.astro';
 import {
   ArrowRight as ArrowRightIcon,
   Check as CheckIcon,
@@ -535,7 +535,7 @@ const downloads = [
             <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering" class="inline-flex items-center text-foreground/65 hover:text-foreground font-medium transition-colors group text-sm">
               <GithubIcon class="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
               View on GitHub
-              <GitHubStars client:load />
+              <GitHubStars />
             </a>
           </div>
 
