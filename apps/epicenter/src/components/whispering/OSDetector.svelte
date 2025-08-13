@@ -1,5 +1,6 @@
 <script>
   import { Button } from '@repo/ui/button';
+  import { VERSIONS } from '@repo/constants/versions';
   import { onMount } from 'svelte';
   
   let platform = $state('');
@@ -12,18 +13,20 @@
     
     if (userAgent.includes('mac') || appVersion.includes('mac')) {
       // Check for Apple Silicon
+      // This is still imperfect - User-Agent doesn't reliably indicate ARM
+      // But we check for common indicators
       if (userAgent.includes('arm') || navigator.userAgent.includes('Apple')) {
         platform = 'macOS (Apple Silicon)';
-        downloadUrl = 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_aarch64.dmg';
+        downloadUrl = `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_aarch64.dmg`;
         downloadText = 'Download for macOS';
       } else {
         platform = 'macOS (Intel)';
-        downloadUrl = 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64.dmg';
+        downloadUrl = `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64.dmg`;
         downloadText = 'Download for macOS';
       }
     } else if (userAgent.includes('win')) {
       platform = 'Windows';
-      downloadUrl = 'https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_7.1.1_x64_en-US.msi';
+      downloadUrl = `https://github.com/epicenter-so/epicenter/releases/latest/download/Whispering_${VERSIONS.whispering}_x64_en-US.msi`;
       downloadText = 'Download for Windows';
     } else if (userAgent.includes('linux')) {
       platform = 'Linux';
