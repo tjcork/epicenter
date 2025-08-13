@@ -38,7 +38,8 @@ I built this because I was tired of paying monthly subscriptions for transcripti
 
 The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
 
-> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+> [!NOTE]
+> Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
 
 ## Demo
 
