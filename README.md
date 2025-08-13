@@ -11,7 +11,7 @@
 > 
 > - Whispering's evolution beyond transcription required changes to the repository's structure and branding.
 > - Everything else remains the same—same tools, same philosophy, same team.
-> - This restructuring allows complementary, non-transcription features to be added as stand-alone apps (like [*Epicenter Shell*](https://github.com/epicenter-so/epicenter/tree/main/apps/sh)).
+> - This restructuring allows complementary, non-transcription features to be added as standalone apps (like [*Epicenter Shell*](https://github.com/epicenter-so/epicenter/tree/main/apps/sh)).
 > - The original app lives on as [*Epicenter Whispering*](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering), keeping a tight focus on transcription.
 > - The new [root](https://github.com/epicenter-so/epicenter/) of the Epicenter repository contains common files supporting all the apps in the ecosystem.
 > - Note: with this reorganization, [github.com/braden-w/whispering](https://github.com/braden-w/whispering) became a thin placeholder redirecting to this rebranded repository.
