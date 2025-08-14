@@ -13,7 +13,7 @@
 > **📢 Repository Update:** Whispering has become **Epicenter**! The original repository moved [here](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering). Everything else remains the same—same tools, same philosophy, same team.
 >
 > <details>
-> <summary> More details
+> <summary> Full details...
 > </summary>
 >
 > - Whispering's evolution beyond transcription required changes to the repository's structure and branding.
