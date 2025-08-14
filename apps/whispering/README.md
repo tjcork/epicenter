@@ -30,6 +30,16 @@
   <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
 
+Whispering is an open source speech-to-text application. Press the shortcut, speak, and your words will transcribe, transform, then copy and paste at the cursor.
+
+All your data is stored locally on your device. Your audio goes directly from your machine to your chosen cloud or local provider. No middleman servers, no data collection, no margin.
+
+Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn. The app also has a few tricks up its sleeve, such as voice-activated mode for hands-free operation, and custom configurable AI transformations to automatically format your text, fix grammar, or translate languages.
+
+Above all, we believe you should own your data, use any model you want, and support open-source. ❤️
+
+> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
+
 ## Why Whispering?
 
 Fundamental tools shouldn't require trusting a black box.
@@ -47,15 +57,6 @@ We're hoping that together in the open-source, local-first community, we can bui
 
 And finally, of course, the cost savings are a nice side effect. When you cut out the middleman, you can pay $0.02/hour instead of $10-30/month on most providers, and $0 for local transcription.
 
-## What is Whispering?
-
-Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
-
-I built this because I was tired of paying monthly subscriptions for transcription apps that are basically API wrappers. With Whispering, you bring your own API key and pay cents directly to providers. I use it several hours daily and pay less than $1/month.
-
-The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps charge $30/month. That's a 10-100x markup for a middleman you don't need.
-
-> **Note**: Whispering is designed for quick transcriptions, not long recordings. For extended recording sessions, use a dedicated recording app.
 
 ## Demo
 
@@ -68,21 +69,6 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
 
 > **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
-## Key Features
-
-Choose from multiple transcription providers. With Groq Cloud, you'll get nearly instantaneous transcription at $0.04/hour plus a generous free tier. The app supports voice-activated mode for hands-free operation; just talk and it transcribes. You can set up AI transformations to automatically format your text, fix grammar, or translate languages.
-
-Everything is stored locally on your device. Your audio goes directly from your machine to your chosen API provider. No middleman servers, no data collection, no tracking.
-
-Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn.
-
-## Install Whispering
-
-Set up Whispering and be ready to transcribe in about two minutes.
-
-### 1️⃣ Download Whispering
-
-Choose your operating system below and click the download link:
 
 <details>
 <summary><strong>🍎 macOS</strong></summary>
@@ -144,7 +130,7 @@ Whispering will appear in your Start Menu when complete.
 
 #### Quick Install Commands
 
-**AppImage** (Universal)
+**AppImage (Universal)**
 ```bash
 wget https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_amd64.AppImage
 chmod +x Whispering_7.2.1_amd64.AppImage
