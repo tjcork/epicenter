@@ -68,9 +68,9 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
 ### The Vision (how the ecosystem will work):
 
 - Long-time Epicenter Whispering users may have configured numerous LLM API keys, transformations, and even local models.
-- When the Epicenter Shell is started for the very first time, all these API keys, transformations and local models seamlessly work.
-- Epicenter Shell may even access Whispering transcription history to provide personalized results out of the box.
-- Of course, this works the other way, too: Whispering can take advantage of your Epicenter Shell history to optimize transcriptions and transformations!
+- When the Epicenter Assistant is started for the very first time, all these API keys, transformations and local models seamlessly work.
+- Epicenter Assistant may even access Whispering transcription history to provide personalized results out of the box.
+- Of course, this works the other way, too: Whispering can take advantage of your Epicenter Assistant history to optimize transcriptions and transformations!
 - In a siloed ecosystem, this requires much more effort, or may not even be possible.
 
 ## Current Tools
@@ -83,7 +83,7 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Explore the git repo</a></strong></p>
     </td>
     <td align="center" width="50%">
-      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Shell</a></h3>
+      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Assistant</a></h3>
       <p>A local-first assistant you can chat with. It lives in your folder, becoming the access point to everything you've ever written, thought, or built.</p>
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Explore the git repo</a></strong></p>
     </td>
