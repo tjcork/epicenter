@@ -53,7 +53,7 @@ Whispering was created to be truly transparent:
 - **Owned by You**: No vendor lock-in. Run it completely offline or with any provider you choose.
 - **Transparent**: Your voice goes directly from your device to your chosen provider (or stays local). No middleman servers, no data collection, no mysteries.
 
-We're hoping that together in the open-source, local-first community, we can build something better than any closed-source alternative. The code is open source because companies pivot, get acquired, or shut down. But open source is forever.
+We're hoping that together in the open-source, local-first community, we can build something better than any closed-source alternative. The code is open source because I believe tools should be free. Companies pivot, get acquired, or shut down. But open source is forever.
 
 And finally, of course, the cost savings are a nice side effect. When you cut out the middleman, you can pay $0.02/hour instead of $10-30/month on most providers, and $0 for local transcription.
 
@@ -418,17 +418,20 @@ Change the recording shortcut to whatever feels natural:
 
 </details>
 
-## Why Whispering Exists
 
-I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
+## What makes Whispering different
 
-That's when I realized these apps are just middlemen. They take your audio, send it to OpenAI's Whisper API, and charge you 10x markup. Plus your recordings go through their servers, get stored who knows where, and you're locked into their ecosystem.
+**Actually open source**: Not "open core" with paid features. Not "source available" with restrictions. MIT licensed—fork it, sell it, modify it however you want.
 
-So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no tracking, no lock-in. Just transcription at cost.
+**No black boxes**: See exactly where your audio goes. Trace every function call. Audit the entire data flow. Most "privacy-focused" apps are still closed source—you're trusting marketing claims, not verifying code.
 
-The code is open source because I believe tools this fundamental should be free. Companies pivot, get acquired, or shut down. But open source is forever.
+**Built for extensibility**: Clean architecture with platform abstraction. 97% code sharing between desktop and web. Add new providers, create custom transformations, or build entirely new features. The codebase is documented and designed to be understood.
 
-### Cost Comparison
+**True ownership**: Your recordings in IndexedDB. Your settings in local storage. Your API keys never touch our servers (we don't have servers). Export everything, delete everything, control everything.
+
+**Community-driven**: Built in public on GitHub. Real issues from real users drive development. No corporate roadmap, no investor priorities—just making transcription better for everyone.
+
+**Provider agnostic**: Groq, OpenAI, ElevenLabs, or completely local with Speaches. More providers added based on community needs. You're not locked into our choices.
 
 With Whispering, you pay providers directly instead of marked-up subscription prices:
 
