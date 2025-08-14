@@ -419,29 +419,6 @@ Change the recording shortcut to whatever feels natural:
 </details>
 
 
-## What makes Whispering different
-
-**Actually open source**: Not "open core" with paid features. Not "source available" with restrictions. MIT licensed—fork it, sell it, modify it however you want.
-
-**No black boxes**: See exactly where your audio goes. Trace every function call. Audit the entire data flow. Most "privacy-focused" apps are still closed source—you're trusting marketing claims, not verifying code.
-
-**Built for extensibility**: Clean architecture with platform abstraction. 97% code sharing between desktop and web. Add new providers, create custom transformations, or build entirely new features. The codebase is documented and designed to be understood.
-
-**True ownership**: Your recordings in IndexedDB. Your settings in local storage. Your API keys never touch our servers (we don't have servers). Export everything, delete everything, control everything.
-
-**Community-driven**: Built in public on GitHub. Real issues from real users drive development. No corporate roadmap, no investor priorities—just making transcription better for everyone.
-
-**Provider agnostic**: Groq, OpenAI, ElevenLabs, or completely local with Speaches. More providers added based on community needs. You're not locked into our choices.
-
-With Whispering, you pay providers directly instead of marked-up subscription prices:
-
-| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
-|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
-| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
-| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
-| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
-| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
-
 ## How is my data stored?
 
 Whispering stores as much data as possible locally on your device, including recordings and text transcriptions. This approach ensures maximum privacy and data security. Here's an overview of how data is handled:
@@ -499,6 +476,29 @@ Desktop: Mac (Intel & Apple Silicon), Windows, Linux. Web: Any modern browser at
 
 Open an issue on [GitHub](https://github.com/epicenter-so/epicenter/issues). I actively maintain this and respond quickly.
 
+## What makes Whispering different
+
+**Actually open source**: Not "open core" with paid features. Not "source available" with restrictions. MIT licensed—fork it, sell it, modify it however you want.
+
+**No black boxes**: See exactly where your audio goes. Trace every function call. Audit the entire data flow. Most "privacy-focused" apps are still closed source—you're trusting marketing claims, not verifying code.
+
+**Built for extensibility**: Clean architecture with platform abstraction. 97% code sharing between desktop and web. Add new providers, create custom transformations, or build entirely new features. The codebase is documented and designed to be understood.
+
+**True ownership**: Your recordings in IndexedDB. Your settings in local storage. Your API keys never touch our servers (we don't have servers). Export everything, delete everything, control everything.
+
+**Community-driven**: Built in public on GitHub. Real issues from real users drive development. No corporate roadmap, no investor priorities—just making transcription better for everyone.
+
+**Provider agnostic**: Groq, OpenAI, ElevenLabs, or completely local with Speaches. More providers added based on community needs. You're not locked into our choices.
+
+With Whispering, you pay providers directly instead of marked-up subscription prices:
+
+| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
+|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
+
 ## Development
 
 ### Built With Modern Web Technologies
@@ -528,146 +528,17 @@ Whispering showcases the power of modern web development as a comprehensive exam
 
 **Note:** The browser extension is temporarily disabled while we stabilize the desktop app.
 
-#### Architecture Patterns
-- Service Layer: Platform-agnostic business logic with Result types
-- Query Layer: Reactive data management with caching
-- RPC Pattern: Unified API interface (`rpc.recordings.getAllRecordings`)
-- Dependency Injection: Clean separation of concerns
+### Architecture Overview
 
-### Architecture Deep Dive
+Whispering uses a clean three-layer architecture with 97% code sharing between desktop and web versions:
 
-Whispering uses a clean three-layer architecture that achieves **extensive code sharing** between the desktop app (Tauri) and web app. This is possible because of how we handle platform differences and separate business logic from UI concerns.
+- **Service Layer**: Platform-agnostic business logic with Result types
+- **Query Layer**: Reactive data management with caching
+- **UI Layer**: Clean Svelte 5 components with minimal logic
 
-**Quick Navigation:** [Service Layer](#service-layer---pure-business-logic--platform-abstraction) | [Query Layer](#query-layer---adding-reactivity-and-state-management) | [Error Handling](#error-handling-with-wellcrafted)
+The architecture achieves extensive code reuse through build-time platform detection, allowing the same codebase to run natively on desktop (via Tauri) and in the browser.
 
-```
-┌─────────────┐     ┌─────────────┐     ┌──────────────┐
-│  UI Layer   │ --> │  Query Layer│ --> │ Service Layer│
-│ (Svelte 5)  │     │ (TanStack)  │     │   (Pure)     │
-└─────────────┘     └─────────────┘     └──────────────┘
-      ↑                    │
-      └────────────────────┘
-         Reactive Updates
-```
-
-#### Service Layer - Pure Business Logic + Platform Abstraction
-
-The service layer contains all business logic as **pure functions** with zero UI dependencies. Services don't know about reactive Svelte variables, user settings, or UI state—they only accept explicit parameters and return `Result<T, E>` types for consistent error handling.
-
-The key innovation is **build-time platform detection**. Services automatically choose the right implementation based on the target platform:
-
-```typescript
-// Platform abstraction happens at build time
-export const ClipboardServiceLive = window.__TAURI_INTERNALS__
-  ? createClipboardServiceDesktop() // Uses Tauri clipboard APIs
-  : createClipboardServiceWeb();     // Uses browser clipboard APIs
-
-// Same interface, different implementations
-export const NotificationServiceLive = window.__TAURI_INTERNALS__
-  ? createNotificationServiceDesktop() // Native OS notifications
-  : createNotificationServiceWeb();     // Browser notifications
-```
-
-This design enables **97% code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies).
-
-##### Measuring Code Sharing
-
-To calculate the actual code sharing percentage, I analyzed the codebase:
-
-```bash
-# Count total lines of code in the app
-find src -name "*.ts" -o -name "*.svelte" -o -name "*.js" | \
-  grep -v node_modules | xargs wc -l
-# Result: 22,824 lines total
-
-# Count platform-specific implementation code
-find src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
-  xargs wc -l
-# Result: 685 lines (3%)
-
-# Code sharing calculation
-# Shared code: 22,824 - 685 = 22,139 lines (97%)
-```
-
-This minimal platform-specific code demonstrates how the architecture maximizes code reuse while maintaining native performance on each platform.
-
-**→ Learn more:** [Services README](./src/lib/services/README.md) | [Constants Organization](./src/lib/constants/README.md)
-
-#### Query Layer - Adding Reactivity and State Management
-
-The query layer is where reactivity gets injected on top of pure services. It wraps service functions with TanStack Query and handles two key responsibilities:
-
-**Runtime Dependency Injection** - Dynamically switching service implementations based on user settings:
-
-```typescript
-// From transcription query layer
-async function transcribeBlob(blob: Blob) {
-  const selectedService = settings.value['transcription.selectedTranscriptionService'];
-
-  switch (selectedService) {
-    case 'OpenAI':
-      return services.transcriptions.openai.transcribe(blob, {
-        apiKey: settings.value['apiKeys.openai'],
-        model: settings.value['transcription.openai.model'],
-      });
-    case 'Groq':
-      return services.transcriptions.groq.transcribe(blob, {
-        apiKey: settings.value['apiKeys.groq'], 
-        model: settings.value['transcription.groq.model'],
-      });
-  }
-}
-```
-
-**Optimistic Updates** - Using the TanStack Query client to manipulate the cache for optimistic UI. By updating the cache, reactivity automatically kicks in and the UI reflects these changes, giving you instant optimistic updates.
-
-It's often unclear where exactly you should mutate the cache with the query client—sometimes at the component level, sometimes elsewhere. By having this dedicated query layer, it becomes very clear: we co-locate three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way. It also cleans up our components significantly because we have a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder, making it clear where to find and add this type of functionality:
-
-```typescript
-// From recordings mutations
-createRecording: defineMutation({
-  resultMutationFn: async (recording: Recording) => {
-    const { data, error } = await services.db.createRecording(recording);
-    if (error) return Err(error);
-
-    // Optimistically update cache - UI updates instantly
-    queryClient.setQueryData(['recordings'], (oldData) => {
-      if (!oldData) return [recording];
-      return [...oldData, recording];
-    });
-
-    return Ok(data);
-  },
-})
-```
-
-This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. 
-
-**→ Learn more:** [Query README](./src/lib/query/README.md) | [RPC Pattern Guide](./src/lib/query/README.md#rpc-pattern)
-
-#### Error Transformation
-
-The query layer also transforms service-specific errors into `WhisperingError` types that integrate seamlessly with the toast notification system. This happens inside `resultMutationFn` or `resultQueryFn`, creating a clean boundary between business logic errors and UI presentation:
-
-```typescript
-// Service returns domain-specific error
-const { data, error: serviceError } = await services.recorder.startRecording(...);
-
-if (serviceError) {
-  // Query layer transforms to UI-friendly WhisperingError
-  return Err(WhisperingError({
-    title: '❌ Failed to start recording',
-    description: serviceError.message,  // Preserve detailed message
-    action: { type: 'more-details', error: serviceError }
-  }));
-}
-```
-
-#### Error Handling with WellCrafted
-
-Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted after using the [effect-ts library](https://github.com/Effect-TS/effect) when it first came out in 2023—I was very excited about the concepts but found it too verbose. WellCrafted distills my takeaways from effect-ts and makes them better by leaning into more native JavaScript syntax, making it perfect for this use case. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
-
-`wellcrafted` ensures robust error handling across the entire codebase, from service layer functions to UI components, while maintaining excellent developer experience with TypeScript's control flow analysis.
+**→ For developers:** See the detailed [Architecture Deep Dive](./ARCHITECTURE.md) to understand how everything fits together.
 
 ### Run Whispering in Local Development Mode
 
@@ -710,9 +581,7 @@ We welcome contributions! Whispering is built with care and attention to clean, 
   - **[Query Layer Patterns](./src/lib/query/README.md)** - RPC pattern and reactive state  
   - **[Constants Organization](./src/lib/constants/README.md)** - Type-safe configuration
   
-**→ New to the codebase?** Start with the [Architecture Deep Dive](#architecture-deep-dive) to understand how everything fits together.
-
-Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspired error handling to JavaScript. It makes errors explicit in function signatures and ensures robust error handling throughout the codebase.
+**→ New to the codebase?** Start with the [Architecture Deep Dive](./ARCHITECTURE.md) to understand how everything fits together.
 
 #### Contributing New Adapters
 
