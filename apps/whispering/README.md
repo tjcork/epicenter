@@ -30,6 +30,23 @@
   <img alt="Rust" src="https://img.shields.io/badge/-Rust-orange?style=flat-square&logo=rust&logoColor=white" />
 </p>
 
+## Why Whispering?
+
+Fundamental tools shouldn't require trusting a black box.
+
+Most transcription apps—even those claiming to be "local" or "privacy-focused"—are closed source. You have no idea what happens to your voice. Where does your audio really go? What data is collected? When they pivot, get acquired, or shut down, your workflow breaks.
+
+Whispering was created to be truly transparent:
+
+- **Open Source**: Every line of code is auditable. See exactly where your audio goes, how it's processed, and what data is stored.
+- **Extensible**: Fork it, modify it, build on top of it. Add your own providers, create custom workflows, or strip out features you don't need.
+- **Owned by You**: No vendor lock-in. Run it completely offline or with any provider you choose.
+- **Transparent**: Your voice goes directly from your device to your chosen provider (or stays local). No middleman servers, no data collection, no mysteries.
+
+We're hoping that together in the open-source, local-first community, we can build something better than any closed-source alternative. The code is open source because companies pivot, get acquired, or shut down. But open source is forever.
+
+And finally, of course, the cost savings are a nice side effect. When you cut out the middleman, you can pay $0.02/hour instead of $10-30/month on most providers, and $0 for local transcription.
+
 ## What is Whispering?
 
 Whispering turns your speech into text with a single keyboard shortcut. Press the shortcut, speak, and your words appear wherever you're typing. No window switching, no clicking around.
