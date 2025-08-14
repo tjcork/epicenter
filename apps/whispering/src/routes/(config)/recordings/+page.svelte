@@ -51,6 +51,25 @@
 	import { RecordingRowActions } from './row-actions';
 	import { format } from 'date-fns';
 
+	/**
+	 * Returns a cell renderer for a date/time column using date-fns format.
+	 * @param {string} formatString - date-fns format string
+	 * @returns {(args: { getValue: () => string }) => string}
+	 */
+	function formattedCell(formatString: string) {
+		return ({ getValue }: { getValue: () => string }) => {
+			const value = getValue();
+			if (!value) return '';
+			const date = new Date(value);
+			if (isNaN(date.getTime())) return value;
+			try {
+				return format(date, formatString);
+			} catch {
+				return value;
+			}
+		};
+	}
+
 	const getAllRecordingsQuery = createQuery(
 		rpc.recordings.getAllRecordings.options,
 	);
@@ -129,17 +148,7 @@
 					column,
 					headerText: 'Timestamp',
 				}),
-			cell: ({ getValue }) => {
-				const value = getValue<string>();
-				if (!value) return '';
-				const date = new Date(value);
-				if (isNaN(date.getTime())) return value;
-				try {
-					return format(date, DATE_FORMAT);
-				} catch {
-					return value;
-				}
-			},
+			cell: formattedCell(DATE_FORMAT),
 		},
 		{
 			id: 'Created At',
@@ -149,17 +158,7 @@
 					column,
 					headerText: 'Created At',
 				}),
-			cell: ({ getValue }) => {
-				const value = getValue<string>();
-				if (!value) return '';
-				const date = new Date(value);
-				if (isNaN(date.getTime())) return value;
-				try {
-					return format(date, DATE_FORMAT);
-				} catch {
-					return value;
-				}
-			},
+			cell: formattedCell(DATE_FORMAT),
 		},
 		{
 			id: 'Updated At',
@@ -169,17 +168,7 @@
 					column,
 					headerText: 'Updated At',
 				}),
-			cell: ({ getValue }) => {
-				const value = getValue<string>();
-				if (!value) return '';
-				const date = new Date(value);
-				if (isNaN(date.getTime())) return value;
-				try {
-					return format(date, DATE_FORMAT);
-				} catch {
-					return value;
-				}
-			},
+			cell: formattedCell(DATE_FORMAT),
 		},
 		{
 			id: 'Transcribed Text',
