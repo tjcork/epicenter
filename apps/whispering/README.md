@@ -1125,12 +1125,10 @@ Whispering is released under the [MIT License](LICENSE). Use it, modify it, lear
 
 ### Support and Feedback
 
-If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub issues tab](https://github.com/epicenter-so/epicenter/issues) or contact me via [whispering@bradenwong.com](mailto:whispering@bradenwong.com). I really appreciate your feedback!
+If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub issues tab](https://github.com/epicenter-so/epicenter/issues). I really appreciate your feedback!
 
-- Community Chat: [Discord](https://go.epicenter.so/discord)
-- Issues and Bug Reports: [GitHub Issues](https://github.com/epicenter-so/epicenter/issues)
-- Feature Discussions: [GitHub Discussions](https://github.com/epicenter-so/epicenter/discussions)
-- Direct Contact: [whispering@bradenwong.com](mailto:whispering@bradenwong.com)
+- Community Discord: [Discord](https://go.epicenter.so/discord)
+- Feature Requests, Issues, and Bug Reports: [GitHub Issues](https://github.com/epicenter-so/epicenter/issues)
 
 ### Sponsors
 
@@ -1141,5 +1139,3 @@ This project is supported by amazing people and organizations:
 ---
 
 Transcription should be free, open, and accessible to everyone. Join us in making it so.
-
-Thank you for using Whispering and happy writing!
