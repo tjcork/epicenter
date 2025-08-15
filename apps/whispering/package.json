@@ -1,6 +1,6 @@
 {
 	"name": "@repo/whispering",
-	"version": "7.1.1",
+	"version": "7.2.1",
 	"description": "",
 	"exports": {
 		"./commands": "./src/lib/commands.ts"
@@ -15,10 +15,12 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "eslint --fix .",
-		"tauri": "tauri"
+		"tauri": "tauri",
+		"deploy": "bun run build && wrangler pages deploy"
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@lucide/svelte": "catalog:",
 		"@repo/config": "workspace:*",
 		"@repo/ui": "workspace:*",
 		"@sveltejs/adapter-static": "^3.0.8",
@@ -27,7 +29,6 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"@tauri-apps/cli": "^2.7.1",
 		"eslint": "catalog:",
-		"@lucide/svelte": "catalog:",
 		"mode-watcher": "catalog:",
 		"prettier": "catalog:",
 		"svelte": "catalog:",
@@ -35,12 +36,14 @@
 		"svelte-sonner": "catalog:",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
-		"vite": "catalog:"
+		"vite": "catalog:",
+		"wrangler": "^4.29.1"
 	},
 	"type": "module",
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.55.0",
 		"@aptabase/tauri": "^0.4.1",
+		"@aptabase/web": "^0.4.3",
 		"@google/generative-ai": "^0.24.1",
 		"@repo/constants": "workspace:*",
 		"@repo/svelte-utils": "workspace:*",

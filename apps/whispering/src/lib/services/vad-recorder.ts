@@ -4,7 +4,6 @@ import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, tryAsync, trySync } from 'wellcrafted/result';
 import { cleanupRecordingStream, getRecordingStream } from './device-stream';
 import type { DeviceIdentifier } from './types';
-import { notify } from '$lib/query/notify';
 
 const { VadRecorderServiceError, VadRecorderServiceErr } = createTaggedError(
 	'VadRecorderServiceError',
@@ -49,7 +48,9 @@ export function createVadService() {
 			const { data: streamResult, error: streamError } =
 				await getRecordingStream({
 					selectedDeviceId: deviceId,
-					sendStatus: (options) => notify.loading.execute(options),
+					sendStatus: (status) => {
+						console.log('VAD getRecordingStream status update:', status);
+					},
 				});
 
 			console.log('Stream error', streamError);

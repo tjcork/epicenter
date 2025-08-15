@@ -61,37 +61,46 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
           
+          # Update the Whispering app README
+          README_PATH="apps/whispering/README.md"
+          
           # Create backup for safety
-          cp README.md README.md.bak
+          cp "$README_PATH" "${README_PATH}.bak"
           
           # Update download links using regex to match semantic version patterns
           # The regex [0-9]\+\.[0-9]\+\.[0-9]\+ matches version numbers like 7.0.0, 10.2.1, etc.
           
+          # FIRST: Update URL paths from /releases/download/vX.X.X/ to /releases/download/v{VERSION}/
+          # This handles the versioned path structure
+          # Example: /releases/download/v7.2.0/ → /releases/download/v7.2.1/
+          sed -i "s|/releases/download/v[0-9]\+\.[0-9]\+\.[0-9]\+/|/releases/download/v${VERSION}/|g" "$README_PATH"
+          
+          # SECOND: Update filenames within the URLs and markdown links
           # macOS downloads
-          # Example: Whispering_7.0.0_aarch64.dmg → Whispering_7.0.1_aarch64.dmg
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_aarch64\.dmg/Whispering_${VERSION}_aarch64.dmg/g" README.md
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64\.dmg/Whispering_${VERSION}_x64.dmg/g" README.md
+          # Example: Whispering_7.2.0_aarch64.dmg → Whispering_7.2.1_aarch64.dmg
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_aarch64\.dmg/Whispering_${VERSION}_aarch64.dmg/g" "$README_PATH"
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64\.dmg/Whispering_${VERSION}_x64.dmg/g" "$README_PATH"
           
           # Windows downloads
-          # Example: Whispering_7.0.0_x64_en-US.msi → Whispering_7.0.1_x64_en-US.msi
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64_en-US\.msi/Whispering_${VERSION}_x64_en-US.msi/g" README.md
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64-setup\.exe/Whispering_${VERSION}_x64-setup.exe/g" README.md
+          # Example: Whispering_7.2.0_x64_en-US.msi → Whispering_7.2.1_x64_en-US.msi
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64_en-US\.msi/Whispering_${VERSION}_x64_en-US.msi/g" "$README_PATH"
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_x64-setup\.exe/Whispering_${VERSION}_x64-setup.exe/g" "$README_PATH"
           
           # Linux downloads
-          # Example: Whispering_7.0.0_amd64.AppImage → Whispering_7.0.1_amd64.AppImage
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.AppImage/Whispering_${VERSION}_amd64.AppImage/g" README.md
-          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.deb/Whispering_${VERSION}_amd64.deb/g" README.md
+          # Example: Whispering_7.2.0_amd64.AppImage → Whispering_7.2.1_amd64.AppImage
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.AppImage/Whispering_${VERSION}_amd64.AppImage/g" "$README_PATH"
+          sed -i "s/Whispering_[0-9]\+\.[0-9]\+\.[0-9]\+_amd64\.deb/Whispering_${VERSION}_amd64.deb/g" "$README_PATH"
           # RPM has a special format with -1 suffix
-          sed -i "s/Whispering-[0-9]\+\.[0-9]\+\.[0-9]\+-1\.x86_64\.rpm/Whispering-${VERSION}-1.x86_64.rpm/g" README.md
+          sed -i "s/Whispering-[0-9]\+\.[0-9]\+\.[0-9]\+-1\.x86_64\.rpm/Whispering-${VERSION}-1.x86_64.rpm/g" "$README_PATH"
           
           # Show what changed for transparency
           echo "Changes made:"
-          diff README.md.bak README.md || true
+          diff "${README_PATH}.bak" "$README_PATH" || true
 
       - name: Check if changes were made
         id: check_changes
         run: |
-          if git diff --quiet README.md; then
+          if git diff --quiet apps/whispering/README.md; then
             echo "No changes needed"
             echo "CHANGES_MADE=false" >> $GITHUB_OUTPUT
           else
@@ -105,7 +114,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add README.md
+          git add apps/whispering/README.md
           git commit -m "chore: update README download links to v${{ steps.get_version.outputs.VERSION }}"
           
           # Push to main branch (explicitly specify refs/heads/ to avoid ambiguity with tag)
@@ -114,7 +123,7 @@ jobs:
       - name: Summary
         run: |
           if [ "${{ steps.check_changes.outputs.CHANGES_MADE }}" == "true" ]; then
-            echo "✅ Successfully updated README.md download links to version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Successfully updated apps/whispering/README.md download links to version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
           else
-            echo "ℹ️ No updates needed - README.md already has version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No updates needed - apps/whispering/README.md already has version ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
           fi

@@ -9,23 +9,45 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
+	let {
+		mode = 'manual'
+	}: {
+		mode: 'manual' | 'vad'
+	} = $props();
+
 	const combobox = useCombobox();
 	
-	const selectedDeviceId = $derived(settings.value['recording.selectedDeviceId']);
-
+	// Setting key is based on mode
+	const settingKey = $derived(
+		mode === 'vad' 
+			? 'recording.vad.selectedDeviceId'
+			: 'recording.manual.selectedDeviceId'
+	) 
+	
+	// Determine which backend to use for device enumeration
+	// VAD always uses browser, manual uses the configured backend
+	const isUsingBrowserBackend = $derived(
+		mode === 'vad' || 
+		!window.__TAURI_INTERNALS__ ||
+		settings.value['recording.backend'] === 'browser'
+	);
+	
+	const selectedDeviceId = $derived(settings.value[settingKey]);
+	
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...rpc.recorder.enumerateDevices.options(),
+		...(isUsingBrowserBackend 
+			? rpc.vadRecorder.enumerateDevices.options()
+			: rpc.recorder.enumerateDevices.options()),
 		enabled: combobox.open,
 	}));
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute({
-				title: 'Error loading devices',
-				description: getDevicesQuery.error.message,
-			});
+			rpc.notify.warning.execute(
+				getDevicesQuery.error
+			);
 		}
 	});
 </script>
@@ -62,7 +84,7 @@
 					</div>
 				{:else if getDevicesQuery.isError}
 					<div class="p-4 text-center text-sm text-destructive">
-						{getDevicesQuery.error.message}
+						{getDevicesQuery.error.title}
 					</div>
 				{:else}
 					{#each getDevicesQuery.data as device (device.id)}
@@ -71,7 +93,7 @@
 							onSelect={() => {
 								const currentDeviceId = selectedDeviceId;
 								settings.updateKey(
-									'recording.selectedDeviceId',
+									settingKey,
 									currentDeviceId === device.id ? null : device.id,
 								);
 								combobox.closeAndFocusTrigger();

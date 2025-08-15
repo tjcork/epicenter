@@ -56,7 +56,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector />
+			<DeviceSelector mode="manual" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -73,7 +73,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector />
+			<DeviceSelector mode="vad" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -88,7 +88,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
-			<DeviceSelector />
+			<DeviceSelector mode="manual" />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}

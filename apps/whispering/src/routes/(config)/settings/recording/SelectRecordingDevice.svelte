@@ -3,23 +3,39 @@
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { DeviceIdentifier } from '$lib/services/types';
+	import { asDeviceIdentifier } from '$lib/services/types';
 
+	import { settings } from '$lib/stores/settings.svelte';
+	
 	let {
 		selected,
 		onSelectedChange,
+		mode 
 	}: {
 		selected: DeviceIdentifier | null;
 		onSelectedChange: (selected: DeviceIdentifier | null) => void;
+		mode: 'manual' | 'vad';
 	} = $props();
 
-	const getDevicesQuery = createQuery(rpc.recorder.enumerateDevices.options);
+	// Determine which backend to use for device enumeration
+	// VAD always uses browser, manual uses the configured backend
+	const isUsingBrowserBackend = $derived(
+		mode === 'vad' || 
+		!window.__TAURI_INTERNALS__ ||
+		settings.value['recording.backend'] === 'browser' 
+	);
+
+	const getDevicesQuery = createQuery(
+		isUsingBrowserBackend 
+			? rpc.vadRecorder.enumerateDevices.options
+			: rpc.recorder.enumerateDevices.options
+	);
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute({
-				title: 'Error loading devices',
-				description: getDevicesQuery.error.message,
-			});
+			rpc.notify.warning.execute(
+				getDevicesQuery.error
+			);
 		}
 	});
 </script>
@@ -36,7 +52,7 @@
 	/>
 {:else if getDevicesQuery.isError}
 	<p class="text-sm text-red-500">
-		{getDevicesQuery.error.message}
+		{getDevicesQuery.error.title}
 	</p>
 {:else}
 	{@const items = getDevicesQuery.data.map((device) => ({
@@ -47,8 +63,8 @@
 		id="recording-device"
 		label="Recording Device"
 		{items}
-		selected={selected || ''}
-		onSelectedChange={(value) => onSelectedChange(value ? value as DeviceIdentifier : null)}
+		selected={selected ?? asDeviceIdentifier('')}
+		onSelectedChange={(value) => onSelectedChange(value ? asDeviceIdentifier(value) : null)}
 		placeholder="Select a device"
 	/>
 {/if}

@@ -7,6 +7,7 @@ import { settings as settingsStore } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
 import { Ok, type Result, partitionResults } from 'wellcrafted/result';
 import { defineMutation } from './_client';
+import { recorderService } from './recorder';
 
 /**
  * Centralized settings mutations that ensure consistent behavior across the application.
@@ -71,14 +72,14 @@ export const settings = {
  */
 async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 	const { data: currentRecordingId } =
-		await services.recorder.getCurrentRecordingId();
+		await recorderService().getCurrentRecordingId();
 	// Each recording mode with its check and stop logic
 	const recordingModes = [
 		{
 			mode: 'manual' as const,
 			isActive: () => currentRecordingId === 'RECORDING',
 			stop: () =>
-				services.recorder.stopRecording({
+				recorderService().stopRecording({
 					sendStatus: () => {}, // Silent cancel - no UI notifications
 				}),
 		},

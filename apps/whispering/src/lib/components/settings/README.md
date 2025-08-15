@@ -7,7 +7,7 @@ This folder contains all components that are directly bound to the global settin
 Components in this directory:
 
 - Import and use the global `settings` store from `$lib/stores/settings.svelte`
-- Either take **no props** or only take a **`settingsKey` prop** to determine which setting to bind to
+- Either take **no props** or only take **minimal configuration props** (like `mode` or `settingsKey`) to determine which setting to bind to
 - Update settings directly using `settings.updateKey()` or `settings.update()` methods
 - Are self-contained and can be used globally throughout the application
 
@@ -16,7 +16,7 @@ Components in this directory:
 A component belongs here if it meets ALL of the following criteria:
 
 1. **Directly bound to settings**: The component imports and uses `settings` from `$lib/stores/settings.svelte`
-2. **Minimal props**: Takes either no props OR only a `settingsKey` prop (no value/onChange props)
+2. **Minimal props**: Takes either no props OR only minimal configuration props like `mode` or `settingsKey` (no value/onChange props)
 3. **Self-contained**: All state management is handled internally via the settings store
 4. **Reusable**: Can be dropped into any part of the app without additional setup
 
@@ -50,7 +50,7 @@ settings/
 <OpenAiApiKeyInput />
 ```
 
-### With Settings Key Prop
+### With Mode Prop
 
 ```svelte
 <script>
@@ -58,10 +58,10 @@ settings/
 </script>
 
 <!-- For VAD recording device -->
-<DeviceSelector settingsKey="vadRecorder.recordingDeviceId" />
+<DeviceSelector mode="vad" />
 
 <!-- For manual recording device -->
-<DeviceSelector settingsKey="manualRecorder.recordingDeviceId" />
+<DeviceSelector mode="manual" />
 ```
 
 ## Creating New Settings Components

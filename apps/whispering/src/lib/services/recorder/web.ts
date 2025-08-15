@@ -223,5 +223,3 @@ export function createWebRecorderService(): RecorderService {
 		},
 	};
 }
-
-export const WebRecorderServiceLive = createWebRecorderService();

@@ -6,7 +6,6 @@ mod accessibility;
 #[cfg(target_os = "macos")]
 use accessibility::{is_macos_accessibility_enabled, open_apple_accessibility};
 
-use dotenvy_macro::dotenv;
 use tauri::Manager;
 use tauri_plugin_aptabase::EventTracker;
 
@@ -19,8 +18,20 @@ use recorder::commands::{
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
-    let mut builder = tauri::Builder::default()
-        .plugin(tauri_plugin_aptabase::Builder::new(dotenv!("APTABASE_KEY")).build())
+    let mut builder = tauri::Builder::default();
+    
+    // Try to get APTABASE_KEY from environment, use empty string if not found
+    let aptabase_key = option_env!("APTABASE_KEY").unwrap_or("");
+    
+    // Only add Aptabase plugin if key is not empty
+    if !aptabase_key.is_empty() {
+        println!("Aptabase analytics enabled");
+        builder = builder.plugin(tauri_plugin_aptabase::Builder::new(aptabase_key).build());
+    } else {
+        println!("Warning: APTABASE_KEY not found, analytics disabled");
+    }
+    
+    builder = builder
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -78,15 +89,20 @@ pub async fn run() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
     
-    app.run(|handler, event| match event {
-        tauri::RunEvent::Exit { .. } => {
-            let _ = handler.track_event("app_exited", None);
-            handler.flush_events_blocking();
+    app.run(|handler, event| {
+        // Only track events if Aptabase is enabled (key is not empty)
+        if !aptabase_key.is_empty() {
+            match event {
+                tauri::RunEvent::Exit { .. } => {
+                    let _ = handler.track_event("app_exited", None);
+                    handler.flush_events_blocking();
+                }
+                tauri::RunEvent::Ready { .. } => {
+                    let _ = handler.track_event("app_started", None);
+                }
+                _ => {}
+            }
         }
-        tauri::RunEvent::Ready { .. } => {
-            let _ = handler.track_event("app_started", None);
-        }
-        _ => {}
     });
 }
 

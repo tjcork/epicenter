@@ -1,13 +1,16 @@
 {
 	"name": "epicenter",
 	"private": true,
-	"version": "7.1.1",
+	"version": "7.2.1",
 	"description": "",
 	"keywords": [],
 	"license": "ISC",
 	"author": "",
 	"workspaces": {
-		"packages": ["apps/*", "packages/*", "packages/*/*"],
+		"packages": [
+			"apps/*",
+			"packages/*", "packages/*/*"
+		],
 		"catalog": {
 			"@types/node": "^22.15.32",
 			"typescript": "^5.8.3",
