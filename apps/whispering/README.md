@@ -81,6 +81,11 @@ And finally, the cost savings. When you cut out the middleman, you pay providers
 
 > **Want to see the voice coding workflow?** Check out this [3-minute demo](https://youtube.com/shorts/tP1fuFpJt7g) showing how I use Whispering with Claude Code for faster development.
 
+## Install Whispering
+
+Set up Whispering and be ready to transcribe in about two minutes.
+
+### 1️⃣ Download Whispering
 
 <details>
 <summary><strong>🍎 macOS</strong></summary>
