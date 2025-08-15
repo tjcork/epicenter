@@ -1,5 +1,12 @@
 import type { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
-import { invoke } from '@tauri-apps/api/core';
+import { createTaggedError } from 'wellcrafted/error';
+import type { Result } from 'wellcrafted/result';
+
+const { AnalyticsServiceError, AnalyticsServiceErr } = createTaggedError(
+	'AnalyticsServiceError',
+);
+type AnalyticsServiceError = ReturnType<typeof AnalyticsServiceError>;
+export { AnalyticsServiceErr, AnalyticsServiceError };
 
 // Use the TranscriptionServiceId type directly
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -42,29 +49,13 @@ export type Event =
 	| { type: 'settings_changed'; section: SettingsSection };
 
 /**
- * Stateless analytics service that provides utilities for event logging.
- * This is a thin wrapper around Aptabase with no business logic.
+ * Analytics service interface that provides utilities for event logging.
+ * Both desktop and web implementations must conform to this interface.
  */
-export const analytics = {
+export type AnalyticsService = {
 	/**
-	 * Send an event to Aptabase
+	 * Send an event to the analytics provider.
+	 * Events are typed and validated at compile time.
 	 */
-	async logEvent(event: Event): Promise<void> {
-		try {
-			const { type, ...properties } = event;
-			await aptabaseLogEvent(type, properties);
-		} catch (error) {
-			// Silently fail - analytics should never break the app
-			console.debug('[Analytics] Event logging failed:', error);
-		}
-	},
+	logEvent: (event: Event) => Promise<Result<void, AnalyticsServiceError>>;
 };
-
-export async function aptabaseLogEvent(
-	name: string,
-	props?: {
-		[key: string]: string | number;
-	},
-): Promise<void> {
-	await invoke<string>('plugin:aptabase|track_event', { name, props });
-}

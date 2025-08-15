@@ -275,7 +275,7 @@
 							🚫
 						</WhisperingButton>
 					{:else}
-						<DeviceSelector />
+						<DeviceSelector mode="manual" />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
@@ -300,7 +300,7 @@
 				<!-- Right column: Selectors -->
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
-						<DeviceSelector />
+						<DeviceSelector mode="vad" />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}

@@ -15,6 +15,12 @@
 		{ value: '48000', label: 'High Quality (48kHz): Professional audio' },
 	] as const;
 
+	const RECORDING_BACKEND_OPTIONS = [
+		{ value: 'native', label: 'Native (Rust)' },
+		{ value: 'browser', label: 'Browser (MediaRecorder)' },
+	] as const;
+
+	const isUsingBrowserBackend = $derived(settings.value['recording.backend'] === 'browser');
 </script>
 
 <svelte:head>
@@ -44,16 +50,46 @@
 		).join(', ')}`}
 	/>
 
-	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-		<SelectRecordingDevice
-			selected={settings.value['recording.selectedDeviceId']}
+	{#if window.__TAURI_INTERNALS__ && settings.value['recording.mode'] === 'manual'}
+		<LabeledSelect
+			id="recording-backend"
+			label="Recording Backend"
+			items={RECORDING_BACKEND_OPTIONS}
+			selected={settings.value['recording.backend']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.selectedDeviceId', selected);
+				settings.updateKey('recording.backend', selected);
 			}}
-		></SelectRecordingDevice>
+			placeholder="Select a recording backend"
+			description={
+				settings.value['recording.backend'] === 'native'
+					? 'Native: Uses Rust audio backend for lower-level access and potentially better quality'
+					: 'Browser: Uses web standards (MediaRecorder API) for better compatibility'
+			}
+		/>
+	{/if}
 
-		{#if !window.__TAURI_INTERNALS__}
-			<!-- Web-specific settings -->
+	{#if settings.value['recording.mode'] === 'manual'}
+		<SelectRecordingDevice
+			selected={settings.value['recording.manual.selectedDeviceId']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('recording.manual.selectedDeviceId', selected);
+			}}
+			mode="manual"
+		></SelectRecordingDevice>
+	{:else if settings.value['recording.mode'] === 'vad'}
+		<SelectRecordingDevice
+			selected={settings.value['recording.vad.selectedDeviceId']}
+			onSelectedChange={(selected) => {
+				settings.updateKey('recording.vad.selectedDeviceId', selected);
+			}}
+			mode="vad"
+		></SelectRecordingDevice>
+	{/if}
+
+	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
+
+		{#if !window.__TAURI_INTERNALS__ || isUsingBrowserBackend}
+			<!-- Browser backend settings -->
 			<LabeledSelect
 				id="bit-rate"
 				label="Bitrate"
@@ -69,7 +105,7 @@
 				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
 		{:else}
-			<!-- Desktop-specific settings -->
+			<!-- Native backend settings -->
 			<LabeledSelect
 				id="sample-rate"
 				label="Sample Rate"

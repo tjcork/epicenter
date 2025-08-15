@@ -78,6 +78,7 @@ Our vision is to build a personal workspace where you own your data, choose your
 <div align="center">
   <h3>🚀 We're looking for contributors</h3>
   <p>If you're passionate about open source, local-first software, or are just a cracked Svelte/TypeScript developer—we'd love to build with you.</p>
+  <p><strong>→ <a href="CONTRIBUTING.md">Read our Contributing Guide</a> to get started</strong></p>
   <p>If you think like a generalist, build like a hacker, and value tools that respect your mind:</p>
   <p><strong>→ <a href="https://go.epicenter.so/discord">Join our Discord and DM me</a></strong></p>
 </div>

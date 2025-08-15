@@ -1,4 +1,4 @@
-import { analytics } from './analytics';
+import { AnalyticsServiceLive } from './analytics';
 import { ClipboardServiceLive } from './clipboard';
 import * as completions from './completion';
 import { DbServiceLive } from './db';
@@ -7,7 +7,7 @@ import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
-import { RecorderServiceLive } from './recorder';
+import { NativeRecorderServiceLive, BrowserRecorderServiceLive } from './recorder';
 import { PlaySoundServiceLive } from './sound';
 import { ToastServiceLive } from './toast';
 import * as transcriptions from './transcription';
@@ -19,7 +19,7 @@ import { asDeviceIdentifier } from './types';
  * Unified services object providing consistent access to all services.
  */
 export {
-	analytics,
+	AnalyticsServiceLive as analytics,
 	asDeviceIdentifier,
 	ClipboardServiceLive as clipboard,
 	completions,
@@ -29,7 +29,8 @@ export {
 	GlobalShortcutManagerLive as globalShortcutManager,
 	LocalShortcutManagerLive as localShortcutManager,
 	NotificationServiceLive as notification,
-	RecorderServiceLive as recorder,
+	NativeRecorderServiceLive as nativeRecorder,
+	BrowserRecorderServiceLive as browserRecorder,
 	ToastServiceLive as toast,
 	OsServiceLive as os,
 	PlaySoundServiceLive as sound,
