@@ -15,7 +15,7 @@
   </a>
   <!-- Discord Badge -->
   <a href="https://go.epicenter.so/discord" target="_blank">
-    <img alt="Discord" src="https://img.shields.io/discord/1234567890?style=flat-square&logo=discord&logoColor=white&label=Discord&color=5865F2" />
+    <img alt="Discord" src="https://img.shields.io/discord/1391098486178582549?style=flat-square&logo=discord&logoColor=white&label=Discord&color=5865F2" />
   </a>
   <!-- Platform Support Badges -->
   <a href="https://github.com/epicenter-so/epicenter/releases" target="_blank">
