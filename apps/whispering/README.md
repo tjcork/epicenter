@@ -13,6 +13,10 @@
   <a href="LICENSE" target="_blank">
     <img alt="MIT License" src="https://img.shields.io/github/license/epicenter-so/epicenter.svg?style=flat-square" />
   </a>
+  <!-- Discord Badge -->
+  <a href="https://go.epicenter.so/discord" target="_blank">
+    <img alt="Discord" src="https://img.shields.io/discord/1234567890?style=flat-square&logo=discord&logoColor=white&label=Discord&color=5865F2" />
+  </a>
   <!-- Platform Support Badges -->
   <a href="https://github.com/epicenter-so/epicenter/releases" target="_blank">
     <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
@@ -34,7 +38,7 @@ Whispering is an open source speech-to-text application. Press the shortcut, spe
 
 All your data is stored locally on your device. Your audio goes directly from your machine to your chosen cloud or local provider. No middleman servers, no data collection, no margin.
 
-Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is clean and well-documented if you want to contribute or learn. The app also has a few tricks up its sleeve, such as voice-activated mode for hands-free operation, and custom configurable AI transformations to automatically format your text, fix grammar, or translate languages.
+Built with Svelte 5 and Tauri, so it's tiny (~22MB) and starts instantly. The codebase is well-documented and designed to be understood. The app also has a few tricks up its sleeve, such as voice-activated mode for hands-free operation, and custom configurable AI transformations to automatically format your text, fix grammar, or translate languages.
 
 Above all, we believe you should own your data, use any model you want, and support open-source. ❤️
 
@@ -48,14 +52,22 @@ Most transcription apps—even those claiming to be "local" or "privacy-focused"
 
 Whispering was created to be truly transparent:
 
-- **Open Source**: Every line of code is auditable. See exactly where your audio goes, how it's processed, and what data is stored.
+- **Open Source** (MIT licensed): Every line of code is auditable. See exactly where your audio goes, how it's processed, and what data is stored.
 - **Extensible**: Fork it, modify it, build on top of it. Add your own providers, create custom workflows, or strip out features you don't need.
-- **Owned by You**: No vendor lock-in. Run it completely offline or with any provider you choose.
-- **Transparent**: Your voice goes directly from your device to your chosen provider (or stays local). No middleman servers, no data collection, no mysteries.
+- **Your Data Stays Yours**: Recordings in IndexedDB, settings in local storage, private information never touch our servers. Export everything, delete everything, control everything.
+- **No Vendor Lock-in**: Use any provider—Groq, OpenAI, ElevenLabs, or run completely offline with Speaches. Your voice goes directly to your chosen provider. No middleman servers, no data collection, no mysteries.
+- **Community-driven**: Built in public on GitHub and Discord. Real issues from real users drive development.
 
 We're hoping that together in the open-source, local-first community, we can build something better than any closed-source alternative. The code is open source because I believe tools should be free. Companies pivot, get acquired, or shut down. But open source is forever.
 
-And finally, of course, the cost savings are a nice side effect. When you cut out the middleman, you can pay $0.02/hour instead of $10-30/month on most providers, and $0 for local transcription.
+And finally, the cost savings. When you cut out the middleman, you pay providers directly:
+
+| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
+|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
+| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
+| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
+| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
+| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
 
 
 ## Demo
@@ -475,29 +487,6 @@ Desktop: Mac (Intel & Apple Silicon), Windows, Linux. Web: Any modern browser at
 ### Found a bug?
 
 Open an issue on [GitHub](https://github.com/epicenter-so/epicenter/issues). I actively maintain this and respond quickly.
-
-## What makes Whispering different
-
-**Actually open source**: Not "open core" with paid features. Not "source available" with restrictions. MIT licensed—fork it, sell it, modify it however you want.
-
-**No black boxes**: See exactly where your audio goes. Trace every function call. Audit the entire data flow. Most "privacy-focused" apps are still closed source—you're trusting marketing claims, not verifying code.
-
-**Built for extensibility**: Clean architecture with platform abstraction. 97% code sharing between desktop and web. Add new providers, create custom transformations, or build entirely new features. The codebase is documented and designed to be understood.
-
-**True ownership**: Your recordings in IndexedDB. Your settings in local storage. Your API keys never touch our servers (we don't have servers). Export everything, delete everything, control everything.
-
-**Community-driven**: Built in public on GitHub. Real issues from real users drive development. No corporate roadmap, no investor priorities—just making transcription better for everyone.
-
-**Provider agnostic**: Groq, OpenAI, ElevenLabs, or completely local with Speaches. More providers added based on community needs. You're not locked into our choices.
-
-With Whispering, you pay providers directly instead of marked-up subscription prices:
-
-| Service | Cost per Hour | Light Use (20 min/day) | Moderate Use (1 hr/day) | Heavy Use (3 hr/day) | Traditional Tools |
-|---------|---------------|------------------------|-------------------------|----------------------|-------------------|
-| `distil-whisper-large-v3-en` (Groq) | $0.02 | $0.20/month | $0.60/month | $1.80/month | $15-30/month |
-| `whisper-large-v3-turbo` (Groq) | $0.04 | $0.40/month | $1.20/month | $3.60/month | $15-30/month |
-| `gpt-4o-mini-transcribe` (OpenAI) | $0.18 | $1.80/month | $5.40/month | $16.20/month | $15-30/month |
-| Local (Speaches) | $0.00 | $0.00/month | $0.00/month | $0.00/month | $15-30/month |
 
 ## Development
 
