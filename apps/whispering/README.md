@@ -538,12 +538,12 @@ The architecture achieves extensive code reuse through build-time platform detec
 
 1. Clone the repository: `git clone https://github.com/epicenter-so/epicenter.git`
 2. Change into the project directory: `cd epicenter`
-3. Install the necessary dependencies: `pnpm i`
+3. Install the necessary dependencies: `bun i`
 
 To run the desktop app and website:
 ```bash
 cd apps/whispering
-pnpm tauri dev
+bun tauri dev
 ```
 
 
@@ -555,8 +555,8 @@ If you have concerns about the installers or want more control, you can build th
 
 ```bash
 cd apps/whispering
-pnpm i
-pnpm tauri build
+bun i
+bun tauri build
 ```
 
 Find the executable in `apps/whispering/target/release`
