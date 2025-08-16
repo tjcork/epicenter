@@ -17,9 +17,9 @@ pub async fn transcribe_with_whisper_cpp(
     let mut reader = hound::WavReader::new(cursor)
         .map_err(|e| {
             if e.to_string().contains("no RIFF tag") {
-                WhisperCppError::audio_format_not_supported()
+                WhisperCppError::AudioFormatNotSupported
             } else {
-                WhisperCppError::audio_read_error(e)
+                WhisperCppError::AudioReadError { message: e.to_string() }
             }
         })?;
     
@@ -28,13 +28,13 @@ pub async fn transcribe_with_whisper_cpp(
         hound::SampleFormat::Float => {
             reader.samples::<f32>()
                 .collect::<Result<Vec<_>, _>>()
-                .map_err(|e| WhisperCppError::audio_read_error(format!("Failed to read float samples: {}", e)))?
+                .map_err(|e| WhisperCppError::AudioReadError { message: format!("Failed to read float samples: {}", e) })?
         }
         hound::SampleFormat::Int => {
             reader.samples::<i16>()
                 .map(|s| s.map(|sample| sample as f32 / 32768.0))
                 .collect::<Result<Vec<_>, _>>()
-                .map_err(|e| WhisperCppError::audio_read_error(format!("Failed to read int samples: {}", e)))?
+                .map_err(|e| WhisperCppError::AudioReadError { message: format!("Failed to read int samples: {}", e) })?
         }
     };
     
@@ -66,14 +66,14 @@ pub async fn transcribe_with_whisper_cpp(
             // Check if it's a GPU-related error
             let error_str = e.to_string();
             if error_str.contains("GPU") || error_str.contains("CUDA") || error_str.contains("Metal") {
-                WhisperCppError::gpu_error(e)
+                WhisperCppError::GpuError { message: e.to_string() }
             } else {
-                WhisperCppError::model_load_error(e)
+                WhisperCppError::ModelLoadError { message: e.to_string() }
             }
         })?;
     
     let mut state = context.create_state()
-        .map_err(|e| WhisperCppError::state_creation_error(e))?;
+        .map_err(|e| WhisperCppError::StateCreationError { message: e.to_string() })?;
     
     // Basic transcription params
     let mut full_params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
@@ -93,16 +93,16 @@ pub async fn transcribe_with_whisper_cpp(
     
     // Transcribe
     state.full(full_params, &samples)
-        .map_err(|e| WhisperCppError::transcription_error(e))?;
+        .map_err(|e| WhisperCppError::TranscriptionError { message: e.to_string() })?;
     
     // Get text
     let num_segments = state.full_n_segments()
-        .map_err(|e| WhisperCppError::segment_error(e))?;
+        .map_err(|e| WhisperCppError::SegmentError { message: e.to_string() })?;
     
     let mut text = String::new();
     for i in 0..num_segments {
         text.push_str(&state.full_get_segment_text(i)
-            .map_err(|e| WhisperCppError::segment_error(format!("Failed to get segment text: {}", e)))?);  
+            .map_err(|e| WhisperCppError::SegmentError { message: format!("Failed to get segment text: {}", e) })?);  
     }
     
     Ok(text.trim().to_string())

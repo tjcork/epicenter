@@ -32,34 +32,3 @@ pub enum WhisperCppError {
     #[serde(rename = "segmentError")]
     SegmentError { message: String },
 }
-
-// Simplified constructor methods
-impl WhisperCppError {
-    pub fn audio_format_not_supported() -> Self {
-        Self::AudioFormatNotSupported
-    }
-
-    pub fn audio_read_error(err: impl std::fmt::Display) -> Self {
-        Self::AudioReadError { message: err.to_string() }
-    }
-
-    pub fn model_load_error(err: impl std::fmt::Display) -> Self {
-        Self::ModelLoadError { message: err.to_string() }
-    }
-
-    pub fn gpu_error(err: impl std::fmt::Display) -> Self {
-        Self::GpuError { message: err.to_string() }
-    }
-
-    pub fn transcription_error(err: impl std::fmt::Display) -> Self {
-        Self::TranscriptionError { message: err.to_string() }
-    }
-
-    pub fn state_creation_error(err: impl std::fmt::Display) -> Self {
-        Self::StateCreationError { message: err.to_string() }
-    }
-
-    pub fn segment_error(err: impl std::fmt::Display) -> Self {
-        Self::SegmentError { message: err.to_string() }
-    }
-}
