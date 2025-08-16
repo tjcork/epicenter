@@ -3,6 +3,7 @@ import { ElevenlabsTranscriptionServiceLive } from './elevenlabs';
 import { GroqTranscriptionServiceLive } from './groq';
 import { OpenaiTranscriptionServiceLive } from './openai';
 import { SpeachesTranscriptionServiceLive } from './speaches';
+import { WhisperCppTranscriptionServiceLive } from './whispercpp';
 
 export {
 	ElevenlabsTranscriptionServiceLive as elevenlabs,
