@@ -10,6 +10,7 @@ export {
 	OpenaiTranscriptionServiceLive as openai,
 	SpeachesTranscriptionServiceLive as speaches,
 	DeepgramTranscriptionServiceLive as deepgram,
+	WhisperCppTranscriptionServiceLive as whispercpp,
 };
 
 export type { ElevenLabsTranscriptionService } from './elevenlabs';
@@ -17,3 +18,4 @@ export type { GroqTranscriptionService } from './groq';
 export type { OpenaiTranscriptionService } from './openai';
 export type { SpeachesTranscriptionService } from './speaches';
 export type { DeepgramTranscriptionService } from './deepgram';
+export type { WhisperCppTranscriptionService } from './whispercpp';

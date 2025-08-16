@@ -48,9 +48,15 @@ type ServerTranscriptionService = BaseTranscriptionService & {
 	serverUrlField: keyof Settings;
 };
 
+type LocalTranscriptionService = BaseTranscriptionService & {
+	type: 'local';
+	modelPathField: keyof Settings;
+};
+
 type SatisfiedTranscriptionService =
 	| ApiTranscriptionService
-	| ServerTranscriptionService;
+	| ServerTranscriptionService
+	| LocalTranscriptionService;
 
 export const TRANSCRIPTION_SERVICES = [
 	{
@@ -99,6 +105,13 @@ export const TRANSCRIPTION_SERVICES = [
 		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
 		type: 'api',
+	},
+	{
+		id: 'whispercpp',
+		name: 'Whisper C++',
+		icon: CpuIcon,
+		modelPathField: 'transcription.whispercpp.modelPath',
+		type: 'local',
 	},
 ] as const satisfies SatisfiedTranscriptionService[];
 

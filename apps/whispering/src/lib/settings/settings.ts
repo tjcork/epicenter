@@ -175,6 +175,9 @@ export const settingsSchema = z.object({
 	'transcription.speaches.modelId': z
 		.string()
 		.default('Systran/faster-distil-whisper-small.en'),
+	'transcription.whispercpp.modelPath': z.string().default(''),
+	'transcription.whispercpp.useGpu': z.boolean().default(true),
+	'transcription.whispercpp.language': z.string().nullable().default(null),
 
 	'transformations.selectedTransformationId': z
 		.string()
