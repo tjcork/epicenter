@@ -15,6 +15,8 @@
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
+	import { Checkbox } from '@repo/ui/checkbox';
+	import { Input } from '@repo/ui/input';
 	import { Separator } from '@repo/ui/separator';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
@@ -444,42 +446,18 @@
 			</div>
 
 			<div class="flex items-center space-x-2">
-				<input
-					type="checkbox"
+				<Checkbox
 					id="whispercpp-use-gpu"
 					checked={settings.value['transcription.whispercpp.useGpu']}
-					onchange={({ currentTarget: { checked } }) => {
+					onCheckedChange={(checked) => {
 						settings.updateKey('transcription.whispercpp.useGpu', checked);
 					}}
-					class="h-4 w-4 rounded border-gray-300"
 				/>
 				<label for="whispercpp-use-gpu" class="text-sm font-medium">
 					Use GPU acceleration (if available)
 				</label>
 			</div>
-
-			<LabeledSelect
-				id="whispercpp-language"
-				label="Language Override (Optional)"
-				items={[
-					{ value: null, label: 'Auto-detect' },
-					...SUPPORTED_LANGUAGES_OPTIONS
-				]}
-				selected={settings.value['transcription.whispercpp.language']}
-				onSelectedChange={(selected) => {
-					settings.updateKey('transcription.whispercpp.language', selected);
-				}}
-				placeholder="Select a language"
-			>
-				{#snippet description()}
-					<p class="text-muted-foreground text-sm">
-						Force a specific language instead of auto-detection. Leave as "Auto-detect"
-						for multilingual transcription.
-					</p>
-				{/snippet}
-			</LabeledSelect>
 		</div>
-	{:else if settings.value['transcription.selectedTranscriptionService'] === 'owhisper'}
 	{/if}
 
 	<LabeledSelect
