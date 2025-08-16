@@ -14,7 +14,6 @@ export function createWhisperCppTranscriptionService() {
 				outputLanguage: Settings['transcription.outputLanguage'];
 				modelPath: string;
 				useGpu: boolean;
-				language: string | null;
 			},
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation
@@ -60,9 +59,7 @@ export function createWhisperCppTranscriptionService() {
 						audioData: audioData,
 						modelPath: options.modelPath,
 						language:
-							options.language || options.outputLanguage === 'auto'
-								? null
-								: options.outputLanguage,
+							options.outputLanguage === 'auto' ? null : options.outputLanguage,
 						useGpu: options.useGpu,
 						prompt: options.prompt,
 						temperature: Number.parseFloat(options.temperature),

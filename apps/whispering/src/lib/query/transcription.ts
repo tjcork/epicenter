@@ -173,7 +173,6 @@ async function transcribeBlob(
 						temperature: settings.value['transcription.temperature'],
 						modelPath: settings.value['transcription.whispercpp.modelPath'],
 						useGpu: settings.value['transcription.whispercpp.useGpu'],
-						language: settings.value['transcription.whispercpp.language'],
 					});
 			}
 		})();
