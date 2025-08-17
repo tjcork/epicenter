@@ -87,12 +87,11 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0" collisionPadding={24} arrowPadding={20}  align="start">
+	<Popover.Content class="w-80 max-w-xl p-0" collisionPadding={24} arrowPadding={20} align="start">
 		<Command.Root loop>
-			<Command.List class="flex flex-col max-h-[40vh]">
-				<Command.Input placeholder="Select transcription service..." />
-				<div class="flex-1 overflow-y-auto">
-					<Command.Empty>No service found.</Command.Empty>
+			<Command.Input placeholder="Select transcription service..." />
+			<Command.List class="max-h-[40vh]">
+				<Command.Empty>No service found.</Command.Empty>
 
 				{#each apiServices as service (service.id)}
 					{@const isSelected =
@@ -169,18 +168,19 @@
 						</Command.Item>
 					</Command.Group>
 				{/each}
-				</div>
-					<Command.Item
-						value="Configure transcription"
-						onSelect={() => {
-							goto('/settings/transcription');
-							combobox.closeAndFocusTrigger();
-						}}
-						class="rounded-none p-2 bg-muted/50 text-muted-foreground"
-					>
-						<SettingsIcon class="size-4 mx-2.5" />
-						Configure transcription
-					</Command.Item>
+
+				<Command.Separator />
+				<Command.Item
+					value="Configure transcription"
+					onSelect={() => {
+						goto('/settings/transcription');
+						combobox.closeAndFocusTrigger();
+					}}
+					class="rounded-none p-2 bg-muted/50 text-muted-foreground"
+				>
+					<SettingsIcon class="size-4 mx-2.5" />
+					Configure transcription
+				</Command.Item>
 			</Command.List>
 		</Command.Root>
 	</Popover.Content>
