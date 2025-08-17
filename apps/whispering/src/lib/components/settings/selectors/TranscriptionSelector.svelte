@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '@repo/ui/badge';
 	import * as Command from '@repo/ui/command';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
@@ -88,11 +87,12 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0">
+	<Popover.Content class="w-80 max-w-xl p-0" collisionPadding={24} arrowPadding={20}  align="start">
 		<Command.Root loop>
-			<Command.Input placeholder="Select transcription service..." />
-			<Command.List class="overflow-y-auto max-h-[400px]">
-				<Command.Empty>No service found.</Command.Empty>
+			<Command.List class="flex flex-col max-h-[40vh]">
+				<Command.Input placeholder="Select transcription service..." />
+				<div class="flex-1 overflow-y-auto">
+					<Command.Empty>No service found.</Command.Empty>
 
 				{#each apiServices as service (service.id)}
 					{@const isSelected =
@@ -169,18 +169,19 @@
 						</Command.Item>
 					</Command.Group>
 				{/each}
+				</div>
+					<Command.Item
+						value="Configure transcription"
+						onSelect={() => {
+							goto('/settings/transcription');
+							combobox.closeAndFocusTrigger();
+						}}
+						class="rounded-none p-2 bg-muted/50 text-muted-foreground"
+					>
+						<SettingsIcon class="size-4 mx-2.5" />
+						Configure transcription
+					</Command.Item>
 			</Command.List>
-			<Command.Item
-				value="Configure transcription"
-				onSelect={() => {
-					goto('/settings/transcription');
-					combobox.closeAndFocusTrigger();
-				}}
-				class="rounded-none p-2 bg-muted/50 text-muted-foreground"
-			>
-				<SettingsIcon class="size-4 mx-2.5" />
-				Configure transcription
-			</Command.Item>
 		</Command.Root>
 	</Popover.Content>
 </Popover.Root>
