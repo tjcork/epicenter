@@ -20,6 +20,8 @@
 	import { Separator } from '@repo/ui/separator';
 	import * as Alert from '@repo/ui/alert';
 	import { Link } from '@repo/ui/link';
+	import * as Collapsible from '@repo/ui/collapsible';
+	import * as Select from '@repo/ui/select';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		ELEVENLABS_TRANSCRIPTION_MODELS,
@@ -29,30 +31,12 @@
 		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { AlertTriangle, CheckIcon, InfoIcon, Paperclip, X } from '@lucide/svelte';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
+	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import {
 		isUsingWhisperCppWithBrowserBackend,
 		isUsingNativeBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
-
-	// Query to check model file existence
-	const modelFileQuery = createQuery(() => ({
-		queryKey: [
-			'modelFileExists',
-			settings.value['transcription.whispercpp.modelPath'],
-		],
-		queryFn: async () => {
-			const { exists } = await import('@tauri-apps/plugin-fs');
-			const modelPath = settings.value['transcription.whispercpp.modelPath'];
-			if (!modelPath || !window.__TAURI_INTERNALS__) return null;
-			return await exists(modelPath);
-		},
-		enabled:
-			!!settings.value['transcription.whispercpp.modelPath'] &&
-			!!window.__TAURI_INTERNALS__,
-		staleTime: 5000,
-	}));
 </script>
 
 <svelte:head>
@@ -355,90 +339,9 @@
 		</LabeledInput>
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'whispercpp'}
 		<div class="space-y-4">
-			<Card.Root>
-				<Card.Header>
-					<Card.Title class="text-lg">Whisper C++ Setup</Card.Title>
-					<Card.Description>
-						Use local Whisper models for private, offline transcription. Whisper
-						C++ provides fast CPU/GPU inference with no API costs or data
-						sharing.
-					</Card.Description>
-				</Card.Header>
-				<Card.Content class="space-y-6">
-					<div class="flex gap-3">
-						<Button
-							href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							Download Models
-						</Button>
-						<Button
-							variant="outline"
-							href="https://github.com/ggerganov/whisper.cpp#quick-start"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							Documentation
-						</Button>
-					</div>
-
-					<div class="space-y-4">
-						<div>
-							<p class="text-sm font-medium">
-								<span class="text-muted-foreground">Step 1:</span> Download a Whisper
-								model
-							</p>
-							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
-								<li class="list-disc">
-									Visit the <Button
-										variant="link"
-										size="sm"
-										class="px-0 h-auto underline"
-										href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										model repository
-									</Button>
-								</li>
-								<li class="list-disc">
-									Download a model file (e.g., ggml-small.bin)
-								</li>
-								<li class="list-disc">
-									Larger models are more accurate but slower
-								</li>
-							</ul>
-						</div>
-
-						<div>
-							<p class="text-sm font-medium">
-								<span class="text-muted-foreground">Step 2:</span> Select the model
-								file below
-							</p>
-							<ul class="ml-6 mt-2 space-y-1 text-sm text-muted-foreground">
-								<li class="list-disc">
-									Click "Browse" to select your downloaded model
-								</li>
-								<li class="list-disc">
-									The model will be used for all transcriptions
-								</li>
-							</ul>
-						</div>
-					</div>
-				</Card.Content>
-			</Card.Root>
-
-			{#if !settings.value['transcription.whispercpp.modelPath']}
-				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-					<AlertTriangle class="size-4 text-amber-600 dark:text-amber-400" />
-					<Alert.Title class="text-amber-600 dark:text-amber-400">
-						Model Required
-					</Alert.Title>
-					<Alert.Description>
-						Please select a Whisper model file to use for transcription. Download a model from Hugging Face and select it below.
-					</Alert.Description>
-				</Alert.Root>
+			<!-- Whisper Model Selector Component -->
+			{#if window.__TAURI_INTERNALS__}
+				<WhisperModelSelector />
 			{/if}
 
 			{#if isUsingWhisperCppWithBrowserBackend()}
@@ -479,101 +382,17 @@
 			{/if}
 		</div>
 
-		<div class="space-y-4">
-			<div>
-				<label
-					for="whispercpp-model-path"
-					class="block text-sm font-medium mb-2"
-				>
-					Model File Path
-				</label>
-				<div class="flex items-center gap-2">
-					<Input
-						id="whispercpp-model-path"
-						type="text"
-						value={settings.value['transcription.whispercpp.modelPath']}
-						readonly
-						placeholder="No model selected"
-						class="flex-1"
-					/>
-					{#if settings.value['transcription.whispercpp.modelPath']}
-						<Button
-							variant="outline"
-							size="icon"
-							onclick={() => {
-								settings.updateKey('transcription.whispercpp.modelPath', '');
-								modelFileQuery.refetch();
-							}}
-							title="Clear model path"
-						>
-							<X class="size-4" />
-						</Button>
-					{/if}
-					<Button
-						variant="outline"
-						size="icon"
-						onclick={async () => {
-							if (!window.__TAURI_INTERNALS__) return;
-							const { open } = await import('@tauri-apps/plugin-dialog');
-							const selected = await open({
-								multiple: false,
-								filters: [{
-									name: 'Whisper Models',
-									extensions: ['bin', 'gguf', 'ggml']
-								}],
-								title: 'Select Whisper Model File',
-							});
-							if (selected) {
-								settings.updateKey('transcription.whispercpp.modelPath', selected);
-								modelFileQuery.refetch();
-							}
-						}}
-						title="Browse for model file"
-					>
-						<Paperclip class="size-4" />
-					</Button>
-				</div>
-				{#if settings.value['transcription.whispercpp.modelPath']}
-					{#if modelFileQuery.isPending}
-						<p class="text-xs text-muted-foreground mt-1">
-							Checking model file...
-						</p>
-					{:else if modelFileQuery.data === false}
-						<p class="text-xs text-destructive mt-1">
-							⚠️ Model file not found: {settings.value[
-								'transcription.whispercpp.modelPath'
-							]
-								.split('/')
-								.pop()}
-						</p>
-					{:else if modelFileQuery.data === true}
-						<p class="text-xs text-green-600 dark:text-green-400 mt-1">
-							✓ Model: {settings.value['transcription.whispercpp.modelPath']
-								.split('/')
-								.pop()}
-						</p>
-					{:else}
-						<p class="text-xs text-muted-foreground mt-1">
-							Model: {settings.value['transcription.whispercpp.modelPath']
-								.split('/')
-								.pop()}
-						</p>
-					{/if}
-				{/if}
-			</div>
-
-			<div class="flex items-center space-x-2">
-				<Checkbox
-					id="whispercpp-use-gpu"
-					checked={settings.value['transcription.whispercpp.useGpu']}
-					onCheckedChange={(checked) => {
-						settings.updateKey('transcription.whispercpp.useGpu', checked);
-					}}
-				/>
-				<label for="whispercpp-use-gpu" class="text-sm font-medium">
-					Use GPU acceleration (if available)
-				</label>
-			</div>
+		<div class="flex items-center space-x-2">
+			<Checkbox
+				id="whispercpp-use-gpu"
+				checked={settings.value['transcription.whispercpp.useGpu']}
+				onCheckedChange={(checked) => {
+					settings.updateKey('transcription.whispercpp.useGpu', checked);
+				}}
+			/>
+			<label for="whispercpp-use-gpu" class="text-sm font-medium">
+				Use GPU acceleration (if available)
+			</label>
 		</div>
 	{/if}
 
