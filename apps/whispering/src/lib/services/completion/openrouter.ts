@@ -56,7 +56,9 @@ export function createOpenRouterCompletionService(): CompletionService {
             errMsg = error.message || errMsg;
             // @ts-ignore
             status = error.status;
-            // @ts-ignore
+          if (isErrorWithProps(error)) {
+            errMsg = error.message || errMsg;
+            status = error.status;
             const errObj = error as { message?: string; status?: number; name?: string };
             errMsg = errObj.message || errMsg;
             status = errObj.status;
