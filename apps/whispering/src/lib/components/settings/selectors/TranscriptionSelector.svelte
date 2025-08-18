@@ -137,9 +137,10 @@
 							settings.value['transcription.selectedTranscriptionService'] ===
 							service.id}
 						{@const isConfigured = isTranscriptionServiceConfigured(service)}
+						{@const modelPath = settings.value[service.modelPathField]}
 
 						<Command.Item
-							value={service.id}
+							value={`${service.id} ${service.name} whisper cpp ggml local offline`}
 							onSelect={() => {
 								settings.updateKey(
 									'transcription.selectedTranscriptionService',
@@ -157,7 +158,11 @@
 							{@render renderServiceIcon(service)}
 							<div class="flex-1 min-w-0">
 								<div class="font-medium text-sm">{service.name}</div>
-								{#if !isConfigured}
+								{#if modelPath}
+									<div class="text-xs text-muted-foreground truncate">
+										{modelPath.split('/').pop() || modelPath}
+									</div>
+								{:else if !isConfigured}
 									<span class="text-xs text-amber-600">
 										Model file required
 									</span>
@@ -180,7 +185,7 @@
 
 						<!-- Service Header (clickable to expand) -->
 						<Command.Item
-							value={`${service.id}-header`}
+							value={`${service.id} ${service.name} ${service.models.map((m) => m.name).join(' ')}`}
 							onSelect={() => toggleServiceExpanded(service.id)}
 							class="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-accent/50"
 						>
@@ -212,13 +217,13 @@
 							/>
 						</Command.Item>
 
-						<!-- Models (shown when expanded) -->
+						<!-- Models (shown when expanded or when searching) -->
 						{#if isExpanded}
 							{#each service.models as model}
 								{@const isModelSelected =
 									isSelected && currentSelectedModelName === model.name}
 								<Command.Item
-									value={`${service.id}-${model.name}`}
+									value={`${service.id} ${service.name} ${model.name}`}
 									onSelect={() => {
 										settings.update({
 											'transcription.selectedTranscriptionService': service.id,
@@ -254,9 +259,10 @@
 							settings.value['transcription.selectedTranscriptionService'] ===
 							service.id}
 						{@const isConfigured = isTranscriptionServiceConfigured(service)}
+						{@const serverUrl = settings.value[service.serverUrlField]}
 
 						<Command.Item
-							value={service.id}
+							value={`${service.id} ${service.name} self-hosted server`}
 							onSelect={() => {
 								settings.updateKey(
 									'transcription.selectedTranscriptionService',
@@ -274,10 +280,12 @@
 							{@render renderServiceIcon(service)}
 							<div class="flex-1 min-w-0">
 								<div class="font-medium text-sm">{service.name}</div>
-								{#if !isConfigured}
-									<div class="text-xs text-muted-foreground">
-										Server URL required
+								{#if serverUrl}
+									<div class="text-xs text-muted-foreground truncate">
+										{serverUrl}
 									</div>
+								{:else if !isConfigured}
+									<div class="text-xs text-amber-600">Server URL required</div>
 								{/if}
 							</div>
 						</Command.Item>
