@@ -61,10 +61,11 @@
       "identifier": "shell:allow-execute",
       "allow": [
         {
-          "name": "ffmpeg",
-          "cmd": "ffmpeg",
+          "name": "sh",
+          "cmd": "sh",
           "args": [
-            "-version"
+            "-c",
+            "ffmpeg -version"
           ]
         },
         {

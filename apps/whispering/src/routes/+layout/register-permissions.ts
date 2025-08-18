@@ -20,7 +20,7 @@ export function registerAccessibilityPermission() {
 			return;
 		}
 
-		if (!isAccessibilityGranted) {
+		if (true) {
 			// Toast if permission not granted
 			toast.warning('Accessibility Permission Issue', {
 				id: accessibilityToastId,

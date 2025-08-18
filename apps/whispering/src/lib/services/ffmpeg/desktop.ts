@@ -8,7 +8,7 @@ export function createFfmpegService(): FfmpegService {
 			const result = await tryAsync({
 				try: async () => {
 					const { Command } = await import('@tauri-apps/plugin-shell');
-					const output = await Command.create('ffmpeg', ['-version']).execute();
+					const output = await Command.create('sh', ['-c', 'ffmpeg -version']).execute();
 					return output;
 				},
 				mapErr: (error) =>
