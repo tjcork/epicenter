@@ -21,6 +21,7 @@
 		SettingsIcon,
 		ChevronRightIcon,
 	} from '@lucide/svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	let { class: className }: { class?: string } = $props();
 
@@ -54,25 +55,18 @@
 	const combobox = useCombobox();
 
 	// Track which services are expanded
-	let expandedServices = $state<Set<string>>(new Set());
-
-	// Auto-expand selected service
-	$effect(() => {
-		if (selectedService && selectedService.location === 'cloud') {
-			expandedServices = new Set([selectedService.id]);
-		}
-	});
+	let expandedServices = $state<Set<string>>(
+		new SvelteSet(selectedService ? [selectedService.id] : []),
+	);
 
 	function toggleServiceExpanded(serviceId: string) {
-		const newExpanded = new Set(expandedServices);
-		if (newExpanded.has(serviceId)) {
-			newExpanded.delete(serviceId);
+		if (expandedServices.has(serviceId)) {
+			expandedServices.delete(serviceId);
 		} else {
 			// Only one expanded at a time for cleaner UI
-			newExpanded.clear();
-			newExpanded.add(serviceId);
+			expandedServices.clear();
+			expandedServices.add(serviceId);
 		}
-		expandedServices = newExpanded;
 	}
 </script>
 
