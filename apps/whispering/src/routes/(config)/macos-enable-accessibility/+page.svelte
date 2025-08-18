@@ -50,20 +50,35 @@
 		</Card.Header>
 		<Card.Content>
 			<div class="flex flex-col items-center gap-2">
-				<video
-					class="max-w-md rounded-lg border"
-					src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
-					autoplay
-					loop
-					controls
-					muted
-					playsinline
-				>
-					<p class="text-muted-foreground text-sm">
-						Video guide not available. Please follow the written instructions
-						below.
-					</p>
-				</video>
+				{#if window.__TAURI_INTERNALS__}
+					<!-- YouTube embed for Tauri app (external videos don't work well) -->
+					<iframe
+						class="max-w-md rounded-lg border"
+						width="560"
+						height="315"
+						src="https://www.youtube.com/embed/FJRktNkr1Fs"
+						title="macOS Accessibility Settings Guide"
+						frameborder="0"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						allowfullscreen
+					></iframe>
+				{:else}
+					<!-- Direct video for web version -->
+					<video
+						class="max-w-md rounded-lg border"
+						src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
+						autoplay
+						loop
+						controls
+						muted
+						playsinline
+					>
+						<p class="text-muted-foreground text-sm">
+							Video guide not available. Please follow the written instructions
+							below.
+						</p>
+					</video>
+				{/if}
 				<ol
 					class="text-muted-foreground list-inside list-decimal space-y-1 text-sm leading-7"
 				>
