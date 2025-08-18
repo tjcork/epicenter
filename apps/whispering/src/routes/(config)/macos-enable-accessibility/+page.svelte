@@ -1,12 +1,28 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { Command } from '@tauri-apps/plugin-shell';
 	import { SettingsIcon } from '@lucide/svelte';
-	
+	import * as services from '$lib/services';
+	import { toast } from 'svelte-sonner';
+
+	async function requestAccessibilityPermission() {
+		const { error } = await services.permissions.accessibility.request();
+
+		if (error) {
+			toast.error('Failed to open accessibility settings', {
+				description:
+					'Please enable Accessibility in System Settings > Privacy & Security > Accessibility manually',
+				action: {
+					label: 'Open Accessibility Settings',
+					onClick: () => openAccessibilitySettings(),
+				},
+			});
+		}
+	}
+
 	async function openAccessibilitySettings() {
 		const command = Command.create('open', [
-			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'
+			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
 		]);
 		await command.execute();
 	}
@@ -41,12 +57,19 @@
 		<Card.Content>
 			<div class="flex flex-col items-center gap-2">
 				<video
-					class="max-w-md"
-					src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
+					class="max-w-md rounded-lg border"
+					src="/macos_enable_accessibility.mp4"
 					autoplay
 					loop
 					controls
-				></video>
+					muted
+					playsinline
+				>
+					<p class="text-muted-foreground text-sm">
+						Video guide not available. Please follow the written instructions
+						below.
+					</p>
+				</video>
 				<ol
 					class="text-muted-foreground list-inside list-decimal space-y-1 text-sm leading-7"
 				>
@@ -72,13 +95,13 @@
 		</Card.Content>
 		<Card.Footer>
 			<Button
-				onclick={() => openAccessibilitySettings()}
+				onclick={() => requestAccessibilityPermission()}
 				variant="default"
 				size="sm"
 				class="w-full text-sm"
 			>
 				<SettingsIcon class="mr-2 size-4" />
-				Open MacOS Accessibility Settings
+				Open Settings to Remove & Re-add Whispering
 			</Button>
 		</Card.Footer>
 	</Card.Root>

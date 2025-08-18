@@ -2,6 +2,7 @@ import { IS_MACOS } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { nanoid } from 'nanoid/non-secure';
 import { toast } from 'svelte-sonner';
+import { goto } from '$app/navigation';
 
 export function registerAccessibilityPermission() {
 	// Only run on macOS desktop
@@ -21,38 +22,16 @@ export function registerAccessibilityPermission() {
 
 		if (!isAccessibilityGranted) {
 			// Toast if permission not granted
-			toast.info('Accessibility Permission Required', {
+			toast.warning('Accessibility Permission Issue', {
 				id: accessibilityToastId,
 				description:
-					'Whispering needs accessibility permissions to write transcribed text to the cursor',
+					'Whispering needs accessibility permissions. This often requires removing and re-adding the app after updates.',
 				duration: Number.POSITIVE_INFINITY,
 				action: {
-					label: 'Enable Permission',
-					onClick: async () => {
-						const { error: requestError } =
-							await services.permissions.accessibility.request();
-
-						if (requestError) {
-							toast.error('Failed to open accessibility settings', {
-								description:
-									'Please open System Settings > Privacy & Security > Accessibility manually',
-							});
-							// toast.info(
-							// 	'Please enable or re-enable accessibility to write transcriptions!',
-							// 	{
-							// 		description:
-							// 			'Accessibility must be enabled or re-enabled for Whispering after install or update. Follow the link below for instructions.',
-							// 		action: {
-							// 			label: 'Open Directions',
-							// 			onClick: () => {
-							// 				window.open('/macos-enable-accessibility', '_blank');
-							// 			},
-							// 		},
-							// 	},
-							// );
-							return;
-						}
-						// Dismiss the toast after requesting
+					label: 'View Guide',
+					onClick: () => {
+						goto('/macos-enable-accessibility');
+						// Dismiss the toast
 						toast.dismiss(accessibilityToastId);
 					},
 				},
