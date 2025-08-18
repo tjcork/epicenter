@@ -174,6 +174,11 @@ async function transcribeBlob(
 						modelPath: settings.value['transcription.whispercpp.modelPath'],
 						useGpu: settings.value['transcription.whispercpp.useGpu'],
 					});
+				default:
+					return WhisperingErr({
+						title: '⚠️ No transcription service selected',
+						description: 'Please select a transcription service in settings.',
+					});
 			}
 		})();
 
