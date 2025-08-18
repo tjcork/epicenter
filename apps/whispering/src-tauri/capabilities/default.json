@@ -43,7 +43,7 @@
         { "url": "https://*:*" }
       ]
     },
-     {
+    {
       "identifier": "opener:allow-open-path",
       "allow": [
         {
@@ -60,6 +60,16 @@
     {
       "identifier": "shell:allow-execute",
       "allow": [
+        {
+          "name": "exec-sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            {
+              "validator": "\\S+"
+            }
+          ]
+        },
         {
           "name": "open",
           "cmd": "open",
