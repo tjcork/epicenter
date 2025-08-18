@@ -52,16 +52,14 @@
 		TRANSCRIPTION_SERVICES.filter((service) => service.location === 'local'),
 	);
 
-	const localServices = $derived(
-		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'local'),
-	);
-
 	const combobox = useCombobox();
 
 	// Track which services are expanded
-	let expandedServices = new SvelteSet(selectedService ? [selectedService.id] : []);
+	let expandedServices = new SvelteSet(
+		selectedService ? [selectedService.id] : [],
+	);
 
-	function toggleServiceExpanded(serviceId: string) {
+	function toggleServiceExpanded(serviceId: TranscriptionService['id']) {
 		if (expandedServices.has(serviceId)) {
 			expandedServices.delete(serviceId);
 		} else {
@@ -70,7 +68,6 @@
 			expandedServices.add(serviceId);
 		}
 	}
-
 </script>
 
 {#snippet renderServiceIcon(service: TranscriptionService)}
