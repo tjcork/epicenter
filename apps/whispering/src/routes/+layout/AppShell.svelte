@@ -22,6 +22,7 @@
 		syncLocalShortcutsWithSettings,
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
+	import { checkFfmpeg } from './check-ffmpeg';
 	import { 
 		registerAccessibilityPermission,
 		registerMicrophonePermission 
@@ -41,6 +42,7 @@
 		window.goto = goto;
 		syncLocalShortcutsWithSettings();
 		resetLocalShortcutsToDefaultIfDuplicates();
+		await checkFfmpeg();
 		if (window.__TAURI_INTERNALS__) {
 			syncGlobalShortcutsWithSettings();
 			resetGlobalShortcutsToDefaultIfDuplicates();
@@ -128,9 +130,9 @@
 <UpdateDialog />
 
 <style>
-   :global(body) {
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: 1fr auto;
-   }
+	:global(body) {
+		min-height: 100vh;
+		display: grid;
+		grid-template-rows: 1fr auto;
+	}
 </style>

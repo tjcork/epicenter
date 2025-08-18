@@ -22,6 +22,7 @@
     "clipboard-manager:allow-write-text",
     "fs:allow-read",
     "fs:allow-write",
+    "fs:allow-app-write",
     "fs:allow-exists",
     "fs:allow-create",
     "fs:allow-mkdir",
@@ -55,6 +56,7 @@
     "aptabase:allow-track-event",
     "macos-permissions:default",
     "shell:default",
+    "shell:allow-execute",
     {
       "identifier": "shell:allow-execute",
       "allow": [

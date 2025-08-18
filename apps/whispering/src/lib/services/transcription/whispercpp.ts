@@ -1,4 +1,8 @@
-import { WhisperingErr, type WhisperingError } from '$lib/result';
+import {
+	WhisperingErr,
+	WhisperingWarningErr,
+	type WhisperingError,
+} from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
@@ -7,7 +11,9 @@ import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 
 const WhisperCppErrorType = type({
-	kind: "'audioFormatNotSupported' | 'audioReadError' | 'modelLoadError' | 'gpuError' | 'transcriptionError' | 'stateCreationError' | 'segmentError'",
+	name: "'FfmpegNotInstalled'",
+}).or({
+	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
@@ -37,7 +43,7 @@ export function createWhisperCppTranscriptionService() {
 			}
 
 			// Check if model file exists
-			const isExists = await tryAsync({
+			const { data: isExists } = await tryAsync({
 				try: () => exists(options.modelPath),
 				mapErr: () => Ok(false),
 			});
@@ -80,19 +86,20 @@ export function createWhisperCppTranscriptionService() {
 						});
 					}
 					const error = result;
-					switch (error.kind) {
-						case 'audioFormatNotSupported':
-							return WhisperingErr({
-								title: '🎵 Audio Format Not Supported',
-								description: error.message,
+					switch (error.name) {
+						case 'FfmpegNotInstalled':
+							return WhisperingWarningErr({
+								title: '🛠️ Install FFmpeg',
+								description:
+									'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
 								action: {
 									type: 'link',
-									label: 'Configure recording',
-									href: '/settings/recording',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
 								},
 							});
 
-						case 'modelLoadError':
+						case 'ModelLoadError':
 							return WhisperingErr({
 								title: '🤖 Model Loading Error',
 								description: error.message,
@@ -102,7 +109,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'gpuError':
+						case 'GpuError':
 							return WhisperingErr({
 								title: '🎮 GPU Error',
 								description: error.message,
@@ -113,7 +120,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'audioReadError':
+						case 'AudioReadError':
 							return WhisperingErr({
 								title: '🔊 Audio Read Error',
 								description: error.message,
@@ -123,9 +130,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'transcriptionError':
-						case 'stateCreationError':
-						case 'segmentError':
+						case 'TranscriptionError':
 							return WhisperingErr({
 								title: '❌ Transcription Error',
 								description: error.message,

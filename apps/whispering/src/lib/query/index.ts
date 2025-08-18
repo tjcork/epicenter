@@ -3,6 +3,7 @@ import { analytics } from './analytics';
 import { commands } from './commands';
 import { delivery } from './delivery';
 import { download } from './download';
+import { ffmpeg } from './ffmpeg';
 import { notify } from './notify';
 import { recorder } from './recorder';
 import { recordings } from './recordings';
@@ -26,6 +27,7 @@ export const rpc = {
 	text,
 	commands,
 	download,
+	ffmpeg,
 	recorder,
 	vadRecorder,
 	recordings,

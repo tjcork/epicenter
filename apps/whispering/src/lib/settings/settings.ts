@@ -148,7 +148,7 @@ export const settingsSchema = z.object({
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
-		.default('Groq'),
+		.default('whispercpp'),
 	// Shared settings in transcription
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES).default('auto'),
 	'transcription.prompt': z.string().default(''),
@@ -175,10 +175,6 @@ export const settingsSchema = z.object({
 	'transcription.speaches.modelId': z
 		.string()
 		.default('Systran/faster-distil-whisper-small.en'),
-	'transcription.owhisper.baseUrl': z.string().default('http://localhost:8080'),
-	'transcription.owhisper.modelId': z
-		.string()
-		.default('whisper-cpp-base-q8-en'),
 	'transcription.whispercpp.modelPath': z.string().default(''),
 	'transcription.whispercpp.useGpu': z.boolean().default(true),
 

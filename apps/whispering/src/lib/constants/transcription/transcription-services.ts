@@ -2,13 +2,14 @@
  * Transcription service configurations
  */
 import type { Settings } from '$lib/settings';
-import {
-	CloudIcon,
-	HexagonIcon,
-	PauseIcon,
-	ServerIcon,
-	CpuIcon,
-} from '@lucide/svelte';
+
+// Import SVG icons as strings
+import groqIcon from '$lib/constants/icons/groq.svg?raw';
+import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
+import openaiIcon from '$lib/constants/icons/openai.svg?raw';
+import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
+import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
+import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
@@ -30,13 +31,13 @@ type TranscriptionModel =
 	| DeepgramModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
-	'OpenAI',
+	'whispercpp',
 	'Groq',
-	'speaches',
+	'OpenAI',
 	'ElevenLabs',
 	'Deepgram',
-	'owhisper',
-	'whispercpp',
+	'speaches',
+	// 'owhisper',
 ] as const;
 
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -44,94 +45,111 @@ type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
 type BaseTranscriptionService = {
 	id: TranscriptionServiceId;
 	name: string;
-	icon: unknown;
+	icon: string; // SVG string
+	invertInDarkMode: boolean; // Whether to invert the icon in dark mode
+	description?: string;
 };
 
-type ApiTranscriptionService = BaseTranscriptionService & {
-	type: 'api';
+type CloudTranscriptionService = BaseTranscriptionService & {
+	location: 'cloud';
 	models: readonly TranscriptionModel[];
 	defaultModel: TranscriptionModel;
 	modelSettingKey: string;
 	apiKeyField: keyof Settings;
 };
 
-type ServerTranscriptionService = BaseTranscriptionService & {
-	type: 'server';
+type SelfHostedTranscriptionService = BaseTranscriptionService & {
+	location: 'self-hosted';
 	serverUrlField: keyof Settings;
 };
 
 type LocalTranscriptionService = BaseTranscriptionService & {
-	type: 'local';
+	location: 'local';
 	modelPathField: keyof Settings;
 };
 
 type SatisfiedTranscriptionService =
-	| ApiTranscriptionService
-	| ServerTranscriptionService
+	| CloudTranscriptionService
+	| SelfHostedTranscriptionService
 	| LocalTranscriptionService;
 
 export const TRANSCRIPTION_SERVICES = [
+	// Local services first (truly offline)
+	{
+		id: 'whispercpp',
+		name: 'Whisper C++',
+		icon: ggmlIcon,
+		invertInDarkMode: true,
+		description: 'Fast local transcription with no internet required',
+		modelPathField: 'transcription.whispercpp.modelPath',
+		location: 'local',
+	},
+	// Cloud services (API-based)
 	{
 		id: 'Groq',
-		name: 'Groq Whisper',
-		icon: CloudIcon,
+		name: 'Groq',
+		icon: groqIcon,
+		invertInDarkMode: false, // Groq has a colored logo that works in both modes
+		description: 'Lightning-fast cloud transcription',
 		models: GROQ_MODELS,
 		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'OpenAI',
-		name: 'OpenAI Whisper',
-		icon: HexagonIcon,
+		name: 'OpenAI',
+		icon: openaiIcon,
+		invertInDarkMode: true,
+		description: 'Industry-standard Whisper API',
 		models: OPENAI_TRANSCRIPTION_MODELS,
 		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.openai.model',
 		apiKeyField: 'apiKeys.openai',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'ElevenLabs',
 		name: 'ElevenLabs',
-		icon: PauseIcon,
+		icon: elevenlabsIcon,
+		invertInDarkMode: true,
+		description: 'Voice AI platform with transcription',
 		models: ELEVENLABS_TRANSCRIPTION_MODELS,
 		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.elevenlabs.model',
 		apiKeyField: 'apiKeys.elevenlabs',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'Deepgram',
 		name: 'Deepgram',
-		icon: ServerIcon,
+		icon: deepgramIcon,
+		invertInDarkMode: true,
+		description: 'Real-time speech recognition API',
 		models: DEEPGRAM_TRANSCRIPTION_MODELS,
 		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
-		type: 'api',
+		location: 'cloud',
 	},
+	// Self-hosted services
 	{
 		id: 'speaches',
 		name: 'Speaches',
-		icon: ServerIcon,
+		icon: speachesIcon,
+		invertInDarkMode: false, // Speaches has a colored logo
+		description: 'Self-hosted transcription server',
 		serverUrlField: 'transcription.speaches.baseUrl',
-		type: 'server',
+		location: 'self-hosted',
 	},
-	{
-		id: 'owhisper',
-		name: 'Owhisper',
-		icon: ServerIcon,
-		serverUrlField: 'transcription.owhisper.baseUrl',
-		type: 'server',
-	},
-	{
-		id: 'whispercpp',
-		name: 'Whisper C++',
-		icon: CpuIcon,
-		modelPathField: 'transcription.whispercpp.modelPath',
-		type: 'local',
-	},
+	// {
+	// 	id: 'owhisper',
+	// 	name: 'Owhisper',
+	// 	icon: ServerIcon,
+	// 	serverUrlField: 'transcription.owhisper.baseUrl',
+	// 	location: 'self-hosted',
+	// },
 ] as const satisfies SatisfiedTranscriptionService[];
 
 export const TRANSCRIPTION_SERVICE_OPTIONS = TRANSCRIPTION_SERVICES.map(
