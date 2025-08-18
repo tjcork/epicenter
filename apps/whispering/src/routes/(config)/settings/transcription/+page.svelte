@@ -18,6 +18,8 @@
 	import { Checkbox } from '@repo/ui/checkbox';
 	import { Input } from '@repo/ui/input';
 	import { Separator } from '@repo/ui/separator';
+	import * as Alert from '@repo/ui/alert';
+	import { Link } from '@repo/ui/link';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		ELEVENLABS_TRANSCRIPTION_MODELS,
@@ -27,8 +29,12 @@
 		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { CheckIcon } from '@lucide/svelte';
+	import { CheckIcon, InfoIcon } from '@lucide/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
+	import {
+		isUsingWhisperCppWithBrowserBackend,
+		isUsingNativeBackendAtWrongSampleRate,
+	} from '../../../+layout/check-ffmpeg';
 
 	// Query to check model file existence
 	const modelFileQuery = createQuery(() => ({
@@ -422,6 +428,43 @@
 					</div>
 				</Card.Content>
 			</Card.Root>
+
+			{#if isUsingWhisperCppWithBrowserBackend()}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						FFmpeg Required
+					</Alert.Title>
+					<Alert.Description>
+						Whisper C++ requires FFmpeg to convert audio to 16kHz WAV format
+						when using browser recording.
+						<Link
+							href="/install-ffmpeg"
+							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						>
+							Install FFmpeg →
+						</Link>
+					</Alert.Description>
+				</Alert.Root>
+			{:else if isUsingNativeBackendAtWrongSampleRate()}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						FFmpeg Required
+					</Alert.Title>
+					<Alert.Description>
+						Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
+						your current {settings.value['recording.desktop.sampleRate']}Hz
+						sample rate.
+						<Link
+							href="/install-ffmpeg"
+							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						>
+							Install FFmpeg →
+						</Link>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
 		</div>
 
 		<div class="space-y-4">
