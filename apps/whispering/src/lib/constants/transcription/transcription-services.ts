@@ -2,13 +2,15 @@
  * Transcription service configurations
  */
 import type { Settings } from '$lib/settings';
-import {
-	CloudIcon,
-	HexagonIcon,
-	PauseIcon,
-	ServerIcon,
-	CpuIcon,
-} from '@lucide/svelte';
+
+// Import SVG icons as strings
+import groqIcon from '$lib/constants/icons/groq.svg?raw';
+import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
+import openaiLightIcon from '$lib/constants/icons/openai_light.svg?raw';
+import openaiDarkIcon from '$lib/constants/icons/openai_dark.svg?raw';
+import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
+import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
+import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
@@ -44,7 +46,8 @@ type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
 type BaseTranscriptionService = {
 	id: TranscriptionServiceId;
 	name: string;
-	icon: unknown;
+	icon: string; // SVG string
+	description?: string;
 };
 
 type CloudTranscriptionService = BaseTranscriptionService & {
@@ -75,15 +78,17 @@ export const TRANSCRIPTION_SERVICES = [
 	{
 		id: 'whispercpp',
 		name: 'Whisper C++',
-		icon: CpuIcon,
+		icon: ggmlIcon,
+		description: 'Fast local transcription with no internet required',
 		modelPathField: 'transcription.whispercpp.modelPath',
 		location: 'local',
 	},
 	// Cloud services (API-based)
 	{
 		id: 'Groq',
-		name: 'Groq Whisper',
-		icon: CloudIcon,
+		name: 'Groq',
+		icon: groqIcon,
+		description: 'Lightning-fast cloud transcription',
 		models: GROQ_MODELS,
 		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
@@ -92,8 +97,9 @@ export const TRANSCRIPTION_SERVICES = [
 	},
 	{
 		id: 'OpenAI',
-		name: 'OpenAI Whisper',
-		icon: HexagonIcon,
+		name: 'OpenAI',
+		icon: openaiLightIcon,
+		description: 'Industry-standard Whisper API',
 		models: OPENAI_TRANSCRIPTION_MODELS,
 		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.openai.model',
@@ -103,7 +109,8 @@ export const TRANSCRIPTION_SERVICES = [
 	{
 		id: 'ElevenLabs',
 		name: 'ElevenLabs',
-		icon: PauseIcon,
+		icon: elevenlabsIcon,
+		description: 'Voice AI platform with transcription',
 		models: ELEVENLABS_TRANSCRIPTION_MODELS,
 		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.elevenlabs.model',
@@ -113,7 +120,8 @@ export const TRANSCRIPTION_SERVICES = [
 	{
 		id: 'Deepgram',
 		name: 'Deepgram',
-		icon: ServerIcon,
+		icon: deepgramIcon,
+		description: 'Real-time speech recognition API',
 		models: DEEPGRAM_TRANSCRIPTION_MODELS,
 		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.deepgram.model',
@@ -124,7 +132,8 @@ export const TRANSCRIPTION_SERVICES = [
 	{
 		id: 'speaches',
 		name: 'Speaches',
-		icon: ServerIcon,
+		icon: speachesIcon,
+		description: 'Self-hosted transcription server',
 		serverUrlField: 'transcription.speaches.baseUrl',
 		location: 'self-hosted',
 	},
