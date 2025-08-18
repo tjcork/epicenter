@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon } from '@lucide/svelte';
+	import { SettingsIcon, CheckCircle2 } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
@@ -118,13 +118,20 @@
 					Request Accessibility Permission
 				</Button>
 			{:else}
-				<Button
-					onclick={() => openAccessibilitySettings()}
-					class="w-full text-sm"
-				>
-					<SettingsIcon class="mr-2 size-4" />
-					Open Accessibility Settings
-				</Button>
+				<div class="flex flex-col gap-3 w-full">
+					<div class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500">
+						<CheckCircle2 class="size-5" />
+						<span class="font-medium">Accessibility permissions granted</span>
+					</div>
+					<Button
+						onclick={() => openAccessibilitySettings()}
+						variant="outline"
+						class="w-full text-sm"
+					>
+						<SettingsIcon class="mr-2 size-4" />
+						Open Accessibility Settings
+					</Button>
+				</div>
 			{/if}
 		</Card.Footer>
 	</Card.Root>
