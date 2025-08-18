@@ -88,7 +88,7 @@ export async function checkFfmpeg() {
 
 	// Case 1: Whisper C++ with browser backend - always requires FFmpeg
 	if (isUsingWhisperCppWithBrowserBackend()) {
-		toast.error('FFmpeg Required for Current Settings', {
+		toast.warning('FFmpeg Required for Current Settings', {
 			description:
 				'Whisper C++ requires FFmpeg to convert audio to 16kHz WAV format when using browser recording.',
 			action: {
@@ -102,7 +102,7 @@ export async function checkFfmpeg() {
 
 	// Case 2: Whisper C++ with native backend at wrong sample rate
 	if (isUsingNativeBackendAtWrongSampleRate()) {
-		toast.error('FFmpeg Required for Current Settings', {
+		toast.warning('FFmpeg Required for Current Settings', {
 			description:
 				'Whisper C++ requires 16kHz audio. FFmpeg is needed to convert your current sample rate.',
 			action: {
