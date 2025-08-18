@@ -63,10 +63,10 @@
 				<div class="space-y-1.5">
 					<Card.Title class="text-2xl">Install FFmpeg</Card.Title>
 					<Card.Description>
-						FFmpeg is required for audio processing in Whispering. This free,
-						open-source tool handles audio format conversion, sample rate
-						adjustments, and channel conversions needed for transcription and
-						recording features.
+						FFmpeg is required for enhanced audio processing in Whispering. We
+						use it to convert audio files to WAV format before Whisper C++
+						transcription, and to compress native audio files before sending
+						them to transcription services.
 					</Card.Description>
 				</div>
 
@@ -144,7 +144,11 @@
 
 							<p class="text-xs text-muted-foreground">
 								Don't have Homebrew?
-								<Link href="https://brew.sh" target="_blank" rel="noopener noreferrer">
+								<Link
+									href="https://brew.sh"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									Install it from brew.sh
 								</Link>
 							</p>
