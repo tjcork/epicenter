@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
+	import { Link } from '@repo/ui/link';
 	import * as Card from '@repo/ui/card';
 	import * as Alert from '@repo/ui/alert';
 	import { Snippet } from '@repo/ui/snippet';
@@ -143,16 +144,9 @@
 
 							<p class="text-xs text-muted-foreground">
 								Don't have Homebrew?
-								<Button
-									variant="link"
-									size="sm"
-									class="h-auto p-0 text-xs"
-									href="https://brew.sh"
-									target="_blank"
-								>
+								<Link href="https://brew.sh" target="_blank" rel="noopener noreferrer">
 									Install it from brew.sh
-									<ExternalLinkIcon class="size-3 ml-1" />
-								</Button>
+								</Link>
 							</p>
 						</div>
 
