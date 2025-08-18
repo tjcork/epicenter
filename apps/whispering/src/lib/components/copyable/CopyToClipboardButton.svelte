@@ -41,7 +41,7 @@
 		contentDescription: string;
 		viewTransitionName?: string;
 		class?: string;
-	} & Pick<Props, 'disabled' | 'variant' | 'size'> = $props();
+	} & Partial<Pick<Props, 'disabled' | 'variant' | 'size'>> = $props();
 
 	let hasCopied = $state(false);
 </script>
