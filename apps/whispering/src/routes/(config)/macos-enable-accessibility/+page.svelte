@@ -4,6 +4,7 @@
 	import { SettingsIcon } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
+	import { Command } from '@tauri-apps/plugin-shell';
 
 	async function requestAccessibilityPermission() {
 		const { error } = await services.permissions.accessibility.request();
@@ -37,28 +38,21 @@
 		<Card.Header>
 			<Card.Title class="text-xl">MacOS Accessibility</Card.Title>
 			<Card.Description class="leading-7">
-				Follow the steps below to re-enable Whispering in your MacOS
-				Accessibility settings. This often is needed after installing a new
-				version of Whispering to get pasting to work, as detailed in this
-				<Button
+				Follow the steps below to re-enable Whispering in your <Button
 					variant="link"
 					size="inline"
-					href="https://github.com/enigo-rs/enigo/issues/174"
-					target="_blank"
-					rel="noopener noreferrer">Github issue</Button
-				> for the
-				<code
-					class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
+					onclick={() => openAccessibilitySettings()}
 				>
-					enigo
-				</code> crate.
+					MacOS Accessibility settings
+				</Button>. This often is needed after installing new versions of
+				Whispering due to a macOS bug.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<div class="flex flex-col items-center gap-2">
 				<video
 					class="max-w-md rounded-lg border"
-					src="/macos_enable_accessibility.mp4"
+					src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
 					autoplay
 					loop
 					controls
