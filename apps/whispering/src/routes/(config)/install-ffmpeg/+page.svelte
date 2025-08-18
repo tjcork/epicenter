@@ -44,17 +44,9 @@
 				<div class="space-y-1.5">
 					<Card.Title class="text-2xl">Install FFmpeg</Card.Title>
 					<Card.Description>
-						FFmpeg is highly recommended for enhanced audio processing in
-						Whispering. It enables:
-						<ul class="mt-2 ml-4 space-y-1 list-disc">
-							<li>
-								Converting audio formats to WAV for Whisper C++ transcription
-							</li>
-							<li>
-								Compressing native audio files for optimal API transmission
-							</li>
-							<li>Processing various audio and video formats seamlessly</li>
-						</ul>
+						We highly recommend installing FFmpeg for enhanced audio processing in Whispering. 
+						FFmpeg converts audio files to WAV format for Whisper C++ transcription and 
+						compresses native audio files for efficient transmission to transcription services.
 					</Card.Description>
 				</div>
 
