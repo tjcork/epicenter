@@ -29,7 +29,7 @@
 		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { CheckIcon, InfoIcon, Paperclip, X } from '@lucide/svelte';
+	import { AlertTriangle, CheckIcon, InfoIcon, Paperclip, X } from '@lucide/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		isUsingWhisperCppWithBrowserBackend,
@@ -428,6 +428,18 @@
 					</div>
 				</Card.Content>
 			</Card.Root>
+
+			{#if !settings.value['transcription.whispercpp.modelPath']}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<AlertTriangle class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						Model Required
+					</Alert.Title>
+					<Alert.Description>
+						Please select a Whisper model file to use for transcription. Download a model from Hugging Face and select it below.
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
 
 			{#if isUsingWhisperCppWithBrowserBackend()}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
