@@ -7,7 +7,7 @@ import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 
 const WhisperCppErrorType = type({
-	kind: "'audioFormatNotSupported' | 'audioReadError' | 'modelLoadError' | 'gpuError' | 'transcriptionError' | 'stateCreationError' | 'segmentError'",
+	name: "'AudioReadError' | 'FfmpegNotInstalled' | 'ModelLoadError' | 'GpuError' | 'TranscriptionError'",
 	message: 'string',
 });
 
@@ -80,19 +80,19 @@ export function createWhisperCppTranscriptionService() {
 						});
 					}
 					const error = result;
-					switch (error.kind) {
-						case 'audioFormatNotSupported':
+					switch (error.name) {
+						case 'FfmpegNotInstalled':
 							return WhisperingErr({
-								title: '🎵 Audio Format Not Supported',
+								title: '🛠️ FFmpeg Not Installed',
 								description: error.message,
 								action: {
 									type: 'link',
-									label: 'Configure recording',
-									href: '/settings/recording',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
 								},
 							});
 
-						case 'modelLoadError':
+						case 'ModelLoadError':
 							return WhisperingErr({
 								title: '🤖 Model Loading Error',
 								description: error.message,
@@ -102,7 +102,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'gpuError':
+						case 'GpuError':
 							return WhisperingErr({
 								title: '🎮 GPU Error',
 								description: error.message,
@@ -113,7 +113,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'audioReadError':
+						case 'AudioReadError':
 							return WhisperingErr({
 								title: '🔊 Audio Read Error',
 								description: error.message,
@@ -123,9 +123,7 @@ export function createWhisperCppTranscriptionService() {
 								},
 							});
 
-						case 'transcriptionError':
-						case 'stateCreationError':
-						case 'segmentError':
+						case 'TranscriptionError':
 							return WhisperingErr({
 								title: '❌ Transcription Error',
 								description: error.message,
