@@ -55,7 +55,7 @@
 	const combobox = useCombobox();
 
 	// Track which services are expanded
-	let expandedServices = $state<Set<string>>(
+	let expandedServices = $state<SvelteSet<string>>(
 		new SvelteSet(selectedService ? [selectedService.id] : []),
 	);
 
