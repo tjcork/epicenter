@@ -2,15 +2,7 @@ mod error;
 
 use error::WhisperCppError;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
-use std::process::Command;
 use std::io::Write;
-
-fn check_ffmpeg_installed() -> bool {
-    Command::new("ffmpeg")
-        .arg("-version")
-        .output()
-        .is_ok()
-}
 
 fn is_valid_wav_format(audio_data: &[u8]) -> bool {
     // Use hound to check WAV format efficiently
@@ -42,11 +34,6 @@ pub async fn transcribe_with_whisper_cpp(
     let needs_conversion = !is_valid_wav_format(&audio_data);
     
     let wav_data = if needs_conversion {
-        // Check if ffmpeg is installed
-        if !check_ffmpeg_installed() {
-            return Err(WhisperCppError::FfmpegNotInstalled);
-        }
-        
         // Write input audio to temp file
         let mut input_file = tempfile::Builder::new()
             .suffix(".audio")
@@ -73,7 +60,7 @@ pub async fn transcribe_with_whisper_cpp(
         let output_path = output_file.path().to_string_lossy().to_string();
         
         // Use FFmpeg to convert to 16kHz mono PCM
-        let output = Command::new("ffmpeg")
+        let output = std::process::Command::new("ffmpeg")
             .args(&[
                 "-i", &input_path,
                 "-ar", "16000",        // 16kHz sample rate

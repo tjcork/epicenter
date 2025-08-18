@@ -9,10 +9,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { exists } from '@tauri-apps/plugin-fs';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
+import { rpc } from '$lib/query';
 
 const WhisperCppErrorType = type({
-	name: "'FfmpegNotInstalled'",
-}).or({
 	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
@@ -60,6 +59,22 @@ export function createWhisperCppTranscriptionService() {
 				});
 			}
 
+			// Check if FFmpeg is installed
+			const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+			if (ffmpegResult.error) return ffmpegResult;
+			if (!ffmpegResult.data) {
+				return WhisperingWarningErr({
+					title: '🛠️ Install FFmpeg',
+					description:
+						'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
+					action: {
+						type: 'link',
+						label: 'Install FFmpeg',
+						href: '/install-ffmpeg',
+					},
+				});
+			}
+
 			// Convert audio blob to byte array
 			const arrayBuffer = await audioBlob.arrayBuffer();
 			const audioData = Array.from(new Uint8Array(arrayBuffer));
@@ -87,18 +102,6 @@ export function createWhisperCppTranscriptionService() {
 					}
 					const error = result;
 					switch (error.name) {
-						case 'FfmpegNotInstalled':
-							return WhisperingWarningErr({
-								title: '🛠️ Install FFmpeg',
-								description:
-									'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
-								action: {
-									type: 'link',
-									label: 'Install FFmpeg',
-									href: '/install-ffmpeg',
-								},
-							});
-
 						case 'ModelLoadError':
 							return WhisperingErr({
 								title: '🤖 Model Loading Error',
