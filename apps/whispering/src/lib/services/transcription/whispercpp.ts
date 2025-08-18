@@ -1,4 +1,8 @@
-import { WhisperingErr, type WhisperingError } from '$lib/result';
+import {
+	WhisperingErr,
+	WhisperingWarningErr,
+	type WhisperingError,
+} from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
@@ -84,10 +88,10 @@ export function createWhisperCppTranscriptionService() {
 					const error = result;
 					switch (error.name) {
 						case 'FfmpegNotInstalled':
-							return WhisperingErr({
-								title: '🛠️ Audio Conversion Requires FFmpeg',
+							return WhisperingWarningErr({
+								title: '🛠️ Install FFmpeg',
 								description:
-									'This audio file needs to be converted to WAV format for Whisper C++. FFmpeg handles this conversion automatically when installed.',
+									'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
 								action: {
 									type: 'link',
 									label: 'Install FFmpeg',
