@@ -47,27 +47,27 @@ type BaseTranscriptionService = {
 	icon: unknown;
 };
 
-type ApiTranscriptionService = BaseTranscriptionService & {
-	type: 'api';
+type CloudTranscriptionService = BaseTranscriptionService & {
+	location: 'cloud';
 	models: readonly TranscriptionModel[];
 	defaultModel: TranscriptionModel;
 	modelSettingKey: string;
 	apiKeyField: keyof Settings;
 };
 
-type ServerTranscriptionService = BaseTranscriptionService & {
-	type: 'server';
+type SelfHostedTranscriptionService = BaseTranscriptionService & {
+	location: 'self-hosted';
 	serverUrlField: keyof Settings;
 };
 
 type LocalTranscriptionService = BaseTranscriptionService & {
-	type: 'local';
+	location: 'local';
 	modelPathField: keyof Settings;
 };
 
 type SatisfiedTranscriptionService =
-	| ApiTranscriptionService
-	| ServerTranscriptionService
+	| CloudTranscriptionService
+	| SelfHostedTranscriptionService
 	| LocalTranscriptionService;
 
 export const TRANSCRIPTION_SERVICES = [
@@ -79,7 +79,7 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: GROQ_MODELS[2],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'OpenAI',
@@ -89,7 +89,7 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.openai.model',
 		apiKeyField: 'apiKeys.openai',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'ElevenLabs',
@@ -99,7 +99,7 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.elevenlabs.model',
 		apiKeyField: 'apiKeys.elevenlabs',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'Deepgram',
@@ -109,28 +109,28 @@ export const TRANSCRIPTION_SERVICES = [
 		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
 		modelSettingKey: 'transcription.deepgram.model',
 		apiKeyField: 'apiKeys.deepgram',
-		type: 'api',
+		location: 'cloud',
 	},
 	{
 		id: 'speaches',
 		name: 'Speaches',
 		icon: ServerIcon,
 		serverUrlField: 'transcription.speaches.baseUrl',
-		type: 'server',
+		location: 'self-hosted',
 	},
 	{
 		id: 'owhisper',
 		name: 'Owhisper',
 		icon: ServerIcon,
 		serverUrlField: 'transcription.owhisper.baseUrl',
-		type: 'server',
+		location: 'self-hosted',
 	},
 	{
 		id: 'whispercpp',
 		name: 'Whisper C++',
 		icon: CpuIcon,
 		modelPathField: 'transcription.whispercpp.modelPath',
-		type: 'local',
+		location: 'local',
 	},
 ] as const satisfies SatisfiedTranscriptionService[];
 

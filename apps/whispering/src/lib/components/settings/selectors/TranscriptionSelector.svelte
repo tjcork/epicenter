@@ -22,26 +22,26 @@
 	const selectedService = $derived(getSelectedTranscriptionService());
 
 	function getSelectedModelNameOrUrl(service: TranscriptionService) {
-		switch (service.type) {
-			case 'api':
+		switch (service.location) {
+			case 'cloud':
 				return settings.value[service.modelSettingKey];
-			case 'server':
+			case 'self-hosted':
 				return settings.value[service.serverUrlField];
 			case 'local':
 				return settings.value[service.modelPathField];
 		}
 	}
 
-	const apiServices = $derived(
-		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'api'),
+	const cloudServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.location === 'cloud'),
 	);
 
-	const serverServices = $derived(
-		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'server'),
+	const selfHostedServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.location === 'self-hosted'),
 	);
 
 	const localServices = $derived(
-		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'local'),
+		TRANSCRIPTION_SERVICES.filter((service) => service.location === 'local'),
 	);
 
 	const combobox = useCombobox();
@@ -100,7 +100,7 @@
 			<Command.List class="max-h-[40vh]">
 				<Command.Empty>No service found.</Command.Empty>
 
-				{#each apiServices as service (service.id)}
+				{#each cloudServices as service (service.id)}
 					{@const isSelected =
 						settings.value['transcription.selectedTranscriptionService'] ===
 						service.id}
@@ -144,7 +144,7 @@
 					</Command.Group>
 				{/each}
 
-				{#each serverServices as service (service.id)}
+				{#each selfHostedServices as service (service.id)}
 					{@const isSelected =
 						settings.value['transcription.selectedTranscriptionService'] ===
 						service.id}
@@ -172,6 +172,41 @@
 								{#if !isConfigured}
 									<span class="text-sm text-amber-600 ml-6">
 										Server URL required
+									</span>
+								{/if}
+							</div>
+						</Command.Item>
+					</Command.Group>
+				{/each}
+
+				{#each localServices as service (service.id)}
+					{@const isSelected =
+						settings.value['transcription.selectedTranscriptionService'] ===
+						service.id}
+					{@const isConfigured = isTranscriptionServiceConfigured(service)}
+
+					<Command.Group heading={service.name}>
+						<Command.Item
+							value={service.id}
+							onSelect={() => {
+								settings.updateKey(
+									'transcription.selectedTranscriptionService',
+									service.id,
+								);
+								combobox.closeAndFocusTrigger();
+							}}
+							class="flex items-center gap-2 p-2"
+						>
+							<CheckIcon
+								class={cn('size-4 shrink-0 ml-2', {
+									'text-transparent': !isSelected,
+								})}
+							/>
+							<div class="flex flex-col min-w-0">
+								{@render renderServiceDisplay(service)}
+								{#if !isConfigured}
+									<span class="text-sm text-amber-600 ml-6">
+										Model file required
 									</span>
 								{/if}
 							</div>
