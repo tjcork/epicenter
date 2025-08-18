@@ -11,7 +11,7 @@
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
 	import { checkForUpdates } from './check-for-updates';
@@ -23,12 +23,19 @@
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
 	import { checkFfmpeg } from './check-ffmpeg';
+	import { 
+		registerAccessibilityPermission,
+		registerMicrophonePermission 
+	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
+
+	let cleanupAccessibilityPermission: (() => void) | undefined;
+	let cleanupMicrophonePermission: (() => void) | undefined;
 
 	onMount(async () => {
 		window.commands = commandCallbacks;
@@ -45,6 +52,15 @@
 			// await extension.notifyWhisperingTabReady(undefined);
 		}
 		registerOnboarding();
+		
+		// Register permission checkers separately
+		cleanupAccessibilityPermission = registerAccessibilityPermission();
+		cleanupMicrophonePermission = registerMicrophonePermission();
+	});
+
+	onDestroy(() => {
+		cleanupAccessibilityPermission?.();
+		cleanupMicrophonePermission?.();
 	});
 
 	if (window.__TAURI_INTERNALS__) {

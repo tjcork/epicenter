@@ -52,6 +52,10 @@
 		TRANSCRIPTION_SERVICES.filter((service) => service.location === 'local'),
 	);
 
+	const localServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'local'),
+	);
+
 	const combobox = useCombobox();
 
 	// Track which services are expanded

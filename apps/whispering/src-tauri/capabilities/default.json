@@ -54,6 +54,20 @@
     "opener:allow-default-urls",
     "updater:default",
     "aptabase:allow-track-event",
-    "shell:allow-execute"
+    "macos-permissions:default",
+    "shell:default",
+    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "open",
+          "cmd": "open",
+          "args": [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+          ]
+        }
+      ]
+    }
   ]
 }
