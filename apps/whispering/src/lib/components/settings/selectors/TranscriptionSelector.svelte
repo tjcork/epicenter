@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { Badge } from '@repo/ui/badge';
 	import * as Command from '@repo/ui/command';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
@@ -87,7 +88,7 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0" collisionPadding={24} arrowPadding={20} align="start">
+	<Popover.Content class="p-0">
 		<Command.Root loop>
 			<Command.Input placeholder="Select transcription service..." />
 			<Command.List class="max-h-[40vh]">
