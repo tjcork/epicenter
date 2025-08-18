@@ -28,6 +28,20 @@
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon } from '@lucide/svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	
+	// Query to check model file existence
+	const modelFileQuery = createQuery(() => ( {
+		queryKey: ['modelFileExists', settings.value['transcription.whispercpp.modelPath']],
+		queryFn: async () => {
+			const { exists } = await import('@tauri-apps/plugin-fs');
+			const modelPath = settings.value['transcription.whispercpp.modelPath'];
+			if (!modelPath || !window.__TAURI_INTERNALS__) return null;
+			return await exists(modelPath);
+		},
+		enabled: !!settings.value['transcription.whispercpp.modelPath'] && !!window.__TAURI_INTERNALS__,
+		staleTime: 5000,
+	} ));
 </script>
 
 <svelte:head>
@@ -427,6 +441,7 @@
 							});
 							if (selected) {
 								settings.updateKey('transcription.whispercpp.modelPath', selected);
+								modelFileQuery.refetch();
 							}
 						}}
 					>
@@ -439,9 +454,23 @@
 					</Button>
 				</div>
 				{#if settings.value['transcription.whispercpp.modelPath']}
-					<p class="text-xs text-muted-foreground mt-1">
-						Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
-					</p>
+					{#if modelFileQuery.isPending}
+						<p class="text-xs text-muted-foreground mt-1">
+							Checking model file...
+						</p>
+					{:else if modelFileQuery.data === false}
+						<p class="text-xs text-destructive mt-1">
+							⚠️ Model file not found: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+						</p>
+					{:else if modelFileQuery.data === true}
+						<p class="text-xs text-green-600 dark:text-green-400 mt-1">
+							✓ Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+						</p>
+					{:else}
+						<p class="text-xs text-muted-foreground mt-1">
+							Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+						</p>
+					{/if}
 				{/if}
 			</div>
 
