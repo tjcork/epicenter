@@ -110,7 +110,7 @@
 				class="w-full text-sm"
 			>
 				<SettingsIcon class="mr-2 size-4" />
-				Open Settings to Remove & Re-add Whispering
+				Open Accessibility Settings
 			</Button>
 		</Card.Footer>
 	</Card.Root>
