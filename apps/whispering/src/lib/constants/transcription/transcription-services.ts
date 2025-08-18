@@ -30,13 +30,13 @@ type TranscriptionModel =
 	| DeepgramModel;
 
 export const TRANSCRIPTION_SERVICE_IDS = [
-	'OpenAI',
+	'whispercpp',
 	'Groq',
-	'speaches',
+	'OpenAI',
 	'ElevenLabs',
 	'Deepgram',
-	'owhisper',
-	'whispercpp',
+	'speaches',
+	// 'owhisper',
 ] as const;
 
 type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
@@ -71,6 +71,15 @@ type SatisfiedTranscriptionService =
 	| LocalTranscriptionService;
 
 export const TRANSCRIPTION_SERVICES = [
+	// Local services first (truly offline)
+	{
+		id: 'whispercpp',
+		name: 'Whisper C++',
+		icon: CpuIcon,
+		modelPathField: 'transcription.whispercpp.modelPath',
+		location: 'local',
+	},
+	// Cloud services (API-based)
 	{
 		id: 'Groq',
 		name: 'Groq Whisper',
@@ -111,6 +120,7 @@ export const TRANSCRIPTION_SERVICES = [
 		apiKeyField: 'apiKeys.deepgram',
 		location: 'cloud',
 	},
+	// Self-hosted services
 	{
 		id: 'speaches',
 		name: 'Speaches',
@@ -118,20 +128,13 @@ export const TRANSCRIPTION_SERVICES = [
 		serverUrlField: 'transcription.speaches.baseUrl',
 		location: 'self-hosted',
 	},
-	{
-		id: 'owhisper',
-		name: 'Owhisper',
-		icon: ServerIcon,
-		serverUrlField: 'transcription.owhisper.baseUrl',
-		location: 'self-hosted',
-	},
-	{
-		id: 'whispercpp',
-		name: 'Whisper C++',
-		icon: CpuIcon,
-		modelPathField: 'transcription.whispercpp.modelPath',
-		location: 'local',
-	},
+	// {
+	// 	id: 'owhisper',
+	// 	name: 'Owhisper',
+	// 	icon: ServerIcon,
+	// 	serverUrlField: 'transcription.owhisper.baseUrl',
+	// 	location: 'self-hosted',
+	// },
 ] as const satisfies SatisfiedTranscriptionService[];
 
 export const TRANSCRIPTION_SERVICE_OPTIONS = TRANSCRIPTION_SERVICES.map(

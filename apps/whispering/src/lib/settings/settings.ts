@@ -148,7 +148,7 @@ export const settingsSchema = z.object({
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
-		.default('Groq'),
+		.default('whispercpp'),
 	// Shared settings in transcription
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES).default('auto'),
 	'transcription.prompt': z.string().default(''),
