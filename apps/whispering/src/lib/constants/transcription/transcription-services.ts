@@ -47,6 +47,7 @@ type BaseTranscriptionService = {
 	id: TranscriptionServiceId;
 	name: string;
 	icon: string; // SVG string
+	invertInDarkMode: boolean; // Whether to invert the icon in dark mode
 	description?: string;
 };
 
@@ -79,6 +80,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'whispercpp',
 		name: 'Whisper C++',
 		icon: ggmlIcon,
+		invertInDarkMode: true,
 		description: 'Fast local transcription with no internet required',
 		modelPathField: 'transcription.whispercpp.modelPath',
 		location: 'local',
@@ -88,6 +90,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'Groq',
 		name: 'Groq',
 		icon: groqIcon,
+		invertInDarkMode: false, // Groq has a colored logo that works in both modes
 		description: 'Lightning-fast cloud transcription',
 		models: GROQ_MODELS,
 		defaultModel: GROQ_MODELS[2],
@@ -99,6 +102,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'OpenAI',
 		name: 'OpenAI',
 		icon: openaiLightIcon,
+		invertInDarkMode: true,
 		description: 'Industry-standard Whisper API',
 		models: OPENAI_TRANSCRIPTION_MODELS,
 		defaultModel: OPENAI_TRANSCRIPTION_MODELS[0],
@@ -110,6 +114,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'ElevenLabs',
 		name: 'ElevenLabs',
 		icon: elevenlabsIcon,
+		invertInDarkMode: true,
 		description: 'Voice AI platform with transcription',
 		models: ELEVENLABS_TRANSCRIPTION_MODELS,
 		defaultModel: ELEVENLABS_TRANSCRIPTION_MODELS[0],
@@ -121,6 +126,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'Deepgram',
 		name: 'Deepgram',
 		icon: deepgramIcon,
+		invertInDarkMode: true,
 		description: 'Real-time speech recognition API',
 		models: DEEPGRAM_TRANSCRIPTION_MODELS,
 		defaultModel: DEEPGRAM_TRANSCRIPTION_MODELS[0],
@@ -133,6 +139,7 @@ export const TRANSCRIPTION_SERVICES = [
 		id: 'speaches',
 		name: 'Speaches',
 		icon: speachesIcon,
+		invertInDarkMode: false, // Speaches has a colored logo
 		description: 'Self-hosted transcription server',
 		serverUrlField: 'transcription.speaches.baseUrl',
 		location: 'self-hosted',

@@ -69,17 +69,13 @@
 		}
 	}
 
-	
-	function shouldInvertIcon(service: TranscriptionService): boolean {
-		return !(['Groq', 'speaches'] as const).includes(service.id as any);
-	}
 </script>
 
 {#snippet renderServiceIcon(service: TranscriptionService)}
 	<div
 		class={cn(
 			'size-4 shrink-0 flex items-center justify-center [&>svg]:size-full',
-			shouldInvertIcon(service) && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
+			service.invertInDarkMode && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
 		)}
 	>
 		{@html service.icon}
@@ -108,10 +104,8 @@
 					<div
 						class={cn(
 							'size-4 flex items-center justify-center [&>svg]:size-full',
-							shouldInvertIcon(selectedService) && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
-							isTranscriptionServiceConfigured(selectedService)
-								? ''
-								: 'opacity-60',
+							selectedService.invertInDarkMode && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
+							!isTranscriptionServiceConfigured(selectedService) && 'opacity-60',
 						)}
 					>
 						{@html selectedService.icon}
