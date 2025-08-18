@@ -44,7 +44,9 @@ pub async fn transcribe_with_whisper_cpp(
     let wav_data = if needs_conversion {
         // Check if ffmpeg is installed
         if !check_ffmpeg_installed() {
-            return Err(WhisperCppError::FfmpegNotInstalled);
+            return Err(WhisperCppError::FfmpegNotInstalled {
+                message: "FFmpeg is not installed. Please install FFmpeg to use WhisperCpp with non-WAV audio formats.".to_string(),
+            });
         }
         
         // Write input audio to temp file

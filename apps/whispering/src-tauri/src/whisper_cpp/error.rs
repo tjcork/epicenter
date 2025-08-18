@@ -4,8 +4,8 @@ use thiserror::Error;
 #[derive(Debug, Error, Serialize)]
 #[serde(tag = "name", rename_all = "PascalCase")]
 pub enum WhisperCppError {
-    #[error("FFmpeg is not installed. Please install FFmpeg to use WhisperCpp with non-WAV audio formats.")]
-    FfmpegNotInstalled,
+    #[error("{message}")]
+    FfmpegNotInstalled { message: String },
 
     #[error("Failed to read audio: {message}")]
     AudioReadError { message: String },

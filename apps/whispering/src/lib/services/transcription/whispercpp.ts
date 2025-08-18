@@ -7,7 +7,7 @@ import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 
 const WhisperCppErrorType = type({
-	name: "'AudioReadError' | 'FfmpegNotInstalled' | 'ModelLoadError' | 'GpuError' | 'TranscriptionError'",
+	name: "'AudioReadError' | 'FfmpegNotInstalled' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
