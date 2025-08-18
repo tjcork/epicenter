@@ -14,6 +14,10 @@ use whisper_cpp::transcribe_with_whisper_cpp;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
+    // Fix PATH environment for GUI applications on macOS and Linux
+    // This ensures commands like ffmpeg installed via Homebrew are accessible
+    let _ = fix_path_env::fix();
+    
     let mut builder = tauri::Builder::default();
 
     // Try to get APTABASE_KEY from environment, use empty string if not found
