@@ -55,9 +55,7 @@
 	const combobox = useCombobox();
 
 	// Track which services are expanded
-	let expandedServices = $state<SvelteSet<string>>(
-		new SvelteSet(selectedService ? [selectedService.id] : []),
-	);
+	let expandedServices = new SvelteSet(selectedService ? [selectedService.id] : []);
 
 	function toggleServiceExpanded(serviceId: string) {
 		if (expandedServices.has(serviceId)) {
@@ -75,7 +73,8 @@
 	<div
 		class={cn(
 			'size-4 shrink-0 flex items-center justify-center [&>svg]:size-full',
-			service.invertInDarkMode && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
+			service.invertInDarkMode &&
+				'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
 		)}
 	>
 		{@html service.icon}
@@ -104,8 +103,10 @@
 					<div
 						class={cn(
 							'size-4 flex items-center justify-center [&>svg]:size-full',
-							selectedService.invertInDarkMode && 'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
-							!isTranscriptionServiceConfigured(selectedService) && 'opacity-60',
+							selectedService.invertInDarkMode &&
+								'dark:[&>svg]:invert dark:[&>svg]:brightness-90',
+							!isTranscriptionServiceConfigured(selectedService) &&
+								'opacity-60',
 						)}
 					>
 						{@html selectedService.icon}

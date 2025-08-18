@@ -18,6 +18,7 @@
 	import { appDataDir } from '@tauri-apps/api/path';
 	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	// Pre-built models configuration
 	const WHISPER_MODELS = [
@@ -61,7 +62,7 @@
 
 	// Component state
 	let downloadProgress = $state<{ [key: string]: number }>({});
-	let downloadingModels = $state<Set<string>>(new Set());
+	let downloadingModels = new SvelteSet<string>();
 
 	// Helper functions
 	async function getModelsDirectory(): Promise<string> {
@@ -109,7 +110,6 @@
 		if (!model || downloadingModels.has(modelId)) return;
 
 		downloadingModels.add(modelId);
-		downloadingModels = new Set(downloadingModels);
 		downloadProgress[modelId] = 0;
 
 		try {
@@ -177,7 +177,6 @@
 			});
 		} finally {
 			downloadingModels.delete(modelId);
-			downloadingModels = new Set(downloadingModels);
 			delete downloadProgress[modelId];
 		}
 	}
@@ -217,10 +216,9 @@
 	}
 
 	// Get current active model - properly reactive to settings changes
-	const currentModelPath = $derived(
-		settings.value['transcription.whispercpp.modelPath'],
-	);
 	const activeModelId = $derived.by(() => {
+		const currentModelPath =
+			settings.value['transcription.whispercpp.modelPath'];
 		if (!currentModelPath) return null;
 
 		for (const model of WHISPER_MODELS) {
@@ -233,18 +231,20 @@
 
 	// Query to check if the manual model file exists
 	const modelFileQuery = createQuery(() => ({
-		queryKey: ['modelFileExists', currentModelPath],
+		queryKey: [
+			'modelFileExists',
+			settings.value['transcription.whispercpp.modelPath'],
+		],
 		queryFn: async () => {
-			if (!currentModelPath || !window.__TAURI_INTERNALS__) return null;
-			return await exists(currentModelPath);
+			const modelPath = settings.value['transcription.whispercpp.modelPath'];
+			if (!modelPath || !window.__TAURI_INTERNALS__) return null;
+			return await exists(modelPath);
 		},
-		enabled: !!currentModelPath && !!window.__TAURI_INTERNALS__,
+		enabled:
+			!!settings.value['transcription.whispercpp.modelPath'] &&
+			!!window.__TAURI_INTERNALS__,
 		staleTime: 5000,
 	}));
-
-	// Derived values for easier access
-	const modelFileExists = $derived(modelFileQuery.data);
-	const modelFileChecking = $derived(modelFileQuery.isPending);
 </script>
 
 <Card.Root>
@@ -411,11 +411,11 @@
 							</Button>
 						</div>
 						{#if settings.value['transcription.whispercpp.modelPath']}
-							{#if modelFileChecking}
+							{#if modelFileQuery.isPending}
 								<p class="text-xs text-muted-foreground mt-1">
 									Checking model file...
 								</p>
-							{:else if modelFileExists === false}
+							{:else if modelFileQuery.data === false}
 								<p class="text-xs text-destructive mt-1">
 									⚠️ Model file not found: {settings.value[
 										'transcription.whispercpp.modelPath'
@@ -423,7 +423,7 @@
 										.split('/')
 										.pop()}
 								</p>
-							{:else if modelFileExists === true}
+							{:else if modelFileQuery.data === true}
 								<p class="text-xs text-green-600 dark:text-green-400 mt-1">
 									✓ Model: {settings.value['transcription.whispercpp.modelPath']
 										.split('/')
