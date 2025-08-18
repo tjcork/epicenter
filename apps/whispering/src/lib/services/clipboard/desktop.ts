@@ -5,6 +5,7 @@ import { type } from '@tauri-apps/plugin-os';
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { ClipboardService } from '.';
 import { ClipboardServiceErr } from './types';
+import { IS_MACOS } from '$lib/constants/platform';
 
 export function createClipboardServiceDesktop(): ClipboardService {
 	return {
@@ -36,8 +37,7 @@ export function createClipboardServiceDesktop(): ClipboardService {
 			if (!pasteError) return Ok(undefined);
 
 			// On macOS, check accessibility permissions when paste fails
-			const isMacos = type() === 'macos';
-			if (!isMacos) return Err(pasteError);
+			if (!IS_MACOS) return Err(pasteError);
 
 			// On macOS, check accessibility permissions
 			const {
