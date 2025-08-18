@@ -124,10 +124,10 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="p-0 w-[320px]">
+	<Popover.Content class="p-0">
 		<Command.Root loop>
 			<Command.Input placeholder="Search services..." class="h-9 text-sm" />
-			<Command.List class="max-h-[400px]">
+			<Command.List class="max-h-[40vh]">
 				<Command.Empty>No service found.</Command.Empty>
 
 				<!-- Local Services -->
