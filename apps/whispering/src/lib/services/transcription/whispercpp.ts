@@ -37,7 +37,7 @@ export function createWhisperCppTranscriptionService() {
 			}
 
 			// Check if model file exists
-			const isExists = await tryAsync({
+			const { data: isExists } = await tryAsync({
 				try: () => exists(options.modelPath),
 				mapErr: () => Ok(false),
 			});
