@@ -3,11 +3,15 @@ import { ClipboardServiceLive } from './clipboard';
 import * as completions from './completion';
 import { DbServiceLive } from './db';
 import { DownloadServiceLive } from './download';
+import { FfmpegServiceLive } from './ffmpeg';
 import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
 import { NotificationServiceLive } from './notifications';
 import { OsServiceLive } from './os';
-import { NativeRecorderServiceLive, BrowserRecorderServiceLive } from './recorder';
+import {
+	NativeRecorderServiceLive,
+	BrowserRecorderServiceLive,
+} from './recorder';
 import { PlaySoundServiceLive } from './sound';
 import { ToastServiceLive } from './toast';
 import * as transcriptions from './transcription';
@@ -26,6 +30,7 @@ export {
 	TrayIconServiceLive as tray,
 	DbServiceLive as db,
 	DownloadServiceLive as download,
+	FfmpegServiceLive as ffmpeg,
 	GlobalShortcutManagerLive as globalShortcutManager,
 	LocalShortcutManagerLive as localShortcutManager,
 	NotificationServiceLive as notification,

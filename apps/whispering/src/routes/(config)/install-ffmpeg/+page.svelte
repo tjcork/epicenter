@@ -15,33 +15,14 @@
 	} from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { goto } from '$app/navigation';
-	import { tryAsync } from 'wellcrafted/result';
-	import { Err } from 'wellcrafted/result';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { rpc } from '$lib/query';
 
 	const platform = services.os.type();
 
 	// Query to check FFmpeg installation status
 	const ffmpegQuery = createQuery(() => ({
-		queryKey: ['ffmpeg-installed'],
-		queryFn: async () => {
-			if (!window.__TAURI_INTERNALS__) return null;
-
-			const { data } = await tryAsync({
-				try: async () => {
-					const { Command } = await import('@tauri-apps/plugin-shell');
-					const result = await Command.create('exec-sh', [
-						'-c',
-						'ffmpeg -version',
-					]).execute();
-					return result;
-				},
-				mapErr: () => Err(undefined),
-			});
-
-			return data?.code === 0;
-		},
-		enabled: !!window.__TAURI_INTERNALS__,
+		...rpc.ffmpeg.checkFfmpegInstalled.options(),
 		refetchInterval: (query) => {
 			// Refetch every 5 seconds if not installed, every 30 seconds if installed
 			const isInstalled = query.state.data;

@@ -1,37 +1,18 @@
-import { tryAsync } from 'wellcrafted/result';
-import { Err } from 'wellcrafted/result';
 import { toast } from 'svelte-sonner';
 import { goto } from '$app/navigation';
-
-/**
- * Checks if FFmpeg is installed on the system.
- * Returns true if installed, false if not, null if unable to check.
- */
-async function checkFfmpegInstalled(): Promise<boolean | null> {
-	if (!window.__TAURI_INTERNALS__) return null;
-
-	const { data } = await tryAsync({
-		try: async () => {
-			const { Command } = await import('@tauri-apps/plugin-shell');
-			const result = await Command.create('exec-sh', [
-				'-c',
-				'ffmpeg -version',
-			]).execute();
-			return result;
-		},
-		mapErr: () => Err(undefined),
-	});
-
-	return data?.code === 0;
-}
+import { rpc } from '$lib/query';
 
 /**
  * Checks for FFmpeg installation and shows an info toast if not installed.
  * This is separate from onboarding to keep concerns separated.
  */
 export async function checkFfmpeg() {
-	const ffmpegInstalled = await checkFfmpegInstalled();
+	const result = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 
+	// If we couldn't check (error), don't show any toast
+	if (result.error) return;
+
+	const ffmpegInstalled = result.data;
 	if (ffmpegInstalled === false) {
 		// Only show if we're in Tauri and FFmpeg is definitely not installed
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
