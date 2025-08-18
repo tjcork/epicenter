@@ -38,16 +38,23 @@
 </svelte:head>
 
 <main class="flex flex-1 items-center justify-center p-4">
-	<Card.Root class="w-full max-w-2xl">
+	<Card.Root class="w-full min-w-[640px] max-w-4xl">
 		<Card.Header>
 			<div class="flex items-center justify-between">
 				<div class="space-y-1.5">
 					<Card.Title class="text-2xl">Install FFmpeg</Card.Title>
 					<Card.Description>
-						FFmpeg is required for enhanced audio processing in Whispering. We
-						use it to convert audio files to WAV format before Whisper C++
-						transcription, and to compress native audio files before sending
-						them to transcription services.
+						FFmpeg is highly recommended for enhanced audio processing in
+						Whispering. It enables:
+						<ul class="mt-2 ml-4 space-y-1 list-disc">
+							<li>
+								Converting audio formats to WAV for Whisper C++ transcription
+							</li>
+							<li>
+								Compressing native audio files for optimal API transmission
+							</li>
+							<li>Processing various audio and video formats seamlessly</li>
+						</ul>
 					</Card.Description>
 				</div>
 
