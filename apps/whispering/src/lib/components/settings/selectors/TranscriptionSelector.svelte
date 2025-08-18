@@ -27,6 +27,8 @@
 				return settings.value[service.modelSettingKey];
 			case 'server':
 				return settings.value[service.serverUrlField];
+			case 'local':
+				return settings.value[service.modelPathField];
 		}
 	}
 
@@ -36,6 +38,10 @@
 
 	const serverServices = $derived(
 		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'server'),
+	);
+
+	const localServices = $derived(
+		TRANSCRIPTION_SERVICES.filter((service) => service.type === 'local'),
 	);
 
 	const combobox = useCombobox();
@@ -148,7 +154,10 @@
 						<Command.Item
 							value={service.id}
 							onSelect={() => {
-								settings.updateKey('transcription.selectedTranscriptionService', service.id);
+								settings.updateKey(
+									'transcription.selectedTranscriptionService',
+									service.id,
+								);
 								combobox.closeAndFocusTrigger();
 							}}
 							class="flex items-center gap-2 p-2"
