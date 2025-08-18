@@ -7,15 +7,15 @@ pub enum WhisperCppError {
     #[error("{message}")]
     FfmpegNotInstalled { message: String },
 
-    #[error("Failed to read audio: {message}")]
+    #[error("{message}")]
     AudioReadError { message: String },
 
-    #[error("Failed to load model: {message}")]
+    #[error("{message}")]
     ModelLoadError { message: String },
 
-    #[error("GPU acceleration failed: {message}")]
+    #[error("{message}")]
     GpuError { message: String },
 
-    #[error("Transcription failed: {message}")]
+    #[error("{message}")]
     TranscriptionError { message: String },
 }
