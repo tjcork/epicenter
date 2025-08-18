@@ -45,7 +45,7 @@ pub async fn transcribe_with_whisper_cpp(
         // Check if ffmpeg is installed
         if !check_ffmpeg_installed() {
             return Err(WhisperCppError::FfmpegNotInstalled {
-                message: "FFmpeg is not installed. Please install FFmpeg to use WhisperCpp with non-WAV audio formats.".to_string(),
+                message: "FFmpeg is required for enhanced audio format support. Please install FFmpeg to transcribe non-WAV audio files with Whisper C++.".to_string(),
             });
         }
         
