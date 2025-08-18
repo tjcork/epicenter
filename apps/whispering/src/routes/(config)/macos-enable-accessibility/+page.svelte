@@ -5,6 +5,12 @@
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { rpc } from '$lib/query';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	const isAccessibilityGranted = $derived(data.isAccessibilityGranted);
 
 	async function requestAccessibilityPermission() {
 		const { error } = await services.permissions.accessibility.request();
@@ -103,15 +109,23 @@
 			</div>
 		</Card.Content>
 		<Card.Footer>
-			<Button
-				onclick={() => requestAccessibilityPermission()}
-				variant="default"
-				size="sm"
-				class="w-full text-sm"
-			>
-				<SettingsIcon class="mr-2 size-4" />
-				Open Accessibility Settings
-			</Button>
+			{#if !isAccessibilityGranted}
+				<Button
+					onclick={() => requestAccessibilityPermission()}
+					class="w-full text-sm"
+				>
+					<SettingsIcon class="mr-2 size-4" />
+					Request Accessibility Permission
+				</Button>
+			{:else}
+				<Button
+					onclick={() => openAccessibilitySettings()}
+					class="w-full text-sm"
+				>
+					<SettingsIcon class="mr-2 size-4" />
+					Open Accessibility Settings
+				</Button>
+			{/if}
 		</Card.Footer>
 	</Card.Root>
 </main>
