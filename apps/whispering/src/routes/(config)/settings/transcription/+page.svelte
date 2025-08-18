@@ -10,7 +10,7 @@
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
-		DeepgramApiKeyInput
+		DeepgramApiKeyInput,
 	} from '$lib/components/settings';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
@@ -24,24 +24,29 @@
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
-		DEEPGRAM_TRANSCRIPTION_MODELS
+		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon } from '@lucide/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	
+
 	// Query to check model file existence
-	const modelFileQuery = createQuery(() => ( {
-		queryKey: ['modelFileExists', settings.value['transcription.whispercpp.modelPath']],
+	const modelFileQuery = createQuery(() => ({
+		queryKey: [
+			'modelFileExists',
+			settings.value['transcription.whispercpp.modelPath'],
+		],
 		queryFn: async () => {
 			const { exists } = await import('@tauri-apps/plugin-fs');
 			const modelPath = settings.value['transcription.whispercpp.modelPath'];
 			if (!modelPath || !window.__TAURI_INTERNALS__) return null;
 			return await exists(modelPath);
 		},
-		enabled: !!settings.value['transcription.whispercpp.modelPath'] && !!window.__TAURI_INTERNALS__,
+		enabled:
+			!!settings.value['transcription.whispercpp.modelPath'] &&
+			!!window.__TAURI_INTERNALS__,
 		staleTime: 5000,
-	} ));
+	}));
 </script>
 
 <svelte:head>
@@ -63,7 +68,10 @@
 		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		selected={settings.value['transcription.selectedTranscriptionService']}
 		onSelectedChange={(selected) => {
-			settings.updateKey('transcription.selectedTranscriptionService', selected);
+			settings.updateKey(
+				'transcription.selectedTranscriptionService',
+				selected,
+			);
 		}}
 		placeholder="Select a transcription service"
 	/>
@@ -345,8 +353,9 @@
 				<Card.Header>
 					<Card.Title class="text-lg">Whisper C++ Setup</Card.Title>
 					<Card.Description>
-						Use local Whisper models for private, offline transcription. Whisper C++
-						provides fast CPU/GPU inference with no API costs or data sharing.
+						Use local Whisper models for private, offline transcription. Whisper
+						C++ provides fast CPU/GPU inference with no API costs or data
+						sharing.
 					</Card.Description>
 				</Card.Header>
 				<Card.Content class="space-y-6">
@@ -388,7 +397,7 @@
 									</Button>
 								</li>
 								<li class="list-disc">
-									Download a model file (e.g., ggml-base.en.bin for English)
+									Download a model file (e.g., ggml-small.bin)
 								</li>
 								<li class="list-disc">
 									Larger models are more accurate but slower
@@ -402,8 +411,12 @@
 								file below
 							</p>
 							<ul class="ml-6 mt-2 space-y-1 text-sm text-muted-foreground">
-								<li class="list-disc">Click "Browse" to select your downloaded model</li>
-								<li class="list-disc">The model will be used for all transcriptions</li>
+								<li class="list-disc">
+									Click "Browse" to select your downloaded model
+								</li>
+								<li class="list-disc">
+									The model will be used for all transcriptions
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -413,7 +426,10 @@
 
 		<div class="space-y-4">
 			<div>
-				<label for="whispercpp-model-path" class="block text-sm font-medium mb-2">
+				<label
+					for="whispercpp-model-path"
+					class="block text-sm font-medium mb-2"
+				>
 					Model File Path
 				</label>
 				<div class="flex items-center gap-2">
@@ -445,7 +461,17 @@
 							}
 						}}
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
 							<path d="M20 7h-9" />
 							<path d="M14 17H5" />
 							<circle cx="17" cy="17" r="3" />
@@ -460,15 +486,23 @@
 						</p>
 					{:else if modelFileQuery.data === false}
 						<p class="text-xs text-destructive mt-1">
-							⚠️ Model file not found: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+							⚠️ Model file not found: {settings.value[
+								'transcription.whispercpp.modelPath'
+							]
+								.split('/')
+								.pop()}
 						</p>
 					{:else if modelFileQuery.data === true}
 						<p class="text-xs text-green-600 dark:text-green-400 mt-1">
-							✓ Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+							✓ Model: {settings.value['transcription.whispercpp.modelPath']
+								.split('/')
+								.pop()}
 						</p>
 					{:else}
 						<p class="text-xs text-muted-foreground mt-1">
-							Model: {settings.value['transcription.whispercpp.modelPath'].split('/').pop()}
+							Model: {settings.value['transcription.whispercpp.modelPath']
+								.split('/')
+								.pop()}
 						</p>
 					{/if}
 				{/if}
