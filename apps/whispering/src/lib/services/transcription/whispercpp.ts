@@ -7,7 +7,9 @@ import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 
 const WhisperCppErrorType = type({
-	name: "'AudioReadError' | 'FfmpegNotInstalled' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
+	name: "'FfmpegNotInstalled'",
+}).or({
+	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
@@ -83,8 +85,9 @@ export function createWhisperCppTranscriptionService() {
 					switch (error.name) {
 						case 'FfmpegNotInstalled':
 							return WhisperingErr({
-								title: '🛠️ FFmpeg Not Installed',
-								description: error.message,
+								title: '🛠️ Audio Conversion Requires FFmpeg',
+								description:
+									'This audio file needs to be converted to WAV format for Whisper C++. FFmpeg handles this conversion automatically when installed.',
 								action: {
 									type: 'link',
 									label: 'Install FFmpeg',
