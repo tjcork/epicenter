@@ -6,8 +6,7 @@ import type { Settings } from '$lib/settings';
 // Import SVG icons as strings
 import groqIcon from '$lib/constants/icons/groq.svg?raw';
 import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
-import openaiLightIcon from '$lib/constants/icons/openai_light.svg?raw';
-import openaiDarkIcon from '$lib/constants/icons/openai_dark.svg?raw';
+import openaiIcon from '$lib/constants/icons/openai.svg?raw';
 import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
 import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
 import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
@@ -101,7 +100,7 @@ export const TRANSCRIPTION_SERVICES = [
 	{
 		id: 'OpenAI',
 		name: 'OpenAI',
-		icon: openaiLightIcon,
+		icon: openaiIcon,
 		invertInDarkMode: true,
 		description: 'Industry-standard Whisper API',
 		models: OPENAI_TRANSCRIPTION_MODELS,
