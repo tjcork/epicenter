@@ -171,18 +171,19 @@ No installation needed! Works in any modern browser.
 
 </details>
 
-### 2️⃣ Choose Your Transcription Method
+### 2️⃣ Choose Your Transcription Method & Test
 
 You have two options: **Local** (completely private) or **Cloud** (faster & easier).
 
 <details open>
-<summary><strong>🏠 Option A: Local Transcription (Whisper.cpp)</strong></summary>
+<summary><strong>🏠 Option A: Local Transcription (Whisper C++)</strong></summary>
 
 > 💡 **Why local?** 100% private, runs offline, no API costs, works on any hardware
 
-#### Install FFmpeg First
+<details>
+<summary><strong>Install FFmpeg</strong></summary>
 
-Whisper.cpp needs FFmpeg to convert audio to 16kHz format:
+Whisper C++ needs FFmpeg to convert audio to 16kHz format:
 
 **🍎 macOS:**
 ```bash
@@ -210,7 +211,19 @@ sudo dnf install ffmpeg
 sudo pacman -S ffmpeg
 ```
 
-**✅ Setup complete!** No API keys, no signups. Ready for offline transcription.
+</details>
+
+#### Test Your Setup
+
+1. Open Whispering
+2. Click **Settings** (⚙️) → **Transcription**
+3. Select **Whisper C++** from the dropdown
+4. Choose a model (start with `Small`)
+5. Click **Download** button next to the model → Wait for download to complete
+6. Make sure the model shows as **activated**
+7. Click record and say "Testing Whispering"
+
+**🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
 </details>
 
@@ -224,22 +237,8 @@ sudo pacman -S ffmpeg
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
 2. Sign up (free, no credit card) → Create API key → Copy it
 
-**✅ That's it!** You now have access to lightning-fast cloud transcription.
+#### Test Your Setup
 
-</details>
-
-### 3️⃣ Connect & Test
-
-**For Local (Whisper.cpp):**
-1. Open Whispering
-2. Click **Settings** (⚙️) → **Transcription**
-3. Select **Whisper C++** from the dropdown
-4. Choose a model (start with `Small`)
-5. Click **Download** button next to the model → Wait for download to complete
-6. Make sure the model shows as **activated**
-7. Click record and say "Testing Whispering"
-
-**For Cloud (Groq):**
 1. Open Whispering
 2. Click **Settings** (⚙️) → **Transcription**
 3. Select **Groq** → Paste your API key
@@ -247,6 +246,8 @@ sudo pacman -S ffmpeg
 5. Click record and say "Testing Whispering"
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
+
+</details>
 
 <details>
 <summary><strong>Having trouble? Common issues & fixes</strong></summary>
@@ -310,7 +311,7 @@ See [Issue #526](https://github.com/epicenter-so/epicenter/issues/526) for more 
 
 </details>
 
-### 4️⃣ Next Steps: Power User Features
+### 3️⃣ Next Steps: Power User Features
 
 Take your transcription experience to the next level with these advanced features:
 
