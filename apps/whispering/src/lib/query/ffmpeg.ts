@@ -1,9 +1,19 @@
-import { defineQuery } from './_client';
+import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
+import { Ok } from 'wellcrafted/result';
+import { defineQuery } from './_client';
 
 export const ffmpeg = {
 	checkFfmpegInstalled: defineQuery({
 		queryKey: ['ffmpeg.checkInstalled'],
-		resultQueryFn: () => services.ffmpeg.checkInstalled(),
+		resultQueryFn: async () => {
+			const { data, error } = await services.ffmpeg.checkInstalled();
+			if (error) {
+				return fromTaggedErr(error, {
+					title: '❌ Error checking FFmpeg installation',
+				});
+			}
+			return Ok(data);
+		},
 	}),
 };

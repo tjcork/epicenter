@@ -11,12 +11,19 @@ use recorder::commands::{
 pub mod whisper_cpp;
 use whisper_cpp::transcribe_with_whisper_cpp;
 
+pub mod windows_path;
+use windows_path::fix_windows_path;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
     // Fix PATH environment for GUI applications on macOS and Linux
     // This ensures commands like ffmpeg installed via Homebrew are accessible
     let _ = fix_path_env::fix();
+    
+    // Fix Windows PATH inheritance bug
+    // This ensures child processes can find ffmpeg on Windows
+    fix_windows_path();
     
     let mut builder = tauri::Builder::default();
 

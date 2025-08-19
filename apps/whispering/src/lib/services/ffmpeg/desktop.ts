@@ -1,32 +1,30 @@
-import { tryAsync, Ok, type Result } from 'wellcrafted/result';
-import { WhisperingErr, type WhisperingError } from '$lib/result';
-import type { FfmpegService } from './types';
+import { IS_WINDOWS } from '$lib/constants/platform';
 import { extractErrorMessage } from 'wellcrafted/error';
-import { toast } from 'svelte-sonner';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import { type FfmpegService, FfmpegServiceErr } from './types';
 
 export function createFfmpegService(): FfmpegService {
 	return {
-		async checkInstalled(): Promise<Result<boolean, WhisperingError>> {
-			const result = await tryAsync({
-				try: async () => {
-					const { Command } = await import('@tauri-apps/plugin-shell');
-					const output = await Command.create('sh', [
-						'-c',
-						'ffmpeg -version',
-					]).execute();
-					return output;
-				},
-				mapErr: (error) =>
-					WhisperingErr({
-						title: '❌ Failed to check FFmpeg',
-						description: `Unable to determine if FFmpeg is installed. ${extractErrorMessage(error)}`,
-						action: { type: 'more-details', error },
-					}),
-			});
+		async checkInstalled() {
+			const { data: shellFfmpegProcess, error: shellFfmpegError } =
+				await tryAsync({
+					try: async () => {
+						const { Command } = await import('@tauri-apps/plugin-shell');
+						const output = await (IS_WINDOWS
+							? Command.create('cmd', ['/c', 'ffmpeg -version'])
+							: Command.create('sh', ['-c', 'ffmpeg -version'])
+						).execute();
+						return output;
+					},
+					mapErr: (error) =>
+						FfmpegServiceErr({
+							message: `Unable to determine if FFmpeg is installed through shell. ${extractErrorMessage(error)}`,
+							cause: error,
+						}),
+				});
 
-			if (result.error) return result;
-
-			return Ok(result.data.code === 0);
+			if (shellFfmpegError) return Err(shellFfmpegError);
+			return Ok(shellFfmpegProcess.code === 0);
 		},
 	};
 }
