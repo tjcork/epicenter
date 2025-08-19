@@ -175,7 +175,7 @@ No installation needed! Works in any modern browser.
 
 You have two options: **Local** (completely private) or **Cloud** (faster & easier).
 
-<details open>
+<details>
 <summary><strong>🏠 Option A: Local Transcription (Whisper C++)</strong></summary>
 
 > 💡 **Why local?** 100% private, runs offline, no API costs, works on any hardware
