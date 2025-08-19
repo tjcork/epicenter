@@ -15,6 +15,7 @@
 		isUsingNativeBackendWithCloudTranscription,
 		isUsingNativeBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
+	import { IS_MACOS } from '$lib/constants/platform';
 
 	const SAMPLE_RATE_OPTIONS = [
 		{ value: '16000', label: 'Voice Quality (16kHz): Optimized for speech' },
@@ -73,6 +74,18 @@
 				? 'Native: Uses Rust audio backend for lower-level access and potentially better quality'
 				: 'Browser: Uses web standards (MediaRecorder API) for better compatibility'}
 		/>
+
+		{#if IS_MACOS && settings.value['recording.backend'] === 'browser'}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					Global Shortcuts May Be Unreliable
+				</Alert.Title>
+				<Alert.Description>
+					When using the browser recorder, macOS App Nap may prevent the browser recording logic from starting when not in focus. Consider using the native backend for reliable global shortcut support.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 
 		{#if isUsingNativeBackendAtWrongSampleRate()}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
