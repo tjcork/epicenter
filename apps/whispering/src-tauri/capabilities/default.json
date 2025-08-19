@@ -22,6 +22,7 @@
     "clipboard-manager:allow-write-text",
     "fs:allow-read",
     "fs:allow-write",
+    "fs:allow-app-write",
     "fs:allow-exists",
     "fs:allow-create",
     "fs:allow-mkdir",
@@ -42,7 +43,7 @@
         { "url": "https://*:*" }
       ]
     },
-     {
+    {
       "identifier": "opener:allow-open-path",
       "allow": [
         {
@@ -52,6 +53,29 @@
     },
     "opener:allow-default-urls",
     "updater:default",
-    "aptabase:allow-track-event"
+    "aptabase:allow-track-event",
+    "macos-permissions:default",
+    "shell:default",
+    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "sh",
+          "cmd": "sh",
+          "args": [
+            "-c",
+            "ffmpeg -version"
+          ]
+        },
+        {
+          "name": "open",
+          "cmd": "open",
+          "args": [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+          ]
+        }
+      ]
+    }
   ]
 }

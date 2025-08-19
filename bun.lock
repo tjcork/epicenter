@@ -50,7 +50,6 @@
       "name": "@epicenter/demo-mcp",
       "version": "0.0.0",
       "dependencies": {
-        "@epicenter/mcp-adapter-reddit": "workspace:*",
         "@libsql/client": "^0.11.0",
         "drizzle-orm": "catalog:",
       },
@@ -139,7 +138,7 @@
     },
     "apps/whispering": {
       "name": "@repo/whispering",
-      "version": "7.2.1",
+      "version": "7.3.0",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.55.0",
         "@aptabase/tauri": "^0.4.1",
@@ -163,6 +162,7 @@
         "@tauri-apps/plugin-opener": "^2.4.0",
         "@tauri-apps/plugin-os": "^2.3.0",
         "@tauri-apps/plugin-process": "^2.3.0",
+        "@tauri-apps/plugin-shell": "^2.3.0",
         "@tauri-apps/plugin-updater": "^2.9.0",
         "arktype": "catalog:",
         "audio-recorder-polyfill": "^0.4.1",
@@ -172,6 +172,7 @@
         "groq-sdk": "^0.25.0",
         "nanoid": "catalog:",
         "openai": "^5.7.0",
+        "tauri-plugin-macos-permissions-api": "^2.3.0",
         "wellcrafted": "catalog:",
         "zod": "catalog:",
       },
@@ -243,26 +244,6 @@
         "typescript": "catalog:",
       },
     },
-    "packages/mcp-adapters/reddit": {
-      "name": "@epicenter/mcp-adapter-reddit",
-      "version": "0.0.0",
-      "dependencies": {
-        "csv-parse": "^5.5.6",
-        "fflate": "^0.8.2",
-      },
-    },
-    "packages/mcp-core": {
-      "name": "@repo/mcp-core",
-      "version": "0.0.0",
-      "dependencies": {
-        "arktype": "catalog:",
-        "drizzle-kit": "catalog:",
-        "drizzle-orm": "catalog:",
-      },
-      "devDependencies": {
-        "typescript": "catalog:",
-      },
-    },
     "packages/shared": {
       "name": "@repo/shared",
       "version": "0.0.0",
@@ -320,6 +301,18 @@
       },
       "peerDependencies": {
         "svelte": ">=5.0.0",
+      },
+    },
+    "packages/vault-core": {
+      "name": "@repo/vault-core",
+      "version": "0.0.0",
+      "dependencies": {
+        "arktype": "catalog:",
+        "drizzle-kit": "catalog:",
+        "drizzle-orm": "catalog:",
+      },
+      "devDependencies": {
+        "typescript": "catalog:",
       },
     },
   },
@@ -472,8 +465,6 @@
     "@epicenter/cli": ["@epicenter/cli@workspace:apps/cli"],
 
     "@epicenter/demo-mcp": ["@epicenter/demo-mcp@workspace:apps/demo-mcp"],
-
-    "@epicenter/mcp-adapter-reddit": ["@epicenter/mcp-adapter-reddit@workspace:packages/mcp-adapters/reddit"],
 
     "@epicenter/opencode": ["@epicenter/opencode@0.3.128-epicenter.1", "", { "dependencies": { "@actions/core": "1.11.1", "@actions/github": "6.0.1", "@clack/prompts": "1.0.0-alpha.1", "@hono/zod-validator": "0.4.2", "@modelcontextprotocol/sdk": "1.15.1", "@octokit/graphql": "9.0.1", "@octokit/rest": "22.0.0", "@openauthjs/openauth": "0.4.3", "@opencode-ai/plugin": "0.3.128", "@opencode-ai/sdk": "0.3.128", "@standard-schema/spec": "1.0.0", "@zip.js/zip.js": "2.7.62", "ai": "5.0.0-beta.21", "decimal.js": "10.5.0", "diff": "8.0.2", "gray-matter": "4.0.3", "hono": "4.7.10", "hono-openapi": "0.4.8", "isomorphic-git": "1.32.1", "jsonc-parser": "3.3.1", "minimatch": "10.0.3", "open": "10.1.2", "remeda": "2.26.0", "tree-sitter": "0.22.4", "tree-sitter-bash": "0.23.3", "turndown": "7.2.0", "vscode-jsonrpc": "8.2.1", "xdg-basedir": "5.1.0", "yargs": "18.0.0", "zod": "3.25.49", "zod-openapi": "4.1.0" }, "bin": { "opencode": "src/index.ts" } }, "sha512-ipA3tQucWQX0vNmQMrnZkRQFnkMc119v0zvAhFkcl3GQ4wBxgfYIThfvUAbtQ7yLCy4EDswH4RDwyOFCJoSGzw=="],
 
@@ -781,13 +772,13 @@
 
     "@repo/db": ["@repo/db@workspace:packages/db"],
 
-    "@repo/mcp-core": ["@repo/mcp-core@workspace:packages/mcp-core"],
-
     "@repo/shared": ["@repo/shared@workspace:packages/shared"],
 
     "@repo/svelte-utils": ["@repo/svelte-utils@workspace:packages/svelte-utils"],
 
     "@repo/ui": ["@repo/ui@workspace:packages/ui"],
+
+    "@repo/vault-core": ["@repo/vault-core@workspace:packages/vault-core"],
 
     "@repo/whispering": ["@repo/whispering@workspace:apps/whispering"],
 
@@ -958,6 +949,8 @@
     "@tauri-apps/plugin-os": ["@tauri-apps/plugin-os@2.3.0", "", { "dependencies": { "@tauri-apps/api": "^2.6.0" } }, "sha512-dm3bDsMuUngpIQdJ1jaMkMfyQpHyDcaTIKTFaAMHoKeUd+Is3UHO2uzhElr6ZZkfytIIyQtSVnCWdW2Kc58f3g=="],
 
     "@tauri-apps/plugin-process": ["@tauri-apps/plugin-process@2.3.0", "", { "dependencies": { "@tauri-apps/api": "^2.6.0" } }, "sha512-0DNj6u+9csODiV4seSxxRbnLpeGYdojlcctCuLOCgpH9X3+ckVZIEj6H7tRQ7zqWr7kSTEWnrxtAdBb0FbtrmQ=="],
+
+    "@tauri-apps/plugin-shell": ["@tauri-apps/plugin-shell@2.3.0", "", { "dependencies": { "@tauri-apps/api": "^2.6.0" } }, "sha512-6GIRxO2z64uxPX4CCTuhQzefvCC0ew7HjdBhMALiGw74vFBDY95VWueAHOHgNOMV4UOUAFupyidN9YulTe5xlA=="],
 
     "@tauri-apps/plugin-updater": ["@tauri-apps/plugin-updater@2.9.0", "", { "dependencies": { "@tauri-apps/api": "^2.6.0" } }, "sha512-j++sgY8XpeDvzImTrzWA08OqqGqgkNyxczLD7FjNJJx/uXxMZFz5nDcfkyoI/rCjYuj2101Tci/r/HFmOmoxCg=="],
 
@@ -1211,8 +1204,6 @@
 
     "cssstyle": ["cssstyle@4.6.0", "", { "dependencies": { "@asamuzakjp/css-color": "^3.2.0", "rrweb-cssom": "^0.8.0" } }, "sha512-2z+rWdzbbSZv6/rhtvzvqeZQHrBaqgogqt85sqFNbabZOuFbCVFb8kPeEtZjiKkbrm395irpNKiYeFeLiQnFPg=="],
 
-    "csv-parse": ["csv-parse@5.6.0", "", {}, "sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q=="],
-
     "data-uri-to-buffer": ["data-uri-to-buffer@4.0.1", "", {}, "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A=="],
 
     "data-urls": ["data-urls@5.0.0", "", { "dependencies": { "whatwg-mimetype": "^4.0.0", "whatwg-url": "^14.0.0" } }, "sha512-ZYP5VBHshaDAiVZxjbRVcFJpc+4xGgT0bK3vzy1HLN8jTO975HEbuYzZJcHoQEY5K1a0z8YayJkyVETa08eNTg=="],
@@ -1393,7 +1384,7 @@
 
     "fetch-blob": ["fetch-blob@3.2.0", "", { "dependencies": { "node-domexception": "^1.0.0", "web-streams-polyfill": "^3.0.3" } }, "sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ=="],
 
-    "fflate": ["fflate@0.8.2", "", {}, "sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A=="],
+    "fflate": ["fflate@0.4.8", "", {}, "sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA=="],
 
     "file-entry-cache": ["file-entry-cache@8.0.0", "", { "dependencies": { "flat-cache": "^4.0.0" } }, "sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ=="],
 
@@ -2175,6 +2166,8 @@
 
     "tar": ["tar@7.4.3", "", { "dependencies": { "@isaacs/fs-minipass": "^4.0.0", "chownr": "^3.0.0", "minipass": "^7.1.2", "minizlib": "^3.0.1", "mkdirp": "^3.0.1", "yallist": "^5.0.0" } }, "sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw=="],
 
+    "tauri-plugin-macos-permissions-api": ["tauri-plugin-macos-permissions-api@2.3.0", "", { "dependencies": { "@tauri-apps/api": "^2.5.0" } }, "sha512-pZp0jmDySysBqrGueknd1a7Rr4XEO9aXpMv9TNrT2PDHP0MSH20njieOagsFYJ5MCVb8A+wcaK0cIkjUC2dOww=="],
+
     "tiny-inflate": ["tiny-inflate@1.0.3", "", {}, "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw=="],
 
     "tinyexec": ["tinyexec@0.3.2", "", {}, "sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA=="],
@@ -2572,8 +2565,6 @@
     "paneforge/svelte-toolbelt": ["svelte-toolbelt@0.9.3", "", { "dependencies": { "clsx": "^2.1.1", "runed": "^0.29.0", "style-to-object": "^1.0.8" }, "peerDependencies": { "svelte": "^5.30.2" } }, "sha512-HCSWxCtVmv+c6g1ACb8LTwHVbDqLKJvHpo6J8TaqwUme2hj9ATJCpjCPNISR1OCq2Q4U1KT41if9ON0isINQZw=="],
 
     "postcss/nanoid": ["nanoid@3.3.11", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="],
-
-    "posthog-js/fflate": ["fflate@0.4.8", "", {}, "sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA=="],
 
     "prompts/kleur": ["kleur@3.0.3", "", {}, "sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w=="],
 

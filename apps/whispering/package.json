@@ -1,6 +1,6 @@
 {
 	"name": "@repo/whispering",
-	"version": "7.2.1",
+	"version": "7.3.0",
 	"description": "",
 	"exports": {
 		"./commands": "./src/lib/commands.ts"
@@ -63,6 +63,7 @@
 		"@tauri-apps/plugin-opener": "^2.4.0",
 		"@tauri-apps/plugin-os": "^2.3.0",
 		"@tauri-apps/plugin-process": "^2.3.0",
+		"@tauri-apps/plugin-shell": "^2.3.0",
 		"@tauri-apps/plugin-updater": "^2.9.0",
 		"arktype": "catalog:",
 		"audio-recorder-polyfill": "^0.4.1",
@@ -72,6 +73,7 @@
 		"groq-sdk": "^0.25.0",
 		"nanoid": "catalog:",
 		"openai": "^5.7.0",
+		"tauri-plugin-macos-permissions-api": "^2.3.0",
 		"wellcrafted": "catalog:",
 		"zod": "catalog:"
 	}

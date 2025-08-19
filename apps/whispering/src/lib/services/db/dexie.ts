@@ -4,7 +4,7 @@ import type { DownloadService } from '$lib/services/download';
 import type { Settings } from '$lib/settings';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
-import { createTaggedError } from 'wellcrafted/error';
+import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type {
 	Recording,
@@ -129,8 +129,8 @@ class WhisperingDatabase extends Dexie {
 										},
 									});
 								} catch (err) {
-									const error =
-										err instanceof Error ? err : new Error(String(err));
+									const error = extractErrorMessage(err);
+
 									rpc.notify.error.execute({
 										title: 'Failed to Delete Database',
 										description:
@@ -177,9 +177,9 @@ class WhisperingDatabase extends Dexie {
 						const blobs = oldRecordings.map(({ id, blob }) => ({ id, blob }));
 
 						await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.bulkAdd(metadata);
 						await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
@@ -202,9 +202,9 @@ class WhisperingDatabase extends Dexie {
 					upgrade: async (tx) => {
 						// Get data from both tables
 						const metadata = await tx
-							.table<
-								RecordingsDbSchemaV2['recordingMetadata']
-							>('recordingMetadata')
+							.table<RecordingsDbSchemaV2['recordingMetadata']>(
+								'recordingMetadata',
+							)
 							.toArray();
 						const blobs = await tx
 							.table<RecordingsDbSchemaV2['recordingBlobs']>('recordingBlobs')
