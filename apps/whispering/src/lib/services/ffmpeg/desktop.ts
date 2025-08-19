@@ -7,18 +7,14 @@ import { IS_WINDOWS } from '$lib/constants/platform';
 export function createFfmpegService(): FfmpegService {
 	return {
 		async checkInstalled(): Promise<Result<boolean, WhisperingError>> {
-			const result = await tryAsync({
+			// Try direct FFmpeg command first
+			const directFfmpegResult = await tryAsync({
 				try: async () => {
 					const { Command } = await import('@tauri-apps/plugin-shell');
 					const directCommand = await Command.create('ffmpeg', [
 						'-version',
 					]).execute();
-					if (directCommand.code === 0) return directCommand;
-					const output = await (IS_WINDOWS
-						? Command.create('cmd', ['/c', 'ffmpeg -version'])
-						: Command.create('sh', ['-c', 'ffmpeg -version'])
-					).execute();
-					return output;
+					return directCommand;
 				},
 				mapErr: (error) =>
 					WhisperingErr({
@@ -28,9 +24,32 @@ export function createFfmpegService(): FfmpegService {
 					}),
 			});
 
-			if (result.error) return result;
+			if (directFfmpegResult.error) return directFfmpegResult;
 
-			return Ok(result.data.code === 0);
+			// If direct command succeeded, return success
+			if (directFfmpegResult.data.code === 0) return Ok(true);
+
+			// Otherwise, try shell-wrapped command as fallback
+			const shellFfmpegResult = await tryAsync({
+				try: async () => {
+					const { Command } = await import('@tauri-apps/plugin-shell');
+					const output = await (IS_WINDOWS
+						? Command.create('cmd', ['/c', 'ffmpeg -version'])
+						: Command.create('sh', ['-c', 'ffmpeg -version'])
+					).execute();
+					return output;
+				},
+				mapErr: (error) =>
+					WhisperingErr({
+						title: '❌ Failed to check FFmpeg via shell',
+						description: `Unable to determine if FFmpeg is installed through shell. ${extractErrorMessage(error)}`,
+						action: { type: 'more-details', error },
+					}),
+			});
+
+			if (shellFfmpegResult.error) return shellFfmpegResult;
+
+			return Ok(shellFfmpegResult.data.code === 0);
 		},
 	};
 }
