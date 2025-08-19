@@ -73,15 +73,34 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
 Our vision is to build a personal workspace where you own your data, choose your models, and replace siloed apps with open, interoperable alternatives. All while preserving authenticity and being free and open source.
 
 
+## Quick Start
+
+Epicenter will have more apps in the future, but for now, the best way to get started is to run Whispering locally:
+
+```bash
+# Prerequisites: Install Bun from https://bun.sh (run bun upgrade if there's issues)
+git clone https://github.com/epicenter-so/epicenter.git
+cd epicenter
+bun install  # Will prompt to upgrade if your Bun version is too old
+cd apps/whispering
+bun dev
+```
+
 ## Join Us
 
-<div align="center">
-  <h3>🚀 We're looking for contributors</h3>
-  <p>If you're passionate about open source, local-first software, or are just a cracked Svelte/TypeScript developer—we'd love to build with you.</p>
-  <p><strong>→ <a href="CONTRIBUTING.md">Read our Contributing Guide</a> to get started</strong></p>
-  <p>If you think like a generalist, build like a hacker, and value tools that respect your mind:</p>
-  <p><strong>→ <a href="https://go.epicenter.so/discord">Join our Discord and DM me</a></strong></p>
-</div>
+## Discord Community
+
+If you think like a generalist, build like a hacker, and value tools that respect your mind—you'll fit right in.
+
+**→ [Join our Discord](https://go.epicenter.so/discord)**
+
+### We're looking for contributors
+
+If you're passionate about open source, local-first software, or are just a cracked Svelte/TypeScript developer—we'd love to build with you.
+
+**→ [Read our Contributing Guide](CONTRIBUTING.md) to get started**
+
+Contributors coordinate and share ideas in our Discord community.
 
 ## Tech Stack
 
