@@ -19,6 +19,7 @@
 	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { extractErrorMessage } from 'wellcrafted/error';
 
 	// Pre-built models configuration
 	const WHISPER_MODELS = [
@@ -172,8 +173,7 @@
 		} catch (error) {
 			console.error('Download failed:', error);
 			toast.error('Failed to download model', {
-				description:
-					error instanceof Error ? error.message : 'An error occurred',
+				description: extractErrorMessage(error),
 			});
 		} finally {
 			downloadingModels.delete(modelId);

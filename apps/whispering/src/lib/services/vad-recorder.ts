@@ -145,9 +145,7 @@ export function createVadService() {
 				try: () => vad.destroy(),
 				mapErr: (error) =>
 					VadRecorderServiceErr({
-						message: `Failed to stop Voice Activity Detector. ${
-							error instanceof Error ? error.message : 'Failed to stop VAD'
-						}`,
+						message: `Failed to stop Voice Activity Detector. ${extractErrorMessage(error)}`,
 						context: { vadState },
 						cause: error,
 					}),
