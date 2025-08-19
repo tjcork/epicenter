@@ -49,7 +49,7 @@ Here’s an overview:
     <img src="https://img.youtube.com/vi/1jYgBMrfVZs/maxresdefault.jpg" alt="Whispering Complete Setup Guide" width="600">
   </a>
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
-  <p><em>Note: We recently added support for Whisper C++, which isn't included inthe video. For setup, see the docs below.</em></p>
+  <p><em>Note: We recently added support for Whisper C++, which isn't included in the video. For setup, see the docs below.</em></p>
 </div>
 
 and [here’s how I personally am using it with Claude Code these days](https://www.youtube.com/watch?v=tpix588SeiQ).
