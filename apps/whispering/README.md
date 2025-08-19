@@ -170,23 +170,80 @@ No installation needed! Works in any modern browser.
 
 </details>
 
-### 2️⃣ Get Your API Key
+### 2️⃣ Choose Your Transcription Method
 
-Right now, I personally use **Groq** for almost all my transcriptions.
+You have two options: **Local** (completely private) or **Cloud** (faster & easier).
 
-> 💡 **Why Groq?** The fastest models, super accurate, generous free tier, and unbeatable price (as cheap as $0.02/hour using `distil-whisper-large-v3-en`)
+<details open>
+<summary><strong>🏠 Option A: Local Transcription (Whisper.cpp)</strong></summary>
+
+> 💡 **Why local?** 100% private, runs offline, no API costs, works on any hardware
+
+#### Install FFmpeg First
+
+Whisper.cpp needs FFmpeg to convert audio to 16kHz format:
+
+**🍎 macOS:**
+```bash
+brew install ffmpeg
+```
+
+**🪟 Windows:**
+```powershell
+# Using Chocolatey
+choco install ffmpeg
+
+# Or using Scoop
+scoop install ffmpeg
+```
+
+**🐧 Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt install ffmpeg
+
+# Fedora
+sudo dnf install ffmpeg
+
+# Arch
+sudo pacman -S ffmpeg
+```
+
+**✅ Setup complete!** No API keys, no signups. Ready for offline transcription.
+
+</details>
+
+<details>
+<summary><strong>☁️ Option B: Cloud Transcription (Groq)</strong></summary>
+
+> 💡 **Why Groq?** Fastest transcription, super accurate, generous free tier, as cheap as $0.02/hour
+
+#### Get Your Free API Key
 
 1. Visit [console.groq.com/keys](https://console.groq.com/keys)
-2. Sign up → Create API key → Copy it
+2. Sign up (free, no credit card) → Create API key → Copy it
 
-**🙌 That's it!** No credit card required for the free tier. You can start transcribing immediately.
+**✅ That's it!** You now have access to lightning-fast cloud transcription.
+
+</details>
 
 ### 3️⃣ Connect & Test
 
+**For Local (Whisper.cpp):**
 1. Open Whispering
 2. Click **Settings** (⚙️) → **Transcription**
-3. Select **Groq** → Paste your API key where it says `Groq API Key`
-4. Click the recording button (or press `Cmd+Shift+;` anywhere) and say "Testing Whispering"
+3. Select **Whisper C++** from the dropdown
+4. Choose a model (start with `Small`)
+5. Click **Download** button next to the model → Wait for download to complete
+6. Make sure the model shows as **activated**
+7. Click record and say "Testing Whispering"
+
+**For Cloud (Groq):**
+1. Open Whispering
+2. Click **Settings** (⚙️) → **Transcription**
+3. Select **Groq** → Paste your API key
+4. Choose a model (`distil-whisper-large-v3-en` is fastest)
+5. Click record and say "Testing Whispering"
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
