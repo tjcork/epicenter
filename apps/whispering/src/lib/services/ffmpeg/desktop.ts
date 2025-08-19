@@ -2,7 +2,7 @@ import { tryAsync, Ok, type Result } from 'wellcrafted/result';
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { FfmpegService } from './types';
 import { extractErrorMessage } from 'wellcrafted/error';
-import { toast } from 'svelte-sonner';
+import { IS_WINDOWS } from '$lib/constants/platform';
 
 export function createFfmpegService(): FfmpegService {
 	return {
@@ -10,10 +10,14 @@ export function createFfmpegService(): FfmpegService {
 			const result = await tryAsync({
 				try: async () => {
 					const { Command } = await import('@tauri-apps/plugin-shell');
-					const output = await Command.create('sh', [
-						'-c',
-						'ffmpeg -version',
+					const directCommand = await Command.create('ffmpeg', [
+						'-version',
 					]).execute();
+					if (directCommand.code === 0) return directCommand;
+					const output = await (IS_WINDOWS
+						? Command.create('cmd', ['/c', 'ffmpeg -version'])
+						: Command.create('sh', ['-c', 'ffmpeg -version'])
+					).execute();
 					return output;
 				},
 				mapErr: (error) =>
