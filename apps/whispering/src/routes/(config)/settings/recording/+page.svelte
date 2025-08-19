@@ -17,6 +17,8 @@
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS } from '$lib/constants/platform';
 
+	const { data } = $props();
+
 	const SAMPLE_RATE_OPTIONS = [
 		{ value: '16000', label: 'Voice Quality (16kHz): Optimized for speech' },
 		{ value: '44100', label: 'Standard Quality (44.1kHz): CD quality' },
@@ -82,12 +84,14 @@
 					Global Shortcuts May Be Unreliable
 				</Alert.Title>
 				<Alert.Description>
-					When using the browser recorder, macOS App Nap may prevent the browser recording logic from starting when not in focus. Consider using the native backend for reliable global shortcut support.
+					When using the browser recorder, macOS App Nap may prevent the browser
+					recording logic from starting when not in focus. Consider using the
+					native backend for reliable global shortcut support.
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
 
-		{#if isUsingNativeBackendAtWrongSampleRate()}
+		{#if isUsingNativeBackendAtWrongSampleRate() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -105,7 +109,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isUsingNativeBackendWithCloudTranscription()}
+		{:else if isUsingNativeBackendWithCloudTranscription() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
