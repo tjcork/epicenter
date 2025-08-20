@@ -10,22 +10,33 @@
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
-		DeepgramApiKeyInput
+		DeepgramApiKeyInput,
 	} from '$lib/components/settings';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
+	import { Checkbox } from '@repo/ui/checkbox';
+	import { Input } from '@repo/ui/input';
 	import { Separator } from '@repo/ui/separator';
+	import * as Alert from '@repo/ui/alert';
+	import { Link } from '@repo/ui/link';
+	import * as Collapsible from '@repo/ui/collapsible';
+	import * as Select from '@repo/ui/select';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		ELEVENLABS_TRANSCRIPTION_MODELS,
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
 		TRANSCRIPTION_SERVICE_OPTIONS,
-		DEEPGRAM_TRANSCRIPTION_MODELS
+		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { CheckIcon } from '@lucide/svelte';
+	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
+	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
+	import {
+		isUsingWhisperCppWithBrowserBackend,
+		isUsingNativeBackendAtWrongSampleRate,
+	} from '../../../+layout/check-ffmpeg';
 </script>
 
 <svelte:head>
@@ -47,7 +58,10 @@
 		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		selected={settings.value['transcription.selectedTranscriptionService']}
 		onSelectedChange={(selected) => {
-			settings.updateKey('transcription.selectedTranscriptionService', selected);
+			settings.updateKey(
+				'transcription.selectedTranscriptionService',
+				selected,
+			);
 		}}
 		placeholder="Select a transcription service"
 	/>
@@ -323,6 +337,63 @@
 				</p>
 			{/snippet}
 		</LabeledInput>
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'whispercpp'}
+		<div class="space-y-4">
+			<!-- Whisper Model Selector Component -->
+			{#if window.__TAURI_INTERNALS__}
+				<WhisperModelSelector />
+			{/if}
+
+			{#if isUsingWhisperCppWithBrowserBackend()}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						FFmpeg Required
+					</Alert.Title>
+					<Alert.Description>
+						Whisper C++ requires FFmpeg to convert audio to 16kHz WAV format
+						when using browser recording.
+						<Link
+							href="/install-ffmpeg"
+							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						>
+							Install FFmpeg →
+						</Link>
+					</Alert.Description>
+				</Alert.Root>
+			{:else if isUsingNativeBackendAtWrongSampleRate()}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						FFmpeg Required
+					</Alert.Title>
+					<Alert.Description>
+						Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
+						your current {settings.value['recording.desktop.sampleRate']}Hz
+						sample rate.
+						<Link
+							href="/install-ffmpeg"
+							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						>
+							Install FFmpeg →
+						</Link>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
+		</div>
+
+		<div class="flex items-center space-x-2">
+			<Checkbox
+				id="whispercpp-use-gpu"
+				checked={settings.value['transcription.whispercpp.useGpu']}
+				onCheckedChange={(checked) => {
+					settings.updateKey('transcription.whispercpp.useGpu', checked);
+				}}
+			/>
+			<label for="whispercpp-use-gpu" class="text-sm font-medium">
+				Use GPU acceleration (if available)
+			</label>
+		</div>
 	{/if}
 
 	<LabeledSelect

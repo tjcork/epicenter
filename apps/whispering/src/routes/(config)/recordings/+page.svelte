@@ -79,7 +79,7 @@
 	const deleteRecordings = createMutation(
 		rpc.recordings.deleteRecordings.options,
 	);
-	const copyToClipboard = createMutation(rpc.clipboard.copyToClipboard.options);
+	const copyToClipboard = createMutation(rpc.text.copyToClipboard.options);
 
 	const DATE_FORMAT = "PP p"; // e.g., Aug 13, 2025, 10:00 AM
 

@@ -11,6 +11,7 @@ import {
 	syncGlobalShortcutsWithSettings,
 	syncLocalShortcutsWithSettings,
 } from '../../routes/+layout/register-commands';
+import { extractErrorMessage } from 'wellcrafted/error';
 
 /**
  * Encapsulated settings object with controlled access.
@@ -56,7 +57,7 @@ export const settings = (() => {
 		onUpdateError: (err) => {
 			rpc.notify.error.execute({
 				title: 'Error updating settings',
-				description: err instanceof Error ? err.message : 'Unknown error',
+				description: extractErrorMessage(err),
 			});
 		},
 	});

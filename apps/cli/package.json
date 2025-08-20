@@ -24,7 +24,7 @@
 	"files": ["src", "README.md", "package.json"],
 	"dependencies": {
 		"@epicenter/opencode": "latest",
-		"arktype": "^2.1.20",
+		"arktype": "catalog:",
 		"get-port": "^7.1.0",
 		"wellcrafted": "^0.21.2",
 		"yargs": "^17.7.2",

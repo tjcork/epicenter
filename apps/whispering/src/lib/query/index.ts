@@ -1,15 +1,16 @@
 // Import all query modules
 import { analytics } from './analytics';
-import { clipboard } from './clipboard';
 import { commands } from './commands';
 import { delivery } from './delivery';
 import { download } from './download';
+import { ffmpeg } from './ffmpeg';
 import { notify } from './notify';
 import { recorder } from './recorder';
 import { recordings } from './recordings';
 import { settings } from './settings';
 import { shortcuts } from './shortcuts';
 import { sound } from './sound';
+import { text } from './text';
 import { transcription } from './transcription';
 import { transformationRuns } from './transformation-runs';
 import { transformations } from './transformations';
@@ -23,9 +24,10 @@ import { vadRecorder } from './vad-recorder';
  */
 export const rpc = {
 	analytics,
-	clipboard,
+	text,
 	commands,
 	download,
+	ffmpeg,
 	recorder,
 	vadRecorder,
 	recordings,
