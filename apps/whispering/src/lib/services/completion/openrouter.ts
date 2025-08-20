@@ -1,6 +1,7 @@
 import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import type { CompletionService } from './types';
 import { CompletionServiceErr } from './types';
+import { extractErrorMessage } from 'wellcrafted/error';
 
 export function createOpenRouterCompletionService(): CompletionService {
   return {
@@ -47,29 +48,11 @@ export function createOpenRouterCompletionService(): CompletionService {
           const result = await response.json();
           return result.choices?.[0]?.message?.content || '';
         },
-        mapErr: (error) => {
-          let errMsg = 'OpenRouter completion failed.';
-          let status = undefined;
-          let name = undefined;
-          if (typeof error === 'object' && error !== null) {
-            // @ts-ignore
-            errMsg = error.message || errMsg;
-            // @ts-ignore
-            status = error.status;
-          if (isErrorWithProps(error)) {
-            errMsg = error.message || errMsg;
-            status = error.status;
-            const errObj = error as { message?: string; status?: number; name?: string };
-            errMsg = errObj.message || errMsg;
-            status = errObj.status;
-            name = errObj.name;
-          }
-          return CompletionServiceErr({
-            message: errMsg,
-            context: { status, name },
+        mapErr: (error) => 
+          CompletionServiceErr({
+            message: `OpenRouter completion failed: ${extractErrorMessage(error)}`,
             cause: error,
-          });
-        },
+          }),
       });
       if (error) return Err(error);
       return Ok(data);
