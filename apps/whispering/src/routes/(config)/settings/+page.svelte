@@ -82,6 +82,7 @@
 			id="max-recording-count"
 			label="Maximum Recordings"
 			items={[
+				{ value: '0', label: '0 Recordings (Never Save)' },
 				{ value: '5', label: '5 Recordings' },
 				{ value: '10', label: '10 Recordings' },
 				{ value: '25', label: '25 Recordings' },
