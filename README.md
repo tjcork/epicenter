@@ -8,8 +8,6 @@
 </p>
 
 
->
->
 > **📢 Repository Update:** Whispering has become **Epicenter**! The original repository moved [here](https://github.com/epicenter-so/epicenter/tree/main/apps/whispering). Everything else remains the same—same tools, same philosophy, same team.
 >
 > <details>
@@ -83,7 +81,7 @@ Epicenter is an ecosystem of open-source, local-first apps. Our eventual goal is
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/whispering">Explore the git repo</a></strong></p>
     </td>
     <td align="center" width="50%">
-      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Assistant</a></h3>
+      <h3>🤖 <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Epicenter Assistant (currently unstable, waiting for [this PR](https://github.com/sst/opencode/pull/1218) in OpenCode to merge).</a></h3>
       <p>A local-first assistant you can chat with. It lives in your folder, becoming the access point to everything you've ever written, thought, or built.</p>
       <p><strong>→ <a href="https://github.com/epicenter-so/epicenter/tree/main/apps/sh">Explore the git repo</a></strong></p>
     </td>
