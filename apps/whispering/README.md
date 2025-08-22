@@ -13,6 +13,10 @@
   <a href="LICENSE" target="_blank">
     <img alt="MIT License" src="https://img.shields.io/github/license/epicenter-so/epicenter.svg?style=flat-square" />
   </a>
+  <!-- Discord Badge -->
+  <a href="https://go.epicenter.so/discord" target="_blank">
+    <img alt="Discord" src="https://img.shields.io/discord/1391098486178582549?style=flat-square&logo=discord&logoColor=white&label=Discord&color=5865F2" />
+  </a>
   <!-- Platform Support Badges -->
   <a href="https://github.com/epicenter-so/epicenter/releases" target="_blank">
     <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
@@ -70,6 +74,7 @@ The math is simple: transcription APIs cost $0.02-0.36/hour. Subscription apps c
     <img src="https://img.youtube.com/vi/1jYgBMrfVZs/maxresdefault.jpg" alt="Whispering Complete Setup Guide" width="600">
   </a>
   <p><em>Click to watch: Complete setup and usage guide (5 min)</em></p>
+  <p><em>Note: We recently added support for Whisper C++, which isn't included in the video. For setup, see the docs below.</em></p>
 </div>
 
 > [!TIP]
@@ -89,8 +94,6 @@ Set up Whispering and be ready to transcribe in about two minutes.
 
 ### 1️⃣ Download Whispering
 
-Choose your operating system below and click the download link:
-
 <details>
 <summary><strong>🍎 macOS</strong></summary>
 
@@ -98,9 +101,10 @@ Choose your operating system below and click the download link:
 
 | Architecture | Download | Requirements |
 |-------------|----------|--------------|
-| **Apple Silicon** | [Whispering_7.2.1_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
-| **Intel** | [Whispering_7.2.1_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_x64.dmg) | Intel-based Macs |
+| **Apple Silicon** | [Whispering_7.3.0_aarch64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_aarch64.dmg) | M1/M2/M3/M4 Macs |
+| **Intel** | [Whispering_7.3.0_x64.dmg](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64.dmg) | Intel-based Macs |
 
+> [!TIP]
 > [!TIP]
 > **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
@@ -125,8 +129,8 @@ Choose your operating system below and click the download link:
 
 | Installer Type | Download | Description |
 |---------------|----------|-------------|
-| **MSI Installer** | [Whispering_7.2.1_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_x64_en-US.msi) | Recommended Standard Windows installer |
-| **EXE Installer** | [Whispering_7.2.1_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_x64-setup.exe) | Alternative installer option |
+| **MSI Installer** | [Whispering_7.3.0_x64_en-US.msi](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64_en-US.msi) | Recommended Standard Windows installer |
+| **EXE Installer** | [Whispering_7.3.0_x64-setup.exe](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_x64-setup.exe) | Alternative installer option |
 
 #### Installation
 
@@ -146,29 +150,29 @@ Whispering will appear in your Start Menu when complete.
 
 | Package Format | Download | Compatible With |
 |---------------|----------|-----------------|
-| **AppImage** | [Whispering_7.2.1_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_amd64.AppImage) | All Linux distributions |
-| **DEB Package** | [Whispering_7.2.1_amd64.deb](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_amd64.deb) | Debian, Ubuntu, Pop!_OS |
-| **RPM Package** | [Whispering-7.2.1-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering-7.2.1-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
+| **AppImage** | [Whispering_7.3.0_amd64.AppImage](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.AppImage) | All Linux distributions |
+| **DEB Package** | [Whispering_7.3.0_amd64.deb](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.deb) | Debian, Ubuntu, Pop!_OS |
+| **RPM Package** | [Whispering-7.3.0-1.x86_64.rpm](https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering-7.3.0-1.x86_64.rpm) | Fedora, RHEL, openSUSE |
 
 #### Quick Install Commands
 
-**AppImage** (Universal)
+**AppImage (Universal)**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_amd64.AppImage
-chmod +x Whispering_7.2.1_amd64.AppImage
-./Whispering_7.2.1_amd64.AppImage
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.AppImage
+chmod +x Whispering_7.3.0_amd64.AppImage
+./Whispering_7.3.0_amd64.AppImage
 ```
 
 **Debian/Ubuntu**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering_7.2.1_amd64.deb
-sudo dpkg -i Whispering_7.2.1_amd64.deb
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering_7.3.0_amd64.deb
+sudo dpkg -i Whispering_7.3.0_amd64.deb
 ```
 
 **Fedora/RHEL**
 ```bash
-wget https://github.com/epicenter-so/epicenter/releases/download/v7.2.1/Whispering-7.2.1-1.x86_64.rpm
-sudo rpm -i Whispering-7.2.1-1.x86_64.rpm
+wget https://github.com/epicenter-so/epicenter/releases/download/v7.3.0/Whispering-7.3.0-1.x86_64.rpm
+sudo rpm -i Whispering-7.3.0-1.x86_64.rpm
 ```
 
 </details>
@@ -185,7 +189,8 @@ sudo rpm -i Whispering-7.2.1-1.x86_64.rpm
 
 No installation needed! Works in any modern browser.
 
-> **Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
+> [!NOTE]
+> The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
@@ -205,10 +210,37 @@ Right now, I personally use **Groq** for almost all my transcriptions.
 
 1. Open Whispering
 2. Click **Settings** (⚙️) → **Transcription**
-3. Select **Groq** → Paste your API key where it says `Groq API Key`
-4. Click the recording button (or press `Cmd+Shift+;` anywhere) and say "Testing Whispering"
+3. Select **Whisper C++** from the dropdown
+4. Choose a model (start with `Small`)
+5. Click **Download** button next to the model → Wait for download to complete
+6. Make sure the model shows as **activated**
+7. Click record and say "Testing Whispering"
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
+
+</details>
+
+<details>
+<summary><strong>☁️ Option B: Cloud Transcription (Groq)</strong></summary>
+
+> 💡 **Why Groq?** Fastest transcription, super accurate, generous free tier, as cheap as $0.02/hour
+
+#### Get Your Free API Key
+
+1. Visit [console.groq.com/keys](https://console.groq.com/keys)
+2. Sign up (free, no credit card) → Create API key → Copy it
+
+#### Test Your Setup
+
+1. Open Whispering
+2. Click **Settings** (⚙️) → **Transcription**
+3. Select **Groq** → Paste your API key
+4. Choose a model (`distil-whisper-large-v3-en` is fastest)
+5. Click record and say "Testing Whispering"
+
+**🎉 Success!** Your words are now in your clipboard. Paste anywhere!
+
+</details>
 
 <details>
 <summary><strong>Having trouble? Common issues & fixes</strong></summary>
@@ -272,7 +304,7 @@ See [Issue #526](https://github.com/epicenter-so/epicenter/issues/526) for more 
 
 </details>
 
-### 4️⃣ Next Steps: Power User Features
+### 3️⃣ Next Steps: Power User Features
 
 Take your transcription experience to the next level with these advanced features:
 
@@ -549,157 +581,28 @@ Whispering showcases the power of modern web development as a comprehensive exam
 
 **Note:** The browser extension is temporarily disabled while we stabilize the desktop app.
 
-#### Architecture Patterns
-- Service Layer: Platform-agnostic business logic with Result types
-- Query Layer: Reactive data management with caching
-- RPC Pattern: Unified API interface (`rpc.recordings.getAllRecordings`)
-- Dependency Injection: Clean separation of concerns
+### Architecture Overview
 
-### Architecture Deep Dive
+Whispering uses a clean three-layer architecture with 97% code sharing between desktop and web versions:
 
-Whispering uses a clean three-layer architecture that achieves **extensive code sharing** between the desktop app (Tauri) and web app. This is possible because of how we handle platform differences and separate business logic from UI concerns.
+- **Service Layer**: Platform-agnostic business logic with Result types
+- **Query Layer**: Reactive data management with caching
+- **UI Layer**: Clean Svelte 5 components with minimal logic
 
-**Quick Navigation:** [Service Layer](#service-layer---pure-business-logic--platform-abstraction) | [Query Layer](#query-layer---adding-reactivity-and-state-management) | [Error Handling](#error-handling-with-wellcrafted)
+The architecture achieves extensive code reuse through build-time platform detection, allowing the same codebase to run natively on desktop (via Tauri) and in the browser.
 
-```
-┌─────────────┐     ┌─────────────┐     ┌──────────────┐
-│  UI Layer   │ --> │  Query Layer│ --> │ Service Layer│
-│ (Svelte 5)  │     │ (TanStack)  │     │   (Pure)     │
-└─────────────┘     └─────────────┘     └──────────────┘
-      ↑                    │
-      └────────────────────┘
-         Reactive Updates
-```
-
-#### Service Layer - Pure Business Logic + Platform Abstraction
-
-The service layer contains all business logic as **pure functions** with zero UI dependencies. Services don't know about reactive Svelte variables, user settings, or UI state—they only accept explicit parameters and return `Result<T, E>` types for consistent error handling.
-
-The key innovation is **build-time platform detection**. Services automatically choose the right implementation based on the target platform:
-
-```typescript
-// Platform abstraction happens at build time
-export const ClipboardServiceLive = window.__TAURI_INTERNALS__
-  ? createClipboardServiceDesktop() // Uses Tauri clipboard APIs
-  : createClipboardServiceWeb();     // Uses browser clipboard APIs
-
-// Same interface, different implementations
-export const NotificationServiceLive = window.__TAURI_INTERNALS__
-  ? createNotificationServiceDesktop() // Native OS notifications
-  : createNotificationServiceWeb();     // Browser notifications
-```
-
-This design enables **97% code sharing** between desktop and web versions. The vast majority of the application logic is platform-agnostic, with only the thin service implementation layer varying between platforms. Services are incredibly **testable** (just pass mock parameters), **reusable** (work identically anywhere), and **maintainable** (no hidden dependencies).
-
-##### Measuring Code Sharing
-
-To calculate the actual code sharing percentage, I analyzed the codebase:
-
-```bash
-# Count total lines of code in the app
-find src -name "*.ts" -o -name "*.svelte" -o -name "*.js" | \
-  grep -v node_modules | xargs wc -l
-# Result: 22,824 lines total
-
-# Count platform-specific implementation code
-find src/lib/services -name "*desktop.ts" -o -name "*web.ts" | \
-  xargs wc -l
-# Result: 685 lines (3%)
-
-# Code sharing calculation
-# Shared code: 22,824 - 685 = 22,139 lines (97%)
-```
-
-This minimal platform-specific code demonstrates how the architecture maximizes code reuse while maintaining native performance on each platform.
-
-**→ Learn more:** [Services README](./src/lib/services/README.md) | [Constants Organization](./src/lib/constants/README.md)
-
-#### Query Layer - Adding Reactivity and State Management
-
-The query layer is where reactivity gets injected on top of pure services. It wraps service functions with TanStack Query and handles two key responsibilities:
-
-**Runtime Dependency Injection** - Dynamically switching service implementations based on user settings:
-
-```typescript
-// From transcription query layer
-async function transcribeBlob(blob: Blob) {
-  const selectedService = settings.value['transcription.selectedTranscriptionService'];
-
-  switch (selectedService) {
-    case 'OpenAI':
-      return services.transcriptions.openai.transcribe(blob, {
-        apiKey: settings.value['apiKeys.openai'],
-        model: settings.value['transcription.openai.model'],
-      });
-    case 'Groq':
-      return services.transcriptions.groq.transcribe(blob, {
-        apiKey: settings.value['apiKeys.groq'], 
-        model: settings.value['transcription.groq.model'],
-      });
-  }
-}
-```
-
-**Optimistic Updates** - Using the TanStack Query client to manipulate the cache for optimistic UI. By updating the cache, reactivity automatically kicks in and the UI reflects these changes, giving you instant optimistic updates.
-
-It's often unclear where exactly you should mutate the cache with the query client—sometimes at the component level, sometimes elsewhere. By having this dedicated query layer, it becomes very clear: we co-locate three key things in one place: (1) the service call, (2) runtime settings injection based on reactive variables, and (3) cache manipulation (also reactive). This creates a layer that bridges reactivity with services in an intuitive way. It also cleans up our components significantly because we have a consistent place to put this logic—now developers know that all cache manipulation lives in the query folder, making it clear where to find and add this type of functionality:
-
-```typescript
-// From recordings mutations
-createRecording: defineMutation({
-  resultMutationFn: async (recording: Recording) => {
-    const { data, error } = await services.db.createRecording(recording);
-    if (error) return Err(error);
-
-    // Optimistically update cache - UI updates instantly
-    queryClient.setQueryData(['recordings'], (oldData) => {
-      if (!oldData) return [recording];
-      return [...oldData, recording];
-    });
-
-    return Ok(data);
-  },
-})
-```
-
-This design keeps all reactive state management isolated in the query layer, allowing services to remain pure and platform-agnostic while the UI gets dynamic behavior and instant updates. 
-
-**→ Learn more:** [Query README](./src/lib/query/README.md) | [RPC Pattern Guide](./src/lib/query/README.md#rpc-pattern)
-
-#### Error Transformation
-
-The query layer also transforms service-specific errors into `WhisperingError` types that integrate seamlessly with the toast notification system. This happens inside `resultMutationFn` or `resultQueryFn`, creating a clean boundary between business logic errors and UI presentation:
-
-```typescript
-// Service returns domain-specific error
-const { data, error: serviceError } = await services.recorder.startRecording(...);
-
-if (serviceError) {
-  // Query layer transforms to UI-friendly WhisperingError
-  return Err(WhisperingError({
-    title: '❌ Failed to start recording',
-    description: serviceError.message,  // Preserve detailed message
-    action: { type: 'more-details', error: serviceError }
-  }));
-}
-```
-
-#### Error Handling with WellCrafted
-
-Whispering uses [WellCrafted](https://github.com/wellcrafted-dev/wellcrafted), a lightweight TypeScript library I created to bring Rust-inspired error handling to JavaScript. I built WellCrafted after using the [effect-ts library](https://github.com/Effect-TS/effect) when it first came out in 2023—I was very excited about the concepts but found it too verbose. WellCrafted distills my takeaways from effect-ts and makes them better by leaning into more native JavaScript syntax, making it perfect for this use case. Unlike traditional try-catch blocks that hide errors, WellCrafted makes all potential failures explicit in function signatures using the `Result<T, E>` pattern.
-
-`wellcrafted` ensures robust error handling across the entire codebase, from service layer functions to UI components, while maintaining excellent developer experience with TypeScript's control flow analysis.
+**→ For developers:** See the detailed [Architecture Deep Dive](./ARCHITECTURE.md) to understand how everything fits together.
 
 ### Run Whispering in Local Development Mode
 
 1. Clone the repository: `git clone https://github.com/epicenter-so/epicenter.git`
 2. Change into the project directory: `cd epicenter`
-3. Install the necessary dependencies: `pnpm i`
+3. Install the necessary dependencies: `bun i`
 
 To run the desktop app and website:
 ```bash
 cd apps/whispering
-pnpm tauri dev
+bun tauri dev
 ```
 
 
@@ -711,8 +614,8 @@ If you have concerns about the installers or want more control, you can build th
 
 ```bash
 cd apps/whispering
-pnpm i
-pnpm tauri build
+bun i
+bun tauri build
 ```
 
 Find the executable in `apps/whispering/target/release`
@@ -731,9 +634,7 @@ We welcome contributions! Whispering is built with care and attention to clean, 
   - **[Query Layer Patterns](./src/lib/query/README.md)** - RPC pattern and reactive state  
   - **[Constants Organization](./src/lib/constants/README.md)** - Type-safe configuration
   
-**→ New to the codebase?** Start with the [Architecture Deep Dive](#architecture-deep-dive) to understand how everything fits together.
-
-Note: WellCrafted is a TypeScript utility library I created to bring Rust-inspired error handling to JavaScript. It makes errors explicit in function signatures and ensures robust error handling throughout the codebase.
+**→ New to the codebase?** Start with the [Architecture Deep Dive](./ARCHITECTURE.md) to understand how everything fits together.
 
 #### Contributing New Adapters
 
@@ -1145,16 +1046,13 @@ Feel free to suggest and implement any features that improve usability—I'll do
 
 ### License
 
-Whispering is released under the [MIT License](LICENSE). Use it, modify it, learn from it, and build upon it freely.
-
+Whispering is released under the [MIT License](LICENSE). Fork it, modify it, build on top of it, make it yours.
 ### Support and Feedback
 
-If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub issues tab](https://github.com/epicenter-so/epicenter/issues) or contact me via [whispering@bradenwong.com](mailto:whispering@bradenwong.com). I really appreciate your feedback!
+We're built in public, shaped by user feedback. If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub issues tab](https://github.com/epicenter-so/epicenter/issues). I really appreciate it!
 
-- Community Chat: [Discord](https://go.epicenter.so/discord)
-- Issues and Bug Reports: [GitHub Issues](https://github.com/epicenter-so/epicenter/issues)
-- Feature Discussions: [GitHub Discussions](https://github.com/epicenter-so/epicenter/discussions)
-- Direct Contact: [whispering@bradenwong.com](mailto:whispering@bradenwong.com)
+- Community Discord: [Discord](https://go.epicenter.so/discord)
+- Feature Requests, Issues, and Bug Reports: [GitHub Issues](https://github.com/epicenter-so/epicenter/issues)
 
 ### Sponsors
 
@@ -1165,5 +1063,3 @@ This project is supported by amazing people and organizations:
 ---
 
 Transcription should be free, open, and accessible to everyone. Join us in making it so.
-
-Thank you for using Whispering and happy writing!

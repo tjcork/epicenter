@@ -1,13 +1,23 @@
 <script lang="ts">
-  import DesktopOutputFolder from './DesktopOutputFolder.svelte';
+	import DesktopOutputFolder from './DesktopOutputFolder.svelte';
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Separator } from '@repo/ui/separator';
+	import * as Alert from '@repo/ui/alert';
+	import { Link } from '@repo/ui/link';
+	import { InfoIcon } from '@lucide/svelte';
 	import {
 		BITRATE_OPTIONS,
 		RECORDING_MODE_OPTIONS,
 	} from '$lib/constants/audio';
 	import { settings } from '$lib/stores/settings.svelte';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
+	import {
+		isUsingNativeBackendWithCloudTranscription,
+		isUsingNativeBackendAtWrongSampleRate,
+	} from '../../../+layout/check-ffmpeg';
+	import { IS_MACOS } from '$lib/constants/platform';
+
+	const { data } = $props();
 
 	const SAMPLE_RATE_OPTIONS = [
 		{ value: '16000', label: 'Voice Quality (16kHz): Optimized for speech' },
@@ -20,7 +30,9 @@
 		{ value: 'browser', label: 'Browser (MediaRecorder)' },
 	] as const;
 
-	const isUsingBrowserBackend = $derived(settings.value['recording.backend'] === 'browser');
+	const isUsingBrowserBackend = $derived(
+		settings.value['recording.backend'] === 'browser',
+	);
 </script>
 
 <svelte:head>
@@ -60,12 +72,62 @@
 				settings.updateKey('recording.backend', selected);
 			}}
 			placeholder="Select a recording backend"
-			description={
-				settings.value['recording.backend'] === 'native'
-					? 'Native: Uses Rust audio backend for lower-level access and potentially better quality'
-					: 'Browser: Uses web standards (MediaRecorder API) for better compatibility'
-			}
+			description={settings.value['recording.backend'] === 'native'
+				? 'Native: Uses Rust audio backend for lower-level access and potentially better quality'
+				: 'Browser: Uses web standards (MediaRecorder API) for better compatibility'}
 		/>
+
+		{#if IS_MACOS && settings.value['recording.backend'] === 'browser'}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					Global Shortcuts May Be Unreliable
+				</Alert.Title>
+				<Alert.Description>
+					When using the browser recorder, macOS App Nap may prevent the browser
+					recording logic from starting when not in focus. Consider using the
+					native backend for reliable global shortcut support.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
+
+		{#if isUsingNativeBackendAtWrongSampleRate() && !data.ffmpegInstalled}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					FFmpeg Required
+				</Alert.Title>
+				<Alert.Description>
+					Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
+					your current {settings.value['recording.desktop.sampleRate']}Hz sample
+					rate.
+					<Link
+						href="/install-ffmpeg"
+						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+					>
+						Install FFmpeg →
+					</Link>
+				</Alert.Description>
+			</Alert.Root>
+		{:else if isUsingNativeBackendWithCloudTranscription() && !data.ffmpegInstalled}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					FFmpeg Recommended
+				</Alert.Title>
+				<Alert.Description>
+					We highly recommend installing FFmpeg for optimal audio processing
+					with the Native recording backend. FFmpeg enables audio compression
+					for faster uploads to transcription services.
+					<Link
+						href="/install-ffmpeg"
+						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+					>
+						Install FFmpeg →
+					</Link>
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual'}
@@ -87,7 +149,6 @@
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-
 		{#if !window.__TAURI_INTERNALS__ || isUsingBrowserBackend}
 			<!-- Browser backend settings -->
 			<LabeledSelect
@@ -112,7 +173,10 @@
 				items={SAMPLE_RATE_OPTIONS}
 				selected={settings.value['recording.desktop.sampleRate']}
 				onSelectedChange={(selected) => {
-					settings.updateKey('recording.desktop.sampleRate', selected as typeof SAMPLE_RATE_OPTIONS[number]['value']);
+					settings.updateKey(
+						'recording.desktop.sampleRate',
+						selected as (typeof SAMPLE_RATE_OPTIONS)[number]['value'],
+					);
 				}}
 				placeholder="Select sample rate"
 				description="Higher sample rates provide better quality but create larger files"
@@ -124,7 +188,8 @@
 				</label>
 				<DesktopOutputFolder></DesktopOutputFolder>
 				<p class="text-xs text-muted-foreground">
-					Choose where to save your recordings. Default location is secure and managed by the app.
+					Choose where to save your recordings. Default location is secure and
+					managed by the app.
 				</p>
 			</div>
 		{/if}

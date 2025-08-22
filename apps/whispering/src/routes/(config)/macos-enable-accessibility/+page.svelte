@@ -1,8 +1,38 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { invoke } from '@tauri-apps/api/core';
-	import { SettingsIcon } from '@lucide/svelte';
+	import { SettingsIcon, CheckCircle2 } from '@lucide/svelte';
+	import * as services from '$lib/services';
+	import { toast } from 'svelte-sonner';
+	import { Command } from '@tauri-apps/plugin-shell';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { rpc } from '$lib/query';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	const isAccessibilityGranted = $derived(data.isAccessibilityGranted);
+
+	async function requestAccessibilityPermission() {
+		const { error } = await services.permissions.accessibility.request();
+
+		if (error) {
+			toast.error('Failed to open accessibility settings', {
+				description:
+					'Please enable Accessibility in System Settings > Privacy & Security > Accessibility manually',
+				action: {
+					label: 'Open Accessibility Settings',
+					onClick: () => openAccessibilitySettings(),
+				},
+			});
+		}
+	}
+
+	async function openAccessibilitySettings() {
+		const command = Command.create('open', [
+			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
+		]);
+		await command.execute();
+	}
 </script>
 
 <svelte:head>
@@ -14,32 +44,47 @@
 		<Card.Header>
 			<Card.Title class="text-xl">MacOS Accessibility</Card.Title>
 			<Card.Description class="leading-7">
-				Follow the steps below to re-enable Whispering in your MacOS
-				Accessibility settings. This often is needed after installing a new
-				version of Whispering to get pasting to work, as detailed in this
-				<Button
+				Follow the steps below to re-enable Whispering in your <Button
 					variant="link"
 					size="inline"
-					href="https://github.com/enigo-rs/enigo/issues/174"
-					target="_blank"
-					rel="noopener noreferrer">Github issue</Button
-				> for the
-				<code
-					class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
+					onclick={() => openAccessibilitySettings()}
 				>
-					enigo
-				</code> crate.
+					MacOS Accessibility settings
+				</Button>. This often is needed after installing new versions of
+				Whispering due to a macOS bug.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<div class="flex flex-col items-center gap-2">
-				<video
-					class="max-w-md"
-					src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
-					autoplay
-					loop
-					controls
-				></video>
+				{#if window.__TAURI_INTERNALS__}
+					<!-- YouTube embed for Tauri app (external videos don't work well) -->
+					<iframe
+						class="max-w-md rounded-lg border"
+						width="560"
+						height="315"
+						src="https://www.youtube.com/embed/FJRktNkr1Fs"
+						title="macOS Accessibility Settings Guide"
+						frameborder="0"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						allowfullscreen
+					></iframe>
+				{:else}
+					<!-- Direct video for web version -->
+					<video
+						class="max-w-md rounded-lg border"
+						src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
+						autoplay
+						loop
+						controls
+						muted
+						playsinline
+					>
+						<p class="text-muted-foreground text-sm">
+							Video guide not available. Please follow the written instructions
+							below.
+						</p>
+					</video>
+				{/if}
 				<ol
 					class="text-muted-foreground list-inside list-decimal space-y-1 text-sm leading-7"
 				>
@@ -64,15 +109,30 @@
 			</div>
 		</Card.Content>
 		<Card.Footer>
-			<Button
-				onclick={() => invoke('open_apple_accessibility')}
-				variant="default"
-				size="sm"
-				class="w-full text-sm"
-			>
-				<SettingsIcon class="mr-2 size-4" />
-				Open MacOS Accessibility Settings
-			</Button>
+			{#if !isAccessibilityGranted}
+				<Button
+					onclick={() => requestAccessibilityPermission()}
+					class="w-full text-sm"
+				>
+					<SettingsIcon class="mr-2 size-4" />
+					Request Accessibility Permission
+				</Button>
+			{:else}
+				<div class="flex flex-col gap-3 w-full">
+					<div class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500">
+						<CheckCircle2 class="size-5" />
+						<span class="font-medium">Accessibility permissions granted</span>
+					</div>
+					<Button
+						onclick={() => openAccessibilitySettings()}
+						variant="outline"
+						class="w-full text-sm"
+					>
+						<SettingsIcon class="mr-2 size-4" />
+						Open Accessibility Settings
+					</Button>
+				</div>
+			{/if}
 		</Card.Footer>
 	</Card.Root>
 </main>
