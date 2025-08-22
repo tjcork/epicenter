@@ -36,7 +36,7 @@
     } else {
       // Default to releases page
       downloadUrl = 'https://github.com/epicenter-so/epicenter/releases';
-      downloadText = 'Download Whipsering';
+      downloadText = 'Download Whispering';
     }
   });
 </script>
