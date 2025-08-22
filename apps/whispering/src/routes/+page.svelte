@@ -416,7 +416,7 @@
 			{/if}
 			<p class="text-muted-foreground text-center text-sm font-light">
 				{#if !window.__TAURI_INTERNALS__}
-					Get Whispering for desktop from the 
+					Tired of switching tabs? 
 					<WhisperingButton
 						tooltipContent="Get Whispering for desktop"
 						href="https://epicenter.so/whispering"
@@ -425,7 +425,7 @@
 						variant="link"
 						size="inline"
 					>
-						app page
+						Get the native desktop app
 					</WhisperingButton>
 				{/if}
 			</p>
