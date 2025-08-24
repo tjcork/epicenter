@@ -144,5 +144,5 @@ Contributors coordinate and share ideas in our Discord community.
 </p>
 
 <p align="center">
-  <sub>Built with ❤️ for data ownership, local-first, and open-souce</sub>
+  <sub>Built with ❤️ for data ownership, local-first, and open-source</sub>
 </p>
