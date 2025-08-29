@@ -1,37 +1,59 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon, CheckCircle2 } from '@lucide/svelte';
+	import { SettingsIcon, CheckCircle2, ArrowLeft } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc } from '$lib/query';
 	import type { PageData } from './$types';
+	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 	const isAccessibilityGranted = $derived(data.isAccessibilityGranted);
+
+	async function openAccessibilitySettings() {
+		try {
+			// Try opening System Settings directly (works on macOS 13+)
+			const command = Command.create('open', [
+				'x-apple.systemsettings:com.apple.SystemSettings.extension',
+			]);
+			await command.execute();
+
+			// Show helpful toast since we can't open directly to accessibility
+			toast.info('System Settings Opened', {
+				description:
+					'Navigate to Privacy & Security > Accessibility to grant permissions.',
+				duration: 8000,
+			});
+		} catch (error) {
+			console.error('Failed to open System Settings:', error);
+
+			// Fallback: Show detailed instructions
+			toast.info('Open System Settings Manually', {
+				description:
+					'Click Apple menu → System Settings → Privacy & Security → Accessibility',
+				duration: 10000,
+			});
+		}
+	}
 
 	async function requestAccessibilityPermission() {
 		const { error } = await services.permissions.accessibility.request();
 
 		if (error) {
-			toast.error('Failed to open accessibility settings', {
+			// Updated error message to reflect the current macOS limitations
+			toast.error('Cannot Open Settings Automatically', {
 				description:
-					'Please enable Accessibility in System Settings > Privacy & Security > Accessibility manually',
+					'macOS 14+ restricts automatic opening of accessibility settings. Please open System Settings manually.',
 				action: {
-					label: 'Open Accessibility Settings',
+					label: 'Open System Settings',
 					onClick: () => openAccessibilitySettings(),
 				},
+				duration: 12000,
 			});
 		}
-	}
-
-	async function openAccessibilitySettings() {
-		const command = Command.create('open', [
-			'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
-		]);
-		await command.execute();
 	}
 </script>
 
@@ -110,27 +132,49 @@
 		</Card.Content>
 		<Card.Footer>
 			{#if !isAccessibilityGranted}
-				<Button
-					onclick={() => requestAccessibilityPermission()}
-					class="w-full text-sm"
-				>
-					<SettingsIcon class="mr-2 size-4" />
-					Request Accessibility Permission
-				</Button>
+				<div class="flex gap-3 w-full">
+					<Button
+						variant="outline"
+						onclick={() => goto('/')}
+						class="flex-1 text-sm"
+					>
+						<ArrowLeft class="mr-2 size-4" />
+						Back to Home
+					</Button>
+					<Button
+						onclick={() => requestAccessibilityPermission()}
+						class="flex-1 text-sm"
+					>
+						<SettingsIcon class="mr-2 size-4" />
+						Request Permission
+					</Button>
+				</div>
 			{:else}
 				<div class="flex flex-col gap-3 w-full">
-					<div class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500">
+					<div
+						class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500"
+					>
 						<CheckCircle2 class="size-5" />
 						<span class="font-medium">Accessibility permissions granted</span>
 					</div>
-					<Button
-						onclick={() => openAccessibilitySettings()}
-						variant="outline"
-						class="w-full text-sm"
-					>
-						<SettingsIcon class="mr-2 size-4" />
-						Open Accessibility Settings
-					</Button>
+					<div class="flex gap-3">
+						<Button
+							variant="outline"
+							onclick={() => goto('/')}
+							class="flex-1 text-sm"
+						>
+							<ArrowLeft class="mr-2 size-4" />
+							Back to Home
+						</Button>
+						<Button
+							onclick={() => openAccessibilitySettings()}
+							variant="outline"
+							class="flex-1 text-sm"
+						>
+							<SettingsIcon class="mr-2 size-4" />
+							Open Settings
+						</Button>
+					</div>
 				</div>
 			{/if}
 		</Card.Footer>
