@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
+	import { Badge } from '@repo/ui/badge';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon, CheckCircle2, ArrowLeft } from '@lucide/svelte';
+	import { SettingsIcon, CheckIcon, ArrowLeft } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
@@ -141,12 +142,10 @@
 				</div>
 			{:else}
 				<div class="flex flex-col gap-3 w-full">
-					<div
-						class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500"
-					>
-						<CheckCircle2 class="size-5" />
-						<span class="font-medium">Accessibility permissions granted</span>
-					</div>
+					<Badge variant="success">
+						<CheckIcon class="size-4" />
+						Accessibility permissions granted
+					</Badge>
 					<div class="flex gap-3">
 						<Button
 							variant="outline"
