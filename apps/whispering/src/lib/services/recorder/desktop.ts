@@ -225,7 +225,7 @@ export function createDesktopRecorderService(): RecorderService {
 					const fileBytes = await readFile(filePath);
 					return new Blob([fileBytes], { type: 'audio/wav' });
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					RecorderServiceErr({
 						message: 'Unable to read recording file. Please try again.',
 						context: { audioRecording },
@@ -285,7 +285,7 @@ export function createDesktopRecorderService(): RecorderService {
 				const { filePath } = audioRecording;
 				const { error: removeError } = await tryAsync({
 					try: () => remove(filePath),
-					mapErr: (error) =>
+					catch: (error) =>
 						RecorderServiceErr({
 							message: 'Failed to delete recording file.',
 							context: { audioRecording },
@@ -321,7 +321,7 @@ export function createDesktopRecorderService(): RecorderService {
 async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	return tryAsync({
 		try: async () => await tauriInvoke<T>(command, args),
-		mapErr: (error) =>
+		catch: (error) =>
 			Err({ name: 'TauriInvokeError', command, error } as const),
 	});
 }
