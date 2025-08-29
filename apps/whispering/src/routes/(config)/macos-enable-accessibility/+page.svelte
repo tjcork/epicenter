@@ -1,19 +1,33 @@
 <script lang="ts">
 	import { Button } from '@repo/ui/button';
+	import { Badge } from '@repo/ui/badge';
 	import * as Card from '@repo/ui/card';
-	import { SettingsIcon, CheckCircle2, ArrowLeft } from '@lucide/svelte';
+	import { SettingsIcon, CheckIcon, ArrowLeft } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
 	import { Command } from '@tauri-apps/plugin-shell';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { rpc } from '$lib/query';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 	const isAccessibilityGranted = $derived(data.isAccessibilityGranted);
 
-	async function openAccessibilitySettings() {
+	async function requestPermissionOrShowGuidance() {
+		const { error } = await services.permissions.accessibility.request();
+
+		if (error) {
+			toast.error('Failed to open accessibility settings', {
+				description:
+					'Please enable Accessibility in System Settings > Privacy & Security > Accessibility manually',
+				action: {
+					label: 'Open Accessibility Settings',
+					onClick: () => openSystemSettings(),
+				},
+			});
+		}
+	}
+
+	async function openSystemSettings() {
 		try {
 			// Try opening System Settings directly (works on macOS 13+)
 			const command = Command.create('open', [
@@ -38,23 +52,6 @@
 			});
 		}
 	}
-
-	async function requestAccessibilityPermission() {
-		const { error } = await services.permissions.accessibility.request();
-
-		if (error) {
-			// Updated error message to reflect the current macOS limitations
-			toast.error('Cannot Open Settings Automatically', {
-				description:
-					'macOS 14+ restricts automatic opening of accessibility settings. Please open System Settings manually.',
-				action: {
-					label: 'Open System Settings',
-					onClick: () => openAccessibilitySettings(),
-				},
-				duration: 12000,
-			});
-		}
-	}
 </script>
 
 <svelte:head>
@@ -66,14 +63,8 @@
 		<Card.Header>
 			<Card.Title class="text-xl">MacOS Accessibility</Card.Title>
 			<Card.Description class="leading-7">
-				Follow the steps below to re-enable Whispering in your <Button
-					variant="link"
-					size="inline"
-					onclick={() => openAccessibilitySettings()}
-				>
-					MacOS Accessibility settings
-				</Button>. This often is needed after installing new versions of
-				Whispering due to a macOS bug.
+				Follow the steps below to re-enable Whispering in your macOS Accessibility settings. 
+				This often is needed after installing new versions of Whispering due to a macOS bug.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
@@ -112,7 +103,7 @@
 				>
 					<li>
 						Go to <span class="text-primary font-semibold tracking-tight">
-							System Preferences > Privacy & Security > Accessibility
+							System Settings > Privacy & Security > Accessibility
 						</span> or click the button below.
 					</li>
 
@@ -142,7 +133,7 @@
 						Back to Home
 					</Button>
 					<Button
-						onclick={() => requestAccessibilityPermission()}
+						onclick={() => requestPermissionOrShowGuidance()}
 						class="flex-1 text-sm"
 					>
 						<SettingsIcon class="mr-2 size-4" />
@@ -151,12 +142,10 @@
 				</div>
 			{:else}
 				<div class="flex flex-col gap-3 w-full">
-					<div
-						class="flex items-center gap-2 text-sm text-green-600 dark:text-green-500"
-					>
-						<CheckCircle2 class="size-5" />
-						<span class="font-medium">Accessibility permissions granted</span>
-					</div>
+					<Badge variant="success">
+						<CheckIcon class="size-4" />
+						Accessibility permissions granted
+					</Badge>
 					<div class="flex gap-3">
 						<Button
 							variant="outline"
@@ -167,7 +156,7 @@
 							Back to Home
 						</Button>
 						<Button
-							onclick={() => openAccessibilitySettings()}
+							onclick={() => openSystemSettings()}
 							variant="outline"
 							class="flex-1 text-sm"
 						>
