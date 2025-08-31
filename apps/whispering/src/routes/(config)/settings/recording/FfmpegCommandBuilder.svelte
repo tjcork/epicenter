@@ -29,9 +29,6 @@
 		getDevicesQuery.data?.[0]
 	);
 
-	// Get the actual output folder from settings
-	let defaultOutputFolder = $state('');
-
 	// Get platform-specific format
 	function getAudioInputFormat() {
 		if (IS_MACOS) return 'avfoundation';
@@ -134,6 +131,7 @@
 			selected={ffmpegFormat}
 			onSelectedChange={(selected) => {
 				ffmpegFormat = selected;
+				commandTemplate = buildCommand();
 			}}
 			placeholder="Select audio format"
 			description="Choose the output audio format and codec"
@@ -146,6 +144,7 @@
 			selected={ffmpegSampleRate}
 			onSelectedChange={(selected) => {
 				ffmpegSampleRate = selected;
+				commandTemplate = buildCommand();
 			}}
 			placeholder="Select sample rate"
 			description="Higher sample rates provide better quality"
@@ -159,6 +158,7 @@
 				selected={ffmpegBitrate}
 				onSelectedChange={(selected) => {
 					ffmpegBitrate = selected;
+					commandTemplate = buildCommand();
 				}}
 				placeholder="Select bitrate"
 				description="Higher bitrates mean better quality but larger files"
