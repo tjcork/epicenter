@@ -7,7 +7,6 @@ export type TemplateString = string & Brand<'TemplateString'>;
 
 /**
  * Type guard/assertion to mark a string as a template
- * (In practice, any string can be a template, this is mainly for type safety)
  */
 export function asTemplateString(str: string): TemplateString {
 	return str as TemplateString;
