@@ -56,7 +56,6 @@
 		if (commandTemplate?.includes('libopus')) return 'opus';
 		return 'wav';
 	});
-
 	let selectedSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
 	let selectedBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
 
@@ -105,8 +104,6 @@
 		
 		return command;
 	}
-
-	
 </script>
 
 <div class="space-y-4">
