@@ -38,23 +38,33 @@
 	] as const;
 
 
-	// Initialize local state from existing commandTemplate. Will automatically update when commandTemplate changes
+	/**
+	 * UI state for the FFmpeg command builder.
+	 *
+	 * These variables (`selectedFormat`, `selectedSampleRate`, `selectedBitrate`) are temporary
+	 * UI state that provide a user-friendly way to construct the `commandTemplate` string
+	 * via dropdown selectors. The `commandTemplate` itself is the only value that is persisted.
+	 *
+	 * To ensure the UI and the template remain in sync, these values are derived by parsing
+	 * the `commandTemplate`. When the user changes a selection in the UI, the `commandTemplate`
+	 * is rebuilt from scratch using the new values.
+	 */
 	let selectedFormat = $derived.by(() => {
 		if (commandTemplate?.includes('libmp3lame')) return 'mp3';
 		if (commandTemplate?.includes('aac')) return 'aac';
 		if (commandTemplate?.includes('libvorbis')) return 'ogg';
 		if (commandTemplate?.includes('libopus')) return 'opus';
 		return 'wav';
-	})
+	});
+
 	let selectedSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
 	let selectedBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
 
 	// Build command from current selections
 	function buildCommand(): string {
-		const formatOption = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat);
-		const codec = formatOption?.codec || 'pcm_s16le';
-		const ext = formatOption?.value || 'wav';
-		
+		// Retrieve codec and file extension for the currently selected audio format
+		const { codec, value: ext } = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat) ?? FFMPEG_FORMAT_OPTIONS[0];
+
 		// Platform-specific device input format
 		const deviceInput =  {
 			'macos': '":{{device}}"', // macOS uses :deviceName
