@@ -46,6 +46,7 @@ import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
+import { asTemplateString } from '$lib/utils/template';
 
 /**
  * The main settings schema that defines all application settings.
@@ -111,7 +112,9 @@ export const settingsSchema = z.object({
 	 * - 'browser': Uses browser MediaRecorder API even in desktop
 	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
-	'recording.backend': z.enum(['native', 'browser', 'ffmpeg']).default('browser'),
+	'recording.backend': z
+		.enum(['native', 'browser', 'ffmpeg'])
+		.default('browser'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
@@ -146,9 +149,13 @@ export const settingsSchema = z.object({
 	'recording.desktop.sampleRate': z
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
-	
+
 	// FFmpeg recording settings
-	'recording.ffmpeg.commandTemplate': z.string().nullable().default(null), // null = use default command
+	'recording.ffmpeg.commandTemplate': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asTemplateString(val) : null))
+		.default(null), // null = use default command
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
