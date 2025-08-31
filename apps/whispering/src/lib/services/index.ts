@@ -3,6 +3,7 @@ import * as completions from './completion';
 import { DbServiceLive } from './db';
 import { DownloadServiceLive } from './download';
 import { FfmpegServiceLive } from './ffmpeg';
+import { FsServiceLive } from './fs';
 import { GlobalShortcutManagerLive } from './global-shortcut-manager';
 import { LocalShortcutManagerLive } from './local-shortcut-manager';
 import { NotificationServiceLive } from './notifications';
@@ -11,6 +12,7 @@ import { PermissionsServiceLive } from './permissions';
 import {
 	NativeRecorderServiceLive,
 	BrowserRecorderServiceLive,
+	FfmpegRecorderServiceLive,
 } from './recorder';
 import { PlaySoundServiceLive } from './sound';
 import { TextServiceLive } from './text';
@@ -30,11 +32,13 @@ export {
 	DbServiceLive as db,
 	DownloadServiceLive as download,
 	FfmpegServiceLive as ffmpeg,
+	FsServiceLive as fs,
 	GlobalShortcutManagerLive as globalShortcutManager,
 	LocalShortcutManagerLive as localShortcutManager,
 	NotificationServiceLive as notification,
 	NativeRecorderServiceLive as nativeRecorder,
 	BrowserRecorderServiceLive as browserRecorder,
+	FfmpegRecorderServiceLive as ffmpegRecorder,
 	PermissionsServiceLive as permissions,
 	ToastServiceLive as toast,
 	OsServiceLive as os,

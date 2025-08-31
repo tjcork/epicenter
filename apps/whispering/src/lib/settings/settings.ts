@@ -109,8 +109,9 @@ export const settingsSchema = z.object({
 	 * Recording backend to use in desktop app.
 	 * - 'native': Uses Rust audio recording backend (CPAL)
 	 * - 'browser': Uses browser MediaRecorder API even in desktop
+	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
-	'recording.backend': z.enum(['native', 'browser']).default('browser'),
+	'recording.backend': z.enum(['native', 'browser', 'ffmpeg']).default('browser'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
@@ -145,6 +146,9 @@ export const settingsSchema = z.object({
 	'recording.desktop.sampleRate': z
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
+	
+	// FFmpeg recording settings
+	'recording.ffmpeg.commandTemplate': z.string().nullable().default(null), // null = use default command
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)

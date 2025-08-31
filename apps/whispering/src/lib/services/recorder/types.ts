@@ -42,9 +42,18 @@ export type WebRecordingParams = BaseRecordingParams & {
 };
 
 /**
+ * FFmpeg-specific recording parameters
+ */
+export type FfmpegRecordingParams = BaseRecordingParams & {
+	platform: 'ffmpeg';
+	outputFolder: string | null;
+	commandTemplate: string | null;
+};
+
+/**
  * Discriminated union for recording parameters based on platform
  */
-export type StartRecordingParams = DesktopRecordingParams | WebRecordingParams;
+export type StartRecordingParams = DesktopRecordingParams | WebRecordingParams | FfmpegRecordingParams;
 
 /**
  * Unified recorder service interface that both desktop and web implementations must satisfy
