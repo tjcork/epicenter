@@ -88,15 +88,6 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 			isActive: () => services.vad.getVadState() !== 'IDLE',
 			stop: () => services.vad.stopActiveListening(),
 		},
-		// {
-		// 	mode: 'cpal' as const,
-		// 	isActive: () =>
-		// 		services.cpalRecorder.getRecorderState().data === 'RECORDING',
-		// 	stop: () =>
-		// 		services.cpalRecorder.stopRecording({
-		// 			sendStatus: () => {}, // Silent cancel - no UI notifications
-		// 		}),
-		// },
 	] satisfies {
 		mode: RecordingMode;
 		isActive: () => boolean;
