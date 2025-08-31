@@ -90,20 +90,19 @@ export const recorder = {
 				backend === 'browser'
 					? {
 							...baseParams,
-							platform: 'web' as const,
+							implementation: 'navigator' as const,
 							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 						}
 					: backend === 'ffmpeg'
 						? {
 								...baseParams,
-								platform: 'ffmpeg' as const,
-								outputFolder: settings.value['recording.desktop.outputFolder'],
+								implementation: 'ffmpeg' as const,
 								commandTemplate:
 									settings.value['recording.ffmpeg.commandTemplate'],
 							}
 						: {
 								...baseParams,
-								platform: 'desktop' as const,
+								implementation: 'cpal' as const,
 								outputFolder: settings.value['recording.desktop.outputFolder'],
 								sampleRate: settings.value['recording.desktop.sampleRate'],
 							};
