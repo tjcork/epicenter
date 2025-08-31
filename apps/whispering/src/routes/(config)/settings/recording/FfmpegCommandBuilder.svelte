@@ -37,20 +37,6 @@
 		{ value: 'opus', label: 'Opus (Modern)', codec: 'libopus' },
 	] as const;
 
-	const FFMPEG_SAMPLE_RATE_OPTIONS = [
-		{ value: '16000', label: '16 kHz (Voice)' },
-		{ value: '22050', label: '22.05 kHz (Low)' },
-		{ value: '44100', label: '44.1 kHz (CD Quality)' },
-		{ value: '48000', label: '48 kHz (Professional)' },
-	] as const;
-
-	const FFMPEG_BITRATE_OPTIONS = [
-		{ value: '64', label: '64 kbps (Low)' },
-		{ value: '128', label: '128 kbps (Standard)' },
-		{ value: '192', label: '192 kbps (Good)' },
-		{ value: '256', label: '256 kbps (High)' },
-		{ value: '320', label: '320 kbps (Best)' },
-	] as const;
 
 	// Initialize local state from existing commandTemplate. Will automatically update when commandTemplate changes
 	let ffmpegFormat = $derived.by(() => {
@@ -136,7 +122,12 @@
 		<LabeledSelect
 			id="ffmpeg-sample-rate"
 			label="Sample Rate"
-			items={FFMPEG_SAMPLE_RATE_OPTIONS}
+			items={[
+				{ value: '16000', label: '16 kHz (Voice)' },
+				{ value: '22050', label: '22.05 kHz (Low)' },
+				{ value: '44100', label: '44.1 kHz (CD Quality)' },
+				{ value: '48000', label: '48 kHz (Professional)' },
+			]}
 			selected={ffmpegSampleRate}
 			onSelectedChange={(selected) => {
 				ffmpegSampleRate = selected;
@@ -150,7 +141,13 @@
 			<LabeledSelect
 				id="ffmpeg-bitrate"
 				label="Bitrate"
-				items={FFMPEG_BITRATE_OPTIONS}
+				items={[
+					{ value: '64', label: '64 kbps (Low)' },
+					{ value: '128', label: '128 kbps (Standard)' },
+					{ value: '192', label: '192 kbps (Good)' },
+					{ value: '256', label: '256 kbps (High)' },
+					{ value: '320', label: '320 kbps (Best)' },
+				]}
 				selected={ffmpegBitrate}
 				onSelectedChange={(selected) => {
 					ffmpegBitrate = selected;
