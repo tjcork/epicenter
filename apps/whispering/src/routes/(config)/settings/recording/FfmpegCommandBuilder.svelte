@@ -39,19 +39,19 @@
 
 
 	// Initialize local state from existing commandTemplate. Will automatically update when commandTemplate changes
-	let ffmpegFormat = $derived.by(() => {
+	let selectedFormat = $derived.by(() => {
 		if (commandTemplate?.includes('libmp3lame')) return 'mp3';
 		if (commandTemplate?.includes('aac')) return 'aac';
 		if (commandTemplate?.includes('libvorbis')) return 'ogg';
 		if (commandTemplate?.includes('libopus')) return 'opus';
 		return 'wav';
 	})
-	let ffmpegSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
-	let ffmpegBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
+	let selectedSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
+	let selectedBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
 
 	// Build command from current selections
 	function buildCommand(): string {
-		const formatOption = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === ffmpegFormat);
+		const formatOption = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat);
 		const codec = formatOption?.codec || 'pcm_s16le';
 		const ext = formatOption?.value || 'wav';
 		
@@ -70,9 +70,9 @@
 		
 		let command = `ffmpeg -f ${format} -i ${deviceInput}`;
 		command += ` -acodec ${codec}`;
-		command += ` -ar ${ffmpegSampleRate}`;
+		command += ` -ar ${selectedSampleRate}`;
 		
-		if (ffmpegFormat !== 'wav') command += ` -b:a ${ffmpegBitrate}k`;
+		if (selectedFormat !== 'wav') command += ` -b:a ${selectedBitrate}k`;
 		
 		command += ` "{{outputFolder}}/{{recordingId}}.${ext}"`;
 		
@@ -110,9 +110,9 @@
 			id="ffmpeg-format"
 			label="Audio Format"
 			items={FFMPEG_FORMAT_OPTIONS}
-			selected={ffmpegFormat}
+			selected={selectedFormat}
 			onSelectedChange={(selected) => {
-				ffmpegFormat = selected;
+				selectedFormat = selected;
 				commandTemplate = buildCommand();
 			}}
 			placeholder="Select audio format"
@@ -128,16 +128,16 @@
 				{ value: '44100', label: '44.1 kHz (CD Quality)' },
 				{ value: '48000', label: '48 kHz (Professional)' },
 			]}
-			selected={ffmpegSampleRate}
+			selected={selectedSampleRate}
 			onSelectedChange={(selected) => {
-				ffmpegSampleRate = selected;
+				selectedSampleRate = selected;
 				commandTemplate = buildCommand();
 			}}
 			placeholder="Select sample rate"
 			description="Higher sample rates provide better quality"
 		/>
 		
-		{#if ffmpegFormat !== 'wav'}
+		{#if selectedFormat !== 'wav'}
 			<LabeledSelect
 				id="ffmpeg-bitrate"
 				label="Bitrate"
@@ -148,9 +148,9 @@
 					{ value: '256', label: '256 kbps (High)' },
 					{ value: '320', label: '320 kbps (Best)' },
 				]}
-				selected={ffmpegBitrate}
+				selected={selectedBitrate}
 				onSelectedChange={(selected) => {
-					ffmpegBitrate = selected;
+					selectedBitrate = selected;
 					commandTemplate = buildCommand();
 				}}
 				placeholder="Select bitrate"
