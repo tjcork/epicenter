@@ -36,7 +36,7 @@ function isUsingBrowserBackend(): boolean {
  * @returns true if sample rate is 16000Hz
  */
 function isUsing16kHz(): boolean {
-	return settings.value['recording.desktop.sampleRate'] === '16000';
+	return settings.value['recording.cpal.sampleRate'] === '16000';
 }
 
 /**
