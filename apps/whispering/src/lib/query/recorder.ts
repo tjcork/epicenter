@@ -97,14 +97,19 @@ export const recorder = {
 						? {
 								...baseParams,
 								implementation: 'ffmpeg' as const,
-								commandTemplate:
-									settings.value['recording.ffmpeg.commandTemplate'],
+								// The command template from settings contains {{device}}, {{outputFolder}}, {{recordingId}}
+								// Example: "ffmpeg -f avfoundation -i \":{{device}}\" ... \"{{outputFolder}}/{{recordingId}}.wav\""
+								commandTemplate: settings.value['recording.ffmpeg.commandTemplate']
+									? toFfmpegCommandString(settings.value['recording.ffmpeg.commandTemplate'])
+									: null,
+								// Pass the actual output folder value (the service will interpolate it)
+								outputFolder: settings.value['recording.cpal.outputFolder'] ?? await appDataDir(),
 							}
 						: {
 								...baseParams,
 								implementation: 'cpal' as const,
-								outputFolder: settings.value['recording.desktop.outputFolder'],
-								sampleRate: settings.value['recording.desktop.sampleRate'],
+								outputFolder: settings.value['recording.cpal.outputFolder'],
+								sampleRate: settings.value['recording.cpal.sampleRate'],
 							};
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =

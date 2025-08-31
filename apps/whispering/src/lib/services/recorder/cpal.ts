@@ -22,7 +22,7 @@ type AudioRecording = {
 	filePath?: string;
 };
 
-export function createDesktopRecorderService(): RecorderService {
+export function createCpalRecorderService(): RecorderService {
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
 	> => {

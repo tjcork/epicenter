@@ -124,7 +124,7 @@
 				</Alert.Title>
 				<Alert.Description>
 					Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-					your current {settings.value['recording.desktop.sampleRate']}Hz sample
+					your current {settings.value['recording.cpal.sampleRate']}Hz sample
 					rate.
 					<Link
 						href="/install-ffmpeg"
@@ -210,10 +210,10 @@
 				id="sample-rate"
 				label="Sample Rate"
 				items={SAMPLE_RATE_OPTIONS}
-				selected={settings.value['recording.desktop.sampleRate']}
+				selected={settings.value['recording.cpal.sampleRate']}
 				onSelectedChange={(selected) => {
 					settings.updateKey(
-						'recording.desktop.sampleRate',
+						'recording.cpal.sampleRate',
 						selected as (typeof SAMPLE_RATE_OPTIONS)[number]['value'],
 					);
 				}}

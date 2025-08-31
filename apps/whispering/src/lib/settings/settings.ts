@@ -144,9 +144,9 @@ export const settingsSchema = z.object({
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	// Desktop recording settings
-	'recording.desktop.outputFolder': z.string().nullable().default(null), // null = use app data dir
-	'recording.desktop.sampleRate': z
+	// CPAL (native Rust) recording settings
+	'recording.cpal.outputFolder': z.string().nullable().default(null), // null = use app data dir
+	'recording.cpal.sampleRate': z
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
 

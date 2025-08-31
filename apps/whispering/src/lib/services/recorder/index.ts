@@ -1,4 +1,4 @@
-import { createDesktopRecorderService } from './desktop';
+import { createCpalRecorderService } from './cpal';
 import { createWebRecorderService } from './web';
 import { createFfmpegRecorderService } from './ffmpeg';
 
@@ -7,7 +7,7 @@ import { createFfmpegRecorderService } from './ffmpeg';
  * Falls back to browser recording when not in Tauri environment.
  */
 export const NativeRecorderServiceLive = window.__TAURI_INTERNALS__
-	? createDesktopRecorderService()
+	? createCpalRecorderService()
 	: createWebRecorderService(); // Fallback to web if not in desktop
 
 /**
