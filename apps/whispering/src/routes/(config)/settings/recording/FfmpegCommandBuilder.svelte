@@ -29,14 +29,6 @@
 		getDevicesQuery.data?.[0]
 	);
 
-	// Get platform-specific format
-	function getAudioInputFormat() {
-		if (IS_MACOS) return 'avfoundation';
-		if (IS_WINDOWS) return 'dshow';
-		if (IS_LINUX) return 'alsa';
-		return 'pulse';
-	}
-
 	const FFMPEG_FORMAT_OPTIONS = [
 		{ value: 'wav', label: 'WAV (Uncompressed)', codec: 'pcm_s16le' },
 		{ value: 'mp3', label: 'MP3 (Compressed)', codec: 'libmp3lame' },
@@ -84,7 +76,11 @@
 			'linux': '"{{device}}"', // Linux uses device directly
 		}[PLATFORM_TYPE]
 		
-		const format = getAudioInputFormat();
+		const format = ({
+			'macos': 'avfoundation',
+			'windows': 'dshow',
+			'linux': 'alsa', // Could also be pulse, but alsa is more universal
+		}  as const)[PLATFORM_TYPE]
 		
 		let command = `ffmpeg -f ${format} -i ${deviceInput}`;
 		command += ` -acodec ${codec}`;
