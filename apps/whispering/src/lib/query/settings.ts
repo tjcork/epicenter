@@ -77,7 +77,7 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 	const recordingModes = [
 		{
 			mode: 'manual' as const,
-			isActive: () => currentRecordingId === 'RECORDING',
+			isActive: () => !!currentRecordingId,
 			stop: () =>
 				recorderService().stopRecording({
 					sendStatus: () => {}, // Silent cancel - no UI notifications
