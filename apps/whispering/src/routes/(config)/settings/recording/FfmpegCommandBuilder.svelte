@@ -39,16 +39,16 @@
 
 
 	/**
-	 * UI state for the FFmpeg command builder.
-	 *
-	 * These variables (`selectedFormat`, `selectedSampleRate`, `selectedBitrate`) are temporary
-	 * UI state that provide a user-friendly way to construct the `commandTemplate` string
-	 * via dropdown selectors. The `commandTemplate` itself is the only value that is persisted.
-	 *
-	 * To ensure the UI and the template remain in sync, these values are derived by parsing
-	 * the `commandTemplate`. When the user changes a selection in the UI, the `commandTemplate`
-	 * is rebuilt from scratch using the new values.
-	 */
+		* UI state for the FFmpeg command builder.
+		*
+		* These variables (`selectedFormat`, `selectedSampleRate`, `selectedBitrate`) are temporary
+		* UI state that provide a user-friendly way to construct the `commandTemplate` string
+		* via dropdown selectors. The `commandTemplate` itself is the only value that is persisted.
+		*
+		* To ensure the UI and the template remain in sync, these values are derived by parsing
+		* the `commandTemplate`. When the user changes a selection in the UI, the `commandTemplate`
+		* is rebuilt from scratch using the new values.
+		*/
 	let selectedFormat = $derived.by(() => {
 		if (commandTemplate?.includes('libmp3lame')) return 'mp3';
 		if (commandTemplate?.includes('aac')) return 'aac';
@@ -60,8 +60,25 @@
 	let selectedSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
 	let selectedBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
 
-	// Build command from current selections
-	function buildCommand(): string {
+	// Example command with interpolated values for preview
+	const exampleCommand = $derived.by(async () => {
+		if (!commandTemplate) return '';
+		
+		// Use the template interpolation helper
+		return interpolateTemplate(asTemplateString(commandTemplate), {
+			device: selectedDevice?.id ?? 'default',
+			outputFolder: settings.value['recording.desktop.outputFolder'] ?? (await appDataDir()),
+			recordingId: 'abc123xyz',
+		});
+		}
+	);
+
+	// Update parent's commandTemplate whenever selections change
+	$effect(() => {
+		commandTemplate = buildCommandTemplateFromSelections();
+	});
+
+	function buildCommandTemplateFromSelections(): string {
 		// Retrieve codec and file extension for the currently selected audio format
 		const { codec, value: ext } = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat) ?? FFMPEG_FORMAT_OPTIONS[0];
 
@@ -89,26 +106,6 @@
 		return command;
 	}
 
-	// Update parent's commandTemplate whenever selections change
-	$effect(() => {
-		commandTemplate = buildCommand();
-	});
-
-	// Generate example command with real values
-	const exampleCommand = $derived.by(async () => {
-		if (!commandTemplate) return '';
-		
-		// Use actual values from settings/device selection
-		const exampleVars = {
-			device: selectedDevice?.id || 'default',
-			outputFolder: settings.value['recording.desktop.outputFolder'] ?? await appDataDir(),
-			recordingId: 'abc123xyz',
-		};
-		
-		// Use the template interpolation helper
-		return interpolateTemplate(asTemplateString(commandTemplate), exampleVars);
-	}
-);
 	
 </script>
 
@@ -123,7 +120,6 @@
 			selected={selectedFormat}
 			onSelectedChange={(selected) => {
 				selectedFormat = selected;
-				commandTemplate = buildCommand();
 			}}
 			placeholder="Select audio format"
 			description="Choose the output audio format and codec"
@@ -141,7 +137,6 @@
 			selected={selectedSampleRate}
 			onSelectedChange={(selected) => {
 				selectedSampleRate = selected;
-				commandTemplate = buildCommand();
 			}}
 			placeholder="Select sample rate"
 			description="Higher sample rates provide better quality"
@@ -161,7 +156,6 @@
 				selected={selectedBitrate}
 				onSelectedChange={(selected) => {
 					selectedBitrate = selected;
-					commandTemplate = buildCommand();
 				}}
 				placeholder="Select bitrate"
 				description="Higher bitrates mean better quality but larger files"
