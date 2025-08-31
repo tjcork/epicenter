@@ -62,6 +62,21 @@ export const settings = (() => {
 		},
 	});
 
+	// Private helper for shared reset logic
+	function resetShortcutDefaults(type: 'local' | 'global') {
+		const defaultSettings = getDefaultSettings();
+		const updates = commands.reduce<Partial<Settings>>((acc, command) => {
+			const shortcutKey = `shortcuts.${type}.${command.id}` as const;
+			acc[shortcutKey] = defaultSettings[shortcutKey];
+			return acc;
+		}, {});
+
+		_settings.value = {
+			..._settings.value,
+			...updates,
+		};
+	}
+
 	return {
 		/**
 		 * Read-only access to current settings values
@@ -95,30 +110,19 @@ export const settings = (() => {
 		},
 
 		/**
-		 * Reset shortcuts to their default values
-		 * @param type 'local' or 'global' shortcuts to reset
+		 * Reset local shortcuts to their default values
 		 */
-		resetShortcuts(type: 'local' | 'global') {
-			const defaultSettings = getDefaultSettings();
-			const updates = commands.reduce<Partial<Settings>>((acc, command) => {
-				const shortcutKey = `shortcuts.${type}.${command.id}` as const;
-				acc[shortcutKey] = defaultSettings[shortcutKey];
-				return acc;
-			}, {});
+		resetLocalShortcuts() {
+			resetShortcutDefaults('local');
+			syncLocalShortcutsWithSettings();
+		},
 
-			_settings.value = {
-				..._settings.value,
-				...updates,
-			};
-
-			switch (type) {
-				case 'local':
-					syncLocalShortcutsWithSettings();
-					break;
-				case 'global':
-					syncGlobalShortcutsWithSettings();
-					break;
-			}
+		/**
+		 * Reset global shortcuts to their default values
+		 */
+		resetGlobalShortcuts() {
+			resetShortcutDefaults('global');
+			syncGlobalShortcutsWithSettings();
 		},
 	};
 })();
