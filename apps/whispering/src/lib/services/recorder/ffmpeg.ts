@@ -233,10 +233,6 @@ export function createFfmpegRecorderService(): RecorderService {
 				});
 			}
 
-			// Only runtime variables need interpolation
-			// Device, format, codec etc. are already in the template
-			const variables = { outputFolder: await getOutputDir(), recordingId };
-
 			// Default template with actual device name injected
 			// Only {{outputFolder}} and {{recordingId}} are runtime variables
 			const format = getAudioInputFormat();
@@ -250,10 +246,12 @@ export function createFfmpegRecorderService(): RecorderService {
 				`ffmpeg -f ${format} -i ${deviceInput} -acodec pcm_s16le -ar 16000 "{{outputFolder}}/{{recordingId}}.wav"`,
 			);
 
-			const command = interpolateTemplate(
-				commandTemplate ?? defaultTemplate,
-				variables,
-			);
+			const command = interpolateTemplate(commandTemplate ?? defaultTemplate, {
+				outputFolder: await getOutputDir(),
+				// Only runtime variables need interpolation
+				// Device, format, codec etc. are already in the template
+				recordingId,
+			});
 
 			sendStatus({
 				title: '🎤 Setting Up',
@@ -359,7 +357,6 @@ export function createFfmpegRecorderService(): RecorderService {
 			if (readError) {
 				return RecorderServiceErr({
 					message: 'Unable to read recording file',
-					context: { path: outputPath },
 					cause: readError,
 				});
 			}
