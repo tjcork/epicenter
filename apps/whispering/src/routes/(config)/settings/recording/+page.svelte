@@ -192,8 +192,6 @@
 			/>
 		{:else if isUsingFfmpegBackend}
 			<!-- FFmpeg backend settings -->
-			<FfmpegCommandBuilder bind:commandTemplate={settings.value['recording.ffmpeg.commandTemplate']} />
-			
 			<div class="space-y-2">
 				<label for="output-folder" class="text-sm font-medium">
 					Recording Output Folder
@@ -204,6 +202,8 @@
 					managed by the app.
 				</p>
 			</div>
+			
+			<FfmpegCommandBuilder bind:commandTemplate={settings.value['recording.ffmpeg.commandTemplate']} />
 		{:else}
 			<!-- Native backend settings -->
 			<LabeledSelect

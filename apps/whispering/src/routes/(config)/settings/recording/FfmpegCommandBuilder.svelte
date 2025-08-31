@@ -158,30 +158,32 @@
 				description="Higher bitrates mean better quality but larger files"
 			/>
 		{/if}
-	</div>
-
-	<!-- Command output that can be edited directly -->
-	<div class="space-y-2">
-		<Label for="ffmpeg-command">FFmpeg Command Template</Label>
-		<Input
-			id="ffmpeg-command"
-			type="text"
-			placeholder="FFmpeg command template"
-			bind:value={commandTemplate}
-		/>
-		{#if exampleCommand}
-			<div class="rounded-md bg-muted/50 p-3">
-				<p class="text-xs font-medium text-muted-foreground mb-1">Preview with example values:</p>
-				<code class="text-xs break-all">{exampleCommand}</code>
+		
+		<!-- Command Template Section -->
+		<div class="border-t pt-4 mt-4">
+			<Label for="ffmpeg-command" class="text-sm font-medium mb-2 block">FFmpeg Command Template</Label>
+			<Input
+				id="ffmpeg-command"
+				type="text"
+				placeholder="FFmpeg command template"
+				bind:value={commandTemplate}
+				class="font-mono text-sm"
+			/>
+			{#await exampleCommand then cmd}
+				{#if cmd}
+					<div class="rounded-md bg-muted/50 p-3 mt-2">
+						<p class="text-xs font-medium text-muted-foreground mb-1">Preview with example values:</p>
+						<code class="text-xs break-all">{cmd}</code>
+					</div>
+				{/if}
+			{/await}
+			<div class="mt-3 text-xs text-muted-foreground space-y-1">
+				<p class="font-medium">Runtime variables (will be replaced when recording starts):</p>
+				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{device}}'}</code> - Device name (selected in Recording Device dropdown)</p>
+				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{outputFolder}}'}</code> - Output directory from settings</p>
+				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{recordingId}}'}</code> - Unique ID for each recording</p>
+				<p class="mt-2 italic">Note: Format and codec settings are injected directly into the command template.</p>
 			</div>
-		{/if}
-		<p class="text-xs text-muted-foreground">
-			<strong>Runtime variables (will be replaced when recording starts):</strong><br/>
-			<code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{device}}'}</code> - Device name (selected in Recording Device dropdown)<br/>
-			<code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{outputFolder}}'}</code> - Output directory from settings<br/>
-			<code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{recordingId}}'}</code> - Unique ID for each recording<br/>
-			<br/>
-			<strong>Note:</strong> Format and codec settings are injected directly into the command template.
-		</p>
+		</div>
 	</div>
 </div>
