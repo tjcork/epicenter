@@ -14,13 +14,14 @@ import type {
 	StartRecordingParams,
 } from './types';
 import { RecorderServiceErr } from './types';
-import { Command, type Child } from '@tauri-apps/plugin-shell';
+import type { Child } from '@tauri-apps/plugin-shell';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { remove, exists } from '@tauri-apps/plugin-fs';
 import { join, appDataDir } from '@tauri-apps/api/path';
 import { settings } from '$lib/stores/settings.svelte';
 import * as services from '$lib/services';
 import { interpolateTemplate, asTemplateString } from '$lib/utils/template';
+import { asShellCommand } from '$lib/services/command';
 
 /**
  * Get the platform-specific FFmpeg audio input format
@@ -36,60 +37,46 @@ function getAudioInputFormat() {
  * Parse FFmpeg device enumeration output based on platform
  */
 function parseDevices(output: string): Device[] {
-	const devices: Device[] = [];
+	// Platform-specific parsing configuration
+	const platformConfig = {
+		macos: {
+			// macOS format: [AVFoundation input device @ 0x...] [0] Built-in Microphone
+			regex: /\[AVFoundation.*?\]\s+\[(\d+)\]\s+(.+)/,
+			extractDevice: (match) => ({
+				id: asDeviceIdentifier(match[2].trim()),
+				label: match[2].trim(),
+			}),
+		},
+		windows: {
+			// Windows DirectShow format: "Microphone Name" (audio)
+			regex: /^\s*"(.+?)"\s+\(audio\)/,
+			extractDevice: (match) => ({
+				id: asDeviceIdentifier(match[1]),
+				label: match[1],
+			}),
+		},
+		linux: {
+			// Linux ALSA format: hw:0,0 Device Name
+			regex: /^(hw:\d+,\d+)\s+(.+)/,
+			extractDevice: (match) => ({
+				id: asDeviceIdentifier(match[1]),
+				label: match[2].trim(),
+			}),
+		},
+	} satisfies Record<
+		string,
+		{ regex: RegExp; extractDevice: (match: RegExpMatchArray) => Device }
+	>;
 
-	if (IS_MACOS) {
-		// macOS format: [AVFoundation input device @ 0x...] AVFoundation audio devices:
-		// [AVFoundation input device @ 0x...] [0] Built-in Microphone
-		const lines = output.split('\n');
-		const audioDeviceRegex = /\[AVFoundation.*?\]\s+\[(\d+)\]\s+(.+)/;
+	// Select configuration based on platform
+	const config = platformConfig[PLATFORM_TYPE];
 
-		for (const line of lines) {
-			const match = line.match(audioDeviceRegex);
-			if (match) {
-				const [, index, name] = match;
-				// Skip screen capture devices
-				if (!name.includes('Capture screen')) {
-					devices.push({
-						id: asDeviceIdentifier(name.trim()),
-						label: name.trim(),
-					});
-				}
-			}
-		}
-	} else if (IS_WINDOWS) {
-		// Windows DirectShow format
-		const lines = output.split('\n');
-		const audioDeviceRegex = /^\s*"(.+?)"\s+\(audio\)/;
-
-		for (const line of lines) {
-			const match = line.match(audioDeviceRegex);
-			if (match) {
-				const [, name] = match;
-				devices.push({
-					id: asDeviceIdentifier(name),
-					label: name,
-				});
-			}
-		}
-	} else {
-		// Linux ALSA format
-		const lines = output.split('\n');
-		const deviceRegex = /^(hw:\d+,\d+)\s+(.+)/;
-
-		for (const line of lines) {
-			const match = line.match(deviceRegex);
-			if (match) {
-				const [, id, name] = match;
-				devices.push({
-					id: asDeviceIdentifier(id),
-					label: name.trim(),
-				});
-			}
-		}
-	}
-
-	return devices;
+	// Parse lines using reduce for functional approach
+	return output.split('\n').reduce<Device[]>((devices, line) => {
+		const match = line.match(config.regex);
+		if (match) devices.push(config.extractDevice(match));
+		return devices;
+	}, []);
 }
 
 export function createFfmpegRecorderService(): RecorderService {
@@ -109,32 +96,26 @@ export function createFfmpegRecorderService(): RecorderService {
 	> => {
 		const format = getAudioInputFormat();
 
-		const { data: output, error } = await tryAsync({
-			try: async () => {
-				// Build platform-specific commands using shell to resolve FFmpeg from PATH
-				const cmd = {
-					macos: Command.create('sh', [
-						'-c',
-						'ffmpeg -f avfoundation -list_devices true -i ""',
-					]),
-					windows: Command.create('cmd', [
-						'/c',
-						'ffmpeg -list_devices true -f dshow -i dummy',
-					]),
-					linux: Command.create('sh', ['-c', 'arecord -l']),
-				}[PLATFORM_TYPE];
-				const result = await cmd.execute();
-				// FFmpeg lists devices to stderr, not stdout
-				return result.stderr;
-			},
-			mapErr: (error) =>
-				RecorderServiceErr({
-					message: 'Failed to enumerate recording devices',
-					cause: error,
-				}),
-		});
+		// Build platform-specific commands
+		const command = asShellCommand(
+			{
+				macos: 'ffmpeg -f avfoundation -list_devices true -i ""',
+				windows: 'ffmpeg -list_devices true -f dshow -i dummy',
+				linux: 'arecord -l',
+			}[PLATFORM_TYPE],
+		);
 
-		if (error) return Err(error);
+		const { data: result, error: executeError } =
+			await services.command.execute(command);
+		if (executeError) {
+			return RecorderServiceErr({
+				message: 'Failed to enumerate recording devices',
+				cause: executeError,
+			});
+		}
+
+		// FFmpeg lists devices to stderr, not stdout
+		const output = result.stderr;
 
 		const devices = parseDevices(output);
 
@@ -279,22 +260,10 @@ export function createFfmpegRecorderService(): RecorderService {
 				description: 'Initializing FFmpeg recording session...',
 			});
 
-			// Use shell to execute FFmpeg command (allows PATH resolution)
-			const { data: process, error: startError } = await tryAsync({
-				try: async () => {
-					const cmd = IS_WINDOWS
-						? Command.create('cmd', ['/c', command])
-						: Command.create('sh', ['-c', command]);
-					const child = await cmd.spawn();
-					return child;
-				},
-				mapErr: (error) =>
-					RecorderServiceErr({
-						message: `Failed to start FFmpeg recording: ${extractErrorMessage(error)}`,
-						context: { command, deviceIdentifier },
-						cause: error,
-					}),
-			});
+			// Use command service to spawn FFmpeg process
+			const { data: process, error: startError } = await services.command.spawn(
+				asShellCommand(command),
+			);
 
 			if (startError) return Err(startError);
 

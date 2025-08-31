@@ -1,4 +1,5 @@
 import { AnalyticsServiceLive } from './analytics';
+import { CommandServiceLive } from './command';
 import * as completions from './completion';
 import { DbServiceLive } from './db';
 import { DownloadServiceLive } from './download';
@@ -27,6 +28,7 @@ import { VadServiceLive } from './vad-recorder';
 export {
 	AnalyticsServiceLive as analytics,
 	TextServiceLive as text,
+	CommandServiceLive as command,
 	completions,
 	TrayIconServiceLive as tray,
 	DbServiceLive as db,
