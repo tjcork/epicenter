@@ -15,7 +15,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { appDataDir } from '@tauri-apps/api/path';
+	import { appDataDir, join as pathJoin } from '@tauri-apps/api/path';
 	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -68,7 +68,7 @@
 	// Helper functions
 	async function getModelsDirectory(): Promise<string> {
 		const appDir = await appDataDir();
-		return `${appDir}whisper-models`;
+		return await pathJoin(appDir, 'whisper-models');
 	}
 
 	async function ensureModelsDirectory(): Promise<void> {
