@@ -20,6 +20,7 @@ import { remove, exists } from '@tauri-apps/plugin-fs';
 import { join, appDataDir } from '@tauri-apps/api/path';
 import { settings } from '$lib/stores/settings.svelte';
 import * as services from '$lib/services';
+import { interpolateTemplate, asTemplateString } from '$lib/utils/template';
 
 /**
  * Get the platform-specific FFmpeg audio input format
@@ -29,22 +30,6 @@ function getAudioInputFormat() {
 	if (IS_WINDOWS) return 'dshow';
 	if (IS_LINUX) return 'alsa';
 	return 'pulse';
-}
-
-/**
- * Format device name for FFmpeg based on platform
- */
-function formatDeviceForFFmpeg(deviceName: string): string {
-	if (IS_MACOS) {
-		// macOS uses ":deviceName" for audio input
-		return `:${deviceName}`;
-	}
-	if (IS_WINDOWS) {
-		// Windows uses "audio=deviceName"
-		return `audio="${deviceName}"`;
-	}
-	// Linux uses device name directly
-	return deviceName;
 }
 
 /**
@@ -107,34 +92,17 @@ function parseDevices(output: string): Device[] {
 	return devices;
 }
 
-/**
- * Interpolate variables in FFmpeg command template
- */
-function interpolateCommand(
-	template: string,
-	variables: Record<string, string>,
-): string {
-	let command = template;
-
-	// Replace all {{variable}} patterns
-	for (const [key, value] of Object.entries(variables)) {
-		const pattern = new RegExp(`{{${key}}}`, 'g');
-		command = command.replace(pattern, value);
-	}
-
-	return command;
-}
-
 export function createFfmpegRecorderService(): RecorderService {
 	let currentProcess: Child | null = null;
 	let currentRecordingId: string | null = null;
 
-	// Helper function to construct output path from recording ID
-	async function getOutputPath(recordingId: string): Promise<string> {
-		const outputDir =
-			settings.value['recording.desktop.outputFolder'] ?? (await appDataDir());
-		return join(outputDir, `${recordingId}.wav`);
-	}
+	// Lazily get output directory from settings or default
+	const getOutputDir = async () =>
+		settings.value['recording.desktop.outputFolder'] ?? (await appDataDir());
+
+	// Lazily get output path from recording ID
+	const getOutputPath = async (): Promise<string> =>
+		join(await getOutputDir(), `${currentRecordingId}.wav`);
 
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
@@ -143,22 +111,15 @@ export function createFfmpegRecorderService(): RecorderService {
 
 		const { data: output, error } = await tryAsync({
 			try: async () => {
+				// Build platform-specific commands using shell to resolve FFmpeg from PATH
 				const cmd = {
-					macos: Command.create('ffmpeg', [
-						'-f',
-						format,
-						'-list_devices',
-						'true',
-						'-i',
-						'',
+					macos: Command.create('sh', [
+						'-c',
+						'ffmpeg -f avfoundation -list_devices true -i ""',
 					]),
-					windows: Command.create('ffmpeg', [
-						'-list_devices',
-						'true',
-						'-f',
-						'dshow',
-						'-i',
-						'dummy',
+					windows: Command.create('cmd', [
+						'/c',
+						'ffmpeg -list_devices true -f dshow -i dummy',
 					]),
 					linux: Command.create('sh', ['-c', 'arecord -l']),
 				}[PLATFORM_TYPE];
@@ -202,7 +163,7 @@ export function createFfmpegRecorderService(): RecorderService {
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
 			// FFmpeg implementation only handles FFmpeg params
-			if (params.platform !== 'ffmpeg') {
+			if (params.implementation !== 'ffmpeg') {
 				return RecorderServiceErr({
 					message: 'FFmpeg recorder received non-FFmpeg parameters',
 					context: { params },
@@ -210,8 +171,7 @@ export function createFfmpegRecorderService(): RecorderService {
 				});
 			}
 
-			const { selectedDeviceId, recordingId, outputFolder, commandTemplate } =
-				params;
+			const { selectedDeviceId, recordingId, commandTemplate } = params;
 
 			// Stop any existing recording
 			if (currentProcess) {
@@ -292,48 +252,39 @@ export function createFfmpegRecorderService(): RecorderService {
 				});
 			}
 
-			// Set up output path - default to .wav extension
-			const outputDir = outputFolder ?? (await appDataDir());
-			const outputFileName = `${recordingId}.wav`;
-			const outputPath = await join(outputDir, outputFileName);
+			// Only runtime variables need interpolation
+			// Device, format, codec etc. are already in the template
+			const variables = { outputFolder: await getOutputDir(), recordingId };
 
-			// Prepare variables for interpolation
-			const variables = {
-				device: deviceIdentifier,
-				outputPath,
-				recordingId,
-				outputFolder: outputDir,
-				format: getAudioInputFormat(),
-				formattedDevice: formatDeviceForFFmpeg(deviceIdentifier),
-			};
+			// Default template with actual device name injected
+			// Only {{outputFolder}} and {{recordingId}} are runtime variables
+			const format = getAudioInputFormat();
+			const deviceInput = {
+				macos: `":${deviceIdentifier}"`, // macOS needs colon prefix
+				windows: `"audio=${deviceIdentifier}"`, // Windows needs audio= prefix
+				linux: `"${deviceIdentifier}"`, // Linux uses the device ID directly
+			}[PLATFORM_TYPE];
 
-			// Use default template if none provided
-			const defaultTemplate = (
-				{
-					macos:
-						'ffmpeg -f {{format}} -i {{formattedDevice}} -acodec pcm_s16le -ar 16000 {{outputPath}}',
-					windows:
-						'ffmpeg -f dshow -i {{formattedDevice}} -acodec pcm_s16le -ar 16000 {{outputPath}}',
-					linux:
-						'ffmpeg -f alsa -i {{device}} -acodec pcm_s16le -ar 16000 {{outputPath}}',
-				} as const
-			)[PLATFORM_TYPE];
+			const defaultTemplate = asTemplateString(
+				`ffmpeg -f ${format} -i ${deviceInput} -acodec pcm_s16le -ar 16000 "{{outputFolder}}/{{recordingId}}.wav"`,
+			);
 
-			const template = commandTemplate ?? defaultTemplate;
-			const command = interpolateCommand(template, variables);
+			const command = interpolateTemplate(
+				commandTemplate ?? defaultTemplate,
+				variables,
+			);
 
 			sendStatus({
 				title: '🎤 Setting Up',
 				description: 'Initializing FFmpeg recording session...',
 			});
 
-			// Parse command into executable and args
-			const parts = command.split(' ');
-			const [executable, ...args] = parts;
-
+			// Use shell to execute FFmpeg command (allows PATH resolution)
 			const { data: process, error: startError } = await tryAsync({
 				try: async () => {
-					const cmd = Command.create(executable, args);
+					const cmd = IS_WINDOWS
+						? Command.create('cmd', ['/c', command])
+						: Command.create('sh', ['-c', command]);
 					const child = await cmd.spawn();
 					return child;
 				},
@@ -368,7 +319,7 @@ export function createFfmpegRecorderService(): RecorderService {
 				});
 			}
 
-			const outputPath = await getOutputPath(currentRecordingId);
+			const outputPath = await getOutputPath();
 
 			sendStatus({
 				title: '⏹️ Stopping',
@@ -433,7 +384,8 @@ export function createFfmpegRecorderService(): RecorderService {
 				description: 'Loading your recording from disk...',
 			});
 
-			const { data: blob, error: readError } = await services.fs.pathToBlob(outputPath);
+			const { data: blob, error: readError } =
+				await services.fs.pathToBlob(outputPath);
 
 			if (readError) {
 				return RecorderServiceErr({
@@ -459,7 +411,7 @@ export function createFfmpegRecorderService(): RecorderService {
 			});
 
 			// Get the output path using helper function for cleanup
-			const outputPath = await getOutputPath(currentRecordingId);
+			const outputPath = await getOutputPath();
 
 			// Kill the FFmpeg process
 			if (currentProcess) {
