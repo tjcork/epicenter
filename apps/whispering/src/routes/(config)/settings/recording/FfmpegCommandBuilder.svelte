@@ -7,6 +7,7 @@
 	import { appDataDir } from '@tauri-apps/api/path';
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { interpolateTemplate, asTemplateString } from '$lib/utils/template';
 
 	// Props - only bind the command template
 	let { commandTemplate = $bindable() }: { commandTemplate: string | null } = $props();
@@ -115,14 +116,8 @@
 			recordingId: 'abc123xyz',
 		};
 		
-		// Replace variables with example values
-		let example = commandTemplate;
-		for (const [key, value] of Object.entries(exampleVars)) {
-			const pattern = new RegExp(`{{${key}}}`, 'g');
-			example = example.replace(pattern, value);
-		}
-		
-		return example;
+		// Use the template interpolation helper
+		return interpolateTemplate(asTemplateString(commandTemplate), exampleVars);
 	}
 );
 	
