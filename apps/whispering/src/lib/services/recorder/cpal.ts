@@ -312,7 +312,7 @@ export function createCpalRecorderService(): RecorderService {
 
 /**
  * CPAL recorder service that uses the Rust backend CPAL implementation.
- * This is the native audio recorder for desktop environments.
+ * This is the CPAL audio recorder for desktop environments.
  */
 export const CpalRecorderServiceLive = createCpalRecorderService();
 

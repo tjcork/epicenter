@@ -13,8 +13,8 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 	import {
-		isUsingNativeBackendWithCloudTranscription,
-		isUsingNativeBackendAtWrongSampleRate,
+		isUsingCpalBackendWithCloudTranscription,
+		isUsingCpalBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS } from '$lib/constants/platform';
 
@@ -27,7 +27,7 @@
 	] as const;
 
 	const RECORDING_BACKEND_OPTIONS = [
-		{ value: 'native', label: 'Native (Rust)' },
+		{ value: 'cpal', label: 'CPAL (Rust)' },
 		{ value: 'navigator', label: 'Navigator (MediaRecorder)' },
 		{ value: 'ffmpeg', label: 'FFmpeg (Command-line)' },
 	] as const;
@@ -75,11 +75,11 @@
 			items={RECORDING_BACKEND_OPTIONS}
 			selected={settings.value['recording.backend']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.backend', selected);
+				settings.updateKey('recording.backend', selected as 'cpal' | 'navigator' | 'ffmpeg');
 			}}
 			placeholder="Select a recording backend"
 			description={{
-				'native':  'Native: Uses Rust audio backend for lower-level access and potentially better quality',
+				'cpal':  'CPAL: Uses Rust audio backend for lower-level access and potentially better quality',
 				'navigator': 'Browser: Uses web standards (MediaRecorder API) for better compatibility',
 				'ffmpeg': 'FFmpeg: Uses FFmpeg command-line tool for maximum flexibility and format support',
 				}[settings.value['recording.backend']]
@@ -111,12 +111,12 @@
 				<Alert.Description>
 					When using the navigator recorder, macOS App Nap may prevent the browser
 					recording logic from starting when not in focus. Consider using the
-					native backend for reliable global shortcut support.
+					CPAL backend for reliable global shortcut support.
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
 
-		{#if isUsingNativeBackendAtWrongSampleRate() && !data.ffmpegInstalled}
+		{#if isUsingCpalBackendAtWrongSampleRate() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -134,7 +134,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isUsingNativeBackendWithCloudTranscription() && !data.ffmpegInstalled}
+		{:else if isUsingCpalBackendWithCloudTranscription() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -142,7 +142,7 @@
 				</Alert.Title>
 				<Alert.Description>
 					We highly recommend installing FFmpeg for optimal audio processing
-					with the Native recording backend. FFmpeg enables audio compression
+					with the CPAL recording backend. FFmpeg enables audio compression
 					for faster uploads to transcription services.
 					<Link
 						href="/install-ffmpeg"
@@ -209,7 +209,7 @@
 				bind:outputOptions={settings.value['recording.ffmpeg.outputOptions']}
 			/>
 		{:else}
-			<!-- Native backend settings -->
+			<!-- CPAL backend settings -->
 			<LabeledSelect
 				id="sample-rate"
 				label="Sample Rate"

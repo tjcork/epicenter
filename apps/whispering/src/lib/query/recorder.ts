@@ -93,7 +93,7 @@ export const recorder = {
 					outputOptions: settings.value['recording.ffmpeg.outputOptions'],
 					outputFolder,
 				},
-				native: {
+				cpal: {
 					...baseParams,
 					implementation: 'cpal' as const,
 					outputFolder,
@@ -176,7 +176,7 @@ export function recorderService() {
 	const recorderMap = {
 		navigator: services.navigatorRecorder,
 		ffmpeg: services.ffmpegRecorder,
-		native: services.cpalRecorder,
+		cpal: services.cpalRecorder,
 	};
 
 	// Return the selected recorder or fallback to navigator

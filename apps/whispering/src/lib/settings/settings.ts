@@ -108,12 +108,12 @@ export const settingsSchema = z.object({
 	'recording.mode': z.enum(RECORDING_MODES).default('manual'),
 	/**
 	 * Recording backend to use in desktop app.
-	 * - 'native': Uses Rust audio recording backend (CPAL)
+	 * - 'cpal': Uses Rust audio recording backend (CPAL)
 	 * - 'navigator': Uses MediaRecorder API (web standard)
 	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
 	'recording.backend': z
-		.enum(['native', 'navigator', 'ffmpeg'])
+		.enum(['cpal', 'navigator', 'ffmpeg'])
 		.default('navigator'),
 	/**
 	 * Device identifier for manual recording.
@@ -144,7 +144,7 @@ export const settingsSchema = z.object({
 		.optional()
 		.default(DEFAULT_BITRATE_KBPS),
 
-	// CPAL (native Rust) recording settings
+	// CPAL (Rust audio library) recording settings
 	'recording.cpal.outputFolder': z.string().nullable().default(null), // null = use app data dir
 	'recording.cpal.sampleRate': z
 		.enum(['16000', '44100', '48000'])

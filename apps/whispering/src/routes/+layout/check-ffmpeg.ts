@@ -15,11 +15,11 @@ function isUsingWhisperCpp(): boolean {
 }
 
 /**
- * Checks if the native (Rust) recording backend is selected
- * @returns true if using native backend for recording
+ * Checks if the CPAL (Rust) recording backend is selected
+ * @returns true if using CPAL backend for recording
  */
-function isUsingNativeBackend(): boolean {
-	return settings.value['recording.backend'] === 'native';
+function isUsingCpalBackend(): boolean {
+	return settings.value['recording.backend'] === 'cpal';
 }
 
 /**
@@ -50,21 +50,21 @@ export function isUsingWhisperCppWithBrowserBackend(): boolean {
 
 /**
  * Checks if FFmpeg is REQUIRED for Whisper C++ with wrong sample rate
- * Native backend with non-16kHz audio needs FFmpeg to convert for Whisper C++
- * @returns true if using Whisper C++ with native backend at non-16kHz
+ * CPAL backend with non-16kHz audio needs FFmpeg to convert for Whisper C++
+ * @returns true if using Whisper C++ with CPAL backend at non-16kHz
  */
-export function isUsingNativeBackendAtWrongSampleRate(): boolean {
-	return isUsingWhisperCpp() && isUsingNativeBackend() && !isUsing16kHz();
+export function isUsingCpalBackendAtWrongSampleRate(): boolean {
+	return isUsingWhisperCpp() && isUsingCpalBackend() && !isUsing16kHz();
 }
 
 /**
- * Checks if FFmpeg would benefit cloud transcription with native backend
+ * Checks if FFmpeg would benefit cloud transcription with CPAL backend
  * FFmpeg enables audio compression for faster uploads to cloud services
- * Only relevant when using native backend with cloud providers (not Whisper C++)
- * @returns true if using native backend with any cloud transcription service
+ * Only relevant when using CPAL backend with cloud providers (not Whisper C++)
+ * @returns true if using CPAL backend with any cloud transcription service
  */
-export function isUsingNativeBackendWithCloudTranscription(): boolean {
-	return isUsingNativeBackend() && !isUsingWhisperCpp();
+export function isUsingCpalBackendWithCloudTranscription(): boolean {
+	return isUsingCpalBackend() && !isUsingWhisperCpp();
 }
 
 /**
@@ -72,10 +72,10 @@ export function isUsingNativeBackendWithCloudTranscription(): boolean {
  *
  * FFmpeg is REQUIRED when:
  * - Using Whisper C++ with browser recording backend
- * - Using Whisper C++ with native recording backend at any sample rate other than 16kHz
+ * - Using Whisper C++ with CPAL recording backend at any sample rate other than 16kHz
  *
  * FFmpeg is RECOMMENDED when:
- * - Using native recording backend with cloud transcription services (for compression)
+ * - Using CPAL recording backend with cloud transcription services (for compression)
  */
 export async function checkFfmpeg() {
 	// Only check in Tauri desktop app
@@ -100,8 +100,8 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// Case 2: Whisper C++ with native backend at wrong sample rate
-	if (isUsingNativeBackendAtWrongSampleRate()) {
+	// Case 2: Whisper C++ with CPAL backend at wrong sample rate
+	if (isUsingCpalBackendAtWrongSampleRate()) {
 		toast.warning('FFmpeg Required for Current Settings', {
 			description:
 				'Whisper C++ requires 16kHz audio. FFmpeg is needed to convert your current sample rate.',
@@ -114,8 +114,8 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// Case 3: Native backend with cloud services - recommended for compression
-	if (isUsingNativeBackendWithCloudTranscription()) {
+	// Case 3: CPAL backend with cloud services - recommended for compression
+	if (isUsingCpalBackendWithCloudTranscription()) {
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
 			description:
 				'FFmpeg enables audio compression for faster uploads to transcription services.',
