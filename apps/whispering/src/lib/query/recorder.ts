@@ -1,6 +1,7 @@
 import type { WhisperingRecordingState } from '$lib/constants/audio';
 import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
+import { getDefaultRecordingsFolder } from '$lib/services/recorder';
 import { settings } from '$lib/stores/settings.svelte';
 import { Ok, resolve } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
@@ -86,6 +87,11 @@ export const recorder = {
 				recordingId,
 			};
 
+			// Resolve the output folder - use default if null
+			const outputFolder = window.__TAURI_INTERNALS__
+				? settings.value['recording.cpal.outputFolder'] ?? await getDefaultRecordingsFolder()
+				: '';
+
 			const params =
 				backend === 'browser'
 					? {
@@ -101,12 +107,12 @@ export const recorder = {
 								// Example: "ffmpeg -f avfoundation -i \":{{device}}\" ... \"{{outputFolder}}/{{recordingId}}.wav\""
 								commandTemplate:
 									settings.value['recording.ffmpeg.commandTemplate'],
-								outputFolder: settings.value['recording.cpal.outputFolder'],
+								outputFolder,
 							}
 						: {
 								...baseParams,
 								implementation: 'cpal' as const,
-								outputFolder: settings.value['recording.cpal.outputFolder'],
+								outputFolder,
 								sampleRate: settings.value['recording.cpal.sampleRate'],
 							};
 

@@ -101,14 +101,14 @@ export function createCpalRecorderService(): RecorderService {
 					return Ok({
 						outcome: 'fallback',
 						reason: 'no-device-selected',
-						fallbackDeviceId,
+						deviceId: fallbackDeviceId,
 					});
 				}
 
 				// Check if the selected device exists in the devices array
 				const deviceExists = deviceIds.includes(selectedDeviceId);
 
-				if (deviceExists) return Ok({ outcome: 'success' });
+				if (deviceExists) return Ok({ outcome: 'success', deviceId: selectedDeviceId });
 
 				sendStatus({
 					title: '⚠️ Finding a New Microphone',
@@ -119,7 +119,7 @@ export function createCpalRecorderService(): RecorderService {
 				return Ok({
 					outcome: 'fallback',
 					reason: 'preferred-device-unavailable',
-					fallbackDeviceId,
+					deviceId: fallbackDeviceId,
 				});
 			};
 
@@ -127,11 +127,8 @@ export function createCpalRecorderService(): RecorderService {
 				acquireDevice();
 			if (acquireDeviceError) return Err(acquireDeviceError);
 
-			// Determine which device name to use based on the outcome
-			const deviceIdentifier =
-				deviceOutcome.outcome === 'success'
-					? selectedDeviceId
-					: deviceOutcome.fallbackDeviceId;
+			// Use the device from the outcome
+			const deviceIdentifier = deviceOutcome.deviceId;
 
 			// Now initialize recording with the chosen device
 			sendStatus({

@@ -51,7 +51,7 @@ const startManualRecording = defineMutation({
 			case 'fallback': {
 				settings.updateKey(
 					'recording.manual.selectedDeviceId',
-					deviceAcquisitionOutcome.fallbackDeviceId,
+					deviceAcquisitionOutcome.deviceId,
 				);
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
@@ -205,7 +205,7 @@ const startVadRecording = defineMutation({
 			case 'fallback': {
 				settings.updateKey(
 					'recording.vad.selectedDeviceId',
-					deviceAcquisitionOutcome.fallbackDeviceId,
+					deviceAcquisitionOutcome.deviceId,
 				);
 				switch (deviceAcquisitionOutcome.reason) {
 					case 'no-device-selected': {
