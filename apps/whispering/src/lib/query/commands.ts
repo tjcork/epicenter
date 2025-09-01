@@ -1,5 +1,4 @@
-import type { RecordingMode } from '$lib/constants/audio';
-import { fromTaggedErr, fromTaggedError, WhisperingErr } from '$lib/result';
+import { fromTaggedError } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { nanoid } from 'nanoid/non-secure';
@@ -281,13 +280,13 @@ export const commands = {
 	toggleManualRecording: defineMutation({
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: recordingState, error: getRecordingStateError } =
-				await recorder.getRecordingState.fetch();
-			if (getRecordingStateError) {
-				notify.error.execute(getRecordingStateError);
-				return Err(getRecordingStateError);
+			const { data: recorderState, error: getRecorderStateError } =
+				await recorder.getRecorderState.fetch();
+			if (getRecorderStateError) {
+				notify.error.execute(getRecorderStateError);
+				return Err(getRecorderStateError);
 			}
-			if (recordingState === 'RECORDING') {
+			if (recorderState === 'RECORDING') {
 				return await stopManualRecording.execute(undefined);
 			}
 			return await startManualRecording.execute(undefined);

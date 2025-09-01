@@ -11,7 +11,7 @@ import { notify } from './notify';
 import { nanoid } from 'nanoid/non-secure';
 
 const recorderKeys = {
-	recordingState: ['recorder', 'recordingState'] as const,
+	recorderState: ['recorder', 'recorderState'] as const,
 	devices: ['recorder', 'devices'] as const,
 	startRecording: ['recorder', 'startRecording'] as const,
 	stopRecording: ['recorder', 'stopRecording'] as const,
@@ -19,7 +19,7 @@ const recorderKeys = {
 } as const;
 
 const invalidateRecorderState = () =>
-	queryClient.invalidateQueries({ queryKey: recorderKeys.recordingState });
+	queryClient.invalidateQueries({ queryKey: recorderKeys.recorderState });
 
 export const recorder = {
 	// Query that enumerates available recording devices with labels
@@ -37,15 +37,15 @@ export const recorder = {
 		},
 	}),
 
-	// Query that returns the recording state (IDLE or RECORDING)
-	getRecordingState: defineQuery({
-		queryKey: recorderKeys.recordingState,
+	// Query that returns the recorder state (IDLE or RECORDING)
+	getRecorderState: defineQuery({
+		queryKey: recorderKeys.recorderState,
 		resultQueryFn: async () => {
 			const { data: state, error: getStateError } =
-				await recorderService().getRecordingState();
+				await recorderService().getRecorderState();
 			if (getStateError) {
 				return fromTaggedErr(getStateError, {
-					title: '❌ Failed to get recording state',
+					title: '❌ Failed to get recorder state',
 					action: { type: 'more-details', error: getStateError },
 				});
 			}
@@ -75,6 +75,25 @@ export const recorder = {
 				? settings.value['recording.cpal.outputFolder'] ?? await getDefaultRecordingsFolder()
 				: '';
 
+			// Build default FFmpeg command if not provided
+			const getDefaultFfmpegCommand = () => {
+				const deviceInput = {
+					'macos': '":{{device}}"',
+					'windows': '"audio={{device}}"',
+					'linux': '"{{device}}"',
+				}[PLATFORM_TYPE];
+				
+				const format = {
+					'macos': 'avfoundation',
+					'windows': 'dshow',
+					'linux': 'alsa',
+				}[PLATFORM_TYPE];
+				
+				return asTemplateString(
+					`ffmpeg -f ${format} -i ${deviceInput} -acodec pcm_s16le -ar 16000 "{{outputFolder}}/{{recordingId}}.wav"`
+				);
+			};
+
 			const params =
 				backend === 'browser'
 					? {
@@ -89,7 +108,7 @@ export const recorder = {
 								// The command template from settings contains {{device}}, {{outputFolder}}, {{recordingId}}
 								// Example: "ffmpeg -f avfoundation -i \":{{device}}\" ... \"{{outputFolder}}/{{recordingId}}.wav\""
 								commandTemplate:
-									settings.value['recording.ffmpeg.commandTemplate'],
+									settings.value['recording.ffmpeg.commandTemplate'] ?? getDefaultFfmpegCommand(),
 								outputFolder,
 							}
 						: {

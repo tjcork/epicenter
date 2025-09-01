@@ -110,7 +110,7 @@ export function createFfmpegRecorderService(): RecorderService {
 	};
 
 	return {
-		getRecordingState: async (): Promise<
+		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
 			return Ok(sessionState.value ? 'RECORDING' : 'IDLE');

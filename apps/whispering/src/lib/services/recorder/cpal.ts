@@ -45,17 +45,17 @@ export function createCpalRecorderService(): RecorderService {
 	};
 
 	return {
-		getRecordingState: async (): Promise<
+		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			const { data: recordingId, error: getRecordingStateError } =
+			const { data: recordingId, error: getRecorderStateError } =
 				await invoke<string | null>('get_current_recording_id');
-			if (getRecordingStateError)
+			if (getRecorderStateError)
 				return RecorderServiceErr({
 					message:
-						'We encountered an issue while getting the recording state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: { error: getRecordingStateError },
-					cause: getRecordingStateError,
+						'We encountered an issue while getting the recorder state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+					context: { error: getRecorderStateError },
+					cause: getRecorderStateError,
 				});
 
 			return Ok(recordingId ? 'RECORDING' : 'IDLE');

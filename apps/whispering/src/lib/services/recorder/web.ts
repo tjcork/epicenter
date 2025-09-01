@@ -9,7 +9,6 @@ import type {
 	NavigatorRecordingParams,
 	RecorderService,
 	RecorderServiceError,
-	StartRecordingParams,
 } from './types';
 import { RecorderServiceErr } from './types';
 import type {
@@ -31,7 +30,7 @@ export function createWebRecorderService(): RecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
-		getRecordingState: async (): Promise<
+		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
 			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
