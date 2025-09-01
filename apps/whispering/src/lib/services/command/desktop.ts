@@ -22,7 +22,7 @@ export function createCommandServiceDesktop(): CommandService {
 					const output = await cmd.execute();
 					return output;
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					CommandServiceErr({
 						message: 'Failed to execute command',
 						context: { command },
@@ -41,7 +41,7 @@ export function createCommandServiceDesktop(): CommandService {
 					const child = await cmd.spawn();
 					return child;
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					CommandServiceErr({
 						message: 'Failed to spawn command',
 						context: { command },
