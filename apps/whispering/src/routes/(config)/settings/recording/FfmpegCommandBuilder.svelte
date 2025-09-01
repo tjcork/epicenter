@@ -11,7 +11,13 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RotateCcw } from '@lucide/svelte';
-	import { formatDeviceForPlatform, FFMPEG_DEFAULT_OUTPUT_OPTIONS, FFMPEG_DEFAULT_INPUT_OPTIONS, FFMPEG_DEFAULT_DEVICE_IDENTIFIER } from '$lib/services/recorder/ffmpeg';
+	import { 
+		formatDeviceForPlatform, 
+		FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
+		FFMPEG_DEFAULT_GLOBAL_OPTIONS,
+		FFMPEG_DEFAULT_INPUT_OPTIONS,
+		FFMPEG_DEFAULT_OUTPUT_OPTIONS
+	} from '$lib/services/recorder/ffmpeg';
 
 	// Props - bind the three option fields
 	let {
@@ -107,15 +113,6 @@
 		outputOptions = buildOutputOptionsFromSelections();
 	});
 
-	// Default values for each section
-	// Using OGG Vorbis for optimal Whisper compatibility:
-	// - 16kHz mono matches Whisper's expected input
-	// - 64kbps provides good speech quality
-	// - ~80% smaller than WAV files
-	// - Cross-platform compatible
-	const DEFAULT_GLOBAL_OPTIONS = '';
-	const DEFAULT_INPUT_OPTIONS = FFMPEG_DEFAULT_INPUT_OPTIONS;
-	const DEFAULT_OUTPUT_OPTIONS = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
@@ -148,12 +145,12 @@
 						bind:value={globalOptions}
 						class="font-mono text-sm flex-1"
 					/>
-					{#if globalOptions !== DEFAULT_GLOBAL_OPTIONS}
+					{#if globalOptions !== FFMPEG_DEFAULT_GLOBAL_OPTIONS}
 						<WhisperingButton
 							tooltipContent="Reset to default"
 							variant="outline"
 							size="icon"
-							onclick={() => globalOptions = DEFAULT_GLOBAL_OPTIONS}
+							onclick={() => globalOptions = FFMPEG_DEFAULT_GLOBAL_OPTIONS}
 						>
 							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
@@ -169,16 +166,16 @@
 					<Input
 						id="ffmpeg-input"
 						type="text"
-						placeholder={DEFAULT_INPUT_OPTIONS}
+						placeholder={FFMPEG_DEFAULT_INPUT_OPTIONS}
 						bind:value={inputOptions}
 						class="font-mono text-sm flex-1"
 					/>
-					{#if inputOptions !== DEFAULT_INPUT_OPTIONS}
+					{#if inputOptions !== FFMPEG_DEFAULT_INPUT_OPTIONS}
 						<WhisperingButton
 							tooltipContent="Reset to platform default"
 							variant="outline"
 							size="icon"
-							onclick={() => inputOptions = DEFAULT_INPUT_OPTIONS}
+							onclick={() => inputOptions = FFMPEG_DEFAULT_INPUT_OPTIONS}
 						>
 							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
@@ -267,13 +264,13 @@
 							bind:value={outputOptions}
 							class="font-mono text-sm flex-1"
 						/>
-						{#if outputOptions !== DEFAULT_OUTPUT_OPTIONS}
+						{#if outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
 							<WhisperingButton
 								tooltipContent="Reset to default"
 								variant="outline"
 								size="icon"
 								onclick={() => {
-									outputOptions = DEFAULT_OUTPUT_OPTIONS;
+									outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
 									// Reset dropdowns to match default (OGG Vorbis for Whisper)
 									selectedFormat = 'ogg';
 									selectedSampleRate = '16000';
