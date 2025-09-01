@@ -34,8 +34,36 @@ const FfmpegSession = type({
 // - 16kHz sample rate (Whisper's expected input)
 // - Mono audio (single channel)
 // - 64kbps bitrate (good quality for speech)
-const DEFAULT_OUTPUT_OPTIONS =
+export const FFMPEG_DEFAULT_OUTPUT_OPTIONS =
 	'-acodec libvorbis -ar 16000 -ac 1 -b:a 64k' as const;
+
+// Default input options for the current platform
+export const FFMPEG_DEFAULT_INPUT_OPTIONS = (
+	{
+		macos: '-f avfoundation',
+		windows: '-f dshow',
+		linux: '-f alsa',
+	} as const
+)[PLATFORM_TYPE];
+
+// Device enumeration command for the current platform
+export const FFMPEG_ENUMERATE_DEVICES_COMMAND = (
+	{
+		macos: 'ffmpeg -f avfoundation -list_devices true -i ""',
+		windows: 'ffmpeg -list_devices true -f dshow -i dummy',
+		linux: 'arecord -l',
+	} as const
+)[PLATFORM_TYPE];
+
+// Default device identifier for the current platform
+// These are fallback device identifiers when no devices are enumerated
+export const FFMPEG_DEFAULT_DEVICE_IDENTIFIER = asDeviceIdentifier(
+	{
+		macos: '0', // Use first audio device index for avfoundation
+		windows: 'default', // Default DirectShow audio capture
+		linux: 'default', // Default ALSA/PulseAudio device
+	}[PLATFORM_TYPE],
+);
 
 export function createFfmpegRecorderService(): FfmpegRecorderService {
 	// Persisted state - single source of truth
@@ -86,13 +114,7 @@ export function createFfmpegRecorderService(): FfmpegRecorderService {
 		Result<Device[], RecorderServiceError>
 	> => {
 		// Build platform-specific commands
-		const command = asShellCommand(
-			{
-				macos: 'ffmpeg -f avfoundation -list_devices true -i ""',
-				windows: 'ffmpeg -list_devices true -f dshow -i dummy',
-				linux: 'arecord -l',
-			}[PLATFORM_TYPE],
-		);
+		const command = asShellCommand(FFMPEG_ENUMERATE_DEVICES_COMMAND);
 
 		const { data: result, error: executeError } =
 			await services.command.execute(command);
@@ -228,7 +250,8 @@ export function createFfmpegRecorderService(): FfmpegRecorderService {
 			const formattedDevice = formatDeviceForPlatform(deviceIdentifier);
 
 			// Apply platform-specific defaults if input options are empty
-			const finalInputOptions = inputOptions.trim() || getDefaultInputOptions();
+			const finalInputOptions =
+				inputOptions.trim() || FFMPEG_DEFAULT_INPUT_OPTIONS;
 
 			// Build the complete command
 			const command = [
@@ -409,10 +432,6 @@ export function createFfmpegRecorderService(): FfmpegRecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
-
-		formatDeviceForPlatform,
-
-		getDefaultOutputOptions: () => FFMPEG_DEFAULT_OUTPUT_OPTIONS,
 	};
 }
 
@@ -470,28 +489,16 @@ function parseDevices(output: string): Device[] {
 
 /**
  * Format device identifier for platform-specific FFmpeg input
+ * @param deviceId The device identifier to format
+ * @returns The formatted device string for FFmpeg -i parameter
  */
-function formatDeviceForPlatform(deviceId: string): string {
+export function formatDeviceForPlatform(deviceId: string) {
 	switch (PLATFORM_TYPE) {
 		case 'macos':
-			return `":${deviceId}"`; // macOS uses :deviceName
+			return `":${deviceId}"` as const; // macOS uses :deviceName
 		case 'windows':
-			return `"audio=${deviceId}"`; // Windows uses audio=deviceName
+			return `"audio=${deviceId}"` as const; // Windows uses audio=deviceName
 		case 'linux':
-			return `"${deviceId}"`; // Linux uses device directly
-	}
-}
-
-/**
- * Get default input options based on platform
- */
-function getDefaultInputOptions(): string {
-	switch (PLATFORM_TYPE) {
-		case 'macos':
-			return '-f avfoundation';
-		case 'windows':
-			return '-f dshow';
-		case 'linux':
-			return '-f alsa';
+			return `"${deviceId}"` as const; // Linux uses device directly
 	}
 }

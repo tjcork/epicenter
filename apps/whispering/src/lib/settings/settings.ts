@@ -44,7 +44,7 @@ import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
-import { ffmpegRecorder } from '$lib/services';
+import { FFMPEG_DEFAULT_OUTPUT_OPTIONS } from '$lib/services/recorder/ffmpeg';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
 
@@ -151,15 +151,11 @@ export const settingsSchema = z.object({
 		.default('16000'),
 
 	// FFmpeg recording settings - split into three customizable parts
-	'recording.ffmpeg.globalOptions': z
-		.string()
-		.default(''), // Global FFmpeg options (e.g., "-hide_banner -loglevel warning")
-	'recording.ffmpeg.inputOptions': z
-		.string()
-		.default(''), // Input options (e.g., "-f avfoundation" - platform defaults applied if empty)
+	'recording.ffmpeg.globalOptions': z.string().default(''), // Global FFmpeg options (e.g., "-hide_banner -loglevel warning")
+	'recording.ffmpeg.inputOptions': z.string().default(''), // Input options (e.g., "-f avfoundation" - platform defaults applied if empty)
 	'recording.ffmpeg.outputOptions': z
 		.string()
-		.default(ffmpegRecorder.getDefaultOutputOptions()), // OGG Vorbis optimized for Whisper: 16kHz mono, 64kbps
+		.default(FFMPEG_DEFAULT_OUTPUT_OPTIONS), // OGG Vorbis optimized for Whisper: 16kHz mono, 64kbps
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)
@@ -197,7 +193,7 @@ export const settingsSchema = z.object({
 		.string()
 		.nullable()
 		.default(null),
-		
+
 	'completion.openrouter.model': z
 		.string()
 		.default('mistralai/mixtral-8x7b')

@@ -115,21 +115,10 @@ export type CpalRecorderService = BaseRecorderService & {
 };
 
 /**
- * FFmpeg recorder service with additional platform-specific formatting
+ * FFmpeg recorder service
  */
 export type FfmpegRecorderService = BaseRecorderService & {
 	type: 'ffmpeg';
-	/**
-	 * Format a device identifier for FFmpeg command based on the current platform
-	 * @param deviceId The device identifier to format
-	 * @returns The formatted device string for FFmpeg -i parameter
-	 */
-	formatDeviceForPlatform(deviceId: string): string;
-	/**
-	 * Get the default output options optimized for Whisper
-	 * @returns The default FFmpeg output options string
-	 */
-	getDefaultOutputOptions(): string;
 };
 
 /**

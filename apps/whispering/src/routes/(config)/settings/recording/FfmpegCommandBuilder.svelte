@@ -11,6 +11,7 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RotateCcw } from '@lucide/svelte';
+	import { formatDeviceForPlatform, FFMPEG_DEFAULT_OUTPUT_OPTIONS, FFMPEG_DEFAULT_INPUT_OPTIONS, FFMPEG_DEFAULT_DEVICE_IDENTIFIER } from '$lib/services/recorder/ffmpeg';
 
 	// Props - bind the three option fields
 	let {
@@ -27,10 +28,14 @@
 		rpc.recorder.enumerateDevices.options
 	);
 
-	// Get the actual selected device or use the first available
-	const selectedDevice = $derived(
-		getDevicesQuery.data?.find(d => d.id === settings.value['recording.manual.selectedDeviceId']) ??
-		getDevicesQuery.data?.[0]
+	// Get the selected device identifier with proper fallback chain
+	const selectedDeviceId = $derived(
+		// First, try to find the user's selected device
+		getDevicesQuery.data?.find(d => d.id === settings.value['recording.manual.selectedDeviceId'])?.id 
+		// Then fall back to the first available device
+		?? getDevicesQuery.data?.[0]?.id
+		// Finally, return null if no devices are available
+		?? null
 	);
 
 	// Source of truth: Clean data structure optimized for lookups
@@ -73,15 +78,11 @@
 	let selectedSampleRate = $derived(outputOptions?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
 	let selectedBitrate = $derived(outputOptions?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64');
 
-	// Get platform-specific defaults for input
-	const PLATFORM_DEFAULTS = {
-		macos: { format: 'avfoundation', deviceFormat: ':"Built-in Microphone"' },
-		windows: { format: 'dshow', deviceFormat: 'audio="Microphone Array"' },
-		linux: { format: 'alsa', deviceFormat: 'hw:0' },
-	}[PLATFORM_TYPE];
 
 	// Build the preview command
 	const previewCommand = $derived.by(async () => {
+		const formattedDevice = formatDeviceForPlatform(selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER)
+
 		const outputFolder = settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder());
 		const recordingId = nanoid(); // Generate realistic recording ID for preview
 		const ext = AUDIO_FORMATS[selectedFormat].extension;
@@ -93,7 +94,7 @@
 			globalOptions.trim(),
 			inputOptions.trim(), // Can be empty - FFmpeg will auto-detect
 			'-i',
-			PLATFORM_DEFAULTS.deviceFormat,
+			formattedDevice,
 			outputOptions.trim(),
 			`"${outputPath}"`
 		].filter(part => part); // Remove empty strings
@@ -113,8 +114,8 @@
 	// - ~80% smaller than WAV files
 	// - Cross-platform compatible
 	const DEFAULT_GLOBAL_OPTIONS = '';
-	const DEFAULT_INPUT_OPTIONS = `-f ${PLATFORM_DEFAULTS.format}`;
-	const DEFAULT_OUTPUT_OPTIONS = '-acodec libvorbis -ar 16000 -ac 1 -b:a 64k';
+	const DEFAULT_INPUT_OPTIONS = FFMPEG_DEFAULT_INPUT_OPTIONS;
+	const DEFAULT_OUTPUT_OPTIONS = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
@@ -211,7 +212,7 @@
 						items={audioFormatOptions}
 						selected={selectedFormat}
 						onSelectedChange={(selected) => {
-							selectedFormat = selected;
+							selectedFormat = selected as AudioFormat;
 						}}
 						placeholder="Select audio format"
 						description="Choose the output audio format and codec"

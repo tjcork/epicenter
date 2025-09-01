@@ -3,8 +3,11 @@ import { PLATFORM_TYPE } from '$lib/constants/platform';
 import { fromTaggedErr } from '$lib/result';
 import * as services from '$lib/services';
 import { getDefaultRecordingsFolder } from '$lib/services/recorder';
+import {
+	FFMPEG_DEFAULT_OUTPUT_OPTIONS,
+	FFMPEG_DEFAULT_INPUT_OPTIONS,
+} from '$lib/services/recorder/ffmpeg';
 import { settings } from '$lib/stores/settings.svelte';
-import { asTemplateString } from '$lib/utils/template';
 import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
@@ -72,27 +75,9 @@ export const recorder = {
 
 			// Resolve the output folder - use default if null
 			const outputFolder = window.__TAURI_INTERNALS__
-				? settings.value['recording.cpal.outputFolder'] ?? await getDefaultRecordingsFolder()
+				? (settings.value['recording.cpal.outputFolder'] ??
+					(await getDefaultRecordingsFolder()))
 				: '';
-
-			// Build default FFmpeg command if not provided
-			const getDefaultFfmpegCommand = () => {
-				const deviceInput = {
-					'macos': '":{{device}}"',
-					'windows': '"audio={{device}}"',
-					'linux': '"{{device}}"',
-				}[PLATFORM_TYPE];
-				
-				const format = {
-					'macos': 'avfoundation',
-					'windows': 'dshow',
-					'linux': 'alsa',
-				}[PLATFORM_TYPE];
-				
-				return asTemplateString(
-					`ffmpeg -f ${format} -i ${deviceInput} -acodec pcm_s16le -ar 16000 "{{outputFolder}}/{{recordingId}}.wav"`
-				);
-			};
 
 			const params =
 				backend === 'browser'
@@ -105,10 +90,9 @@ export const recorder = {
 						? {
 								...baseParams,
 								implementation: 'ffmpeg' as const,
-								// The command template from settings contains {{device}}, {{outputFolder}}, {{recordingId}}
-								// Example: "ffmpeg -f avfoundation -i \":{{device}}\" ... \"{{outputFolder}}/{{recordingId}}.wav\""
-								commandTemplate:
-									settings.value['recording.ffmpeg.commandTemplate'] ?? getDefaultFfmpegCommand(),
+								globalOptions: settings.value['recording.ffmpeg.globalOptions'],
+								inputOptions: settings.value['recording.ffmpeg.inputOptions'],
+								outputOptions: settings.value['recording.ffmpeg.outputOptions'],
 								outputFolder,
 							}
 						: {
