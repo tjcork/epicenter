@@ -5,13 +5,13 @@ import * as services from '$lib/services';
 import { getDefaultRecordingsFolder } from '$lib/services/recorder';
 import { settings } from '$lib/stores/settings.svelte';
 import { asTemplateString } from '$lib/utils/template';
-import { Ok, resolve } from 'wellcrafted/result';
+import { Ok } from 'wellcrafted/result';
 import { defineMutation, defineQuery, queryClient } from './_client';
 import { notify } from './notify';
 import { nanoid } from 'nanoid/non-secure';
 
 const recorderKeys = {
-	currentRecordingId: ['recorder', 'currentRecordingId'] as const,
+	recordingState: ['recorder', 'recordingState'] as const,
 	devices: ['recorder', 'devices'] as const,
 	startRecording: ['recorder', 'startRecording'] as const,
 	stopRecording: ['recorder', 'stopRecording'] as const,
@@ -19,7 +19,7 @@ const recorderKeys = {
 } as const;
 
 const invalidateRecorderState = () =>
-	queryClient.invalidateQueries({ queryKey: recorderKeys.currentRecordingId });
+	queryClient.invalidateQueries({ queryKey: recorderKeys.recordingState });
 
 export const recorder = {
 	// Query that enumerates available recording devices with labels
@@ -37,40 +37,21 @@ export const recorder = {
 		},
 	}),
 
-	// Query that returns the raw recording ID (null if not recording)
-	getCurrentRecordingId: defineQuery({
-		queryKey: recorderKeys.currentRecordingId,
+	// Query that returns the recording state (IDLE or RECORDING)
+	getRecordingState: defineQuery({
+		queryKey: recorderKeys.recordingState,
 		resultQueryFn: async () => {
-			const { data: recordingId, error: getRecordingIdError } =
-				await recorderService().getCurrentRecordingId();
-			if (getRecordingIdError) {
-				return fromTaggedErr(getRecordingIdError, {
-					title: '❌ Failed to get current recording',
-					action: { type: 'more-details', error: getRecordingIdError },
+			const { data: state, error: getStateError } =
+				await recorderService().getRecordingState();
+			if (getStateError) {
+				return fromTaggedErr(getStateError, {
+					title: '❌ Failed to get recording state',
+					action: { type: 'more-details', error: getStateError },
 				});
 			}
-			return Ok(recordingId);
+			return Ok(state);
 		},
-		initialData: null as string | null,
-	}),
-
-	// Query that transforms recording ID to state (RECORDING or IDLE)
-	getRecorderState: defineQuery({
-		queryKey: recorderKeys.currentRecordingId, // Same key as getCurrentRecordingId!
-		resultQueryFn: async () => {
-			const { data: recordingId, error: getRecordingIdError } =
-				await recorderService().getCurrentRecordingId();
-			if (getRecordingIdError) {
-				return fromTaggedErr(getRecordingIdError, {
-					title: '❌ Failed to get recorder state',
-					action: { type: 'more-details', error: getRecordingIdError },
-				});
-			}
-			return Ok(recordingId);
-		},
-		select: (state): WhisperingRecordingState =>
-			resolve(state) ? 'RECORDING' : 'IDLE',
-		initialData: null as string | null,
+		initialData: 'IDLE' as WhisperingRecordingState,
 	}),
 
 	startRecording: defineMutation({

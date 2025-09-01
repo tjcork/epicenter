@@ -281,13 +281,13 @@ export const commands = {
 	toggleManualRecording: defineMutation({
 		mutationKey: ['commands', 'toggleManualRecording'] as const,
 		resultMutationFn: async () => {
-			const { data: currentRecordingId, error: getRecordingIdError } =
-				await recorder.getCurrentRecordingId.fetch();
-			if (getRecordingIdError) {
-				notify.error.execute(getRecordingIdError);
-				return Err(getRecordingIdError);
+			const { data: recordingState, error: getRecordingStateError } =
+				await recorder.getRecordingState.fetch();
+			if (getRecordingStateError) {
+				notify.error.execute(getRecordingStateError);
+				return Err(getRecordingStateError);
 			}
-			if (currentRecordingId) {
+			if (recordingState === 'RECORDING') {
 				return await stopManualRecording.execute(undefined);
 			}
 			return await startManualRecording.execute(undefined);
@@ -387,7 +387,7 @@ export const commands = {
 				validFiles.map(async (file) => {
 					const arrayBuffer = await file.arrayBuffer();
 					const audioBlob = new Blob([arrayBuffer], { type: file.type });
-					
+
 					// Log file upload event
 					rpc.analytics.logEvent.execute({
 						type: 'file_uploaded',

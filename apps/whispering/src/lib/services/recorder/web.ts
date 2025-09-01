@@ -1,4 +1,4 @@
-import { TIMESLICE_MS } from '$lib/constants/audio';
+import { TIMESLICE_MS, type CancelRecordingResult, type WhisperingRecordingState } from '$lib/constants/audio';
 import { Err, Ok, type Result, tryAsync, trySync } from 'wellcrafted/result';
 import {
 	cleanupRecordingStream,
@@ -12,7 +12,6 @@ import type {
 	StartRecordingParams,
 } from './types';
 import { RecorderServiceErr } from './types';
-import type { CancelRecordingResult } from '$lib/constants/audio';
 import type {
 	DeviceIdentifier,
 	DeviceAcquisitionOutcome,
@@ -32,10 +31,10 @@ export function createWebRecorderService(): RecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
-		getCurrentRecordingId: async (): Promise<
-			Result<string | null, RecorderServiceError>
+		getRecordingState: async (): Promise<
+			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			return Ok(activeRecording?.recordingId || null);
+			return Ok(activeRecording ? 'RECORDING' : 'IDLE');
 		},
 
 		enumerateDevices: async () => {

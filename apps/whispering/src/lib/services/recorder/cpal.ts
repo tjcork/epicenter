@@ -1,4 +1,4 @@
-import type { CancelRecordingResult } from '$lib/constants/audio';
+import type { CancelRecordingResult, WhisperingRecordingState } from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { Device, DeviceAcquisitionOutcome } from '../types';
@@ -45,20 +45,20 @@ export function createCpalRecorderService(): RecorderService {
 	};
 
 	return {
-		getCurrentRecordingId: async (): Promise<
-			Result<string | null, RecorderServiceError>
+		getRecordingState: async (): Promise<
+			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			const { data: recordingId, error: getCurrentRecordingIdError } =
+			const { data: recordingId, error: getRecordingStateError } =
 				await invoke<string | null>('get_current_recording_id');
-			if (getCurrentRecordingIdError)
+			if (getRecordingStateError)
 				return RecorderServiceErr({
 					message:
-						'We encountered an issue while getting the current recording. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
-					context: { error: getCurrentRecordingIdError },
-					cause: getCurrentRecordingIdError,
+						'We encountered an issue while getting the recording state. This could be because your microphone is being used by another app, your microphone permissions are denied, or the selected recording device is disconnected',
+					context: { error: getRecordingStateError },
+					cause: getRecordingStateError,
 				});
 
-			return Ok(recordingId);
+			return Ok(recordingId ? 'RECORDING' : 'IDLE');
 		},
 
 		enumerateDevices,

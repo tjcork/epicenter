@@ -1,9 +1,9 @@
-import type { CancelRecordingResult } from '$lib/constants/audio';
+import type { CancelRecordingResult, WhisperingRecordingState } from '$lib/constants/audio';
 import { PLATFORM_TYPE } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { asShellCommand } from '$lib/services/command';
 import { interpolateTemplate } from '$lib/utils/template';
-import { basename, join } from '@tauri-apps/api/path';
+import { join } from '@tauri-apps/api/path';
 import { exists, remove } from '@tauri-apps/plugin-fs';
 import { Child } from '@tauri-apps/plugin-shell';
 import { createPersistedState } from '@repo/svelte-utils';
@@ -55,7 +55,6 @@ export function createFfmpegRecorderService(): RecorderService {
 				console.log(`Killed FFmpeg process (PID: ${session.pid})`);
 			},
 			catch: (e) => {
-				// Process might already be dead, that's okay
 				console.log(
 					`Error terminating FFmpeg process (PID: ${session.pid}): ${extractErrorMessage(e)}`,
 				);
@@ -111,19 +110,10 @@ export function createFfmpegRecorderService(): RecorderService {
 	};
 
 	return {
-		getCurrentRecordingId: async (): Promise<
-			Result<string | null, RecorderServiceError>
+		getRecordingState: async (): Promise<
+			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			// Derive recording ID from the output path if available
-			const session = sessionState.value;
-			if (!session) return Ok(null);
-
-			// Use Tauri's basename to reliably extract filename
-			const filename = await basename(session.outputPath);
-			// Remove extension to get recording ID
-			const recordingId = filename.replace(/\.[^.]+$/, '');
-
-			return Ok(recordingId);
+			return Ok(sessionState.value ? 'RECORDING' : 'IDLE');
 		},
 
 		enumerateDevices,
