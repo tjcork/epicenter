@@ -23,15 +23,8 @@
 		outputOptions: string;
 	} = $props();
 
-	// Get devices for the current backend
-	const isUsingBrowserBackend = $derived(
-		!window.__TAURI_INTERNALS__ || settings.value['recording.backend'] === 'browser'
-	);
-
 	const getDevicesQuery = createQuery(
-		() => isUsingBrowserBackend 
-			? rpc.vadRecorder.enumerateDevices.options()
-			: rpc.recorder.enumerateDevices.options()
+		rpc.recorder.enumerateDevices.options
 	);
 
 	// Get the actual selected device or use the first available
@@ -40,13 +33,22 @@
 		getDevicesQuery.data?.[0]
 	);
 
-	const FFMPEG_FORMAT_OPTIONS = [
-		{ value: 'wav', label: 'WAV (Uncompressed)', codec: 'pcm_s16le' },
-		{ value: 'mp3', label: 'MP3 (Compressed)', codec: 'libmp3lame' },
-		{ value: 'aac', label: 'AAC (Compressed)', codec: 'aac' },
-		{ value: 'ogg', label: 'OGG Vorbis', codec: 'libvorbis' },
-		{ value: 'opus', label: 'Opus (Modern)', codec: 'libopus' },
-	] as const;
+	// Source of truth: Clean data structure optimized for lookups
+	const AUDIO_FORMATS = {
+		wav: { label: 'WAV (Uncompressed)', codec: 'pcm_s16le', extension: 'wav' },
+		mp3: { label: 'MP3 (Compressed)', codec: 'libmp3lame', extension: 'mp3' },
+		aac: { label: 'AAC (Compressed)', codec: 'aac', extension: 'm4a' },
+		ogg: { label: 'OGG Vorbis', codec: 'libvorbis', extension: 'ogg' },
+		opus: { label: 'Opus (Modern)', codec: 'libopus', extension: 'opus' },
+	} as const;
+
+	type AudioFormat = keyof typeof AUDIO_FORMATS;
+
+	// Derived array for UI components (Select needs array of {label, value})
+	const audioFormatOptions = Object.entries(AUDIO_FORMATS).map(([value, config]) => ({
+		label: config.label,
+		value
+	}));
 
 
 	/**
@@ -60,7 +62,7 @@
 		* the output options. When the user changes a selection in the UI, the output options
 		* are rebuilt from scratch using the new values.
 		*/
-	let selectedFormat = $derived.by(() => {
+	let selectedFormat: AudioFormat = $derived.by(() => {
 		if (outputOptions?.includes('libmp3lame')) return 'mp3';
 		if (outputOptions?.includes('aac')) return 'aac';
 		if (outputOptions?.includes('libvorbis')) return 'ogg';
@@ -82,9 +84,7 @@
 	const previewCommand = $derived.by(async () => {
 		const outputFolder = settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder());
 		const recordingId = nanoid(); // Generate realistic recording ID for preview
-		const ext = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat)?.value ?? 'wav';
-		
-		// Use Tauri's join for cross-platform path handling
+		const ext = AUDIO_FORMATS[selectedFormat].extension;
 		const outputPath = await join(outputFolder, `${recordingId}.${ext}`);
 		
 		// Build command with all parts, filtering empty strings
@@ -118,7 +118,7 @@
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
-		const { codec } = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat) ?? FFMPEG_FORMAT_OPTIONS[0];
+		const codec = AUDIO_FORMATS[selectedFormat].codec;
 
 		let options = `-acodec ${codec}`;
 		options += ` -ar ${selectedSampleRate}`;
@@ -138,53 +138,51 @@
 		<div class="space-y-4">
 			<!-- 1. Global Options -->
 			<div>
-				<div class="flex items-center justify-between mb-2">
-					<Label for="ffmpeg-global" class="text-sm font-medium">Global Options</Label>
+				<Label for="ffmpeg-global" class="text-sm font-medium mb-2">Global Options</Label>
+				<div class="flex items-center gap-2">
+					<Input
+						id="ffmpeg-global"
+						type="text"
+						placeholder="e.g., -hide_banner -loglevel warning"
+						bind:value={globalOptions}
+						class="font-mono text-sm flex-1"
+					/>
 					{#if globalOptions !== DEFAULT_GLOBAL_OPTIONS}
 						<WhisperingButton
 							tooltipContent="Reset to default"
-							variant="ghost"
+							variant="outline"
 							size="icon"
-							class="h-6 w-6"
 							onclick={() => globalOptions = DEFAULT_GLOBAL_OPTIONS}
 						>
-							<RotateCcw class="h-3 w-3" />
+							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
 					{/if}
 				</div>
-				<Input
-					id="ffmpeg-global"
-					type="text"
-					placeholder="e.g., -hide_banner -loglevel warning"
-					bind:value={globalOptions}
-					class="font-mono text-sm"
-				/>
 				<p class="text-xs text-muted-foreground mt-1">General FFmpeg behavior: logging level, progress display, error handling</p>
 			</div>
 			
 			<!-- 2. Input Options -->
 			<div>
-				<div class="flex items-center justify-between mb-2">
-					<Label for="ffmpeg-input" class="text-sm font-medium">Input Options</Label>
+				<Label for="ffmpeg-input" class="text-sm font-medium mb-2">Input Options</Label>
+				<div class="flex items-center gap-2">
+					<Input
+						id="ffmpeg-input"
+						type="text"
+						placeholder={DEFAULT_INPUT_OPTIONS}
+						bind:value={inputOptions}
+						class="font-mono text-sm flex-1"
+					/>
 					{#if inputOptions !== DEFAULT_INPUT_OPTIONS}
 						<WhisperingButton
 							tooltipContent="Reset to platform default"
-							variant="ghost"
+							variant="outline"
 							size="icon"
-							class="h-6 w-6"
 							onclick={() => inputOptions = DEFAULT_INPUT_OPTIONS}
 						>
-							<RotateCcw class="h-3 w-3" />
+							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
 					{/if}
 				</div>
-				<Input
-					id="ffmpeg-input"
-					type="text"
-					placeholder={DEFAULT_INPUT_OPTIONS}
-					bind:value={inputOptions}
-					class="font-mono text-sm"
-				/>
 				<div class="text-xs text-muted-foreground mt-1 space-y-1">
 					<p>How to capture audio from your device. Leave empty for auto-detection.</p>
 					<details class="mt-2">
@@ -210,7 +208,7 @@
 					<LabeledSelect
 						id="ffmpeg-format"
 						label="Audio Format"
-						items={FFMPEG_FORMAT_OPTIONS}
+						items={audioFormatOptions}
 						selected={selectedFormat}
 						onSelectedChange={(selected) => {
 							selectedFormat = selected;
@@ -259,14 +257,20 @@
 				
 				<!-- Raw Output Options Field -->
 				<div>
-					<div class="flex items-center justify-between mb-2">
-						<Label for="ffmpeg-output" class="text-sm font-medium">Raw Output Options</Label>
+					<Label for="ffmpeg-output" class="text-sm font-medium mb-2">Raw Output Options</Label>
+					<div class="flex items-center gap-2">
+						<Input
+							id="ffmpeg-output"
+							type="text"
+							placeholder="e.g., -acodec libmp3lame -ar 44100 -b:a 192k"
+							bind:value={outputOptions}
+							class="font-mono text-sm flex-1"
+						/>
 						{#if outputOptions !== DEFAULT_OUTPUT_OPTIONS}
 							<WhisperingButton
 								tooltipContent="Reset to default"
-								variant="ghost"
+								variant="outline"
 								size="icon"
-								class="h-6 w-6"
 								onclick={() => {
 									outputOptions = DEFAULT_OUTPUT_OPTIONS;
 									// Reset dropdowns to match default (OGG Vorbis for Whisper)
@@ -275,17 +279,10 @@
 									selectedBitrate = '64';
 								}}
 							>
-								<RotateCcw class="h-3 w-3" />
+								<RotateCcw class="h-4 w-4" />
 							</WhisperingButton>
 						{/if}
 					</div>
-					<Input
-						id="ffmpeg-output"
-						type="text"
-						placeholder="e.g., -acodec libmp3lame -ar 44100 -b:a 192k"
-						bind:value={outputOptions}
-						class="font-mono text-sm"
-					/>
 					<p class="text-xs text-muted-foreground mt-1">
 						Direct FFmpeg output options. Modified by the dropdowns above, or edit manually for full control.
 					</p>
