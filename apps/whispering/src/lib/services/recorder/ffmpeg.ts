@@ -1,4 +1,7 @@
-import type { CancelRecordingResult, WhisperingRecordingState } from '$lib/constants/audio';
+import type {
+	CancelRecordingResult,
+	WhisperingRecordingState,
+} from '$lib/constants/audio';
 import { PLATFORM_TYPE } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { asShellCommand } from '$lib/services/command';
@@ -185,8 +188,6 @@ export function createFfmpegRecorderService(): RecorderService {
 			const { data: deviceOutcome, error: acquireDeviceError } =
 				acquireDevice();
 			if (acquireDeviceError) return Err(acquireDeviceError);
-
-			// Use the device from the outcome
 			const deviceIdentifier = deviceOutcome.deviceId;
 
 			// Construct the output path directly from the parameters
@@ -204,7 +205,7 @@ export function createFfmpegRecorderService(): RecorderService {
 			 * IMPORTANT: Template Interpolation
 			 *
 			 * The command template arrives with THREE required placeholder variables:
-			 * - {{device}} - Will be replaced with the actual device identifier (determined above)
+			 * - {{device}} - Will be replaced with the actual device identifier (passed as param, determined above with possible fallback)
 			 * - {{outputFolder}} - Will be replaced with the output folder path (passed as param)
 			 * - {{recordingId}} - Will be replaced with the unique recording ID (passed as param)
 			 *
