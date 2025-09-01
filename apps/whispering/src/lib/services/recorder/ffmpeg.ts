@@ -47,14 +47,19 @@ export function createFfmpegRecorderService(): RecorderService {
 		if (!session) return;
 
 		// Try to kill the process if it exists
-		try {
-			const child = new Child(session.pid);
-			await child.kill();
-			console.log(`Killed FFmpeg process (PID: ${session.pid})`);
-		} catch (e) {
-			// Process might already be dead, that's okay
-			console.log(`FFmpeg process (PID: ${session.pid}) was already terminated`);
-		}
+		tryAsync({
+			try: async () => {
+				const child = new Child(session.pid);
+				await child.kill();
+			},
+			catch: (e) => {
+				// Process might already be dead, that's okay
+				console.log(
+					`FFmpeg process (PID: ${session.pid}) was already terminated`,
+				);
+				return Ok(undefined);
+			},
+		});
 
 		// Clear the session state
 		sessionState.value = null;
