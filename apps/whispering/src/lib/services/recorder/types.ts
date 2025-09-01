@@ -7,7 +7,6 @@ import type {
 	DeviceAcquisitionOutcome,
 	UpdateStatusMessageFn,
 } from '../types';
-import type { TemplateString } from '$lib/utils/template';
 
 /**
  * Base error type for recorder services
@@ -47,7 +46,9 @@ export type NavigatorRecordingParams = BaseRecordingParams & {
  */
 export type FfmpegRecordingParams = BaseRecordingParams & {
 	implementation: 'ffmpeg';
-	commandTemplate: TemplateString;
+	globalOptions: string;
+	inputOptions: string;
+	outputOptions: string;
 	outputFolder: string;
 };
 

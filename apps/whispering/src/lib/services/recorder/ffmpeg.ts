@@ -5,7 +5,6 @@ import type {
 import { PLATFORM_TYPE } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { asShellCommand } from '$lib/services/command';
-import { interpolateTemplate } from '$lib/utils/template';
 import { join } from '@tauri-apps/api/path';
 import { exists, remove } from '@tauri-apps/plugin-fs';
 import { Child } from '@tauri-apps/plugin-shell';
@@ -124,9 +123,11 @@ export function createFfmpegRecorderService(): RecorderService {
 		startRecording: async (
 			{
 				selectedDeviceId,
-				recordingId,
 				outputFolder,
-				commandTemplate,
+				recordingId,
+				globalOptions,
+				inputOptions,
+				outputOptions,
 			}: FfmpegRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
@@ -190,10 +191,12 @@ export function createFfmpegRecorderService(): RecorderService {
 			if (acquireDeviceError) return Err(acquireDeviceError);
 			const deviceIdentifier = deviceOutcome.deviceId;
 
-			// Construct the output path directly from the parameters
-			// We need to determine the file extension from the command template
-			const extensionMatch = commandTemplate.match(/{{recordingId}}\.(\w+)/);
-			const fileExtension = extensionMatch ? extensionMatch[1] : 'wav';
+			// Determine the file extension from the output options
+			let fileExtension = 'wav'; // default
+			if (outputOptions.includes('libmp3lame')) fileExtension = 'mp3';
+			else if (outputOptions.includes('aac')) fileExtension = 'aac';
+			else if (outputOptions.includes('libvorbis')) fileExtension = 'ogg';
+			else if (outputOptions.includes('libopus')) fileExtension = 'opus';
 
 			// Construct the output path
 			const outputPath = await join(
@@ -202,24 +205,33 @@ export function createFfmpegRecorderService(): RecorderService {
 			);
 
 			/**
-			 * IMPORTANT: Template Interpolation
-			 *
-			 * The command template arrives with THREE required placeholder variables:
-			 * - {{device}} - Will be replaced with the actual device identifier (passed as param, determined above with possible fallback)
-			 * - {{outputFolder}} - Will be replaced with the output folder path (passed as param)
-			 * - {{recordingId}} - Will be replaced with the unique recording ID (passed as param)
-			 *
-			 * Example template before interpolation:
-			 * "ffmpeg -f avfoundation -i \":{{device}}\" -acodec pcm_s16le -ar 16000 \"{{outputFolder}}/{{recordingId}}.wav\""
-			 *
-			 * Example after interpolation:
-			 * "ffmpeg -f avfoundation -i \":Built-in Microphone\" -acodec pcm_s16le -ar 16000 \"/Users/jane/Recordings/abc123xyz.wav\""
+			 * Build FFmpeg command from the three option sections
+			 * 
+			 * The command is assembled as:
+			 * ffmpeg [globalOptions] [inputOptions] -i [device] [outputOptions] [outputPath]
+			 * 
+			 * Example:
+			 * ffmpeg -hide_banner -f avfoundation -i ":Built-in Microphone" -acodec pcm_s16le -ar 16000 "/Users/jane/Recordings/abc123xyz.wav"
 			 */
-			const command = interpolateTemplate(commandTemplate, {
-				outputFolder, // e.g., "/Users/jane/Recordings"
-				device: deviceIdentifier, // e.g., "Built-in Microphone"
-				recordingId, // e.g., "abc123xyz"
-			});
+			
+			// Format device based on platform
+			const formattedDevice = formatDeviceForPlatform(deviceIdentifier);
+			
+			// Apply platform-specific defaults if input options are empty
+			const finalInputOptions = inputOptions.trim() || getDefaultInputOptions();
+			
+			// Build the complete command
+			const command = [
+				'ffmpeg',
+				globalOptions,
+				finalInputOptions,
+				'-i',
+				formattedDevice,
+				outputOptions,
+				`"${outputPath}"`,
+			]
+				.filter(part => part.trim()) // Remove empty parts
+				.join(' ');
 
 			sendStatus({
 				title: '🎤 Setting Up',
@@ -434,4 +446,32 @@ function parseDevices(output: string): Device[] {
 		if (match) devices.push(config.extractDevice(match));
 		return devices;
 	}, []);
+}
+
+/**
+ * Format device identifier for platform-specific FFmpeg input
+ */
+function formatDeviceForPlatform(deviceId: string): string {
+	switch (PLATFORM_TYPE) {
+		case 'macos':
+			return `":${deviceId}"`; // macOS uses :deviceName
+		case 'windows':
+			return `"audio=${deviceId}"`; // Windows uses audio=deviceName
+		case 'linux':
+			return `"${deviceId}"`; // Linux uses device directly
+	}
+}
+
+/**
+ * Get default input options based on platform
+ */
+function getDefaultInputOptions(): string {
+	switch (PLATFORM_TYPE) {
+		case 'macos':
+			return '-f avfoundation';
+		case 'windows':
+			return '-f dshow';
+		case 'linux':
+			return '-f alsa';
+	}
 }

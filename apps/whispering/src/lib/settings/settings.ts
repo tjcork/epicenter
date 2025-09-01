@@ -46,7 +46,6 @@ import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
-import { asTemplateString } from '$lib/utils/template';
 
 /**
  * The main settings schema that defines all application settings.
@@ -150,12 +149,16 @@ export const settingsSchema = z.object({
 		.enum(['16000', '44100', '48000'])
 		.default('16000'),
 
-	// FFmpeg recording settings
-	'recording.ffmpeg.commandTemplate': z
+	// FFmpeg recording settings - split into three customizable parts
+	'recording.ffmpeg.globalOptions': z
 		.string()
-		.nullable()
-		.transform((val) => (val ? asTemplateString(val) : null))
-		.default(null), // null = use default command
+		.default(''), // Global FFmpeg options (e.g., "-hide_banner -loglevel warning")
+	'recording.ffmpeg.inputOptions': z
+		.string()
+		.default(''), // Input options (e.g., "-f avfoundation" - platform defaults applied if empty)
+	'recording.ffmpeg.outputOptions': z
+		.string()
+		.default(''), // Output options (e.g., "-acodec libmp3lame -ar 44100 -b:a 192k")
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)

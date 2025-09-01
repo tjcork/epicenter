@@ -203,7 +203,11 @@
 				</p>
 			</div>
 			
-			<FfmpegCommandBuilder bind:commandTemplate={settings.value['recording.ffmpeg.commandTemplate']} />
+			<FfmpegCommandBuilder 
+				bind:globalOptions={settings.value['recording.ffmpeg.globalOptions']}
+				bind:inputOptions={settings.value['recording.ffmpeg.inputOptions']}
+				bind:outputOptions={settings.value['recording.ffmpeg.outputOptions']}
+			/>
 		{:else}
 			<!-- Native backend settings -->
 			<LabeledSelect

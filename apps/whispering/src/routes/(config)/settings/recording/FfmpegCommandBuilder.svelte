@@ -6,11 +6,20 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { interpolateTemplate, asTemplateString } from '$lib/utils/template';
 	import { getDefaultRecordingsFolder } from '$lib/services/recorder';
+	import { join } from '@tauri-apps/api/path';
+	import { nanoid } from 'nanoid/non-secure';
 
-	// Props - only bind the command template
-	let { commandTemplate = $bindable() }: { commandTemplate: string | null } = $props();
+	// Props - bind the three option fields
+	let {
+		globalOptions = $bindable(),
+		inputOptions = $bindable(),
+		outputOptions = $bindable()
+	}: {
+		globalOptions: string;
+		inputOptions: string;
+		outputOptions: string;
+	} = $props();
 
 	// Get devices for the current backend
 	const isUsingBrowserBackend = $derived(
@@ -42,67 +51,71 @@
 		* UI state for the FFmpeg command builder.
 		*
 		* These variables (`selectedFormat`, `selectedSampleRate`, `selectedBitrate`) are temporary
-		* UI state that provide a user-friendly way to construct the `commandTemplate` string
-		* via dropdown selectors. The `commandTemplate` itself is the only value that is persisted.
+		* UI state that provide a user-friendly way to construct the output options string
+		* via dropdown selectors. The output options are persisted.
 		*
-		* To ensure the UI and the template remain in sync, these values are derived by parsing
-		* the `commandTemplate`. When the user changes a selection in the UI, the `commandTemplate`
-		* is rebuilt from scratch using the new values.
+		* To ensure the UI and the options remain in sync, these values are derived by parsing
+		* the output options. When the user changes a selection in the UI, the output options
+		* are rebuilt from scratch using the new values.
 		*/
 	let selectedFormat = $derived.by(() => {
-		if (commandTemplate?.includes('libmp3lame')) return 'mp3';
-		if (commandTemplate?.includes('aac')) return 'aac';
-		if (commandTemplate?.includes('libvorbis')) return 'ogg';
-		if (commandTemplate?.includes('libopus')) return 'opus';
+		if (outputOptions?.includes('libmp3lame')) return 'mp3';
+		if (outputOptions?.includes('aac')) return 'aac';
+		if (outputOptions?.includes('libvorbis')) return 'ogg';
+		if (outputOptions?.includes('libopus')) return 'opus';
 		return 'wav';
 	});
-	let selectedSampleRate = $derived(commandTemplate?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
-	let selectedBitrate = $derived(commandTemplate?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
+	let selectedSampleRate = $derived(outputOptions?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
+	let selectedBitrate = $derived(outputOptions?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
 
-	// Example command with interpolated values for preview
-	const exampleCommand = $derived.by(async () => {
-		if (!commandTemplate) return '';
+	// Get platform-specific defaults for input
+	const platformDefaults = $derived({
+		macos: { format: 'avfoundation', deviceFormat: ':"Built-in Microphone"' },
+		windows: { format: 'dshow', deviceFormat: 'audio="Microphone Array"' },
+		linux: { format: 'alsa', deviceFormat: 'hw:0' },
+	}[PLATFORM_TYPE]);
+
+	// Build the preview command
+	const previewCommand = $derived.by(async () => {
+		const outputFolder = settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder());
+		const recordingId = nanoid(); // Generate realistic recording ID for preview
+		const ext = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat)?.value ?? 'wav';
 		
-		// Use the template interpolation helper
-		return interpolateTemplate(asTemplateString(commandTemplate), {
-			device: selectedDevice?.id ?? 'default',
-			outputFolder: settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder()),
-			recordingId: 'abc123xyz',
-		});
-		}
-	);
-
-	// Update parent's commandTemplate whenever selections change
-	$effect(() => {
-		commandTemplate = buildCommandTemplateFromSelections();
+		// Use Tauri's join for cross-platform path handling
+		const outputPath = await join(outputFolder, `${recordingId}.${ext}`);
+		
+		// Build command with all parts, filtering empty strings
+		const commandParts = [
+			'ffmpeg',
+			globalOptions.trim(),
+			inputOptions.trim(), // Can be empty - FFmpeg will auto-detect
+			'-i',
+			platformDefaults.deviceFormat,
+			outputOptions.trim(),
+			`"${outputPath}"`
+		].filter(part => part); // Remove empty strings
+		
+		return commandParts.join(' ');
 	});
 
-	function buildCommandTemplateFromSelections(): string {
-		// Retrieve codec and file extension for the currently selected audio format
-		const { codec, value: ext } = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat) ?? FFMPEG_FORMAT_OPTIONS[0];
+	// Update output options whenever UI selections change
+	$effect(() => {
+		outputOptions = buildOutputOptionsFromSelections();
+	});
 
-		// Platform-specific device input format
-		const deviceInput =  {
-			'macos': '":{{device}}"', // macOS uses :deviceName
-			'windows': '"audio={{device}}"', // Windows uses audio=deviceName
-			'linux': '"{{device}}"', // Linux uses device directly
-		}[PLATFORM_TYPE]
+	// Get the default input options for the platform
+	const defaultInputOptions = $derived(`-f ${platformDefaults.format}`);
+
+	function buildOutputOptionsFromSelections(): string {
+		// Retrieve codec for the currently selected audio format
+		const { codec } = FFMPEG_FORMAT_OPTIONS.find(opt => opt.value === selectedFormat) ?? FFMPEG_FORMAT_OPTIONS[0];
+
+		let options = `-acodec ${codec}`;
+		options += ` -ar ${selectedSampleRate}`;
 		
-		const format = ({
-			'macos': 'avfoundation',
-			'windows': 'dshow',
-			'linux': 'alsa', // Could also be pulse, but alsa is more universal
-		}  as const)[PLATFORM_TYPE]
+		if (selectedFormat !== 'wav') options += ` -b:a ${selectedBitrate}k`;
 		
-		let command = `ffmpeg -f ${format} -i ${deviceInput}`;
-		command += ` -acodec ${codec}`;
-		command += ` -ar ${selectedSampleRate}`;
-		
-		if (selectedFormat !== 'wav') command += ` -b:a ${selectedBitrate}k`;
-		
-		command += ` "{{outputFolder}}/{{recordingId}}.${ext}"`;
-		
-		return command;
+		return options;
 	}
 </script>
 
@@ -159,31 +172,92 @@
 			/>
 		{/if}
 		
-		<!-- Command Template Section -->
-		<div class="border-t pt-4 mt-4">
-			<Label for="ffmpeg-command" class="text-sm font-medium mb-2 block">FFmpeg Command Template</Label>
-			<Input
-				id="ffmpeg-command"
-				type="text"
-				placeholder="FFmpeg command template"
-				bind:value={commandTemplate}
-				class="font-mono text-sm"
-			/>
-			{#await exampleCommand then cmd}
+		<!-- FFmpeg Options Section -->
+		<div class="border-t pt-4 mt-4 space-y-4">
+			<div>
+				<Label for="ffmpeg-global" class="text-sm font-medium mb-2 block">Global Options</Label>
+				<Input
+					id="ffmpeg-global"
+					type="text"
+					placeholder="e.g., -hide_banner -loglevel warning"
+					bind:value={globalOptions}
+					class="font-mono text-sm"
+				/>
+				<p class="text-xs text-muted-foreground mt-1">General FFmpeg behavior: logging level, progress display, error handling</p>
+			</div>
+			
+			<div>
+				<div class="flex items-center justify-between mb-2">
+					<Label for="ffmpeg-input" class="text-sm font-medium">Input Options</Label>
+					<div class="flex gap-2">
+						{#if inputOptions.trim()}
+							<button
+								type="button"
+								onclick={() => inputOptions = ''}
+								class="text-xs text-muted-foreground hover:text-foreground"
+							>
+								Clear
+							</button>
+						{/if}
+						{#if inputOptions !== defaultInputOptions}
+							<button
+								type="button"
+								onclick={() => inputOptions = defaultInputOptions}
+								class="text-xs text-muted-foreground hover:text-foreground"
+							>
+								Use platform default
+							</button>
+						{/if}
+					</div>
+				</div>
+				<Input
+					id="ffmpeg-input"
+					type="text"
+					placeholder="Optional (e.g., -f avfoundation -ac 1)"
+					bind:value={inputOptions}
+					class="font-mono text-sm"
+				/>
+				<div class="text-xs text-muted-foreground mt-1 space-y-1">
+					<p>How to capture audio from your device. Can be left empty for auto-detection.</p>
+					<p>Platform default: <code class="px-1 py-0.5 rounded bg-muted">{defaultInputOptions}</code></p>
+					<details class="mt-2">
+						<summary class="cursor-pointer hover:text-foreground">Common additions (click to expand)</summary>
+						<div class="mt-2 space-y-1 ml-2">
+							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 1</code> - Record in mono (single channel)</p>
+							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 2</code> - Record in stereo (two channels)</p>
+							<p><code class="px-1 py-0.5 rounded bg-muted">-t 60</code> - Limit recording to 60 seconds</p>
+							{#if PLATFORM_TYPE === 'windows'}
+								<p><code class="px-1 py-0.5 rounded bg-muted">-audio_buffer_size 20</code> - Reduce latency (Windows)</p>
+							{/if}
+						</div>
+					</details>
+				</div>
+			</div>
+			
+			<div>
+				<Label for="ffmpeg-output" class="text-sm font-medium mb-2 block">Output Options</Label>
+				<Input
+					id="ffmpeg-output"
+					type="text"
+					placeholder="e.g., -acodec libmp3lame -ar 44100 -b:a 192k"
+					bind:value={outputOptions}
+					class="font-mono text-sm"
+				/>
+				<p class="text-xs text-muted-foreground mt-1">
+					How to encode and save the recording (codec, quality, compression). 
+					Modified by the dropdowns above.
+				</p>
+			</div>
+			
+			<!-- Preview Section -->
+			{#await previewCommand then cmd}
 				{#if cmd}
-					<div class="rounded-md bg-muted/50 p-3 mt-2">
-						<p class="text-xs font-medium text-muted-foreground mb-1">Preview with example values:</p>
+					<div class="rounded-md bg-muted/50 p-3">
+						<p class="text-xs font-medium text-muted-foreground mb-1">Command Preview:</p>
 						<code class="text-xs break-all">{cmd}</code>
 					</div>
 				{/if}
 			{/await}
-			<div class="mt-3 text-xs text-muted-foreground space-y-1">
-				<p class="font-medium">Runtime variables (will be replaced when recording starts):</p>
-				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{device}}'}</code> - Device name (selected in Recording Device dropdown)</p>
-				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{outputFolder}}'}</code> - Output directory from settings</p>
-				<p><code class="mx-1 rounded bg-muted px-1 py-0.5">{'{{recordingId}}'}</code> - Unique ID for each recording</p>
-				<p class="mt-2 italic">Note: Format and codec settings are injected directly into the command template.</p>
-			</div>
 		</div>
 	</div>
 </div>
