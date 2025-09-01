@@ -18,6 +18,7 @@ import type {
 } from './types';
 import { RecorderServiceErr } from './types';
 import { getDefaultRecordingsFolder } from './utils';
+import { extractErrorMessage } from 'wellcrafted/error';
 
 // Schema for persisted FFmpeg session state
 // Either a complete session object or null - no individual nullable fields
@@ -47,15 +48,16 @@ export function createFfmpegRecorderService(): RecorderService {
 		if (!session) return;
 
 		// Try to kill the process if it exists
-		tryAsync({
+		await tryAsync({
 			try: async () => {
 				const child = new Child(session.pid);
 				await child.kill();
+				console.log(`Killed FFmpeg process (PID: ${session.pid})`);
 			},
 			catch: (e) => {
 				// Process might already be dead, that's okay
 				console.log(
-					`FFmpeg process (PID: ${session.pid}) was already terminated`,
+					`Error terminating FFmpeg process (PID: ${session.pid}): ${extractErrorMessage(e)}`,
 				);
 				return Ok(undefined);
 			},
