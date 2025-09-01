@@ -64,7 +64,7 @@ export const recorder = {
 			const recordingId = nanoid();
 
 			const backend = !window.__TAURI_INTERNALS__
-				? 'browser'
+				? 'navigator'
 				: settings.value['recording.backend'];
 
 			// Prepare recording parameters based on which backend we're using
@@ -79,28 +79,29 @@ export const recorder = {
 					(await getDefaultRecordingsFolder()))
 				: '';
 
-			const params =
-				backend === 'browser'
-					? {
-							...baseParams,
-							implementation: 'navigator' as const,
-							bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
-						}
-					: backend === 'ffmpeg'
-						? {
-								...baseParams,
-								implementation: 'ffmpeg' as const,
-								globalOptions: settings.value['recording.ffmpeg.globalOptions'],
-								inputOptions: settings.value['recording.ffmpeg.inputOptions'],
-								outputOptions: settings.value['recording.ffmpeg.outputOptions'],
-								outputFolder,
-							}
-						: {
-								...baseParams,
-								implementation: 'cpal' as const,
-								outputFolder,
-								sampleRate: settings.value['recording.cpal.sampleRate'],
-							};
+			const paramsMap = {
+				navigator: {
+					...baseParams,
+					implementation: 'navigator' as const,
+					bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
+				},
+				ffmpeg: {
+					...baseParams,
+					implementation: 'ffmpeg' as const,
+					globalOptions: settings.value['recording.ffmpeg.globalOptions'],
+					inputOptions: settings.value['recording.ffmpeg.inputOptions'],
+					outputOptions: settings.value['recording.ffmpeg.outputOptions'],
+					outputFolder,
+				},
+				native: {
+					...baseParams,
+					implementation: 'cpal' as const,
+					outputFolder,
+					sampleRate: settings.value['recording.cpal.sampleRate'],
+				},
+			} as const;
+
+			const params = paramsMap[backend];
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 				await recorderService().startRecording(params, {
