@@ -1,31 +1,25 @@
-# Generate Commit Message
+---
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*)
+description: Generate conventional commit message and create git commit
+model: claude-sonnet-4-0
+---
 
-Generate a conventional commit message for currently staged changes and commit them.
+# Generate Commit Message and Commit
 
-## Model
-Sonnet
+Analyze the currently staged changes and create a git commit with an appropriate conventional commit message.
 
-## Description
-This command instructs Claude to analyze the currently staged changes, create an appropriate conventional commit message following the project's commit guidelines, and commit the changes. Claude will examine the staged files and their changes to understand what was modified, craft a descriptive commit message, and execute the commit.
+## Instructions
+1. Check `git status` to see what files are staged
+2. Analyze staged changes using `git diff --cached`
+3. Generate a conventional commit message based on the changes:
+   - Type: feat, fix, refactor, docs, test, chore, style, perf, build, ci
+   - Scope (optional): component/module name if applicable
+   - Description: clear, concise description in imperative mood
+4. Execute `git commit` with the generated message
 
-## What Claude Will Do
-1. Check `git status` to see what files are staged for commit
-2. Analyze the staged changes using `git diff --cached`
-3. Determine the appropriate commit type (feat, fix, refactor, etc.)
-4. Identify the scope if applicable (component/module names)
-5. Generate a descriptive commit message following conventional commit format
-6. Present the commit message for review
-7. Execute `git commit` with the generated message
+User hint: $ARGUMENTS
 
-## Usage
-Run this command when you have changes staged and ready to commit but want help crafting an appropriate commit message and executing the commit. The generated message will follow the project's conventional commit guidelines with proper type, scope, and description, and the commit will be automatically executed.
-
-## Commit Message Format
-The generated message will follow this format:
+## Commit Format
 ```
 <type>[optional scope]: <description>
-
-[optional body]
 ```
-
-Where type includes: feat, fix, refactor, docs, test, chore, style, perf, build, ci
