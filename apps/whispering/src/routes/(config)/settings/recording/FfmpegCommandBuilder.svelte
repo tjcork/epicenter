@@ -4,10 +4,10 @@
 	import { Label } from '@repo/ui/label';
 	import { IS_MACOS, IS_WINDOWS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { appDataDir } from '@tauri-apps/api/path';
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { interpolateTemplate, asTemplateString } from '$lib/utils/template';
+	import { getDefaultRecordingsFolder } from '$lib/services/recorder';
 
 	// Props - only bind the command template
 	let { commandTemplate = $bindable() }: { commandTemplate: string | null } = $props();
@@ -66,7 +66,7 @@
 		// Use the template interpolation helper
 		return interpolateTemplate(asTemplateString(commandTemplate), {
 			device: selectedDevice?.id ?? 'default',
-			outputFolder: settings.value['recording.desktop.outputFolder'] ?? (await appDataDir()),
+			outputFolder: settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder()),
 			recordingId: 'abc123xyz',
 		});
 		}

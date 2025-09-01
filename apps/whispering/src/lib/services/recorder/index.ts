@@ -26,3 +26,4 @@ export const FfmpegRecorderServiceLive = window.__TAURI_INTERNALS__
 
 // Re-export types for convenience
 export type { RecorderService, RecorderServiceError } from './types';
+export { getDefaultRecordingsFolder } from './utils';

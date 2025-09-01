@@ -3,20 +3,21 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { FolderOpen, ExternalLink, RotateCcw } from '@lucide/svelte';
 	import { settings } from '$lib/stores/settings.svelte';
+	import { getDefaultRecordingsFolder } from '$lib/services/recorder';
 
 	// Top-level await to get the default app data directory
-	let defaultAppDataPath = $state<string | null>(null);
+	let defaultRecordingsFolder = $state<string | null>(null);
 	
 	// Initialize the default path asynchronously
 	if (window.__TAURI_INTERNALS__) {
-		import('@tauri-apps/api/path').then(async ({ appDataDir }) => {
-			defaultAppDataPath = await appDataDir();
+		getDefaultRecordingsFolder().then(path => {
+			defaultRecordingsFolder = path;
 		});
 	}
 
 	// Derived state for the display path
 	const displayPath = $derived(
-		settings.value['recording.cpal.outputFolder'] ?? defaultAppDataPath ?? null
+		settings.value['recording.cpal.outputFolder'] ?? defaultRecordingsFolder ?? null
 	);
 
 	async function selectOutputFolder() {
@@ -36,7 +37,7 @@
 		if (!window.__TAURI_INTERNALS__) return;
 		const { openPath } = await import('@tauri-apps/plugin-opener');
 		
-		const folderPath = settings.value['recording.cpal.outputFolder'] ?? defaultAppDataPath;
+		const folderPath = settings.value['recording.cpal.outputFolder'] ?? defaultRecordingsFolder;
 		if (folderPath) {
 			await openPath(folderPath);
 		}

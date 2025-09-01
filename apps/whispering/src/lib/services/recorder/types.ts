@@ -46,10 +46,10 @@ export type NavigatorRecordingParams = BaseRecordingParams & {
  * FFmpeg recording parameters
  */
 export type FfmpegRecordingParams = BaseRecordingParams & {
-		implementation: 'ffmpeg';
-		commandTemplate: TemplateString;
-		outputFolder: string;
-	};
+	implementation: 'ffmpeg';
+	commandTemplate: TemplateString;
+	outputFolder: string | null;
+};
 
 /**
  * Discriminated union for recording parameters based on implementation
