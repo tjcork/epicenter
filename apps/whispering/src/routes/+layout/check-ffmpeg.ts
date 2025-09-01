@@ -23,11 +23,11 @@ function isUsingNativeBackend(): boolean {
 }
 
 /**
- * Checks if the browser (MediaRecorder) recording backend is selected
- * @returns true if using browser backend for recording
+ * Checks if the navigator (MediaRecorder) recording backend is selected
+ * @returns true if using navigator backend for recording
  */
-function isUsingBrowserBackend(): boolean {
-	return settings.value['recording.backend'] === 'browser';
+function isUsingNavigatorBackend(): boolean {
+	return settings.value['recording.backend'] === 'navigator';
 }
 
 /**
@@ -45,7 +45,7 @@ function isUsing16kHz(): boolean {
  * @returns true if using Whisper C++ with browser backend
  */
 export function isUsingWhisperCppWithBrowserBackend(): boolean {
-	return isUsingWhisperCpp() && isUsingBrowserBackend();
+	return isUsingWhisperCpp() && isUsingNavigatorBackend();
 }
 
 /**

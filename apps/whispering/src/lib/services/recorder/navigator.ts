@@ -7,7 +7,7 @@ import {
 } from '../device-stream';
 import type {
 	NavigatorRecordingParams,
-	RecorderService,
+	NavigatorRecorderService,
 	RecorderServiceError,
 } from './types';
 import { RecorderServiceErr } from './types';
@@ -26,7 +26,7 @@ type ActiveRecording = {
 	recordedChunks: Blob[];
 };
 
-export function createWebRecorderService(): RecorderService {
+export function createNavigatorRecorderService(): NavigatorRecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
@@ -210,5 +210,13 @@ export function createWebRecorderService(): RecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
+		
+		type: 'navigator',
 	};
 }
+
+/**
+ * Navigator recorder service that uses the MediaRecorder API.
+ * Available in both browser and desktop environments.
+ */
+export const NavigatorRecorderServiceLive = createNavigatorRecorderService();

@@ -182,15 +182,18 @@ export const recorder = {
  * Get the appropriate recorder service based on settings and environment
  */
 export function recorderService() {
-	// In browser, always use browser recorder
-	if (!window.__TAURI_INTERNALS__) return services.browserRecorder;
+	// In browser, always use navigator recorder
+	if (!window.__TAURI_INTERNALS__) return services.navigatorRecorder;
 
 	// In desktop, check user preference
 	const backend = settings.value['recording.backend'];
 
-	return {
-		browser: services.browserRecorder,
+	const recorderMap = {
+		navigator: services.navigatorRecorder,
 		ffmpeg: services.ffmpegRecorder,
-		native: services.nativeRecorder,
-	}[backend];
+		native: services.cpalRecorder,
+	};
+
+	// Return the selected recorder or fallback to navigator
+	return recorderMap[backend];
 }

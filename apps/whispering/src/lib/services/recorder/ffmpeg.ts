@@ -15,7 +15,7 @@ import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	FfmpegRecordingParams,
-	RecorderService,
+	FfmpegRecorderService,
 	RecorderServiceError,
 } from './types';
 import { RecorderServiceErr } from './types';
@@ -29,7 +29,15 @@ const FfmpegSession = type({
 	outputPath: 'string',
 }).or('null');
 
-export function createFfmpegRecorderService(): RecorderService {
+// Default output options optimized for Whisper:
+// - OGG Vorbis codec for good compression
+// - 16kHz sample rate (Whisper's expected input)
+// - Mono audio (single channel)
+// - 64kbps bitrate (good quality for speech)
+const DEFAULT_OUTPUT_OPTIONS =
+	'-acodec libvorbis -ar 16000 -ac 1 -b:a 64k' as const;
+
+export function createFfmpegRecorderService(): FfmpegRecorderService {
 	// Persisted state - single source of truth
 	const sessionState = createPersistedState({
 		key: 'whispering-ffmpeg-recording-session',
@@ -112,6 +120,8 @@ export function createFfmpegRecorderService(): RecorderService {
 	};
 
 	return {
+		type: 'ffmpeg',
+
 		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
@@ -206,20 +216,20 @@ export function createFfmpegRecorderService(): RecorderService {
 
 			/**
 			 * Build FFmpeg command from the three option sections
-			 * 
+			 *
 			 * The command is assembled as:
 			 * ffmpeg [globalOptions] [inputOptions] -i [device] [outputOptions] [outputPath]
-			 * 
+			 *
 			 * Example:
 			 * ffmpeg -hide_banner -f avfoundation -i ":Built-in Microphone" -acodec pcm_s16le -ar 16000 "/Users/jane/Recordings/abc123xyz.wav"
 			 */
-			
+
 			// Format device based on platform
 			const formattedDevice = formatDeviceForPlatform(deviceIdentifier);
-			
+
 			// Apply platform-specific defaults if input options are empty
 			const finalInputOptions = inputOptions.trim() || getDefaultInputOptions();
-			
+
 			// Build the complete command
 			const command = [
 				'ffmpeg',
@@ -230,7 +240,7 @@ export function createFfmpegRecorderService(): RecorderService {
 				outputOptions,
 				`"${outputPath}"`,
 			]
-				.filter(part => part.trim()) // Remove empty parts
+				.filter((part) => part.trim()) // Remove empty parts
 				.join(' ');
 
 			sendStatus({
@@ -399,8 +409,18 @@ export function createFfmpegRecorderService(): RecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
+
+		formatDeviceForPlatform,
+
+		getDefaultOutputOptions: () => FFMPEG_DEFAULT_OUTPUT_OPTIONS,
 	};
 }
+
+/**
+ * FFmpeg recorder service that uses FFmpeg command-line tool for recording.
+ * Only available in desktop environment.
+ */
+export const FfmpegRecorderServiceLive = createFfmpegRecorderService();
 
 /**
  * Parse FFmpeg device enumeration output based on platform

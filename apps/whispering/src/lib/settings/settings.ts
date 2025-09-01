@@ -44,6 +44,7 @@ import type { GroqModel } from '$lib/services/transcription/groq';
 import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
+import { ffmpegRecorder } from '$lib/services';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
 
@@ -108,12 +109,12 @@ export const settingsSchema = z.object({
 	/**
 	 * Recording backend to use in desktop app.
 	 * - 'native': Uses Rust audio recording backend (CPAL)
-	 * - 'browser': Uses browser MediaRecorder API even in desktop
+	 * - 'navigator': Uses MediaRecorder API (web standard)
 	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
 	'recording.backend': z
-		.enum(['native', 'browser', 'ffmpeg'])
-		.default('browser'),
+		.enum(['native', 'navigator', 'ffmpeg'])
+		.default('navigator'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
@@ -158,7 +159,7 @@ export const settingsSchema = z.object({
 		.default(''), // Input options (e.g., "-f avfoundation" - platform defaults applied if empty)
 	'recording.ffmpeg.outputOptions': z
 		.string()
-		.default(''), // Output options (e.g., "-acodec libmp3lame -ar 44100 -b:a 192k")
+		.default(ffmpegRecorder.getDefaultOutputOptions()), // OGG Vorbis optimized for Whisper: 16kHz mono, 64kbps
 
 	'transcription.selectedTranscriptionService': z
 		.enum(TRANSCRIPTION_SERVICE_IDS)

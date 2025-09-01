@@ -61,9 +61,9 @@ export type StartRecordingParams =
 	| FfmpegRecordingParams;
 
 /**
- * Unified recorder service interface that both desktop and web implementations must satisfy
+ * Base recorder service interface shared by all implementations
  */
-export type RecorderService = {
+export type BaseRecorderService = {
 	/**
 	 * Get the current recorder state
 	 * Returns 'IDLE' if no recording is active, 'RECORDING' if recording is in progress
@@ -99,3 +99,43 @@ export type RecorderService = {
 		sendStatus: UpdateStatusMessageFn;
 	}): Promise<Result<CancelRecordingResult, RecorderServiceError>>;
 };
+
+/**
+ * Navigator (MediaRecorder) recorder service
+ */
+export type NavigatorRecorderService = BaseRecorderService & {
+	type: 'navigator';
+};
+
+/**
+ * CPAL (native Rust) recorder service
+ */
+export type CpalRecorderService = BaseRecorderService & {
+	type: 'cpal';
+};
+
+/**
+ * FFmpeg recorder service with additional platform-specific formatting
+ */
+export type FfmpegRecorderService = BaseRecorderService & {
+	type: 'ffmpeg';
+	/**
+	 * Format a device identifier for FFmpeg command based on the current platform
+	 * @param deviceId The device identifier to format
+	 * @returns The formatted device string for FFmpeg -i parameter
+	 */
+	formatDeviceForPlatform(deviceId: string): string;
+	/**
+	 * Get the default output options optimized for Whisper
+	 * @returns The default FFmpeg output options string
+	 */
+	getDefaultOutputOptions(): string;
+};
+
+/**
+ * Discriminated union of all recorder service implementations
+ */
+export type RecorderService =
+	| NavigatorRecorderService
+	| CpalRecorderService
+	| FfmpegRecorderService;

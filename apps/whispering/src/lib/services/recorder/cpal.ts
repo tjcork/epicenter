@@ -5,7 +5,7 @@ import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	CpalRecordingParams,
-	RecorderService,
+	CpalRecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
 } from './types';
@@ -23,7 +23,7 @@ type AudioRecording = {
 	filePath?: string;
 };
 
-export function createCpalRecorderService(): RecorderService {
+export function createCpalRecorderService(): CpalRecorderService {
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
 	> => {
@@ -307,8 +307,16 @@ export function createCpalRecorderService(): RecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
+		
+		type: 'cpal',
 	};
 }
+
+/**
+ * CPAL recorder service that uses the Rust backend CPAL implementation.
+ * This is the native audio recorder for desktop environments.
+ */
+export const CpalRecorderServiceLive = createCpalRecorderService();
 
 async function invoke<T>(command: string, args?: Record<string, unknown>) {
 	return tryAsync({
