@@ -15,7 +15,7 @@ import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	FfmpegRecordingParams,
-	FfmpegRecorderService,
+	RecorderService,
 	RecorderServiceError,
 } from './types';
 import { RecorderServiceErr } from './types';
@@ -136,7 +136,7 @@ export const FFMPEG_DEFAULT_DEVICE_IDENTIFIER = asDeviceIdentifier(
 	}[PLATFORM_TYPE],
 );
 
-export function createFfmpegRecorderService(): FfmpegRecorderService {
+export function createFfmpegRecorderService(): RecorderService {
 	// Persisted state - single source of truth
 	const sessionState = createPersistedState({
 		key: 'whispering-ffmpeg-recording-session',
@@ -213,8 +213,6 @@ export function createFfmpegRecorderService(): FfmpegRecorderService {
 	};
 
 	return {
-		type: 'ffmpeg',
-
 		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {

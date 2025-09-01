@@ -61,9 +61,9 @@ export type StartRecordingParams =
 	| FfmpegRecordingParams;
 
 /**
- * Base recorder service interface shared by all implementations
+ * Recorder service interface shared by all implementations
  */
-export type BaseRecorderService = {
+export type RecorderService = {
 	/**
 	 * Get the current recorder state
 	 * Returns 'IDLE' if no recording is active, 'RECORDING' if recording is in progress
@@ -99,32 +99,3 @@ export type BaseRecorderService = {
 		sendStatus: UpdateStatusMessageFn;
 	}): Promise<Result<CancelRecordingResult, RecorderServiceError>>;
 };
-
-/**
- * Navigator (MediaRecorder) recorder service
- */
-export type NavigatorRecorderService = BaseRecorderService & {
-	type: 'navigator';
-};
-
-/**
- * CPAL (native Rust) recorder service
- */
-export type CpalRecorderService = BaseRecorderService & {
-	type: 'cpal';
-};
-
-/**
- * FFmpeg recorder service
- */
-export type FfmpegRecorderService = BaseRecorderService & {
-	type: 'ffmpeg';
-};
-
-/**
- * Discriminated union of all recorder service implementations
- */
-export type RecorderService =
-	| NavigatorRecorderService
-	| CpalRecorderService
-	| FfmpegRecorderService;

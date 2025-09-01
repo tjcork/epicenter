@@ -5,7 +5,7 @@ import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	CpalRecordingParams,
-	CpalRecorderService,
+	RecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
 } from './types';
@@ -23,7 +23,7 @@ type AudioRecording = {
 	filePath?: string;
 };
 
-export function createCpalRecorderService(): CpalRecorderService {
+export function createCpalRecorderService(): RecorderService {
 	const enumerateDevices = async (): Promise<
 		Result<Device[], RecorderServiceError>
 	> => {
@@ -307,8 +307,6 @@ export function createCpalRecorderService(): CpalRecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
-		
-		type: 'cpal',
 	};
 }
 

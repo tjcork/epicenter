@@ -7,7 +7,7 @@ import {
 } from '../device-stream';
 import type {
 	NavigatorRecordingParams,
-	NavigatorRecorderService,
+	RecorderService,
 	RecorderServiceError,
 } from './types';
 import { RecorderServiceErr } from './types';
@@ -26,7 +26,7 @@ type ActiveRecording = {
 	recordedChunks: Blob[];
 };
 
-export function createNavigatorRecorderService(): NavigatorRecorderService {
+export function createNavigatorRecorderService(): RecorderService {
 	let activeRecording: ActiveRecording | null = null;
 
 	return {
@@ -210,8 +210,6 @@ export function createNavigatorRecorderService(): NavigatorRecorderService {
 
 			return Ok({ status: 'cancelled' });
 		},
-		
-		type: 'navigator',
 	};
 }
 
