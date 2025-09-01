@@ -30,7 +30,7 @@ type BaseRecordingParams = {
  */
 export type CpalRecordingParams = BaseRecordingParams & {
 	implementation: 'cpal';
-	outputFolder: string | null;
+	outputFolder: string;
 	sampleRate: string;
 };
 
@@ -48,7 +48,7 @@ export type NavigatorRecordingParams = BaseRecordingParams & {
 export type FfmpegRecordingParams = BaseRecordingParams & {
 	implementation: 'ffmpeg';
 	commandTemplate: TemplateString;
-	outputFolder: string | null;
+	outputFolder: string;
 };
 
 /**

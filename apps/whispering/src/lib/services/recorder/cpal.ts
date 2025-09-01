@@ -12,7 +12,6 @@ import type {
 import { RecorderServiceErr } from './types';
 import { readFile } from '@tauri-apps/plugin-fs';
 import { remove } from '@tauri-apps/plugin-fs';
-import { getDefaultRecordingsFolder } from './utils';
 
 /**
  * Audio recording data returned from the Rust backend
@@ -147,7 +146,7 @@ export function createCpalRecorderService(): RecorderService {
 				{
 					deviceIdentifier,
 					recordingId,
-					outputFolder: outputFolder ?? (await getDefaultRecordingsFolder()),
+					outputFolder,
 					sampleRate: sampleRateNum,
 				},
 			);
