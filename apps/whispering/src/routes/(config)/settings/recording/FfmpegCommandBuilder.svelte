@@ -9,6 +9,8 @@
 	import { getDefaultRecordingsFolder } from '$lib/services/recorder';
 	import { join } from '@tauri-apps/api/path';
 	import { nanoid } from 'nanoid/non-secure';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
+	import { RotateCcw } from '@lucide/svelte';
 
 	// Props - bind the three option fields
 	let {
@@ -63,17 +65,18 @@
 		if (outputOptions?.includes('aac')) return 'aac';
 		if (outputOptions?.includes('libvorbis')) return 'ogg';
 		if (outputOptions?.includes('libopus')) return 'opus';
-		return 'wav';
+		if (outputOptions?.includes('pcm_s16le')) return 'wav';
+		return 'ogg'; // Default to OGG for Whisper optimization
 	});
 	let selectedSampleRate = $derived(outputOptions?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
-	let selectedBitrate = $derived(outputOptions?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128');
+	let selectedBitrate = $derived(outputOptions?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64');
 
 	// Get platform-specific defaults for input
-	const platformDefaults = $derived({
+	const PLATFORM_DEFAULTS = {
 		macos: { format: 'avfoundation', deviceFormat: ':"Built-in Microphone"' },
 		windows: { format: 'dshow', deviceFormat: 'audio="Microphone Array"' },
 		linux: { format: 'alsa', deviceFormat: 'hw:0' },
-	}[PLATFORM_TYPE]);
+	}[PLATFORM_TYPE];
 
 	// Build the preview command
 	const previewCommand = $derived.by(async () => {
@@ -90,7 +93,7 @@
 			globalOptions.trim(),
 			inputOptions.trim(), // Can be empty - FFmpeg will auto-detect
 			'-i',
-			platformDefaults.deviceFormat,
+			PLATFORM_DEFAULTS.deviceFormat,
 			outputOptions.trim(),
 			`"${outputPath}"`
 		].filter(part => part); // Remove empty strings
@@ -103,8 +106,15 @@
 		outputOptions = buildOutputOptionsFromSelections();
 	});
 
-	// Get the default input options for the platform
-	const defaultInputOptions = $derived(`-f ${platformDefaults.format}`);
+	// Default values for each section
+	// Using OGG Vorbis for optimal Whisper compatibility:
+	// - 16kHz mono matches Whisper's expected input
+	// - 64kbps provides good speech quality
+	// - ~80% smaller than WAV files
+	// - Cross-platform compatible
+	const DEFAULT_GLOBAL_OPTIONS = '';
+	const DEFAULT_INPUT_OPTIONS = `-f ${PLATFORM_DEFAULTS.format}`;
+	const DEFAULT_OUTPUT_OPTIONS = '-acodec libvorbis -ar 16000 -ac 1 -b:a 64k';
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
@@ -112,6 +122,7 @@
 
 		let options = `-acodec ${codec}`;
 		options += ` -ar ${selectedSampleRate}`;
+		options += ' -ac 1'; // Always mono for Whisper optimization
 		
 		if (selectedFormat !== 'wav') options += ` -b:a ${selectedBitrate}k`;
 		
@@ -123,59 +134,24 @@
 	<div class="space-y-4 rounded-lg border p-4">
 		<h4 class="text-sm font-medium">FFmpeg Command Builder</h4>
 		
-		<LabeledSelect
-			id="ffmpeg-format"
-			label="Audio Format"
-			items={FFMPEG_FORMAT_OPTIONS}
-			selected={selectedFormat}
-			onSelectedChange={(selected) => {
-				selectedFormat = selected;
-			}}
-			placeholder="Select audio format"
-			description="Choose the output audio format and codec"
-		/>
-		
-		<LabeledSelect
-			id="ffmpeg-sample-rate"
-			label="Sample Rate"
-			items={[
-				{ value: '16000', label: '16 kHz (Voice)' },
-				{ value: '22050', label: '22.05 kHz (Low)' },
-				{ value: '44100', label: '44.1 kHz (CD Quality)' },
-				{ value: '48000', label: '48 kHz (Professional)' },
-			]}
-			selected={selectedSampleRate}
-			onSelectedChange={(selected) => {
-				selectedSampleRate = selected;
-			}}
-			placeholder="Select sample rate"
-			description="Higher sample rates provide better quality"
-		/>
-		
-		{#if selectedFormat !== 'wav'}
-			<LabeledSelect
-				id="ffmpeg-bitrate"
-				label="Bitrate"
-				items={[
-					{ value: '64', label: '64 kbps (Low)' },
-					{ value: '128', label: '128 kbps (Standard)' },
-					{ value: '192', label: '192 kbps (Good)' },
-					{ value: '256', label: '256 kbps (High)' },
-					{ value: '320', label: '320 kbps (Best)' },
-				]}
-				selected={selectedBitrate}
-				onSelectedChange={(selected) => {
-					selectedBitrate = selected;
-				}}
-				placeholder="Select bitrate"
-				description="Higher bitrates mean better quality but larger files"
-			/>
-		{/if}
-		
-		<!-- FFmpeg Options Section -->
-		<div class="border-t pt-4 mt-4 space-y-4">
+		<!-- FFmpeg Options Section (in logical order) -->
+		<div class="space-y-4">
+			<!-- 1. Global Options -->
 			<div>
-				<Label for="ffmpeg-global" class="text-sm font-medium mb-2 block">Global Options</Label>
+				<div class="flex items-center justify-between mb-2">
+					<Label for="ffmpeg-global" class="text-sm font-medium">Global Options</Label>
+					{#if globalOptions !== DEFAULT_GLOBAL_OPTIONS}
+						<WhisperingButton
+							tooltipContent="Reset to default"
+							variant="ghost"
+							size="icon"
+							class="h-6 w-6"
+							onclick={() => globalOptions = DEFAULT_GLOBAL_OPTIONS}
+						>
+							<RotateCcw class="h-3 w-3" />
+						</WhisperingButton>
+					{/if}
+				</div>
 				<Input
 					id="ffmpeg-global"
 					type="text"
@@ -186,42 +162,33 @@
 				<p class="text-xs text-muted-foreground mt-1">General FFmpeg behavior: logging level, progress display, error handling</p>
 			</div>
 			
+			<!-- 2. Input Options -->
 			<div>
 				<div class="flex items-center justify-between mb-2">
 					<Label for="ffmpeg-input" class="text-sm font-medium">Input Options</Label>
-					<div class="flex gap-2">
-						{#if inputOptions.trim()}
-							<button
-								type="button"
-								onclick={() => inputOptions = ''}
-								class="text-xs text-muted-foreground hover:text-foreground"
-							>
-								Clear
-							</button>
-						{/if}
-						{#if inputOptions !== defaultInputOptions}
-							<button
-								type="button"
-								onclick={() => inputOptions = defaultInputOptions}
-								class="text-xs text-muted-foreground hover:text-foreground"
-							>
-								Use platform default
-							</button>
-						{/if}
-					</div>
+					{#if inputOptions !== DEFAULT_INPUT_OPTIONS}
+						<WhisperingButton
+							tooltipContent="Reset to platform default"
+							variant="ghost"
+							size="icon"
+							class="h-6 w-6"
+							onclick={() => inputOptions = DEFAULT_INPUT_OPTIONS}
+						>
+							<RotateCcw class="h-3 w-3" />
+						</WhisperingButton>
+					{/if}
 				</div>
 				<Input
 					id="ffmpeg-input"
 					type="text"
-					placeholder="Optional (e.g., -f avfoundation -ac 1)"
+					placeholder={DEFAULT_INPUT_OPTIONS}
 					bind:value={inputOptions}
 					class="font-mono text-sm"
 				/>
 				<div class="text-xs text-muted-foreground mt-1 space-y-1">
-					<p>How to capture audio from your device. Can be left empty for auto-detection.</p>
-					<p>Platform default: <code class="px-1 py-0.5 rounded bg-muted">{defaultInputOptions}</code></p>
+					<p>How to capture audio from your device. Leave empty for auto-detection.</p>
 					<details class="mt-2">
-						<summary class="cursor-pointer hover:text-foreground">Common additions (click to expand)</summary>
+						<summary class="cursor-pointer hover:text-foreground">Common options (click to expand)</summary>
 						<div class="mt-2 space-y-1 ml-2">
 							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 1</code> - Record in mono (single channel)</p>
 							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 2</code> - Record in stereo (two channels)</p>
@@ -234,19 +201,95 @@
 				</div>
 			</div>
 			
-			<div>
-				<Label for="ffmpeg-output" class="text-sm font-medium mb-2 block">Output Options</Label>
-				<Input
-					id="ffmpeg-output"
-					type="text"
-					placeholder="e.g., -acodec libmp3lame -ar 44100 -b:a 192k"
-					bind:value={outputOptions}
-					class="font-mono text-sm"
-				/>
-				<p class="text-xs text-muted-foreground mt-1">
-					How to encode and save the recording (codec, quality, compression). 
-					Modified by the dropdowns above.
-				</p>
+			<!-- 3. Output Options -->
+			<div class="border-t pt-4">
+				<h5 class="text-sm font-medium mb-3">Output Options</h5>
+				
+				<!-- Format & Quality Dropdowns (these affect output options) -->
+				<div class="space-y-3 mb-4">
+					<LabeledSelect
+						id="ffmpeg-format"
+						label="Audio Format"
+						items={FFMPEG_FORMAT_OPTIONS}
+						selected={selectedFormat}
+						onSelectedChange={(selected) => {
+							selectedFormat = selected;
+						}}
+						placeholder="Select audio format"
+						description="Choose the output audio format and codec"
+					/>
+					
+					<LabeledSelect
+						id="ffmpeg-sample-rate"
+						label="Sample Rate"
+						items={[
+							{ value: '16000', label: '16 kHz (Voice)' },
+							{ value: '22050', label: '22.05 kHz (Low)' },
+							{ value: '44100', label: '44.1 kHz (CD Quality)' },
+							{ value: '48000', label: '48 kHz (Professional)' },
+						]}
+						selected={selectedSampleRate}
+						onSelectedChange={(selected) => {
+							selectedSampleRate = selected;
+						}}
+						placeholder="Select sample rate"
+						description="Higher sample rates provide better quality"
+					/>
+					
+					{#if selectedFormat !== 'wav'}
+						<LabeledSelect
+							id="ffmpeg-bitrate"
+							label="Bitrate"
+							items={[
+								{ value: '64', label: '64 kbps (Low)' },
+								{ value: '128', label: '128 kbps (Standard)' },
+								{ value: '192', label: '192 kbps (Good)' },
+								{ value: '256', label: '256 kbps (High)' },
+								{ value: '320', label: '320 kbps (Best)' },
+							]}
+							selected={selectedBitrate}
+							onSelectedChange={(selected) => {
+								selectedBitrate = selected;
+							}}
+							placeholder="Select bitrate"
+							description="Higher bitrates mean better quality but larger files"
+						/>
+					{/if}
+				</div>
+				
+				<!-- Raw Output Options Field -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<Label for="ffmpeg-output" class="text-sm font-medium">Raw Output Options</Label>
+						{#if outputOptions !== DEFAULT_OUTPUT_OPTIONS}
+							<WhisperingButton
+								tooltipContent="Reset to default"
+								variant="ghost"
+								size="icon"
+								class="h-6 w-6"
+								onclick={() => {
+									outputOptions = DEFAULT_OUTPUT_OPTIONS;
+									// Reset dropdowns to match default (OGG Vorbis for Whisper)
+									selectedFormat = 'ogg';
+									selectedSampleRate = '16000';
+									selectedBitrate = '64';
+								}}
+							>
+								<RotateCcw class="h-3 w-3" />
+							</WhisperingButton>
+						{/if}
+					</div>
+					<Input
+						id="ffmpeg-output"
+						type="text"
+						placeholder="e.g., -acodec libmp3lame -ar 44100 -b:a 192k"
+						bind:value={outputOptions}
+						class="font-mono text-sm"
+					/>
+					<p class="text-xs text-muted-foreground mt-1">
+						Direct FFmpeg output options. Modified by the dropdowns above, or edit manually for full control.
+					</p>
+				</div>
 			</div>
 			
 			<!-- Preview Section -->
