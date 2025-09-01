@@ -61,28 +61,54 @@
 		value
 	}));
 
+	/**
+	 * Parse all audio settings from FFmpeg output options string
+	 */
+	function parseAudioSettingsFromOptions(options: string): {
+		format: AudioFormat;
+		sampleRate: string;
+		bitrate: string;
+	} {
+		const format = (() => {
+			if (options?.includes('libmp3lame')) return 'mp3';
+			if (options?.includes('aac')) return 'aac';
+			if (options?.includes('libvorbis')) return 'ogg';
+			if (options?.includes('libopus')) return 'opus';
+			if (options?.includes('pcm_s16le')) return 'wav';
+			return 'ogg'; // Default to OGG for Whisper optimization
+		})();
+		
+		const sampleRate = options?.match(/-ar\s+(\d+)/)?.[1] ?? '16000';
+		const bitrate = options?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64';
+		
+		return { format, sampleRate, bitrate };
+	}
+
+	/**
+	 * Default audio settings parsed from FFMPEG_DEFAULT_OUTPUT_OPTIONS.
+	 * 
+	 * This constant represents the baseline configuration for FFmpeg audio output
+	 * by parsing the platform's default output options string. It serves as the
+	 * reference point for reset buttons, allowing users to restore individual
+	 * settings to their default values.
+	 * 
+	 * The values are derived at compile time from the same parsing logic used
+	 * for the dynamic output options, ensuring consistency between defaults
+	 * and user selections.
+	 */
+	const DEFAULT = parseAudioSettingsFromOptions(FFMPEG_DEFAULT_OUTPUT_OPTIONS);
 
 	/**
 		* UI state for the FFmpeg command builder.
 		*
-		* These variables (`selectedFormat`, `selectedSampleRate`, `selectedBitrate`) are temporary
-		* UI state that provide a user-friendly way to construct the output options string
-		* via dropdown selectors. The output options are persisted.
+		* These variables are temporary UI state that provide a user-friendly way to construct 
+		* the output options string via dropdown selectors. The output options are persisted.
 		*
 		* To ensure the UI and the options remain in sync, these values are derived by parsing
 		* the output options. When the user changes a selection in the UI, the output options
 		* are rebuilt from scratch using the new values.
 		*/
-	let selectedFormat: AudioFormat = $derived.by(() => {
-		if (outputOptions?.includes('libmp3lame')) return 'mp3';
-		if (outputOptions?.includes('aac')) return 'aac';
-		if (outputOptions?.includes('libvorbis')) return 'ogg';
-		if (outputOptions?.includes('libopus')) return 'opus';
-		if (outputOptions?.includes('pcm_s16le')) return 'wav';
-		return 'ogg'; // Default to OGG for Whisper optimization
-	});
-	let selectedSampleRate = $derived(outputOptions?.match(/-ar\s+(\d+)/)?.[1] ?? '16000');
-	let selectedBitrate = $derived(outputOptions?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64');
+	let selected = $derived(parseAudioSettingsFromOptions(outputOptions));
 
 
 	// Build the preview command
@@ -91,7 +117,7 @@
 
 		const outputFolder = settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder());
 		const recordingId = nanoid(); // Generate realistic recording ID for preview
-		const ext = AUDIO_FORMATS[selectedFormat].extension;
+		const ext = AUDIO_FORMATS[selected.format].extension;
 		const outputPath = await join(outputFolder, `${recordingId}.${ext}`);
 		
 		// Build command with all parts, filtering empty strings
@@ -116,13 +142,13 @@
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
-		const codec = AUDIO_FORMATS[selectedFormat].codec;
+		const codec = AUDIO_FORMATS[selected.format].codec;
 
 		let options = `-acodec ${codec}`;
-		options += ` -ar ${selectedSampleRate}`;
+		options += ` -ar ${selected.sampleRate}`;
 		options += ' -ac 1'; // Always mono for Whisper optimization
 		
-		if (selectedFormat !== 'wav') options += ` -b:a ${selectedBitrate}k`;
+		if (selected.format !== 'wav') options += ` -b:a ${selected.bitrate}k`;
 		
 		return options;
 	}
@@ -203,53 +229,95 @@
 				
 				<!-- Format & Quality Dropdowns (these affect output options) -->
 				<div class="space-y-3 mb-4">
-					<LabeledSelect
-						id="ffmpeg-format"
-						label="Audio Format"
-						items={audioFormatOptions}
-						selected={selectedFormat}
-						onSelectedChange={(selected) => {
-							selectedFormat = selected as AudioFormat;
-						}}
-						placeholder="Select audio format"
-						description="Choose the output audio format and codec"
-					/>
-					
-					<LabeledSelect
-						id="ffmpeg-sample-rate"
-						label="Sample Rate"
-						items={[
-							{ value: '16000', label: '16 kHz (Voice)' },
-							{ value: '22050', label: '22.05 kHz (Low)' },
-							{ value: '44100', label: '44.1 kHz (CD Quality)' },
-							{ value: '48000', label: '48 kHz (Professional)' },
-						]}
-						selected={selectedSampleRate}
-						onSelectedChange={(selected) => {
-							selectedSampleRate = selected;
-						}}
-						placeholder="Select sample rate"
-						description="Higher sample rates provide better quality"
-					/>
-					
-					{#if selectedFormat !== 'wav'}
+					<div class="flex items-center gap-2">
 						<LabeledSelect
-							id="ffmpeg-bitrate"
-							label="Bitrate"
-							items={[
-								{ value: '64', label: '64 kbps (Low)' },
-								{ value: '128', label: '128 kbps (Standard)' },
-								{ value: '192', label: '192 kbps (Good)' },
-								{ value: '256', label: '256 kbps (High)' },
-								{ value: '320', label: '320 kbps (Best)' },
-							]}
-							selected={selectedBitrate}
-							onSelectedChange={(selected) => {
-								selectedBitrate = selected;
+							id="ffmpeg-format"
+							label="Audio Format"
+							items={audioFormatOptions}
+							selected={selected.format}
+							onSelectedChange={(value) => {
+								selected = { ...selected, format: value as AudioFormat };
 							}}
-							placeholder="Select bitrate"
-							description="Higher bitrates mean better quality but larger files"
+							placeholder="Select audio format"
+							description="Choose the output audio format and codec"
+							class="flex-1"
 						/>
+						{#if selected.format !== DEFAULT.format}
+							<WhisperingButton
+								tooltipContent="Reset to default"
+								variant="outline"
+								size="icon"
+								onclick={() => selected = { ...selected, format: DEFAULT.format }}
+								class="mt-6"
+							>
+								<RotateCcw class="h-4 w-4" />
+							</WhisperingButton>
+						{/if}
+					</div>
+					
+					<div class="flex items-center gap-2">
+						<LabeledSelect
+							id="ffmpeg-sample-rate"
+							label="Sample Rate"
+							items={[
+								{ value: '16000', label: '16 kHz (Voice)' },
+								{ value: '22050', label: '22.05 kHz (Low)' },
+								{ value: '44100', label: '44.1 kHz (CD Quality)' },
+								{ value: '48000', label: '48 kHz (Professional)' },
+							]}
+							selected={selected.sampleRate}
+							onSelectedChange={(value) => {
+								selected = { ...selected, sampleRate: value };
+							}}
+							placeholder="Select sample rate"
+							description="Higher sample rates provide better quality"
+							class="flex-1"
+						/>
+						{#if selected.sampleRate !== DEFAULT.sampleRate}
+							<WhisperingButton
+								tooltipContent="Reset to default"
+								variant="outline"
+								size="icon"
+								onclick={() => selected = { ...selected, sampleRate: DEFAULT.sampleRate }}
+								class="mt-6"
+							>
+								<RotateCcw class="h-4 w-4" />
+							</WhisperingButton>
+						{/if}
+					</div>
+					
+					{#if selected.format !== 'wav'}
+						<div class="flex items-center gap-2">
+							<LabeledSelect
+								id="ffmpeg-bitrate"
+								label="Bitrate"
+								items={[
+									{ value: '64', label: '64 kbps (Low)' },
+									{ value: '128', label: '128 kbps (Standard)' },
+									{ value: '192', label: '192 kbps (Good)' },
+									{ value: '256', label: '256 kbps (High)' },
+									{ value: '320', label: '320 kbps (Best)' },
+								]}
+								selected={selected.bitrate}
+								onSelectedChange={(value) => {
+									selected = { ...selected, bitrate: value };
+								}}
+								placeholder="Select bitrate"
+								description="Higher bitrates mean better quality but larger files"
+								class="flex-1"
+							/>
+							{#if selected.bitrate !== DEFAULT.bitrate}
+								<WhisperingButton
+									tooltipContent="Reset to default"
+									variant="outline"
+									size="icon"
+									onclick={() => selected = { ...selected, bitrate: DEFAULT.bitrate }}
+									class="mt-6"
+								>
+									<RotateCcw class="h-4 w-4" />
+								</WhisperingButton>
+							{/if}
+						</div>
 					{/if}
 				</div>
 				
@@ -271,10 +339,8 @@
 								size="icon"
 								onclick={() => {
 									outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
-									// Reset dropdowns to match default (OGG Vorbis for Whisper)
-									selectedFormat = 'ogg';
-									selectedSampleRate = '16000';
-									selectedBitrate = '64';
+									// Reset dropdowns to match default values
+									selected = DEFAULT;
 								}}
 							>
 								<RotateCcw class="h-4 w-4" />
