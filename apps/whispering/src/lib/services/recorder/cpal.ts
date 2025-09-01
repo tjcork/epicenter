@@ -4,6 +4,7 @@ import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
+	CpalRecordingParams,
 	RecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
@@ -63,20 +64,14 @@ export function createCpalRecorderService(): RecorderService {
 		enumerateDevices,
 
 		startRecording: async (
-			params: StartRecordingParams,
+			{
+				selectedDeviceId,
+				recordingId,
+				outputFolder,
+				sampleRate,
+			}: CpalRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
-			// CPAL implementation only handles CPAL params
-			if (params.implementation !== 'cpal') {
-				return RecorderServiceErr({
-					message: 'CPAL recorder received non-CPAL parameters',
-					context: { params },
-					cause: undefined,
-				});
-			}
-
-			const { selectedDeviceId, recordingId, outputFolder, sampleRate } =
-				params;
 			const { data: devices, error: enumerateError } = await enumerateDevices();
 			if (enumerateError) return Err(enumerateError);
 

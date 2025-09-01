@@ -6,6 +6,7 @@ import {
 	getRecordingStream,
 } from '../device-stream';
 import type {
+	NavigatorRecordingParams,
 	RecorderService,
 	RecorderServiceError,
 	StartRecordingParams,
@@ -50,19 +51,9 @@ export function createWebRecorderService(): RecorderService {
 		},
 
 		startRecording: async (
-			params: StartRecordingParams,
+			{ selectedDeviceId, recordingId, bitrateKbps }: NavigatorRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
-			// Navigator implementation only handles navigator params
-			if (params.implementation !== 'navigator') {
-				return RecorderServiceErr({
-					message: 'Navigator recorder received non-navigator parameters',
-					context: { params },
-					cause: undefined,
-				});
-			}
-
-			const { selectedDeviceId, recordingId, bitrateKbps } = params;
 			// Ensure we're not already recording
 			if (activeRecording) {
 				return RecorderServiceErr({
