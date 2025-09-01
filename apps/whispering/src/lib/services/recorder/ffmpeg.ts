@@ -24,7 +24,6 @@ import { getDefaultRecordingsFolder } from './utils';
 const FfmpegSession = type({
 	pid: 'number',
 	outputPath: 'string',
-	startedAt: 'number',
 }).or('null');
 
 export function createFfmpegRecorderService(): RecorderService {
@@ -42,15 +41,29 @@ export function createFfmpegRecorderService(): RecorderService {
 		return session ? new Child(session.pid) : null;
 	};
 
-	// Check for orphaned process on initialization
-	const session = sessionState.value;
-	if (session) {
-		const elapsed = Date.now() - session.startedAt;
-		console.warn(
-			`⚠️ Found FFmpeg session with PID ${session.pid}`,
-			`Started ${Math.round(elapsed / 1000)}s ago at ${session.outputPath}`,
-			'Process may still be running. Starting a new recording will kill it.',
-		);
+	// Helper to clear session and kill any running process
+	const clearSession = async (): Promise<void> => {
+		const session = sessionState.value;
+		if (!session) return;
+
+		// Try to kill the process if it exists
+		try {
+			const child = new Child(session.pid);
+			await child.kill();
+			console.log(`Killed FFmpeg process (PID: ${session.pid})`);
+		} catch (e) {
+			// Process might already be dead, that's okay
+			console.log(`FFmpeg process (PID: ${session.pid}) was already terminated`);
+		}
+
+		// Clear the session state
+		sessionState.value = null;
+	};
+
+	// Clear any orphaned process on initialization
+	if (sessionState.value) {
+		console.log('Found orphaned FFmpeg session, cleaning up...');
+		clearSession();
 	}
 
 	const enumerateDevices = async (): Promise<
@@ -117,21 +130,8 @@ export function createFfmpegRecorderService(): RecorderService {
 			}: FfmpegRecordingParams,
 			{ sendStatus },
 		): Promise<Result<DeviceAcquisitionOutcome, RecorderServiceError>> => {
-			// Stop any existing recording using the PID
-			const existingChild = getCurrentChild();
-			if (existingChild) {
-				const existingSession = sessionState.value;
-				try {
-					await existingChild.kill();
-					console.log(
-						`Killed existing FFmpeg process (PID: ${existingSession?.pid})`,
-					);
-				} catch (e) {
-					console.error('Failed to kill existing FFmpeg process:', e);
-				}
-				// Clear the session
-				sessionState.value = null;
-			}
+			// Stop any existing recording
+			await clearSession();
 
 			// Enumerate devices to validate selection
 			const { data: devices, error: enumerateError } = await enumerateDevices();
@@ -244,7 +244,6 @@ export function createFfmpegRecorderService(): RecorderService {
 			sessionState.value = {
 				pid: process.pid,
 				outputPath,
-				startedAt: Date.now(),
 			};
 
 			sendStatus({
@@ -358,22 +357,11 @@ export function createFfmpegRecorderService(): RecorderService {
 				description: 'Stopping FFmpeg recording and cleaning up...',
 			});
 
-			// Kill the FFmpeg process using the PID
-			const child = getCurrentChild();
-			if (child) {
-				tryAsync({
-					try: () => child.kill(),
-					catch: (e) => {
-						console.error('Failed to kill FFmpeg process:', e);
-						return Ok(undefined);
-					},
-				});
-			}
-
+			// Store the path before clearing the session
 			const pathToCleanup = session.outputPath;
 
-			// Clear the session
-			sessionState.value = null;
+			// Clear the session and kill the process
+			await clearSession();
 
 			// Delete the output file if it exists
 			if (pathToCleanup) {
