@@ -112,7 +112,11 @@
 	 */
 	let selected = $derived(parseAudioSettingsFromOptions(outputOptions));
 
-	const getPreviewCommand = async () => {
+	// State variable to hold the preview command
+	let previewCommand = $state('Loading...');
+
+	// Function to update the preview command
+	async function updatePreviewCommand() {
 		const formattedDevice = formatDeviceForPlatform(
 			selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
 		);
@@ -135,8 +139,21 @@
 			`"${outputPath}"`,
 		].filter((part) => part); // Remove empty strings
 
-		return commandParts.join(' ');
-	};
+		previewCommand = commandParts.join(' ');
+	}
+
+	// Update preview command whenever dependencies change
+	$effect(() => {
+		// Track all reactive dependencies
+		globalOptions;
+		inputOptions;
+		outputOptions;
+		selectedDeviceId;
+		selected.format;
+
+		// Update the preview command asynchronously
+		updatePreviewCommand();
+	});
 
 	// Update output options whenever UI selections change
 	$effect(() => {
@@ -388,17 +405,12 @@
 			</div>
 
 			<!-- Preview Section -->
-			<svelte:boundary>
-				<div class="rounded-md bg-muted/50 p-3">
-					<p class="text-xs font-medium text-muted-foreground mb-1">
-						Command Preview:
-					</p>
-					<code class="text-xs break-all">{await getPreviewCommand()}</code>
-				</div>
-				{#snippet pending()}
-					<p>loading...</p>
-				{/snippet}
-			</svelte:boundary>
+			<div class="rounded-md bg-muted/50 p-3">
+				<p class="text-xs font-medium text-muted-foreground mb-1">
+					Command Preview:
+				</p>
+				<code class="text-xs break-all">{previewCommand}</code>
+			</div>
 		</div>
 	</div>
 </div>
