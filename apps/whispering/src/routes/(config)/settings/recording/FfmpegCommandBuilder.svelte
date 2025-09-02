@@ -296,7 +296,7 @@
 					bind:value={globalOptions}
 					placeholder="-hide_banner -loglevel warning"
 					class="font-mono text-xs h-8"
-					description="Controls FFmpeg's logging verbosity and console output behavior."
+					description="Controls FFmpeg general behavior: logging, file overwriting, etc."
 				>
 					{#snippet actionSlot()}
 						{#if globalOptions !== FFMPEG_DEFAULT_GLOBAL_OPTIONS}
