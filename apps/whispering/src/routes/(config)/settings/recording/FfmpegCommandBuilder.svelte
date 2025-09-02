@@ -185,7 +185,6 @@
 					globalOptions = FFMPEG_DEFAULT_GLOBAL_OPTIONS;
 					inputOptions = FFMPEG_DEFAULT_INPUT_OPTIONS;
 					outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
-					selected = DEFAULT;
 				}}
 				class="text-xs text-muted-foreground hover:text-foreground transition-colors"
 			>
@@ -329,7 +328,6 @@
 							class="h-8 w-8"
 							onclick={() => {
 								outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
-								selected = DEFAULT;
 							}}
 						>
 							<RotateCcw class="h-3 w-3" />
