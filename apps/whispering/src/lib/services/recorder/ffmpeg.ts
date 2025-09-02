@@ -24,13 +24,13 @@ import { extractErrorMessage } from 'wellcrafted/error';
 
 /**
  * Default FFmpeg global options.
- * 
+ *
  * Empty by default - users can add options to control FFmpeg's general behavior:
  * - `-hide_banner`: Hide the startup banner
  * - `-loglevel warning`: Set logging level (error, warning, info, verbose, debug)
  * - `-nostats`: Disable progress statistics
  * - `-y`: Overwrite output files without asking
- * 
+ *
  * @example
  * // User might set: '-hide_banner -loglevel warning'
  */
@@ -45,18 +45,18 @@ const FfmpegSession = type({
 
 /**
  * Default FFmpeg output options optimized for Whisper transcription.
- * 
+ *
  * Configuration:
  * - **Codec**: OGG Vorbis (`libvorbis`) - Provides excellent compression for speech
  * - **Sample Rate**: 16kHz - Matches Whisper's expected input frequency
  * - **Channels**: Mono (`-ac 1`) - Single channel audio for consistent processing
  * - **Bitrate**: 64kbps - Optimal quality for speech recognition
- * 
+ *
  * Benefits:
  * - ~80% smaller files compared to uncompressed WAV
  * - Cross-platform compatibility
  * - Optimized for Whisper's audio processing pipeline
- * 
+ *
  * @example
  * // Using default output options
  * const command = `ffmpeg -i input.wav ${FFMPEG_DEFAULT_OUTPUT_OPTIONS} output.ogg`;
@@ -66,15 +66,15 @@ export const FFMPEG_DEFAULT_OUTPUT_OPTIONS =
 
 /**
  * Default FFmpeg input options for the current platform.
- * 
+ *
  * Specifies the audio capture framework to use based on the operating system:
  * - **macOS**: AVFoundation (`-f avfoundation`) - Apple's audio/video framework
  * - **Windows**: DirectShow (`-f dshow`) - Windows multimedia framework
  * - **Linux**: ALSA (`-f alsa`) - Advanced Linux Sound Architecture
- * 
+ *
  * These options tell FFmpeg which audio subsystem to use for capturing input
  * from the system's audio devices.
- * 
+ *
  * @example
  * // Platform-specific usage
  * const command = `ffmpeg ${FFMPEG_DEFAULT_INPUT_OPTIONS} -i device output.wav`;
@@ -89,15 +89,15 @@ export const FFMPEG_DEFAULT_INPUT_OPTIONS = (
 
 /**
  * Platform-specific command to enumerate available audio recording devices.
- * 
+ *
  * Commands by platform:
  * - **macOS**: Uses FFmpeg with AVFoundation to list devices
  * - **Windows**: Uses FFmpeg with DirectShow to list devices
  * - **Linux**: Uses `arecord` to list ALSA devices
- * 
+ *
  * The output of these commands is parsed by `parseDevices()` to extract
  * device IDs and labels for the UI.
- * 
+ *
  * @example
  * // Execute device enumeration
  * const command = asShellCommand(FFMPEG_ENUMERATE_DEVICES_COMMAND);
@@ -113,17 +113,17 @@ export const FFMPEG_ENUMERATE_DEVICES_COMMAND = (
 
 /**
  * Default audio device identifier for the current platform.
- * 
+ *
  * These are fallback device identifiers used when:
  * - No devices can be enumerated
  * - User hasn't selected a specific device
  * - The selected device is unavailable
- * 
+ *
  * Platform defaults:
  * - **macOS**: `"0"` - First audio device index in AVFoundation
  * - **Windows**: `"default"` - System default DirectShow audio capture device
  * - **Linux**: `"default"` - System default ALSA/PulseAudio device
- * 
+ *
  * @example
  * // Using as fallback
  * const deviceId = selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER;
@@ -548,12 +548,20 @@ function parseDevices(output: string): Device[] {
 	// Select configuration based on platform
 	const config = platformConfig[PLATFORM_TYPE];
 
-	// Parse lines using reduce for functional approach
-	return output.split('\n').reduce<Device[]>((devices, line) => {
+	// Parse all devices
+	const allDevices = output.split('\n').reduce<Device[]>((devices, line) => {
 		const match = line.match(config.regex);
 		if (match) devices.push(config.extractDevice(match));
 		return devices;
 	}, []);
+
+	// Deduplicate devices based on ID (important for macOS where devices appear in both video and audio sections)
+	const seenIds = new Set<string>();
+	return allDevices.filter((device) => {
+		if (seenIds.has(device.id)) return false;
+		seenIds.add(device.id);
+		return true;
+	});
 }
 
 /**
