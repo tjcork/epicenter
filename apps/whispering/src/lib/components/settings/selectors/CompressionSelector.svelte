@@ -1,12 +1,15 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { CompressionBody } from '$lib/components/settings';
 	import * as Popover from '@repo/ui/popover';
+	import { Button } from '@repo/ui/button';
+	import { Separator } from '@repo/ui/separator';
 	import { useCombobox } from '@repo/ui/hooks';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { isUsingCpalMethodWithoutWhisperCpp } from '../../../../routes/+layout/check-ffmpeg';
-	import { PackageIcon } from '@lucide/svelte';
+	import { PackageIcon, SettingsIcon } from '@lucide/svelte';
 
 	let { class: className }: { class?: string } = $props();
 
