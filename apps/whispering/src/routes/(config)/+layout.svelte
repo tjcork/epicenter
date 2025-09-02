@@ -3,15 +3,13 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
+	CompressionSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
 	import ManualDeviceSelector from '$lib/components/settings/selectors/ManualDeviceSelector.svelte';
 	import VadDeviceSelector from '$lib/components/settings/selectors/VadDeviceSelector.svelte';
-	import {
-		recorderStateToIcons,
-		vadStateToIcons,
-	} from '$lib/constants/audio';
+	import { recorderStateToIcons, vadStateToIcons } from '$lib/constants/audio';
 	import { rpc } from '$lib/query';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
@@ -58,6 +56,7 @@
 			</WhisperingButton>
 		{:else}
 			<ManualDeviceSelector />
+			<CompressionSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -75,6 +74,7 @@
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
 			<VadDeviceSelector />
+			<CompressionSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -90,6 +90,7 @@
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
 			<ManualDeviceSelector />
+			<CompressionSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
