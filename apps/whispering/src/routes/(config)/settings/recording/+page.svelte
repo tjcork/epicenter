@@ -170,6 +170,18 @@
 			mode="manual"
 		></SelectRecordingDevice>
 	{:else if settings.value['recording.mode'] === 'vad'}
+		<Alert.Root class="border-blue-500/20 bg-blue-500/5">
+			<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
+			<Alert.Title class="text-blue-600 dark:text-blue-400">
+				Voice Activated Detection Mode
+			</Alert.Title>
+			<Alert.Description>
+				VAD mode uses the browser's Web Audio API for real-time voice detection.
+				Unlike manual recording, VAD mode cannot use alternative recording
+				implementations and must use the browser's MediaRecorder API.
+			</Alert.Description>
+		</Alert.Root>
+
 		<SelectRecordingDevice
 			selected={settings.value['recording.vad.selectedDeviceId']}
 			onSelectedChange={(selected) => {
