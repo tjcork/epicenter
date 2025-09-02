@@ -242,8 +242,8 @@
 						</WhisperingButton>
 					{:else}
 						<ManualDeviceSelector />
-						<TranscriptionSelector />
 						<CompressionSelector />
+						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
 				</div>
@@ -268,8 +268,8 @@
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
 						<VadDeviceSelector />
-						<TranscriptionSelector />
 						<CompressionSelector />
+						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
 				</div>
@@ -294,8 +294,8 @@
 						class="h-32 sm:h-36 lg:h-40 xl:h-44 w-full"
 					/>
 					<div class="flex items-center gap-1.5">
-						<TranscriptionSelector />
 						<CompressionSelector />
+						<TranscriptionSelector />
 						<TransformationSelector />
 					</div>
 				</div>
