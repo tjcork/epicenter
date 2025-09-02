@@ -33,9 +33,10 @@
 	] as const;
 
 	const isUsingNavigatorBackend = $derived(
-		!window.__TAURI_INTERNALS__ || settings.value['recording.backend'] === 'navigator',
+		!window.__TAURI_INTERNALS__ ||
+			settings.value['recording.backend'] === 'navigator',
 	);
-	
+
 	const isUsingFfmpegBackend = $derived(
 		settings.value['recording.backend'] === 'ffmpeg',
 	);
@@ -75,15 +76,19 @@
 			items={RECORDING_BACKEND_OPTIONS}
 			selected={settings.value['recording.backend']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.backend', selected as 'cpal' | 'navigator' | 'ffmpeg');
+				settings.updateKey(
+					'recording.backend',
+					selected as 'cpal' | 'navigator' | 'ffmpeg',
+				);
 			}}
 			placeholder="Select a recording backend"
 			description={{
-				'cpal':  'CPAL: Uses Rust audio backend for lower-level access and potentially better quality',
-				'navigator': 'Browser: Uses web standards (MediaRecorder API) for better compatibility',
-				'ffmpeg': 'FFmpeg: Uses FFmpeg command-line tool for maximum flexibility and format support',
-				}[settings.value['recording.backend']]
-			}
+				cpal: 'CPAL: Uses Rust audio backend for lower-level access and potentially better quality',
+				navigator:
+					'Browser: Uses web standards (MediaRecorder API) for better compatibility',
+				ffmpeg:
+					'FFmpeg: Uses FFmpeg command-line tool for maximum flexibility and format support',
+			}[settings.value['recording.backend']]}
 		/>
 
 		{#if settings.value['recording.backend'] === 'ffmpeg' && !data.ffmpegInstalled}
@@ -93,7 +98,8 @@
 					FFmpeg Not Installed
 				</Alert.Title>
 				<Alert.Description>
-					FFmpeg is required for the FFmpeg recording backend. Please install it to use this feature.
+					FFmpeg is required for the FFmpeg recording backend. Please install it
+					to use this feature.
 					<Link
 						href="/install-ffmpeg"
 						class="font-medium underline underline-offset-4 hover:text-red-700 dark:hover:text-red-300"
@@ -109,9 +115,9 @@
 					Global Shortcuts May Be Unreliable
 				</Alert.Title>
 				<Alert.Description>
-					When using the navigator recorder, macOS App Nap may prevent the browser
-					recording logic from starting when not in focus. Consider using the
-					CPAL backend for reliable global shortcut support.
+					When using the navigator recorder, macOS App Nap may prevent the
+					browser recording logic from starting when not in focus. Consider
+					using the CPAL backend for reliable global shortcut support.
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
@@ -142,8 +148,8 @@
 				</Alert.Title>
 				<Alert.Description>
 					We highly recommend installing FFmpeg for optimal audio processing
-					with the CPAL recording backend. FFmpeg enables audio compression
-					for faster uploads to transcription services.
+					with the CPAL recording backend. FFmpeg enables audio compression for
+					faster uploads to transcription services.
 					<Link
 						href="/install-ffmpeg"
 						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
@@ -202,8 +208,8 @@
 					managed by the app.
 				</p>
 			</div>
-			
-			<FfmpegCommandBuilder 
+
+			<FfmpegCommandBuilder
 				bind:globalOptions={settings.value['recording.ffmpeg.globalOptions']}
 				bind:inputOptions={settings.value['recording.ffmpeg.inputOptions']}
 				bind:outputOptions={settings.value['recording.ffmpeg.outputOptions']}
