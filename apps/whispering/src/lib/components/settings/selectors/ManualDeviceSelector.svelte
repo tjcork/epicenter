@@ -30,7 +30,7 @@
 		},
 		ffmpeg: {
 			label: 'FFmpeg',
-			description: 'Command-line recording with advanced options',
+			description: 'Customizable command-line recording',
 			badge: 'Advanced',
 			isAvailable: window.__TAURI_INTERNALS__, // Desktop only
 		},
@@ -111,7 +111,7 @@
 											{method.badge}
 										</Badge>
 									</div>
-									<p class="text-xs text-muted-foreground mb-1">
+									<p class="text-xs text-muted-foreground mt-1">
 										{method.description}
 									</p>
 								</div>
@@ -142,7 +142,6 @@
 										settingKey,
 										currentDeviceId === device.id ? null : device.id,
 									);
-									combobox.closeAndFocusTrigger();
 								}}
 								class="flex items-center gap-3 px-3 py-2"
 							>
