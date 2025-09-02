@@ -17,13 +17,15 @@
 			label: 'Recommended',
 			icon: '🎯',
 			description: 'Best for speech with silence removal',
-			options: '-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
+			options:
+				'-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
 		},
 		smallest: {
 			label: 'Smallest',
 			icon: '🗜️',
 			description: 'Maximum compression with silence removal',
-			options: '-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
+			options:
+				'-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
 		},
 		preserve: {
 			label: 'Preserve Audio',
@@ -122,7 +124,8 @@
 				{:else if isFfmpegCheckLoading}
 					Checking FFmpeg installation...
 				{:else}
-					Reduce file sizes and trim silence for faster uploads and lower API costs
+					Reduce file sizes and trim silence for faster uploads and lower API
+					costs
 				{/if}
 			</p>
 		</div>
@@ -141,12 +144,14 @@
 			<p class="text-base font-medium">Compression Presets</p>
 			<div class="flex flex-wrap gap-2">
 				{#each Object.entries(COMPRESSION_PRESETS) as [presetKey, preset]}
-					<Badge
+					<WhisperingButton
+						tooltipContent={preset.description}
 						variant={isPresetActive(presetKey as CompressionPresetKey)
 							? 'default'
 							: 'outline'}
+						size="sm"
 						class={cn(
-							'cursor-pointer transition-colors',
+							'cursor-pointer transition-colors h-auto px-2 py-1',
 							isPresetActive(presetKey as CompressionPresetKey)
 								? 'hover:bg-primary/90'
 								: 'hover:bg-accent hover:text-accent-foreground',
@@ -159,7 +164,7 @@
 					>
 						<span class="mr-1">{preset.icon}</span>
 						<span>{preset.label}</span>
-					</Badge>
+					</WhisperingButton>
 				{/each}
 			</div>
 			<p class="text-muted-foreground text-xs">
