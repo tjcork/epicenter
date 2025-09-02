@@ -48,8 +48,9 @@ const startManualRecording = defineMutation({
 				break;
 			}
 			case 'fallback': {
+				const method = settings.value['recording.method'];
 				settings.updateKey(
-					'recording.manual.selectedDeviceId',
+					`recording.${method}.deviceId`,
 					deviceAcquisitionOutcome.deviceId,
 				);
 				switch (deviceAcquisitionOutcome.reason) {

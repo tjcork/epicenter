@@ -11,8 +11,8 @@
 
 	const combobox = useCombobox();
 
-	// Setting key for VAD mode
-	const settingKey = 'recording.vad.selectedDeviceId';
+	// VAD always uses navigator device ID
+	const settingKey = 'recording.navigator.deviceId';
 
 	const selectedDeviceId = $derived(settings.value[settingKey]);
 

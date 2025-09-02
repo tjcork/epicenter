@@ -65,7 +65,6 @@ export const recorder = {
 
 			// Prepare recording parameters based on which method we're using
 			const baseParams = {
-				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				recordingId,
 			};
 
@@ -79,11 +78,13 @@ export const recorder = {
 				navigator: {
 					...baseParams,
 					method: 'navigator' as const,
+					selectedDeviceId: settings.value['recording.navigator.deviceId'],
 					bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 				},
 				ffmpeg: {
 					...baseParams,
 					method: 'ffmpeg' as const,
+					selectedDeviceId: settings.value['recording.ffmpeg.deviceId'],
 					globalOptions: settings.value['recording.ffmpeg.globalOptions'],
 					inputOptions: settings.value['recording.ffmpeg.inputOptions'],
 					outputOptions: settings.value['recording.ffmpeg.outputOptions'],
@@ -92,6 +93,7 @@ export const recorder = {
 				cpal: {
 					...baseParams,
 					method: 'cpal' as const,
+					selectedDeviceId: settings.value['recording.cpal.deviceId'],
 					outputFolder,
 					sampleRate: settings.value['recording.cpal.sampleRate'],
 				},
@@ -101,7 +103,7 @@ export const recorder = {
 				paramsMap[
 					!window.__TAURI_INTERNALS__
 						? 'navigator'
-						: settings.value['recording.manual.method']
+						: settings.value['recording.method']
 				];
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
@@ -176,7 +178,5 @@ export function recorderService() {
 		ffmpeg: services.ffmpegRecorder,
 		cpal: services.cpalRecorder,
 	};
-
-	// Return the selected recorder or fallback to navigator
-	return recorderMap[settings.value['recording.manual.method']];
+	return recorderMap[settings.value['recording.method']];
 }

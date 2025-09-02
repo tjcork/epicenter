@@ -12,10 +12,12 @@
 
 	const combobox = useCombobox();
 
-	const selectedDeviceId = $derived(
-		settings.value['recording.manual.selectedDeviceId'],
-	);
 	const selectedMethod = $derived(settings.value['recording.method']);
+
+	// Get the device ID for the current method
+	const selectedDeviceId = $derived(
+		settings.value[`recording.${selectedMethod}.deviceId`],
+	);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
@@ -40,8 +42,6 @@
 			isAvailable: true, // Always available
 		},
 	} as const;
-
-	type RecordingMethod = keyof typeof RECORDING_METHODS;
 
 	const getDevicesQuery = createQuery(() => ({
 		...rpc.recorder.enumerateDevices.options(),
@@ -91,6 +91,7 @@
 								value={`method-${methodKey} ${method.label} ${method.description}`}
 								onSelect={() => {
 									settings.updateKey('recording.method', methodKey);
+									getDevicesQuery.refetch();
 								}}
 								class="flex items-center gap-3 px-3 py-2"
 							>
@@ -138,7 +139,7 @@
 								onSelect={() => {
 									const currentDeviceId = selectedDeviceId;
 									settings.updateKey(
-										'recording.manual.selectedDeviceId',
+										`recording.${selectedMethod}.deviceId`,
 										currentDeviceId === device.id ? null : device.id,
 									);
 								}}

@@ -42,7 +42,7 @@
 	const selectedDeviceId = $derived(
 		// First, try to find the user's selected device
 		getDevicesQuery.data?.find(
-			(d) => d.id === settings.value['recording.manual.selectedDeviceId'],
+			(d) => d.id === settings.value['recording.ffmpeg.deviceId'],
 		)?.id ??
 			// Then fall back to the first available device
 			getDevicesQuery.data?.[0]?.id ??

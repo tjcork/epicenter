@@ -117,25 +117,24 @@ export const settingsSchema = z.object({
 	 * - 'navigator': Uses MediaRecorder API (web standard)
 	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
-	'recording.manual.method': z.enum(['cpal', 'navigator', 'ffmpeg']).default('cpal'),
+	'recording.method': z.enum(['cpal', 'navigator', 'ffmpeg']).default('cpal'),
+
 	/**
-	 * Device identifier for manual recording.
-	 * Can be either a desktop device identifier or navigator device ID.
-	 * @see DeviceIdentifier
+	 * Device identifiers for each recording method.
+	 * Each method remembers its own selected device.
+	 * Note: VAD always uses navigator, so it shares the same device ID.
 	 */
-	'recording.manual.selectedDeviceId': z
+	'recording.cpal.deviceId': z
 		.string()
 		.nullable()
 		.transform((val) => (val ? asDeviceIdentifier(val) : null))
 		.default(null),
-
-	/**
-	 * Device identifier for VAD recording.
-	 * Always a navigator device ID due to the nature of VAD recording
-	 * (it uses a MediaStream to track voice activity)
-	 * @see DeviceIdentifier
-	 */
-	'recording.vad.selectedDeviceId': z
+	'recording.navigator.deviceId': z
+		.string()
+		.nullable()
+		.transform((val) => (val ? asDeviceIdentifier(val) : null))
+		.default(null),
+	'recording.ffmpeg.deviceId': z
 		.string()
 		.nullable()
 		.transform((val) => (val ? asDeviceIdentifier(val) : null))
@@ -171,7 +170,6 @@ export const settingsSchema = z.object({
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES).default('auto'),
 	'transcription.prompt': z.string().default(''),
 	'transcription.temperature': z.string().default('0.0'),
-	
 	// Audio compression settings
 	'transcription.compressionEnabled': z.boolean().default(false),
 	'transcription.compressionOptions': z

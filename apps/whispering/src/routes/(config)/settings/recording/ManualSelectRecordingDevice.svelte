@@ -1,48 +1,31 @@
 <script lang="ts">
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { rpc } from '$lib/query';
-	import { createQuery } from '@tanstack/svelte-query';
 	import type { DeviceIdentifier } from '$lib/services/types';
 	import { asDeviceIdentifier } from '$lib/services/types';
+	import { createQuery } from '@tanstack/svelte-query';
 
-	import { settings } from '$lib/stores/settings.svelte';
-	
 	let {
 		selected,
 		onSelectedChange,
-		mode 
 	}: {
 		selected: DeviceIdentifier | null;
 		onSelectedChange: (selected: DeviceIdentifier | null) => void;
-		mode: 'manual' | 'vad';
 	} = $props();
 
-	// Determine which method to use for device enumeration
-	// VAD always uses browser, manual uses the configured method
-	const isUsingBrowserMethod = $derived(
-		mode === 'vad' || 
-		!window.__TAURI_INTERNALS__ ||
-		settings.value['recording.manual.method'] === 'navigator' 
-	);
-
-	const getDevicesQuery = createQuery(
-		() => isUsingBrowserMethod 
-			? rpc.vadRecorder.enumerateDevices.options()
-			: rpc.recorder.enumerateDevices.options()
-	);
+	// Use recorder.enumerateDevices for manual recording (includes desktop devices)
+	const getDevicesQuery = createQuery(rpc.recorder.enumerateDevices.options);
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute(
-				getDevicesQuery.error
-			);
+			rpc.notify.warning.execute(getDevicesQuery.error);
 		}
 	});
 </script>
 
 {#if getDevicesQuery.isPending}
 	<LabeledSelect
-		id="recording-device"
+		id="manual-recording-device"
 		label="Recording Device"
 		placeholder="Loading devices..."
 		items={[{ value: '', label: 'Loading devices...' }]}
@@ -60,11 +43,12 @@
 		label: device.label,
 	}))}
 	<LabeledSelect
-		id="recording-device"
+		id="manual-recording-device"
 		label="Recording Device"
 		{items}
 		selected={selected ?? asDeviceIdentifier('')}
-		onSelectedChange={(value) => onSelectedChange(value ? asDeviceIdentifier(value) : null)}
+		onSelectedChange={(value) =>
+			onSelectedChange(value ? asDeviceIdentifier(value) : null)}
 		placeholder="Select a device"
 	/>
 {/if}

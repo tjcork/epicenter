@@ -11,7 +11,8 @@
 		RECORDING_MODE_OPTIONS,
 	} from '$lib/constants/audio';
 	import { settings } from '$lib/stores/settings.svelte';
-	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
+	import ManualSelectRecordingDevice from './ManualSelectRecordingDevice.svelte';
+	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
 		isUsingCpalMethodWithoutWhisperCpp,
 		isUsingCpalMethodAtWrongSampleRate,
@@ -57,11 +58,11 @@
 
 	const isUsingNavigatorMethod = $derived(
 		!window.__TAURI_INTERNALS__ ||
-			settings.value['recording.manual.method'] === 'navigator',
+			settings.value['recording.method'] === 'navigator',
 	);
 
 	const isUsingFfmpegMethod = $derived(
-		settings.value['recording.manual.method'] === 'ffmpeg',
+		settings.value['recording.method'] === 'ffmpeg',
 	);
 </script>
 
@@ -97,16 +98,16 @@
 			id="recording-method"
 			label="Recording Method"
 			items={RECORDING_METHOD_OPTIONS}
-			selected={settings.value['recording.manual.method']}
+			selected={settings.value['recording.method']}
 			onSelectedChange={(selected) => {
 				settings.updateKey(
-					'recording.manual.method',
+					'recording.method',
 					selected as 'cpal' | 'navigator' | 'ffmpeg',
 				);
 			}}
 			placeholder="Select a recording method"
 			description={RECORDING_METHOD_OPTIONS.find(
-				(option) => option.value === settings.value['recording.manual.method'],
+				(option) => option.value === settings.value['recording.method'],
 			)?.description}
 		>
 			{#snippet renderOption({ item })}
@@ -119,7 +120,7 @@
 			{/snippet}
 		</LabeledSelect>
 
-		{#if settings.value['recording.manual.method'] === 'ffmpeg' && !data.ffmpegInstalled}
+		{#if settings.value['recording.method'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
 				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
 				<Alert.Title class="text-red-600 dark:text-red-400">
@@ -136,7 +137,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if IS_MACOS && settings.value['recording.manual.method'] === 'navigator'}
+		{:else if IS_MACOS && settings.value['recording.method'] === 'navigator'}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -190,13 +191,13 @@
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual'}
-		<SelectRecordingDevice
-			selected={settings.value['recording.manual.selectedDeviceId']}
+		{@const method = settings.value['recording.method']}
+		<ManualSelectRecordingDevice
+			selected={settings.value[`recording.${method}.deviceId`]}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.manual.selectedDeviceId', selected);
+				settings.updateKey(`recording.${method}.deviceId`, selected);
 			}}
-			mode="manual"
-		></SelectRecordingDevice>
+		/>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		<Alert.Root class="border-blue-500/20 bg-blue-500/5">
 			<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
@@ -210,13 +211,12 @@
 			</Alert.Description>
 		</Alert.Root>
 
-		<SelectRecordingDevice
-			selected={settings.value['recording.vad.selectedDeviceId']}
+		<VadSelectRecordingDevice
+			selected={settings.value['recording.navigator.deviceId']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.vad.selectedDeviceId', selected);
+				settings.updateKey('recording.navigator.deviceId', selected);
 			}}
-			mode="vad"
-		></SelectRecordingDevice>
+		/>
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
