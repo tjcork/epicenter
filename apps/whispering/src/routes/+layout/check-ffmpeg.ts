@@ -64,7 +64,7 @@ export function isUsingCpalMethodAtWrongSampleRate(): boolean {
  * Only relevant when using CPAL method with cloud providers (not Whisper C++)
  * @returns true if using CPAL method with any cloud transcription service
  */
-export function isUsingCpalMethodWithCloudTranscription(): boolean {
+export function isUsingCpalMethodWithoutWhisperCpp(): boolean {
 	return isUsingCpalMethod() && !isUsingWhisperCpp();
 }
 
@@ -100,30 +100,7 @@ export async function checkFfmpeg() {
 	const { data: ffmpegInstalled } =
 		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 
-	// FFmpeg is installed - check if we should suggest compression
-	if (ffmpegInstalled === true) {
-		const shouldSuggestCompression =
-			isUsingCloudTranscription() &&
-			!settings.value['transcription.compressionEnabled'];
-		if (shouldSuggestCompression) {
-			toast.info('Enable Compression to Save on API Costs', {
-				description:
-					'FFmpeg is installed! Enable audio compression to reduce file sizes and save on transcription costs.',
-				action: {
-					label: 'Enable Compression',
-					onClick: () => {
-						settings.updateKey('transcription.compressionEnabled', true);
-						toast.success(
-							'Compression enabled! Your audio will now be compressed before transcription.',
-						);
-					},
-				},
-				duration: 12000,
-			});
-		}
-
-		return; // FFmpeg is installed, all good
-	}
+	if (ffmpegInstalled === true) return; // FFmpeg is installed, all good
 
 	// Case 1: Whisper C++ with browser method - always requires FFmpeg
 	if (isUsingWhisperCppWithBrowserMethod()) {
@@ -154,7 +131,7 @@ export async function checkFfmpeg() {
 	}
 
 	// Case 3: CPAL method with cloud services - recommended for compression
-	if (isUsingCpalMethodWithCloudTranscription()) {
+	if (isUsingCpalMethodWithoutWhisperCpp()) {
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
 			description:
 				'FFmpeg enables audio compression for faster uploads to transcription services.',

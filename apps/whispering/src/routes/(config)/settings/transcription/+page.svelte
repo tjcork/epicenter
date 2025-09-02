@@ -42,6 +42,7 @@
 	import {
 		isUsingWhisperCppWithBrowserMethod,
 		isUsingCpalMethodAtWrongSampleRate,
+		isUsingCpalMethodWithoutWhisperCpp,
 	} from '../../../+layout/check-ffmpeg';
 	import { FFMPEG_DEFAULT_COMPRESSION_OPTIONS } from '$lib/services/recorder/ffmpeg';
 	import { cn } from '@repo/ui/utils';
@@ -452,17 +453,29 @@
 	{/if}
 
 	<!-- Audio Compression Settings -->
-	<div class="flex items-center space-x-2">
-		<Checkbox
-			id="compression-enabled"
-			checked={settings.value['transcription.compressionEnabled']}
-			onCheckedChange={(checked) => {
-				settings.updateKey('transcription.compressionEnabled', checked);
-			}}
-		/>
-		<label for="compression-enabled" class="text-sm font-medium">
-			Compress audio before transcription
-		</label>
+	<div class="space-y-2">
+		<div class="flex items-center space-x-2">
+			<Checkbox
+				id="compression-enabled"
+				checked={settings.value['transcription.compressionEnabled']}
+				onCheckedChange={(checked) => {
+					settings.updateKey('transcription.compressionEnabled', checked);
+				}}
+			/>
+			<label for="compression-enabled" class="text-sm font-medium">
+				Compress audio before transcription
+				{#if isUsingCpalMethodWithoutWhisperCpp()}
+					<Badge variant="secondary" class="ml-2">Recommended</Badge>
+				{/if}
+			</label>
+		</div>
+		{#if isUsingCpalMethodWithoutWhisperCpp()}
+			<p class="text-muted-foreground text-sm ml-6">
+				Recommended because you're using CPAL recording with cloud
+				transcription. Compression reduces file sizes for faster uploads and
+				lower API costs.
+			</p>
+		{/if}
 	</div>
 
 	{#if settings.value['transcription.compressionEnabled']}
