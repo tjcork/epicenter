@@ -2,6 +2,7 @@ import { toast } from 'svelte-sonner';
 import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
+import type { TranscriptionServiceId } from '$lib/constants/transcription/transcription-services';
 
 /**
  * Checks if Whisper C++ is selected as the transcription service
@@ -68,6 +69,21 @@ export function isUsingCpalMethodWithCloudTranscription(): boolean {
 }
 
 /**
+ * Checks if user is using a cloud transcription service
+ * @returns true if using any cloud provider (OpenAI, Groq, etc.)
+ */
+function isUsingCloudTranscription(): boolean {
+	return (
+		[
+			'OpenAI',
+			'Groq',
+			'ElevenLabs',
+			'Deepgram',
+		] satisfies TranscriptionServiceId[] as TranscriptionServiceId[]
+	).includes(settings.value['transcription.selectedTranscriptionService']);
+}
+
+/**
  * Checks for FFmpeg installation and shows an appropriate toast based on current settings.
  *
  * FFmpeg is REQUIRED when:
@@ -84,7 +100,30 @@ export async function checkFfmpeg() {
 	const { data: ffmpegInstalled } =
 		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 
-	if (ffmpegInstalled === true) return; // FFmpeg is installed, all good
+	// FFmpeg is installed - check if we should suggest compression
+	if (ffmpegInstalled === true) {
+		const shouldSuggestCompression =
+			isUsingCloudTranscription() &&
+			!settings.value['transcription.compressionEnabled'];
+		if (shouldSuggestCompression) {
+			toast.info('Enable Compression to Save on API Costs', {
+				description:
+					'FFmpeg is installed! Enable audio compression to reduce file sizes and save on transcription costs.',
+				action: {
+					label: 'Enable Compression',
+					onClick: () => {
+						settings.updateKey('transcription.compressionEnabled', true);
+						toast.success(
+							'Compression enabled! Your audio will now be compressed before transcription.',
+						);
+					},
+				},
+				duration: 12000,
+			});
+		}
+
+		return; // FFmpeg is installed, all good
+	}
 
 	// Case 1: Whisper C++ with browser method - always requires FFmpeg
 	if (isUsingWhisperCppWithBrowserMethod()) {
