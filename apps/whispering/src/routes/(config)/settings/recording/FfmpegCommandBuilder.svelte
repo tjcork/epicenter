@@ -194,12 +194,27 @@
 
 		<!-- Output Options (Primary) -->
 		<div class="rounded-lg border p-4 space-y-3">
-			<h5 class="text-sm font-medium">
-				<span class="text-primary">Output</span>
-				<span class="text-xs text-muted-foreground font-normal ml-2"
-					>Primary settings</span
-				>
-			</h5>
+			<div class="flex items-center justify-between">
+				<h5 class="text-sm font-medium">
+					<span class="text-primary">Output</span>
+					<span class="text-xs text-muted-foreground font-normal ml-2"
+						>Primary settings</span
+					>
+				</h5>
+				{#if selected.format !== DEFAULT.format || selected.sampleRate !== DEFAULT.sampleRate || selected.bitrate !== DEFAULT.bitrate || outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
+					<WhisperingButton
+						tooltipContent="Reset output settings"
+						variant="ghost"
+						size="icon"
+						class="h-6 w-6"
+						onclick={() => {
+							outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
+						}}
+					>
+						<RotateCcw class="h-3 w-3" />
+					</WhisperingButton>
+				{/if}
+			</div>
 
 			<!-- Flexible layout that adapts to number of controls -->
 			<div class="flex flex-col sm:flex-row gap-3">
@@ -214,24 +229,7 @@
 							rebuildOutputOptionsFromSelections();
 						}}
 						placeholder="Select format"
-					>
-						{#snippet actionSlot()}
-							{#if selected.format !== DEFAULT.format}
-								<WhisperingButton
-									tooltipContent="Reset"
-									variant="ghost"
-									size="icon"
-									class="h-6 w-6"
-									onclick={() => {
-										selected = { ...selected, format: DEFAULT.format };
-										rebuildOutputOptionsFromSelections();
-									}}
-								>
-									<RotateCcw class="h-3 w-3" />
-								</WhisperingButton>
-							{/if}
-						{/snippet}
-					</LabeledSelect>
+					/>
 				</div>
 
 				<div class="flex-1">
@@ -250,24 +248,7 @@
 							rebuildOutputOptionsFromSelections();
 						}}
 						placeholder="Sample rate"
-					>
-						{#snippet actionSlot()}
-							{#if selected.sampleRate !== DEFAULT.sampleRate}
-								<WhisperingButton
-									tooltipContent="Reset"
-									variant="ghost"
-									size="icon"
-									class="h-6 w-6"
-									onclick={() => {
-										selected = { ...selected, sampleRate: DEFAULT.sampleRate };
-										rebuildOutputOptionsFromSelections();
-									}}
-								>
-									<RotateCcw class="h-3 w-3" />
-								</WhisperingButton>
-							{/if}
-						{/snippet}
-					</LabeledSelect>
+					/>
 				</div>
 
 				{#if selected.format !== 'wav'}
@@ -288,52 +269,9 @@
 								rebuildOutputOptionsFromSelections();
 							}}
 							placeholder="Bitrate"
-						>
-							{#snippet actionSlot()}
-								{#if selected.bitrate !== DEFAULT.bitrate}
-									<WhisperingButton
-										tooltipContent="Reset"
-										variant="ghost"
-										size="icon"
-										class="h-6 w-6"
-										onclick={() => {
-											selected = { ...selected, bitrate: DEFAULT.bitrate };
-											rebuildOutputOptionsFromSelections();
-										}}
-									>
-										<RotateCcw class="h-3 w-3" />
-									</WhisperingButton>
-								{/if}
-							{/snippet}
-						</LabeledSelect>
+						/>
 					</div>
 				{/if}
-			</div>
-
-			<!-- Raw output options (compact) -->
-			<div class="pt-2 border-t">
-				<div class="flex items-center gap-2">
-					<Input
-						id="ffmpeg-output"
-						type="text"
-						placeholder="Raw output options"
-						bind:value={outputOptions}
-						class="font-mono text-xs flex-1 h-8"
-					/>
-					{#if outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
-						<WhisperingButton
-							tooltipContent="Reset"
-							variant="ghost"
-							size="icon"
-							class="h-8 w-8"
-							onclick={() => {
-								outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
-							}}
-						>
-							<RotateCcw class="h-3 w-3" />
-						</WhisperingButton>
-					{/if}
-				</div>
 			</div>
 		</div>
 
@@ -344,7 +282,7 @@
 			>
 				<span class="text-sm font-medium">Advanced Options</span>
 				<span class="text-xs text-muted-foreground ml-2"
-					>Global & Input settings</span
+					>Raw FFmpeg parameters</span
 				>
 			</summary>
 
@@ -409,6 +347,38 @@
 						{#if PLATFORM_TYPE === 'windows'}
 							, <code class="px-1 rounded bg-muted">-audio_buffer_size 20</code>
 							(low latency)
+						{/if}
+					</div>
+				</div>
+
+				<!-- Output Options -->
+				<div>
+					<Label for="ffmpeg-output" class="text-xs font-medium mb-1.5">
+						Output Options
+						<span class="text-muted-foreground font-normal ml-1"
+							>(generated from settings above)</span
+						>
+					</Label>
+					<div class="flex items-center gap-2">
+						<Input
+							id="ffmpeg-output"
+							type="text"
+							placeholder="Raw output options"
+							bind:value={outputOptions}
+							class="font-mono text-xs flex-1 h-8"
+						/>
+						{#if outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
+							<WhisperingButton
+								tooltipContent="Reset to default"
+								variant="ghost"
+								size="icon"
+								class="h-8 w-8"
+								onclick={() => {
+									outputOptions = FFMPEG_DEFAULT_OUTPUT_OPTIONS;
+								}}
+							>
+								<RotateCcw class="h-3 w-3" />
+							</WhisperingButton>
 						{/if}
 					</div>
 				</div>
