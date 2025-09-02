@@ -13,6 +13,7 @@
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RotateCcw } from '@lucide/svelte';
 	import {
+		buildFfmpegCommand,
 		formatDeviceForPlatform,
 		FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
 		FFMPEG_DEFAULT_GLOBAL_OPTIONS,
@@ -121,10 +122,6 @@
 
 	// Function to update the preview command
 	async function updatePreviewCommand() {
-		const formattedDevice = formatDeviceForPlatform(
-			selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
-		);
-
 		const outputFolder =
 			settings.value['recording.cpal.outputFolder'] ??
 			(await getDefaultRecordingsFolder());
@@ -134,18 +131,14 @@
 			`${SAMPLE_RECORDING_ID}.${ext}`,
 		);
 
-		// Build command with all parts, filtering empty strings
-		const commandParts = [
-			'ffmpeg',
-			globalOptions.trim(),
-			inputOptions.trim(), // Will use the platform default from settings
-			'-i',
-			formattedDevice,
-			outputOptions.trim(),
-			`"${outputPath}"`,
-		].filter((part) => part); // Remove empty strings
-
-		previewCommand = commandParts.join(' ');
+		// Use the shared buildFfmpegCommand function
+		previewCommand = buildFfmpegCommand({
+			globalOptions,
+			inputOptions,
+			deviceIdentifier: selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
+			outputOptions,
+			outputPath,
+		});
 	}
 
 	// Update preview command whenever dependencies change

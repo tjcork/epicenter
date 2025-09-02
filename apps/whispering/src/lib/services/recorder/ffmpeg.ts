@@ -11,7 +11,11 @@ import { Child } from '@tauri-apps/plugin-shell';
 import { createPersistedState } from '@repo/svelte-utils';
 import { type } from 'arktype';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import type { Device, DeviceAcquisitionOutcome } from '../types';
+import type {
+	Device,
+	DeviceAcquisitionOutcome,
+	DeviceIdentifier,
+} from '../types';
 import { asDeviceIdentifier } from '../types';
 import type {
 	FfmpegRecordingParams,
@@ -305,35 +309,15 @@ export function createFfmpegRecorderService(): RecorderService {
 				`${recordingId}.${fileExtension}`,
 			);
 
-			/**
-			 * Build FFmpeg command from the three option sections
-			 *
-			 * The command is assembled as:
-			 * ffmpeg [globalOptions] [inputOptions] -i [device] [outputOptions] [outputPath]
-			 *
-			 * Example:
-			 * ffmpeg -hide_banner -f avfoundation -i ":Built-in Microphone" -acodec pcm_s16le -ar 16000 "/Users/jane/Recordings/abc123xyz.wav"
-			 */
-
-			// Format device based on platform
-			const formattedDevice = formatDeviceForPlatform(deviceIdentifier);
-
-			// Apply platform-specific defaults if input options are empty
-			const finalInputOptions =
-				inputOptions.trim() || FFMPEG_DEFAULT_INPUT_OPTIONS;
-
-			// Build the complete command
-			const command = [
-				'ffmpeg',
+			// Build FFmpeg command using the shared function
+			const command = buildFfmpegCommand({
 				globalOptions,
-				finalInputOptions,
-				'-i',
-				formattedDevice,
+				inputOptions,
+				deviceIdentifier,
 				outputOptions,
-				`"${outputPath}"`,
-			]
-				.filter((part) => part.trim()) // Remove empty parts
-				.join(' ');
+				outputPath,
+			});
+			console.log('🚀 ~ command:', command);
 
 			sendStatus({
 				title: '🎤 Setting Up',
@@ -341,13 +325,16 @@ export function createFfmpegRecorderService(): RecorderService {
 			});
 
 			// Use command service to spawn FFmpeg process
+			// This will now throw if FFmpeg exits immediately with an error
 			const { data: process, error: startError } = await services.command.spawn(
 				asShellCommand(command),
 			);
 
 			if (startError) {
+				// The spawn function already caught the FFmpeg error and extracted the message
 				return RecorderServiceErr({
-					message: 'Failed to start FFmpeg process',
+					message: 'Failed to start recording',
+					context: { command },
 					cause: startError,
 				});
 			}
@@ -357,6 +344,13 @@ export function createFfmpegRecorderService(): RecorderService {
 				pid: process.pid,
 				outputPath,
 			};
+
+			console.log(
+				'[Recording started] PID:',
+				process.pid,
+				'Output:',
+				outputPath,
+			);
 
 			sendStatus({
 				title: '🎙️ Recording',
@@ -445,6 +439,8 @@ export function createFfmpegRecorderService(): RecorderService {
 
 			const { data: blob, error: readError } =
 				await services.fs.pathToBlob(outputPath);
+
+			console.log('🚀 ~ blob:', blob, readError);
 
 			if (readError) {
 				return RecorderServiceErr({
@@ -572,10 +568,51 @@ function parseDevices(output: string): Device[] {
 export function formatDeviceForPlatform(deviceId: string) {
 	switch (PLATFORM_TYPE) {
 		case 'macos':
-			return `":${deviceId}"` as const; // macOS uses :deviceName
+			return `:${deviceId}`; // macOS uses :deviceName
 		case 'windows':
-			return `"audio=${deviceId}"` as const; // Windows uses audio=deviceName
+			return `audio=${deviceId}`; // Windows uses audio=deviceName
 		case 'linux':
-			return `"${deviceId}"` as const; // Linux uses device directly
+			return deviceId; // Linux uses device directly
 	}
+}
+
+/**
+ * Build the complete FFmpeg command string.
+ * This is the single source of truth for command construction.
+ *
+ * @param params Command parameters
+ * @returns Complete FFmpeg command string
+ */
+export function buildFfmpegCommand({
+	globalOptions,
+	inputOptions,
+	deviceIdentifier,
+	outputOptions,
+	outputPath,
+}: {
+	globalOptions: string;
+	inputOptions: string;
+	deviceIdentifier: DeviceIdentifier;
+	outputOptions: string;
+	outputPath: string;
+}): string {
+	// Format device for platform
+	const formattedDevice = formatDeviceForPlatform(deviceIdentifier);
+
+	// Apply platform-specific defaults if input options are empty
+	const finalInputOptions = inputOptions.trim() || FFMPEG_DEFAULT_INPUT_OPTIONS;
+
+	// Build command using template string - much simpler!
+	// Filter out empty parts inline
+	const parts = [
+		'ffmpeg',
+		globalOptions.trim(),
+		finalInputOptions,
+		'-i',
+		`"${formattedDevice}"`,
+		outputOptions.trim(),
+		`"${outputPath}"`,
+	].filter((part) => part); // Remove empty strings
+
+	return parts.join(' ');
 }
