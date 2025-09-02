@@ -100,6 +100,9 @@
 				);
 			}}
 			placeholder="Select a recording backend"
+			description={RECORDING_BACKEND_OPTIONS.find(
+				(option) => option.value === settings.value['recording.backend']
+			)?.description}
 		>
 			{#snippet renderOption({ item })}
 				<div class="flex flex-col gap-0.5">
