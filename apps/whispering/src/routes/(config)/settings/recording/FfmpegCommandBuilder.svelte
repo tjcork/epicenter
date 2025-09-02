@@ -155,12 +155,7 @@
 		updatePreviewCommand();
 	});
 
-	// Update output options whenever UI selections change
-	$effect(() => {
-		outputOptions = buildOutputOptionsFromSelections();
-	});
-
-	function buildOutputOptionsFromSelections(): string {
+	function rebuildOutputOptionsFromSelections() {
 		// Retrieve codec for the currently selected audio format
 		const codec = AUDIO_FORMATS[selected.format].codec;
 
@@ -170,7 +165,7 @@
 
 		if (selected.format !== 'wav') options += ` -b:a ${selected.bitrate}k`;
 
-		return options;
+		outputOptions = options;
 	}
 </script>
 
@@ -282,6 +277,7 @@
 							selected={selected.format}
 							onSelectedChange={(value) => {
 								selected = { ...selected, format: value as AudioFormat };
+								rebuildOutputOptionsFromSelections();
 							}}
 							placeholder="Select audio format"
 							description="Choose the output audio format and codec"
@@ -292,8 +288,10 @@
 								tooltipContent="Reset to default"
 								variant="outline"
 								size="icon"
-								onclick={() =>
-									(selected = { ...selected, format: DEFAULT.format })}
+								onclick={() => {
+									selected = { ...selected, format: DEFAULT.format };
+									rebuildOutputOptionsFromSelections();
+								}}
 								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
@@ -314,6 +312,7 @@
 							selected={selected.sampleRate}
 							onSelectedChange={(value) => {
 								selected = { ...selected, sampleRate: value };
+								rebuildOutputOptionsFromSelections();
 							}}
 							placeholder="Select sample rate"
 							description="Higher sample rates provide better quality"
@@ -324,8 +323,10 @@
 								tooltipContent="Reset to default"
 								variant="outline"
 								size="icon"
-								onclick={() =>
-									(selected = { ...selected, sampleRate: DEFAULT.sampleRate })}
+								onclick={() => {
+									selected = { ...selected, sampleRate: DEFAULT.sampleRate };
+									rebuildOutputOptionsFromSelections();
+								}}
 								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
@@ -348,6 +349,7 @@
 								selected={selected.bitrate}
 								onSelectedChange={(value) => {
 									selected = { ...selected, bitrate: value };
+									rebuildOutputOptionsFromSelections();
 								}}
 								placeholder="Select bitrate"
 								description="Higher bitrates mean better quality but larger files"
@@ -358,8 +360,10 @@
 									tooltipContent="Reset to default"
 									variant="outline"
 									size="icon"
-									onclick={() =>
-										(selected = { ...selected, bitrate: DEFAULT.bitrate })}
+									onclick={() => {
+										selected = { ...selected, bitrate: DEFAULT.bitrate };
+										rebuildOutputOptionsFromSelections();
+									}}
 									class="mt-6"
 								>
 									<RotateCcw class="h-4 w-4" />
