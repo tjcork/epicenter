@@ -20,7 +20,7 @@
 	import ModelSelector from './_components/session-controls/ModelSelector.svelte';
 	import ModeSelector from './_components/session-controls/ModeSelector.svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data } = $props();
 	const assistantConfig = $derived(data.assistantConfig);
 	const session = $derived(data.session);
 	const sessionId = $derived(data.sessionId);
