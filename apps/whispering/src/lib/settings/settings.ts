@@ -116,9 +116,7 @@ export const settingsSchema = z.object({
 	 * - 'navigator': Uses MediaRecorder API (web standard)
 	 * - 'ffmpeg': Uses FFmpeg command-line tool for recording
 	 */
-	'recording.backend': z
-		.enum(['cpal', 'navigator', 'ffmpeg'])
-		.default('navigator'),
+	'recording.backend': z.enum(['cpal', 'navigator', 'ffmpeg']).default('cpal'),
 	/**
 	 * Device identifier for manual recording.
 	 * Can be either a desktop device identifier or navigator device ID.
