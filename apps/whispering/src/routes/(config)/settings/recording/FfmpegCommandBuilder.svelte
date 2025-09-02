@@ -182,9 +182,9 @@
 		<div class="space-y-4">
 			<!-- 1. Global Options -->
 			<div>
-				<Label for="ffmpeg-global" class="text-sm font-medium mb-2"
-					>Global Options</Label
-				>
+				<Label for="ffmpeg-global" class="text-sm font-medium mb-2">
+					Global Options
+				</Label>
 				<div class="flex items-center gap-2">
 					<Input
 						id="ffmpeg-global"
@@ -273,105 +273,105 @@
 				<h5 class="text-sm font-medium mb-3">Output Options</h5>
 
 				<!-- Format & Quality Dropdowns (these affect output options) -->
-				<div class="space-y-3 mb-4">
-					<div class="flex gap-2">
-						<LabeledSelect
-							id="ffmpeg-format"
-							label="Audio Format"
-							items={audioFormatOptions}
-							selected={selected.format}
-							onSelectedChange={(value) => {
-								selected = { ...selected, format: value as AudioFormat };
-								rebuildOutputOptionsFromSelections();
-							}}
-							placeholder="Select audio format"
-							description="Choose the output audio format and codec"
-							class="flex-1"
-						/>
-						{#if selected.format !== DEFAULT.format}
-							<WhisperingButton
-								tooltipContent="Reset to default"
-								variant="outline"
-								size="icon"
-								onclick={() => {
-									selected = { ...selected, format: DEFAULT.format };
-									rebuildOutputOptionsFromSelections();
-								}}
-							>
-								<RotateCcw class="h-4 w-4" />
-							</WhisperingButton>
-						{/if}
-					</div>
-
-					<div class="flex gap-2">
-						<LabeledSelect
-							id="ffmpeg-sample-rate"
-							label="Sample Rate"
-							items={[
-								{ value: '16000', label: '16 kHz (Voice)' },
-								{ value: '22050', label: '22.05 kHz (Low)' },
-								{ value: '44100', label: '44.1 kHz (CD Quality)' },
-								{ value: '48000', label: '48 kHz (Professional)' },
-							]}
-							selected={selected.sampleRate}
-							onSelectedChange={(value) => {
-								selected = { ...selected, sampleRate: value };
-								rebuildOutputOptionsFromSelections();
-							}}
-							placeholder="Select sample rate"
-							description="Higher sample rates provide better quality"
-							class="flex-1"
-						/>
-						{#if selected.sampleRate !== DEFAULT.sampleRate}
-							<WhisperingButton
-								tooltipContent="Reset to default"
-								variant="outline"
-								size="icon"
-								onclick={() => {
-									selected = { ...selected, sampleRate: DEFAULT.sampleRate };
-									rebuildOutputOptionsFromSelections();
-								}}
-							>
-								<RotateCcw class="h-4 w-4" />
-							</WhisperingButton>
-						{/if}
-					</div>
-
-					{#if selected.format !== 'wav'}
-						<div class="flex gap-2">
-							<LabeledSelect
-								id="ffmpeg-bitrate"
-								label="Bitrate"
-								items={[
-									{ value: '64', label: '64 kbps (Low)' },
-									{ value: '128', label: '128 kbps (Standard)' },
-									{ value: '192', label: '192 kbps (Good)' },
-									{ value: '256', label: '256 kbps (High)' },
-									{ value: '320', label: '320 kbps (Best)' },
-								]}
-								selected={selected.bitrate}
-								onSelectedChange={(value) => {
-									selected = { ...selected, bitrate: value };
-									rebuildOutputOptionsFromSelections();
-								}}
-								placeholder="Select bitrate"
-								description="Higher bitrates mean better quality but larger files"
-								class="flex-1"
-							/>
-							{#if selected.bitrate !== DEFAULT.bitrate}
+				<div class="space-y-3">
+					<LabeledSelect
+						id="ffmpeg-format"
+						label="Audio Format"
+						items={audioFormatOptions}
+						selected={selected.format}
+						onSelectedChange={(value) => {
+							selected = { ...selected, format: value as AudioFormat };
+							rebuildOutputOptionsFromSelections();
+						}}
+						placeholder="Select audio format"
+						description="Choose the output audio format and codec"
+					>
+						{#snippet actionSlot()}
+							{#if selected.format !== DEFAULT.format}
 								<WhisperingButton
 									tooltipContent="Reset to default"
 									variant="outline"
 									size="icon"
 									onclick={() => {
-										selected = { ...selected, bitrate: DEFAULT.bitrate };
+										selected = { ...selected, format: DEFAULT.format };
 										rebuildOutputOptionsFromSelections();
 									}}
 								>
 									<RotateCcw class="h-4 w-4" />
 								</WhisperingButton>
 							{/if}
-						</div>
+						{/snippet}
+					</LabeledSelect>
+
+					<LabeledSelect
+						id="ffmpeg-sample-rate"
+						label="Sample Rate"
+						items={[
+							{ value: '16000', label: '16 kHz (Voice)' },
+							{ value: '22050', label: '22.05 kHz (Low)' },
+							{ value: '44100', label: '44.1 kHz (CD Quality)' },
+							{ value: '48000', label: '48 kHz (Professional)' },
+						]}
+						selected={selected.sampleRate}
+						onSelectedChange={(value) => {
+							selected = { ...selected, sampleRate: value };
+							rebuildOutputOptionsFromSelections();
+						}}
+						placeholder="Select sample rate"
+						description="Higher sample rates provide better quality"
+					>
+						{#snippet actionSlot()}
+							{#if selected.sampleRate !== DEFAULT.sampleRate}
+								<WhisperingButton
+									tooltipContent="Reset to default"
+									variant="outline"
+									size="icon"
+									onclick={() => {
+										selected = { ...selected, sampleRate: DEFAULT.sampleRate };
+										rebuildOutputOptionsFromSelections();
+									}}
+								>
+									<RotateCcw class="h-4 w-4" />
+								</WhisperingButton>
+							{/if}
+						{/snippet}
+					</LabeledSelect>
+
+					{#if selected.format !== 'wav'}
+						<LabeledSelect
+							id="ffmpeg-bitrate"
+							label="Bitrate"
+							items={[
+								{ value: '64', label: '64 kbps (Low)' },
+								{ value: '128', label: '128 kbps (Standard)' },
+								{ value: '192', label: '192 kbps (Good)' },
+								{ value: '256', label: '256 kbps (High)' },
+								{ value: '320', label: '320 kbps (Best)' },
+							]}
+							selected={selected.bitrate}
+							onSelectedChange={(value) => {
+								selected = { ...selected, bitrate: value };
+								rebuildOutputOptionsFromSelections();
+							}}
+							placeholder="Select bitrate"
+							description="Higher bitrates mean better quality but larger files"
+						>
+							{#snippet actionSlot()}
+								{#if selected.bitrate !== DEFAULT.bitrate}
+									<WhisperingButton
+										tooltipContent="Reset to default"
+										variant="outline"
+										size="icon"
+										onclick={() => {
+											selected = { ...selected, bitrate: DEFAULT.bitrate };
+											rebuildOutputOptionsFromSelections();
+										}}
+									>
+										<RotateCcw class="h-4 w-4" />
+									</WhisperingButton>
+								{/if}
+							{/snippet}
+						</LabeledSelect>
 					{/if}
 				</div>
 

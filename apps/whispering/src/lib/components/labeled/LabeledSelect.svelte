@@ -21,6 +21,7 @@
 		hideLabel = false,
 		description,
 		renderOption = defaultRenderOption,
+		actionSlot,
 	}: {
 		id: string;
 		label: string;
@@ -38,6 +39,10 @@
 		 * If not provided, defaults to showing the item's label.
 		 */
 		renderOption?: Snippet<[{ item: TItem }]>;
+		/**
+		 * Optional snippet for rendering an action button (e.g., reset) next to the select.
+		 */
+		actionSlot?: Snippet;
 	} = $props();
 
 	const selectedLabel = $derived(
@@ -53,31 +58,34 @@
 	<Label class={cn('text-sm', hideLabel && 'sr-only')} for={id}>
 		{label}
 	</Label>
-	<Select.Root
-		type="single"
-		{items}
-		value={selected}
-		onValueChange={(selected) => {
-			const selectedValue = selected as T;
-			onSelectedChange(selectedValue);
-		}}
-		{disabled}
-	>
-		<Select.Trigger class={cn('w-full', className)}>
-			{selectedLabel ?? placeholder}
-		</Select.Trigger>
-		<Select.Content>
-			{#each items as item}
-				<Select.Item
-					value={item.value}
-					label={item.label}
-					disabled={item.disabled}
-				>
-					{@render renderOption({ item })}
-				</Select.Item>
-			{/each}
-		</Select.Content>
-	</Select.Root>
+	<div class="flex items-center gap-2">
+		<Select.Root
+			type="single"
+			{items}
+			value={selected}
+			onValueChange={(selected) => {
+				const selectedValue = selected as T;
+				onSelectedChange(selectedValue);
+			}}
+			{disabled}
+		>
+			<Select.Trigger class={cn('w-full flex-1', className)}>
+				{selectedLabel ?? placeholder}
+			</Select.Trigger>
+			<Select.Content>
+				{#each items as item}
+					<Select.Item
+						value={item.value}
+						label={item.label}
+						disabled={item.disabled}
+					>
+						{@render renderOption({ item })}
+					</Select.Item>
+				{/each}
+			</Select.Content>
+		</Select.Root>
+		{@render actionSlot?.()}
+	</div>
 	{#if description}
 		<div class="text-muted-foreground text-sm">
 			{#if typeof description === 'string'}
