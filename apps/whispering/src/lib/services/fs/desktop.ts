@@ -10,7 +10,10 @@ import { FsServiceErr } from './types';
  */
 function getMimeTypeFromPath(filePath: string): string {
 	const ext = filePath.split('.').pop()?.toLowerCase() ?? '';
-	return MIME_TYPE_MAP[ext as keyof typeof MIME_TYPE_MAP] ?? 'application/octet-stream';
+	return (
+		MIME_TYPE_MAP[ext as keyof typeof MIME_TYPE_MAP] ??
+		'application/octet-stream'
+	);
 }
 
 export function createFsServiceDesktop(): FsService {
