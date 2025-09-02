@@ -55,7 +55,22 @@
 		{/snippet}
 	</Popover.Trigger>
 
-	<Popover.Content class="w-full max-w-xl max-h-[40vh] overflow-auto">
-		<CompressionBody />
+	<Popover.Content class="w-full max-w-xl max-h-[40vh] overflow-auto p-0">
+		<div class="p-4">
+			<CompressionBody />
+		</div>
+		<Separator />
+		<Button
+			variant="ghost"
+			size="sm"
+			class="w-full justify-start text-muted-foreground rounded-none"
+			onclick={() => {
+				goto('/settings/transcription');
+				popover.open = false;
+			}}
+		>
+			<SettingsIcon class="mr-2 h-4 w-4" />
+			Configure in transcription settings
+		</Button>
 	</Popover.Content>
 </Popover.Root>
