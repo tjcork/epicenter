@@ -178,43 +178,22 @@
 		// Retrieve codec for the currently selected audio format
 		const codec = AUDIO_FORMATS[selected.format].codec;
 
-		// Use array for efficient string building
-		const options: string[] = [];
+		// Define format-specific options using an object
+		const formatOptions = {
+			wav: ['-f wav', `-acodec ${codec}`],
+			mp3: ['-f mp3', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`],
+			opus: ['-f ogg', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`],
+			ogg: ['-f ogg', `-acodec ${codec}`, `-q:a ${selected.quality}`],
+			aac: ['-f mp4', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`],
+		} as const;
 
-		// Add format-specific container and encoding flags
-		switch (selected.format) {
-			case 'wav':
-				options.push('-f wav', `-acodec ${codec}`);
-				break;
-
-			case 'mp3':
-				options.push('-f mp3', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
-				break;
-
-			case 'opus':
-				options.push('-f ogg', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
-				break;
-
-			case 'ogg':
-				options.push('-f ogg', `-acodec ${codec}`, `-q:a ${selected.quality}`);
-				break;
-
-			case 'aac':
-				options.push('-f mp4', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
-				break;
-
-			default:
-				options.push(`-acodec ${codec}`);
-				if (selected.format !== 'wav') {
-					options.push(`-b:a ${selected.bitrate}k`);
-				}
-		}
-
-		// Add common options for all formats
-		options.push(
+		const options = [
+			// Apply format-specific options
+			...formatOptions[selected.format],
+			// Add common options for all formats
 			`-ar ${selected.sampleRate}`,
 			'-ac 1', // Always mono for Whisper optimization
-		);
+		] as const;
 
 		outputOptions = options.join(' ');
 	}
