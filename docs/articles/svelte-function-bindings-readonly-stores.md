@@ -59,18 +59,18 @@ Svelte 5 introduced [function bindings](https://svelte.dev/docs/svelte/bind#Func
 
 ```svelte
 <FfmpegCommandBuilder
-  bind:globalOptions={{
-    get: () => settings.value['recording.ffmpeg.globalOptions'],
-    set: (v) => settings.updateKey('recording.ffmpeg.globalOptions', v)
-  }}
-  bind:inputOptions={{
-    get: () => settings.value['recording.ffmpeg.inputOptions'],
-    set: (v) => settings.updateKey('recording.ffmpeg.inputOptions', v)
-  }}
-  bind:outputOptions={{
-    get: () => settings.value['recording.ffmpeg.outputOptions'],
-    set: (v) => settings.updateKey('recording.ffmpeg.outputOptions', v)
-  }}
+  bind:globalOptions={
+    () => settings.value['recording.ffmpeg.globalOptions'],
+    (v) => settings.updateKey('recording.ffmpeg.globalOptions', v)
+  }
+  bind:inputOptions={
+    () => settings.value['recording.ffmpeg.inputOptions'],
+    (v) => settings.updateKey('recording.ffmpeg.inputOptions', v)
+  }
+  bind:outputOptions={
+    () => settings.value['recording.ffmpeg.outputOptions'],
+    (v) => settings.updateKey('recording.ffmpeg.outputOptions', v)
+  }
 />
 ```
 
