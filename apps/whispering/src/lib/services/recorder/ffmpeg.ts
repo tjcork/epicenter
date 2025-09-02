@@ -25,6 +25,7 @@ import type {
 import { RecorderServiceErr } from './types';
 import { getDefaultRecordingsFolder } from './utils';
 import { extractErrorMessage } from 'wellcrafted/error';
+import { sendSigint } from '../graceful-shutdown';
 
 /**
  * Default FFmpeg global options.
@@ -317,7 +318,6 @@ export function createFfmpegRecorderService(): RecorderService {
 				outputOptions,
 				outputPath,
 			});
-			console.log('🚀 ~ command:', command);
 
 			sendStatus({
 				title: '🎤 Setting Up',
@@ -345,13 +345,6 @@ export function createFfmpegRecorderService(): RecorderService {
 				outputPath,
 			};
 
-			console.log(
-				'[Recording started] PID:',
-				process.pid,
-				'Output:',
-				outputPath,
-			);
-
 			sendStatus({
 				title: '🎙️ Recording',
 				description: 'FFmpeg is now recording audio...',
@@ -377,19 +370,26 @@ export function createFfmpegRecorderService(): RecorderService {
 				description: 'Stopping FFmpeg recording...',
 			});
 
-			// Send quit signal to FFmpeg (graceful shutdown)
+			// Send SIGINT for graceful shutdown
 			const { error: killError } = await tryAsync({
 				try: async () => {
-					// Write 'q' to stdin to quit FFmpeg gracefully
-					await child.write(new TextEncoder().encode('q'));
-					// Wait a bit for graceful shutdown
-					await new Promise((resolve) => setTimeout(resolve, 500));
-					// Force kill if still running
-					await child.kill();
+					const signalResult = await sendSigint(session.pid);
+
+					if (!signalResult.success) {
+						// Fall back to SIGKILL if SIGINT fails
+						await child.kill();
+					} else {
+						// Schedule a force kill after 1 second (but don't wait)
+						setTimeout(() => {
+							child.kill().catch(() => {
+								// Process already exited, expected
+							});
+						}, 1000);
+					}
 				},
 				catch: (error) =>
 					RecorderServiceErr({
-						message: 'Failed to stop FFmpeg process',
+						message: `Failed to stop FFmpeg process: ${extractErrorMessage(error)}`,
 						cause: error,
 					}),
 			});
@@ -407,29 +407,8 @@ export function createFfmpegRecorderService(): RecorderService {
 			// Clear the session
 			sessionState.value = null;
 
-			// Wait a moment for file to be written
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Check if file exists
-			const { data: fileExists, error: existsError } = await tryAsync({
-				try: () => exists(outputPath),
-				catch: (error) =>
-					RecorderServiceErr({
-						message: 'Failed to check if recording file exists',
-						context: { path: outputPath },
-						cause: error,
-					}),
-			});
-
-			if (existsError) return Err(existsError);
-
-			if (!fileExists) {
-				return RecorderServiceErr({
-					message: 'Recording file was not created',
-					context: { path: outputPath },
-					cause: undefined,
-				});
-			}
+			// Wait for FFmpeg to finalize the file
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			// Read the recorded file
 			sendStatus({
@@ -439,8 +418,6 @@ export function createFfmpegRecorderService(): RecorderService {
 
 			const { data: blob, error: readError } =
 				await services.fs.pathToBlob(outputPath);
-
-			console.log('🚀 ~ blob:', blob, readError);
 
 			if (readError) {
 				return RecorderServiceErr({
