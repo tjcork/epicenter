@@ -52,7 +52,7 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0">
+	<Popover.Content class="p-0">
 		<Command.Root loop>
 			<Command.Input placeholder="Select VAD recording device..." />
 			<Command.Empty>No recording devices found.</Command.Empty>

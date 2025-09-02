@@ -28,6 +28,13 @@
 
 	const RECORDING_METHOD_OPTIONS = [
 		{
+			value: 'cpal',
+			label: 'CPAL',
+			description: IS_MACOS
+				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
+				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
+		},
+		{
 			value: 'ffmpeg',
 			label: 'FFmpeg',
 			description: {
@@ -38,13 +45,6 @@
 				windows:
 					'Supports all audio formats with advanced customization options.',
 			}[PLATFORM_TYPE],
-		},
-		{
-			value: 'cpal',
-			label: 'CPAL',
-			description: IS_MACOS
-				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
-				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
 		},
 		{
 			value: 'navigator',
