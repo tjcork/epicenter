@@ -120,7 +120,7 @@
 				{:else if isFfmpegCheckLoading}
 					Checking FFmpeg installation...
 				{:else}
-					Reduce file sizes by ~6x for faster uploads and lower API costs
+					Reduce file sizes and trim silence for faster uploads and lower API costs
 				{/if}
 			</p>
 		</div>
