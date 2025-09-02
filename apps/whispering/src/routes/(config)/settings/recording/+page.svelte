@@ -13,7 +13,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 	import {
-		isUsingCpalMethodWithCloudTranscription,
+		isUsingCpalMethodWithoutWhisperCpp,
 		isUsingCpalMethodAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
@@ -168,7 +168,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isUsingCpalMethodWithCloudTranscription() && !data.ffmpegInstalled}
+		{:else if isUsingCpalMethodWithoutWhisperCpp() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">

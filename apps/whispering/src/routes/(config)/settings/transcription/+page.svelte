@@ -31,12 +31,68 @@
 		DEEPGRAM_TRANSCRIPTION_MODELS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
+	import {
+		TriangleAlert,
+		InfoIcon,
+		CheckIcon,
+		RotateCcw,
+	} from '@lucide/svelte';
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
+	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
 		isUsingWhisperCppWithBrowserMethod,
 		isUsingCpalMethodAtWrongSampleRate,
+		isUsingCpalMethodWithoutWhisperCpp,
 	} from '../../../+layout/check-ffmpeg';
+	import { FFMPEG_DEFAULT_COMPRESSION_OPTIONS } from '$lib/services/recorder/ffmpeg';
+	import { cn } from '@repo/ui/utils';
+
+	// Compression preset definitions (UI only - not stored in settings)
+	const COMPRESSION_PRESETS = {
+		recommended: {
+			label: 'Recommended',
+			icon: '🎯',
+			description: 'Best balance for speech',
+			options: '-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
+			size: '~240KB/min',
+		},
+		tiny: {
+			label: 'Smallest',
+			icon: '🗜️',
+			description: 'Maximum compression',
+			options: '-c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
+			size: '~120KB/min',
+		},
+		compatible: {
+			label: 'Compatible',
+			icon: '✅',
+			description: 'Universal MP3',
+			options: '-c:a libmp3lame -b:a 32k -ar 16000 -ac 1 -q:a 9',
+			size: '~240KB/min',
+		},
+		quality: {
+			label: 'High Quality',
+			icon: '🎵',
+			description: 'Less compression',
+			options: '-c:a libmp3lame -b:a 64k -ar 16000 -ac 1 -q:a 2',
+			size: '~480KB/min',
+		},
+	} as const;
+
+	// Derive which preset is active based on current options
+	function isPresetActive(
+		presetKey: keyof typeof COMPRESSION_PRESETS,
+	): boolean {
+		return (
+			settings.value['transcription.compressionOptions'] ===
+			COMPRESSION_PRESETS[presetKey].options
+		);
+	}
+
+	// Set compression options directly
+	function setCompressionOptions(options: string) {
+		settings.updateKey('transcription.compressionOptions', options);
+	}
 </script>
 
 <svelte:head>
@@ -369,8 +425,8 @@
 					</Alert.Title>
 					<Alert.Description>
 						Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-						your current {settings.value['recording.cpal.sampleRate']}Hz
-						sample rate.
+						your current {settings.value['recording.cpal.sampleRate']}Hz sample
+						rate.
 						<Link
 							href="/install-ffmpeg"
 							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
@@ -393,6 +449,104 @@
 			<label for="whispercpp-use-gpu" class="text-sm font-medium">
 				Use GPU acceleration (if available)
 			</label>
+		</div>
+	{/if}
+
+	<!-- Audio Compression Settings -->
+	<div class="space-y-2">
+		<div class="flex items-center space-x-2">
+			<Checkbox
+				id="compression-enabled"
+				checked={settings.value['transcription.compressionEnabled']}
+				onCheckedChange={(checked) => {
+					settings.updateKey('transcription.compressionEnabled', checked);
+				}}
+			/>
+			<label for="compression-enabled" class="text-sm font-medium">
+				Compress audio before transcription
+				{#if isUsingCpalMethodWithoutWhisperCpp()}
+					<Badge variant="secondary" class="ml-2">Recommended</Badge>
+				{/if}
+			</label>
+		</div>
+		{#if isUsingCpalMethodWithoutWhisperCpp()}
+			<p class="text-muted-foreground text-sm ml-6">
+				Recommended because you're using CPAL recording with cloud
+				transcription. Compression reduces file sizes for faster uploads and
+				lower API costs.
+			</p>
+		{/if}
+	</div>
+
+	{#if settings.value['transcription.compressionEnabled']}
+		<div class="space-y-4">
+			<!-- Preset Selection Badges -->
+			<div class="space-y-2">
+				<p class="text-sm font-medium">Compression Presets</p>
+				<div class="flex flex-wrap gap-2">
+					{#each Object.entries(COMPRESSION_PRESETS) as [presetKey, preset]}
+						<Badge
+							variant={isPresetActive(presetKey) ? 'default' : 'outline'}
+							class={cn(
+								'cursor-pointer transition-colors',
+								isPresetActive(presetKey)
+									? 'hover:bg-primary/90'
+									: 'hover:bg-accent hover:text-accent-foreground',
+							)}
+							onclick={() => setCompressionOptions(preset.options)}
+						>
+							<span class="mr-1">{preset.icon}</span>
+							{preset.label}
+							<span class="text-xs ml-1 opacity-75">{preset.size}</span>
+						</Badge>
+					{/each}
+				</div>
+				<p class="text-muted-foreground text-xs">
+					Choose a preset to automatically set FFmpeg compression options, or
+					customize below.
+				</p>
+			</div>
+
+			<!-- Custom Options Input -->
+			<LabeledInput
+				id="compression-options"
+				label="Compression Options"
+				value={settings.value['transcription.compressionOptions']}
+				oninput={({ currentTarget: { value } }) => {
+					settings.updateKey('transcription.compressionOptions', value);
+				}}
+				placeholder={FFMPEG_DEFAULT_COMPRESSION_OPTIONS}
+				description="FFmpeg compression options. Changes here will be reflected in real-time during transcription."
+			>
+				{#snippet actionSlot()}
+					{#if settings.value['transcription.compressionOptions'] !== FFMPEG_DEFAULT_COMPRESSION_OPTIONS}
+						<WhisperingButton
+							tooltipContent="Reset to default"
+							variant="ghost"
+							size="icon"
+							class="h-6 w-6"
+							onclick={() => {
+								settings.updateKey(
+									'transcription.compressionOptions',
+									FFMPEG_DEFAULT_COMPRESSION_OPTIONS,
+								);
+							}}
+						>
+							<RotateCcw class="h-3 w-3" />
+						</WhisperingButton>
+					{/if}
+				{/snippet}
+			</LabeledInput>
+
+			<!-- Command Preview -->
+			<div class="text-sm text-muted-foreground">
+				<p class="font-medium mb-1">Command Preview:</p>
+				<code class="bg-muted rounded px-2 py-1 text-xs break-all">
+					ffmpeg -i input.wav {settings.value[
+						'transcription.compressionOptions'
+					]} output.opus
+				</code>
+			</div>
 		</div>
 	{/if}
 

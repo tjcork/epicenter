@@ -2,6 +2,7 @@ import { toast } from 'svelte-sonner';
 import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
+import type { TranscriptionServiceId } from '$lib/constants/transcription/transcription-services';
 
 /**
  * Checks if Whisper C++ is selected as the transcription service
@@ -63,8 +64,23 @@ export function isUsingCpalMethodAtWrongSampleRate(): boolean {
  * Only relevant when using CPAL method with cloud providers (not Whisper C++)
  * @returns true if using CPAL method with any cloud transcription service
  */
-export function isUsingCpalMethodWithCloudTranscription(): boolean {
+export function isUsingCpalMethodWithoutWhisperCpp(): boolean {
 	return isUsingCpalMethod() && !isUsingWhisperCpp();
+}
+
+/**
+ * Checks if user is using a cloud transcription service
+ * @returns true if using any cloud provider (OpenAI, Groq, etc.)
+ */
+function isUsingCloudTranscription(): boolean {
+	return (
+		[
+			'OpenAI',
+			'Groq',
+			'ElevenLabs',
+			'Deepgram',
+		] satisfies TranscriptionServiceId[] as TranscriptionServiceId[]
+	).includes(settings.value['transcription.selectedTranscriptionService']);
 }
 
 /**
@@ -115,7 +131,7 @@ export async function checkFfmpeg() {
 	}
 
 	// Case 3: CPAL method with cloud services - recommended for compression
-	if (isUsingCpalMethodWithCloudTranscription()) {
+	if (isUsingCpalMethodWithoutWhisperCpp()) {
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
 			description:
 				'FFmpeg enables audio compression for faster uploads to transcription services.',

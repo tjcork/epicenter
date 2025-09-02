@@ -69,6 +69,29 @@ export const FFMPEG_DEFAULT_OUTPUT_OPTIONS =
 	'-acodec pcm_s16le -ar 16000 -ac 1' as const;
 
 /**
+ * Default FFmpeg compression options optimized for transcription.
+ *
+ * Configuration:
+ * - **Format**: Opus codec (`libopus`) - Best speech compression codec
+ * - **Bitrate**: 32kbps - Good balance of size vs quality for speech
+ * - **Sample Rate**: 16kHz - Matches transcription service expectations
+ * - **Channels**: Mono (`-ac 1`) - Single channel for speech
+ * - **Compression Level**: 10 - Maximum compression efficiency
+ *
+ * Benefits:
+ * - ~6x smaller files than uncompressed WAV
+ * - Preserves speech quality for accurate transcription
+ * - Reduces bandwidth usage for API calls
+ * - Supported by all major transcription services
+ *
+ * @example
+ * // Typical compression: 1.5MB WAV → 240KB Opus
+ * const command = `ffmpeg -i input.wav ${FFMPEG_DEFAULT_COMPRESSION_OPTIONS} output.opus`;
+ */
+export const FFMPEG_DEFAULT_COMPRESSION_OPTIONS =
+	'-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10' as const;
+
+/**
  * Default FFmpeg input options for the current platform.
  *
  * Specifies the audio capture framework to use based on the operating system:
@@ -297,12 +320,7 @@ export function createFfmpegRecorderService(): RecorderService {
 			const deviceIdentifier = deviceOutcome.deviceId;
 
 			// Determine the file extension from the output options
-			let fileExtension = 'wav'; // default to WAV for maximum compatibility
-			if (outputOptions.includes('libmp3lame')) fileExtension = 'mp3';
-			else if (outputOptions.includes('aac')) fileExtension = 'aac';
-			else if (outputOptions.includes('libvorbis')) fileExtension = 'ogg';
-			else if (outputOptions.includes('libopus')) fileExtension = 'opus';
-			else if (outputOptions.includes('pcm_')) fileExtension = 'wav'; // Any PCM codec outputs WAV
+			const fileExtension = getFileExtensionFromFfmpegOptions(outputOptions);
 
 			// Construct the output path
 			const outputPath = await join(
@@ -637,6 +655,74 @@ export function buildFfmpegCommand({
 	].filter((part) => part); // Remove empty strings
 
 	return parts.join(' ');
+}
+
+/**
+ * Determines the appropriate file extension from FFmpeg output options.
+ * Analyzes the codec specified in the options and returns the corresponding file extension.
+ *
+ * @param outputOptions - FFmpeg output options string (e.g., "-c:a libopus -b:a 32k")
+ * @returns The appropriate file extension without the dot (e.g., "opus", "mp3", "wav")
+ *
+ * @example
+ * getFileExtensionFromFfmpegOptions('-c:a libopus -b:a 32k') // returns 'opus'
+ * getFileExtensionFromFfmpegOptions('-c:a libmp3lame -b:a 128k') // returns 'mp3'
+ */
+export function getFileExtensionFromFfmpegOptions(outputOptions: string) {
+	if (outputOptions.includes('libopus')) return 'opus';
+	if (outputOptions.includes('libmp3lame')) return 'mp3';
+	if (outputOptions.includes('libvorbis')) return 'ogg';
+	if (outputOptions.includes('aac')) return 'm4a';
+	if (outputOptions.includes('pcm_')) return 'wav';
+
+	// Default to wav for maximum compatibility
+	return 'wav';
+}
+
+/**
+ * Builds a complete FFmpeg compression command string.
+ * Creates a command that compresses an input audio file using the specified options.
+ *
+ * @param inputPath - Path to the input audio file
+ * @param compressionOptions - FFmpeg compression options
+ * @param outputPath - Path to the output compressed file (optional - will be generated if not provided)
+ * @returns Complete FFmpeg compression command string
+ *
+ * @example
+ * buildCompressionCommand('input.wav', '-c:a libopus -b:a 32k -ar 16000 -ac 1')
+ * // returns: 'ffmpeg -i "input.wav" -c:a libopus -b:a 32k -ar 16000 -ac 1 "output.opus"'
+ */
+export function buildCompressionCommand({
+	inputPath,
+	compressionOptions,
+	outputPath,
+}: {
+	inputPath: string;
+	compressionOptions: string;
+	outputPath?: string;
+}): { command: string; outputPath: string } {
+	// Generate output path if not provided
+	const finalOutputPath =
+		outputPath ||
+		(() => {
+			const extension = getFileExtensionFromFfmpegOptions(compressionOptions);
+			const baseName = inputPath.replace(/\.[^/.]+$/, ''); // Remove existing extension
+			return `${baseName}.${extension}`;
+		})();
+
+	// Build command parts
+	const parts = [
+		'ffmpeg',
+		'-i',
+		`"${inputPath}"`,
+		compressionOptions.trim(),
+		`"${finalOutputPath}"`,
+	].filter((part) => part); // Remove empty strings
+
+	return {
+		command: parts.join(' '),
+		outputPath: finalOutputPath,
+	};
 }
 
 type SignalResult = {

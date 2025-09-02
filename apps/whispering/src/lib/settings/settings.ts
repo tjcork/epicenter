@@ -48,6 +48,7 @@ import {
 	FFMPEG_DEFAULT_GLOBAL_OPTIONS,
 	FFMPEG_DEFAULT_INPUT_OPTIONS,
 	FFMPEG_DEFAULT_OUTPUT_OPTIONS,
+	FFMPEG_DEFAULT_COMPRESSION_OPTIONS,
 } from '$lib/services/recorder/ffmpeg';
 import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { DeepgramModel } from '$lib/services/transcription/deepgram';
@@ -170,6 +171,12 @@ export const settingsSchema = z.object({
 	'transcription.outputLanguage': z.enum(SUPPORTED_LANGUAGES).default('auto'),
 	'transcription.prompt': z.string().default(''),
 	'transcription.temperature': z.string().default('0.0'),
+	
+	// Audio compression settings
+	'transcription.compressionEnabled': z.boolean().default(false),
+	'transcription.compressionOptions': z
+		.string()
+		.default(FFMPEG_DEFAULT_COMPRESSION_OPTIONS),
 
 	// Service-specific settings
 	'transcription.openai.model': z
