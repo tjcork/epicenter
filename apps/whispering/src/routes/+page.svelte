@@ -229,7 +229,7 @@
 					</span>
 				</WhisperingButton>
 				<!-- Right column: Selectors -->
-				<div class="flex justify-end items-center gap-1.5 mb-2">
+				<div class="flex justify-end items-center mb-2">
 					{#if getRecorderStateQuery.data === 'RECORDING'}
 						<WhisperingButton
 							tooltipContent="Cancel recording"
@@ -265,7 +265,7 @@
 					</span>
 				</WhisperingButton>
 				<!-- Right column: Selectors -->
-				<div class="flex justify-end items-center gap-1.5 mb-2">
+				<div class="flex justify-end items-center mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
 						<VadDeviceSelector />
 						<CompressionSelector />
