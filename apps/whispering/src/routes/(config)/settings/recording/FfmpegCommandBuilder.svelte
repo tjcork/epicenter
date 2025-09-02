@@ -51,10 +51,26 @@
 
 	// Source of truth: Clean data structure optimized for lookups
 	const AUDIO_FORMATS = {
-		wav: { label: 'WAV - Best quality & compatibility', codec: 'pcm_s16le', extension: 'wav' },
-		mp3: { label: 'MP3 - Compressed & compatible', codec: 'libmp3lame', extension: 'mp3' },
-		ogg: { label: 'OGG - Good compression', codec: 'libvorbis', extension: 'ogg' },
-		opus: { label: 'Opus - Smallest files', codec: 'libopus', extension: 'opus' },
+		wav: {
+			label: 'WAV - Best quality & compatibility',
+			codec: 'pcm_s16le',
+			extension: 'wav',
+		},
+		mp3: {
+			label: 'MP3 - Compressed & compatible',
+			codec: 'libmp3lame',
+			extension: 'mp3',
+		},
+		ogg: {
+			label: 'OGG - Good compression',
+			codec: 'libvorbis',
+			extension: 'ogg',
+		},
+		opus: {
+			label: 'Opus - Smallest files',
+			codec: 'libopus',
+			extension: 'opus',
+		},
 		aac: { label: 'AAC - Apple devices', codec: 'aac', extension: 'm4a' },
 	} as const;
 
@@ -75,6 +91,7 @@
 		format: AudioFormat;
 		sampleRate: string;
 		bitrate: string;
+		quality: string;
 	} {
 		const format = (() => {
 			if (options?.includes('libmp3lame')) return 'mp3';
@@ -86,9 +103,12 @@
 		})();
 
 		const sampleRate = options?.match(/-ar\s+(\d+)/)?.[1] ?? '16000';
-		const bitrate = options?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64';
+		const bitrate = options?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128';
 
-		return { format, sampleRate, bitrate };
+		// Parse quality for OGG Vorbis (-q:a or -qscale:a)
+		const quality = options?.match(/-q(?:scale)?:a\s+(\d+)/)?.[1] ?? '5';
+
+		return { format, sampleRate, bitrate, quality };
 	}
 
 	/**
@@ -158,11 +178,55 @@
 		// Retrieve codec for the currently selected audio format
 		const codec = AUDIO_FORMATS[selected.format].codec;
 
-		let options = `-acodec ${codec}`;
+		let options = '';
+
+		// Add format-specific container and encoding flags
+		switch (selected.format) {
+			case 'wav':
+				// WAV
+				options = '-f wav';
+				options += ` -acodec ${codec}`;
+				break;
+
+			case 'mp3':
+				// MP3
+				options = `-acodec ${codec}`;
+				options += ` -b:a ${selected.bitrate}k`;
+				options += ' -write_xing 0';
+				break;
+
+			case 'opus':
+				// Opus
+				options = '-f ogg';
+				options += ` -acodec ${codec}`;
+				options += ` -b:a ${selected.bitrate}k`;
+				break;
+
+			case 'ogg':
+				// OGG Vorbis
+				options = '-f ogg';
+				options += ` -acodec ${codec}`;
+				options += ` -q:a ${selected.quality}`;
+				break;
+
+			case 'aac':
+				// AAC
+				options = '-f mp4';
+				options += ` -acodec ${codec}`;
+				options += ` -b:a ${selected.bitrate}k`;
+				break;
+
+			default:
+				// Fallback to basic codec specification
+				options = `-acodec ${codec}`;
+				if (selected.format !== 'wav') {
+					options += ` -b:a ${selected.bitrate}k`;
+				}
+		}
+
+		// Add common options for all formats
 		options += ` -ar ${selected.sampleRate}`;
 		options += ' -ac 1'; // Always mono for Whisper optimization
-
-		if (selected.format !== 'wav') options += ` -b:a ${selected.bitrate}k`;
 
 		outputOptions = options;
 	}
@@ -195,7 +259,7 @@
 						>Primary settings</span
 					>
 				</h5>
-				{#if selected.format !== DEFAULT.format || selected.sampleRate !== DEFAULT.sampleRate || selected.bitrate !== DEFAULT.bitrate || outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
+				{#if selected.format !== DEFAULT.format || selected.sampleRate !== DEFAULT.sampleRate || selected.bitrate !== DEFAULT.bitrate || selected.quality !== DEFAULT.quality || outputOptions !== FFMPEG_DEFAULT_OUTPUT_OPTIONS}
 					<WhisperingButton
 						tooltipContent="Reset output settings"
 						variant="ghost"
@@ -209,9 +273,11 @@
 					</WhisperingButton>
 				{/if}
 			</div>
-			
+
 			<p class="text-xs text-muted-foreground">
-				Choose based on your needs: file size, compatibility, or quality. Note: Some formats may not play in the browser preview but will work for transcription.
+				Choose based on your needs: file size, compatibility, or quality. Note:
+				Some formats may not play in the browser preview but will work for
+				transcription.
 			</p>
 
 			<!-- Flexible layout that adapts to number of controls -->
@@ -249,7 +315,30 @@
 					/>
 				</div>
 
-				{#if selected.format !== 'wav'}
+				{#if selected.format === 'ogg'}
+					<!-- Quality scale for OGG Vorbis -->
+					<div class="flex-1">
+						<LabeledSelect
+							id="ffmpeg-quality"
+							label="Quality"
+							items={[
+								{ value: '0', label: 'Q0 - ~64 kbps' },
+								{ value: '2', label: 'Q2 - ~96 kbps' },
+								{ value: '3', label: 'Q3 - ~112 kbps' },
+								{ value: '5', label: 'Q5 - ~160 kbps (Recommended)' },
+								{ value: '7', label: 'Q7 - ~224 kbps' },
+								{ value: '10', label: 'Q10 - ~500 kbps (Maximum)' },
+							]}
+							selected={selected.quality}
+							onSelectedChange={(value) => {
+								selected = { ...selected, quality: value };
+								rebuildOutputOptionsFromSelections();
+							}}
+							placeholder="Quality"
+						/>
+					</div>
+				{:else if selected.format !== 'wav'}
+					<!-- Bitrate for MP3, Opus, AAC -->
 					<div class="flex-1">
 						<LabeledSelect
 							id="ffmpeg-bitrate"
@@ -409,10 +498,12 @@
 					<div class="flex items-start gap-2">
 						<span class="text-muted-foreground shrink-0">Output:</span>
 						<code class="text-primary">
-							{AUDIO_FORMATS[selected.format].extension} • {selected.sampleRate}Hz{selected.format !==
-							'wav'
-								? ` • ${selected.bitrate}kbps`
-								: ''}</code
+							{AUDIO_FORMATS[selected.format].extension} • {selected.sampleRate}Hz{selected.format ===
+							'ogg'
+								? ` • Q${selected.quality}`
+								: selected.format !== 'wav'
+									? ` • ${selected.bitrate}kbps`
+									: ''}</code
 						>
 					</div>
 				</div>
