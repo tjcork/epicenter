@@ -5,12 +5,14 @@ import type {
 import { PLATFORM_TYPE } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { asShellCommand } from '$lib/services/command';
+import { createPersistedState } from '@repo/svelte-utils';
 import { join } from '@tauri-apps/api/path';
 import { exists, remove, stat } from '@tauri-apps/plugin-fs';
 import { Child } from '@tauri-apps/plugin-shell';
-import { createPersistedState } from '@repo/svelte-utils';
 import { type } from 'arktype';
+import { extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { sendSigint } from '../graceful-shutdown';
 import type {
 	Device,
 	DeviceAcquisitionOutcome,
@@ -23,9 +25,6 @@ import type {
 	RecorderServiceError,
 } from './types';
 import { RecorderServiceErr } from './types';
-import { getDefaultRecordingsFolder } from './utils';
-import { extractErrorMessage } from 'wellcrafted/error';
-import { sendSigint } from '../graceful-shutdown';
 
 /**
  * Default FFmpeg global options.
@@ -52,22 +51,22 @@ const FfmpegSession = type({
  * Default FFmpeg output options optimized for Whisper transcription.
  *
  * Configuration:
- * - **Codec**: OGG Vorbis (`libvorbis`) - Provides excellent compression for speech
+ * - **Format**: WAV PCM 16-bit (`pcm_s16le`) - Uncompressed audio for maximum compatibility
  * - **Sample Rate**: 16kHz - Matches Whisper's expected input frequency
  * - **Channels**: Mono (`-ac 1`) - Single channel audio for consistent processing
- * - **Bitrate**: 64kbps - Optimal quality for speech recognition
  *
  * Benefits:
- * - ~80% smaller files compared to uncompressed WAV
- * - Cross-platform compatibility
+ * - Universal browser compatibility (all HTML5 audio elements support WAV)
+ * - No codec issues or browser-specific quirks
+ * - Direct PCM audio data, no compression artifacts
  * - Optimized for Whisper's audio processing pipeline
  *
  * @example
  * // Using default output options
- * const command = `ffmpeg -i input.wav ${FFMPEG_DEFAULT_OUTPUT_OPTIONS} output.ogg`;
+ * const command = `ffmpeg -i input ${FFMPEG_DEFAULT_OUTPUT_OPTIONS} output.wav`;
  */
 export const FFMPEG_DEFAULT_OUTPUT_OPTIONS =
-	'-acodec libvorbis -ar 16000 -ac 1 -b:a 64k' as const;
+	'-acodec pcm_s16le -ar 16000 -ac 1' as const;
 
 /**
  * Default FFmpeg input options for the current platform.
@@ -298,11 +297,12 @@ export function createFfmpegRecorderService(): RecorderService {
 			const deviceIdentifier = deviceOutcome.deviceId;
 
 			// Determine the file extension from the output options
-			let fileExtension = 'wav'; // default
+			let fileExtension = 'wav'; // default to WAV for maximum compatibility
 			if (outputOptions.includes('libmp3lame')) fileExtension = 'mp3';
 			else if (outputOptions.includes('aac')) fileExtension = 'aac';
 			else if (outputOptions.includes('libvorbis')) fileExtension = 'ogg';
 			else if (outputOptions.includes('libopus')) fileExtension = 'opus';
+			else if (outputOptions.includes('pcm_')) fileExtension = 'wav'; // Any PCM codec outputs WAV
 
 			// Construct the output path
 			const outputPath = await join(
@@ -459,6 +459,15 @@ export function createFfmpegRecorderService(): RecorderService {
 				return RecorderServiceErr({
 					message: 'Unable to read recording file',
 					cause: readError,
+				});
+			}
+
+			// Validate the blob has actual content
+			if (!blob || blob.size === 0) {
+				return RecorderServiceErr({
+					message: 'Recording file is empty',
+					context: { blobSize: blob?.size },
+					cause: undefined,
 				});
 			}
 
