@@ -39,12 +39,6 @@
 			description: 'Universal compatibility',
 			options: '-c:a libmp3lame -b:a 32k -ar 16000 -ac 1 -q:a 9',
 		},
-		quality: {
-			label: 'High Quality',
-			icon: '🎵',
-			description: 'Less compression, keep everything',
-			options: '-c:a libmp3lame -b:a 64k -ar 16000 -ac 1 -q:a 2',
-		},
 	} as const;
 
 	type CompressionPresetKey = keyof typeof COMPRESSION_PRESETS;
