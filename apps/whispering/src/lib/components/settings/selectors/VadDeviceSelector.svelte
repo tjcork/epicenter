@@ -14,7 +14,6 @@
 	// Setting key for VAD mode
 	const settingKey = 'recording.vad.selectedDeviceId';
 
-	// VAD always uses browser backend for device enumeration
 	const selectedDeviceId = $derived(settings.value[settingKey]);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);

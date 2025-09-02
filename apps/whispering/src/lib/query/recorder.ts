@@ -63,11 +63,7 @@ export const recorder = {
 			// Generate a unique recording ID that will serve as the file name
 			const recordingId = nanoid();
 
-			const backend = !window.__TAURI_INTERNALS__
-				? 'navigator'
-				: settings.value['recording.backend'];
-
-			// Prepare recording parameters based on which backend we're using
+			// Prepare recording parameters based on which method we're using
 			const baseParams = {
 				selectedDeviceId: settings.value['recording.manual.selectedDeviceId'],
 				recordingId,
@@ -82,12 +78,12 @@ export const recorder = {
 			const paramsMap = {
 				navigator: {
 					...baseParams,
-					implementation: 'navigator' as const,
+					method: 'navigator' as const,
 					bitrateKbps: settings.value['recording.navigator.bitrateKbps'],
 				},
 				ffmpeg: {
 					...baseParams,
-					implementation: 'ffmpeg' as const,
+					method: 'ffmpeg' as const,
 					globalOptions: settings.value['recording.ffmpeg.globalOptions'],
 					inputOptions: settings.value['recording.ffmpeg.inputOptions'],
 					outputOptions: settings.value['recording.ffmpeg.outputOptions'],
@@ -95,13 +91,18 @@ export const recorder = {
 				},
 				cpal: {
 					...baseParams,
-					implementation: 'cpal' as const,
+					method: 'cpal' as const,
 					outputFolder,
 					sampleRate: settings.value['recording.cpal.sampleRate'],
 				},
 			} as const;
 
-			const params = paramsMap[backend];
+			const params =
+				paramsMap[
+					!window.__TAURI_INTERNALS__
+						? 'navigator'
+						: settings.value['recording.method']
+				];
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
 				await recorderService().startRecording(params, {
@@ -170,9 +171,6 @@ export function recorderService() {
 	// In browser, always use navigator recorder
 	if (!window.__TAURI_INTERNALS__) return services.navigatorRecorder;
 
-	// In desktop, check user preference
-	const backend = settings.value['recording.backend'];
-
 	const recorderMap = {
 		navigator: services.navigatorRecorder,
 		ffmpeg: services.ffmpegRecorder,
@@ -180,5 +178,5 @@ export function recorderService() {
 	};
 
 	// Return the selected recorder or fallback to navigator
-	return recorderMap[backend];
+	return recorderMap[settings.value['recording.method']];
 }

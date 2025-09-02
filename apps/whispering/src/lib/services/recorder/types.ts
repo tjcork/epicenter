@@ -17,7 +17,7 @@ export const { RecorderServiceError, RecorderServiceErr } = createTaggedError(
 export type RecorderServiceError = ReturnType<typeof RecorderServiceError>;
 
 /**
- * Base parameters shared across all implementations
+ * Base parameters shared across all methods
  */
 type BaseRecordingParams = {
 	selectedDeviceId: DeviceIdentifier | null;
@@ -28,7 +28,7 @@ type BaseRecordingParams = {
  * CPAL (native Rust) recording parameters
  */
 export type CpalRecordingParams = BaseRecordingParams & {
-	implementation: 'cpal';
+	method: 'cpal';
 	outputFolder: string;
 	sampleRate: string;
 };
@@ -37,7 +37,7 @@ export type CpalRecordingParams = BaseRecordingParams & {
  * Navigator (MediaRecorder) recording parameters
  */
 export type NavigatorRecordingParams = BaseRecordingParams & {
-	implementation: 'navigator';
+	method: 'navigator';
 	bitrateKbps: string;
 };
 
@@ -45,7 +45,7 @@ export type NavigatorRecordingParams = BaseRecordingParams & {
  * FFmpeg recording parameters
  */
 export type FfmpegRecordingParams = BaseRecordingParams & {
-	implementation: 'ffmpeg';
+	method: 'ffmpeg';
 	globalOptions: string;
 	inputOptions: string;
 	outputOptions: string;
@@ -53,7 +53,7 @@ export type FfmpegRecordingParams = BaseRecordingParams & {
 };
 
 /**
- * Discriminated union for recording parameters based on implementation
+ * Discriminated union for recording parameters based on method
  */
 export type StartRecordingParams =
 	| CpalRecordingParams
@@ -61,7 +61,7 @@ export type StartRecordingParams =
 	| FfmpegRecordingParams;
 
 /**
- * Recorder service interface shared by all implementations
+ * Recorder service interface shared by all methods
  */
 export type RecorderService = {
 	/**

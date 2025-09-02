@@ -34,8 +34,8 @@
 	import { TriangleAlert, InfoIcon, CheckIcon } from '@lucide/svelte';
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import {
-		isUsingWhisperCppWithBrowserBackend,
-		isUsingCpalBackendAtWrongSampleRate,
+		isUsingWhisperCppWithBrowserMethod,
+		isUsingCpalMethodAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
 </script>
 
@@ -344,7 +344,7 @@
 				<WhisperModelSelector />
 			{/if}
 
-			{#if isUsingWhisperCppWithBrowserBackend()}
+			{#if isUsingWhisperCppWithBrowserMethod()}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -361,7 +361,7 @@
 						</Link>
 					</Alert.Description>
 				</Alert.Root>
-			{:else if isUsingCpalBackendAtWrongSampleRate()}
+			{:else if isUsingCpalMethodAtWrongSampleRate()}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
