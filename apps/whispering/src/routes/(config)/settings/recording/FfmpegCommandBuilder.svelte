@@ -15,6 +15,7 @@
 	import {
 		buildFfmpegCommand,
 		formatDeviceForPlatform,
+		getFileExtensionFromFfmpegOptions,
 		FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
 		FFMPEG_DEFAULT_GLOBAL_OPTIONS,
 		FFMPEG_DEFAULT_INPUT_OPTIONS,
@@ -93,14 +94,7 @@
 		bitrate: string;
 		quality: string;
 	} {
-		const format = (() => {
-			if (options?.includes('libmp3lame')) return 'mp3';
-			if (options?.includes('aac')) return 'aac';
-			if (options?.includes('libvorbis')) return 'ogg';
-			if (options?.includes('libopus')) return 'opus';
-			if (options?.includes('pcm_s16le')) return 'wav';
-			return 'wav'; // Default to WAV for maximum compatibility
-		})();
+		const format = getFileExtensionFromFfmpegOptions(options);
 
 		const sampleRate = options?.match(/-ar\s+(\d+)/)?.[1] ?? '16000';
 		const bitrate = options?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '128';
