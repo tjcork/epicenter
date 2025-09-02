@@ -274,7 +274,7 @@
 
 				<!-- Format & Quality Dropdowns (these affect output options) -->
 				<div class="space-y-3 mb-4">
-					<div class="flex items-center gap-2">
+					<div class="flex gap-2">
 						<LabeledSelect
 							id="ffmpeg-format"
 							label="Audio Format"
@@ -297,14 +297,13 @@
 									selected = { ...selected, format: DEFAULT.format };
 									rebuildOutputOptionsFromSelections();
 								}}
-								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
 							</WhisperingButton>
 						{/if}
 					</div>
 
-					<div class="flex items-center gap-2">
+					<div class="flex gap-2">
 						<LabeledSelect
 							id="ffmpeg-sample-rate"
 							label="Sample Rate"
@@ -332,7 +331,6 @@
 									selected = { ...selected, sampleRate: DEFAULT.sampleRate };
 									rebuildOutputOptionsFromSelections();
 								}}
-								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
 							</WhisperingButton>
@@ -340,7 +338,7 @@
 					</div>
 
 					{#if selected.format !== 'wav'}
-						<div class="flex items-center gap-2">
+						<div class="flex gap-2">
 							<LabeledSelect
 								id="ffmpeg-bitrate"
 								label="Bitrate"
@@ -369,7 +367,6 @@
 										selected = { ...selected, bitrate: DEFAULT.bitrate };
 										rebuildOutputOptionsFromSelections();
 									}}
-									class="mt-6"
 								>
 									<RotateCcw class="h-4 w-4" />
 								</WhisperingButton>
