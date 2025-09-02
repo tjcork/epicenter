@@ -87,6 +87,10 @@
 		>
 			{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
+	{:else if settings.value['recording.mode'] === 'upload'}
+		<CompressionSelector />
+		<TranscriptionSelector />
+		<TransformationSelector />
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
 			<ManualDeviceSelector />
