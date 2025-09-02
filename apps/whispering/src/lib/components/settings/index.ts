@@ -7,6 +7,7 @@ export { default as GoogleApiKeyInput } from './api-key-inputs/GoogleApiKeyInput
 export { default as DeepgramApiKeyInput } from './api-key-inputs/DeepgramApiKeyInput.svelte';
 export { default as OpenRouterApiKeyInput } from './api-key-inputs/OpenRouterApiKeyInput.svelte';
 // Selector components
-export { default as DeviceSelector } from './selectors/DeviceSelector.svelte';
+export { default as ManualDeviceSelector } from './selectors/ManualDeviceSelector.svelte';
+export { default as VadDeviceSelector } from './selectors/VadDeviceSelector.svelte';
 export { default as TransformationSelector } from './selectors/TransformationSelector.svelte';
 export { default as TranscriptionSelector } from './selectors/TranscriptionSelector.svelte';

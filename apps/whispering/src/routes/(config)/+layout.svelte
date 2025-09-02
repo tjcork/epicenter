@@ -3,10 +3,11 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
-		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
+	import ManualDeviceSelector from '$lib/components/settings/selectors/ManualDeviceSelector.svelte';
+	import VadDeviceSelector from '$lib/components/settings/selectors/VadDeviceSelector.svelte';
 	import {
 		recorderStateToIcons,
 		vadStateToIcons,
@@ -56,7 +57,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<DeviceSelector mode="manual" />
+			<ManualDeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -73,7 +74,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<DeviceSelector mode="vad" />
+			<VadDeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
@@ -88,7 +89,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'live'}
 		{#if true}
-			<DeviceSelector mode="manual" />
+			<ManualDeviceSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
