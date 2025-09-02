@@ -19,6 +19,9 @@
 		FFMPEG_DEFAULT_OUTPUT_OPTIONS,
 	} from '$lib/services/recorder/ffmpeg';
 
+	// Generate realistic recording ID for preview
+	const SAMPLE_RECORDING_ID = nanoid();
+
 	// Props - bind the three option fields
 	let {
 		globalOptions = $bindable(),
@@ -124,9 +127,11 @@
 		const outputFolder =
 			settings.value['recording.cpal.outputFolder'] ??
 			(await getDefaultRecordingsFolder());
-		const recordingId = nanoid(); // Generate realistic recording ID for preview
 		const ext = AUDIO_FORMATS[selected.format].extension;
-		const outputPath = await join(outputFolder, `${recordingId}.${ext}`);
+		const outputPath = await join(
+			outputFolder,
+			`${SAMPLE_RECORDING_ID}.${ext}`,
+		);
 
 		// Build command with all parts, filtering empty strings
 		const commandParts = [
