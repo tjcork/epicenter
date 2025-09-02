@@ -210,9 +210,18 @@
 			</div>
 
 			<FfmpegCommandBuilder
-				bind:globalOptions={settings.value['recording.ffmpeg.globalOptions']}
-				bind:inputOptions={settings.value['recording.ffmpeg.inputOptions']}
-				bind:outputOptions={settings.value['recording.ffmpeg.outputOptions']}
+				bind:globalOptions={
+					() => settings.value['recording.ffmpeg.globalOptions'],
+					(v) => settings.updateKey('recording.ffmpeg.globalOptions', v)
+				}
+				bind:inputOptions={
+					() => settings.value['recording.ffmpeg.inputOptions'],
+					(v) => settings.updateKey('recording.ffmpeg.inputOptions', v)
+				}
+				bind:outputOptions={
+					() => settings.value['recording.ffmpeg.outputOptions'],
+					(v) => settings.updateKey('recording.ffmpeg.outputOptions', v)
+				}
 			/>
 		{:else}
 			<!-- CPAL backend settings -->
