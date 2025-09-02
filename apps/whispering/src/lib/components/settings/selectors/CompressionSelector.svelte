@@ -6,6 +6,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { isUsingCpalMethodWithoutWhisperCpp } from '../../../../routes/+layout/check-ffmpeg';
+	import { PackageIcon } from '@lucide/svelte';
 
 	let { class: className }: { class?: string } = $props();
 
@@ -35,14 +36,14 @@
 				variant="ghost"
 				size="icon"
 			>
-				<span
+				<PackageIcon
 					class={cn(
 						'text-lg',
 						isCompressionEnabled ? 'opacity-100' : 'opacity-60',
 					)}
 				>
 					🗜️
-				</span>
+				</PackageIcon>
 
 				<!-- Recommended badge indicator -->
 				{#if shouldShowRecommendedBadge}
