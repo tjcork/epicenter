@@ -135,7 +135,6 @@
 			`"${outputPath}"`,
 		].filter((part) => part); // Remove empty strings
 
-		console.log('🚀 ~ commandParts:', commandParts);
 		return commandParts.join(' ');
 	};
 
