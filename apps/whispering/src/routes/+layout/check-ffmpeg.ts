@@ -20,7 +20,7 @@ function isUsingWhisperCpp(): boolean {
  * @returns true if using CPAL method for recording
  */
 function isUsingCpalMethod(): boolean {
-	return settings.value['recording.method'] === 'cpal';
+	return settings.value['recording.manual.method'] === 'cpal';
 }
 
 /**
@@ -28,7 +28,7 @@ function isUsingCpalMethod(): boolean {
  * @returns true if using navigator method for recording
  */
 function isUsingNavigatorMethod(): boolean {
-	return settings.value['recording.method'] === 'navigator';
+	return settings.value['recording.manual.method'] === 'navigator';
 }
 
 /**

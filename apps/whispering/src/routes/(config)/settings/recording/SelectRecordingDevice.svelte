@@ -22,7 +22,7 @@
 	const isUsingBrowserMethod = $derived(
 		mode === 'vad' || 
 		!window.__TAURI_INTERNALS__ ||
-		settings.value['recording.method'] === 'navigator' 
+		settings.value['recording.manual.method'] === 'navigator' 
 	);
 
 	const getDevicesQuery = createQuery(

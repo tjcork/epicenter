@@ -12,10 +12,9 @@
 
 	const combobox = useCombobox();
 
-	// Setting key for manual mode
-	const settingKey = 'recording.manual.selectedDeviceId';
-
-	const selectedDeviceId = $derived(settings.value[settingKey]);
+	const selectedDeviceId = $derived(
+		settings.value['recording.manual.selectedDeviceId'],
+	);
 	const selectedMethod = $derived(settings.value['recording.method']);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
@@ -139,7 +138,7 @@
 								onSelect={() => {
 									const currentDeviceId = selectedDeviceId;
 									settings.updateKey(
-										settingKey,
+										'recording.manual.selectedDeviceId',
 										currentDeviceId === device.id ? null : device.id,
 									);
 								}}

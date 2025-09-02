@@ -101,7 +101,7 @@ export const recorder = {
 				paramsMap[
 					!window.__TAURI_INTERNALS__
 						? 'navigator'
-						: settings.value['recording.method']
+						: settings.value['recording.manual.method']
 				];
 
 			const { data: deviceAcquisitionOutcome, error: startRecordingError } =
@@ -178,5 +178,5 @@ export function recorderService() {
 	};
 
 	// Return the selected recorder or fallback to navigator
-	return recorderMap[settings.value['recording.method']];
+	return recorderMap[settings.value['recording.manual.method']];
 }

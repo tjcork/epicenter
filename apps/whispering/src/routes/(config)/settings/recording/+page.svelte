@@ -57,11 +57,11 @@
 
 	const isUsingNavigatorMethod = $derived(
 		!window.__TAURI_INTERNALS__ ||
-			settings.value['recording.method'] === 'navigator',
+			settings.value['recording.manual.method'] === 'navigator',
 	);
 
 	const isUsingFfmpegMethod = $derived(
-		settings.value['recording.method'] === 'ffmpeg',
+		settings.value['recording.manual.method'] === 'ffmpeg',
 	);
 </script>
 
@@ -97,16 +97,16 @@
 			id="recording-method"
 			label="Recording Method"
 			items={RECORDING_METHOD_OPTIONS}
-			selected={settings.value['recording.method']}
+			selected={settings.value['recording.manual.method']}
 			onSelectedChange={(selected) => {
 				settings.updateKey(
-					'recording.method',
+					'recording.manual.method',
 					selected as 'cpal' | 'navigator' | 'ffmpeg',
 				);
 			}}
 			placeholder="Select a recording method"
 			description={RECORDING_METHOD_OPTIONS.find(
-				(option) => option.value === settings.value['recording.method'],
+				(option) => option.value === settings.value['recording.manual.method'],
 			)?.description}
 		>
 			{#snippet renderOption({ item })}
@@ -119,7 +119,7 @@
 			{/snippet}
 		</LabeledSelect>
 
-		{#if settings.value['recording.method'] === 'ffmpeg' && !data.ffmpegInstalled}
+		{#if settings.value['recording.manual.method'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
 				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
 				<Alert.Title class="text-red-600 dark:text-red-400">
@@ -136,7 +136,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if IS_MACOS && settings.value['recording.method'] === 'navigator'}
+		{:else if IS_MACOS && settings.value['recording.manual.method'] === 'navigator'}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
