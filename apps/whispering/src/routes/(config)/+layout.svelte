@@ -3,7 +3,7 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
-	CompressionSelector,
+		CompressionSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
@@ -33,7 +33,7 @@
 	)}
 	style="view-transition-name: header"
 >
-	<div class="mr-auto flex gap-2">
+	<div class="mr-auto">
 		<WhisperingButton
 			tooltipContent="Go home"
 			href="/"
