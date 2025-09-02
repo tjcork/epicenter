@@ -51,10 +51,10 @@
 
 	// Source of truth: Clean data structure optimized for lookups
 	const AUDIO_FORMATS = {
-		ogg: { label: 'OGG - Best for Whisper', codec: 'libvorbis', extension: 'ogg' },
+		wav: { label: 'WAV - Best quality & compatibility', codec: 'pcm_s16le', extension: 'wav' },
+		mp3: { label: 'MP3 - Compressed & compatible', codec: 'libmp3lame', extension: 'mp3' },
+		ogg: { label: 'OGG - Good compression', codec: 'libvorbis', extension: 'ogg' },
 		opus: { label: 'Opus - Smallest files', codec: 'libopus', extension: 'opus' },
-		mp3: { label: 'MP3 - Most compatible', codec: 'libmp3lame', extension: 'mp3' },
-		wav: { label: 'WAV - Highest quality', codec: 'pcm_s16le', extension: 'wav' },
 		aac: { label: 'AAC - Apple devices', codec: 'aac', extension: 'm4a' },
 	} as const;
 
@@ -82,7 +82,7 @@
 			if (options?.includes('libvorbis')) return 'ogg';
 			if (options?.includes('libopus')) return 'opus';
 			if (options?.includes('pcm_s16le')) return 'wav';
-			return 'ogg'; // Default to OGG for Whisper optimization
+			return 'wav'; // Default to WAV for maximum compatibility
 		})();
 
 		const sampleRate = options?.match(/-ar\s+(\d+)/)?.[1] ?? '16000';
@@ -209,6 +209,10 @@
 					</WhisperingButton>
 				{/if}
 			</div>
+			
+			<p class="text-xs text-muted-foreground">
+				Choose based on your needs: file size, compatibility, or quality. Note: Some formats may not play in the browser preview but will work for transcription.
+			</p>
 
 			<!-- Flexible layout that adapts to number of controls -->
 			<div class="flex flex-col sm:flex-row gap-3">
@@ -223,7 +227,6 @@
 							rebuildOutputOptionsFromSelections();
 						}}
 						placeholder="Select format"
-						description="Choose based on your needs: transcription accuracy, file size, or compatibility"
 					/>
 				</div>
 

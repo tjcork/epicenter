@@ -16,7 +16,7 @@
 		isUsingCpalBackendWithCloudTranscription,
 		isUsingCpalBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
-	import { IS_MACOS } from '$lib/constants/platform';
+	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 
 	const { data } = $props();
 
@@ -30,9 +30,14 @@
 		{
 			value: 'ffmpeg',
 			label: 'FFmpeg',
-			description: IS_MACOS
-				? 'Recommended. Supports all audio formats with advanced customization options. Reliable with keyboard shortcuts.'
-				: 'Recommended. Supports all audio formats with advanced customization options.',
+			description: {
+				macos:
+					'Supports all audio formats with advanced customization options. Reliable with keyboard shortcuts.',
+				linux:
+					'Recommended for Linux. Supports all audio formats with advanced customization options. Helps bypass common audio issues.',
+				windows:
+					'Supports all audio formats with advanced customization options.',
+			}[PLATFORM_TYPE],
 		},
 		{
 			value: 'cpal',
@@ -101,7 +106,7 @@
 			}}
 			placeholder="Select a recording backend"
 			description={RECORDING_BACKEND_OPTIONS.find(
-				(option) => option.value === settings.value['recording.backend']
+				(option) => option.value === settings.value['recording.backend'],
 			)?.description}
 		>
 			{#snippet renderOption({ item })}
