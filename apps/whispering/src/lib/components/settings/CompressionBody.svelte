@@ -16,30 +16,32 @@
 		recommended: {
 			label: 'Recommended',
 			icon: '🎯',
-			description: 'Best balance for speech',
-			options: '-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
-			size: '~240KB/min',
+			description: 'Best for speech with silence removal',
+			options: '-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
 		},
-		tiny: {
+		smallest: {
 			label: 'Smallest',
 			icon: '🗜️',
-			description: 'Maximum compression',
-			options: '-c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
-			size: '~120KB/min',
+			description: 'Maximum compression with silence removal',
+			options: '-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
+		},
+		preserve: {
+			label: 'Preserve Audio',
+			icon: '📼',
+			description: 'Compress but keep all audio',
+			options: '-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
 		},
 		compatible: {
-			label: 'Compatible',
+			label: 'MP3',
 			icon: '✅',
-			description: 'Universal MP3',
+			description: 'Universal compatibility',
 			options: '-c:a libmp3lame -b:a 32k -ar 16000 -ac 1 -q:a 9',
-			size: '~240KB/min',
 		},
 		quality: {
 			label: 'High Quality',
 			icon: '🎵',
-			description: 'Less compression',
+			description: 'Less compression, keep everything',
 			options: '-c:a libmp3lame -b:a 64k -ar 16000 -ac 1 -q:a 2',
-			size: '~480KB/min',
 		},
 	} as const;
 
@@ -155,19 +157,13 @@
 								preset.options,
 							)}
 					>
-						<div class="flex items-center gap-1">
-							<span class="mr-1">{preset.icon}</span>
-							<span>{preset.label}</span>
-						</div>
-						<span class="text-xs ml-1 opacity-75">
-							{preset.size}
-						</span>
+						<span class="mr-1">{preset.icon}</span>
+						<span>{preset.label}</span>
 					</Badge>
 				{/each}
 			</div>
 			<p class="text-muted-foreground text-xs">
-				Choose a preset to automatically set FFmpeg compression options, or
-				customize below.
+				Choose a preset or customize FFmpeg options below
 			</p>
 		</div>
 
