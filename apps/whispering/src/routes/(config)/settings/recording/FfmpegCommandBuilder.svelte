@@ -2,7 +2,7 @@
 	import { LabeledSelect } from '$lib/components/labeled/index.js';
 	import { Input } from '@repo/ui/input';
 	import { Label } from '@repo/ui/label';
-	import { IS_MACOS, IS_WINDOWS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
+	import { PLATFORM_TYPE } from '$lib/constants/platform';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { rpc } from '$lib/query';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -11,37 +11,37 @@
 	import { nanoid } from 'nanoid/non-secure';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import { RotateCcw } from '@lucide/svelte';
-	import { 
-		formatDeviceForPlatform, 
+	import {
+		formatDeviceForPlatform,
 		FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
 		FFMPEG_DEFAULT_GLOBAL_OPTIONS,
 		FFMPEG_DEFAULT_INPUT_OPTIONS,
-		FFMPEG_DEFAULT_OUTPUT_OPTIONS
+		FFMPEG_DEFAULT_OUTPUT_OPTIONS,
 	} from '$lib/services/recorder/ffmpeg';
 
 	// Props - bind the three option fields
 	let {
 		globalOptions = $bindable(),
 		inputOptions = $bindable(),
-		outputOptions = $bindable()
+		outputOptions = $bindable(),
 	}: {
 		globalOptions: string;
 		inputOptions: string;
 		outputOptions: string;
 	} = $props();
 
-	const getDevicesQuery = createQuery(
-		rpc.recorder.enumerateDevices.options
-	);
+	const getDevicesQuery = createQuery(rpc.recorder.enumerateDevices.options);
 
 	// Get the selected device identifier with proper fallback chain
 	const selectedDeviceId = $derived(
 		// First, try to find the user's selected device
-		getDevicesQuery.data?.find(d => d.id === settings.value['recording.manual.selectedDeviceId'])?.id 
-		// Then fall back to the first available device
-		?? getDevicesQuery.data?.[0]?.id
-		// Finally, return null if no devices are available
-		?? null
+		getDevicesQuery.data?.find(
+			(d) => d.id === settings.value['recording.manual.selectedDeviceId'],
+		)?.id ??
+			// Then fall back to the first available device
+			getDevicesQuery.data?.[0]?.id ??
+			// Finally, return null if no devices are available
+			null,
 	);
 
 	// Source of truth: Clean data structure optimized for lookups
@@ -56,10 +56,12 @@
 	type AudioFormat = keyof typeof AUDIO_FORMATS;
 
 	// Derived array for UI components (Select needs array of {label, value})
-	const audioFormatOptions = Object.entries(AUDIO_FORMATS).map(([value, config]) => ({
-		label: config.label,
-		value
-	}));
+	const audioFormatOptions = Object.entries(AUDIO_FORMATS).map(
+		([value, config]) => ({
+			label: config.label,
+			value,
+		}),
+	);
 
 	/**
 	 * Parse all audio settings from FFmpeg output options string
@@ -77,21 +79,21 @@
 			if (options?.includes('pcm_s16le')) return 'wav';
 			return 'ogg'; // Default to OGG for Whisper optimization
 		})();
-		
+
 		const sampleRate = options?.match(/-ar\s+(\d+)/)?.[1] ?? '16000';
 		const bitrate = options?.match(/-b:a\s+(\d+)k?/)?.[1] ?? '64';
-		
+
 		return { format, sampleRate, bitrate };
 	}
 
 	/**
 	 * Default audio settings parsed from FFMPEG_DEFAULT_OUTPUT_OPTIONS.
-	 * 
+	 *
 	 * This constant represents the baseline configuration for FFmpeg audio output
 	 * by parsing the platform's default output options string. It serves as the
 	 * reference point for reset buttons, allowing users to restore individual
 	 * settings to their default values.
-	 * 
+	 *
 	 * The values are derived at compile time from the same parsing logic used
 	 * for the dynamic output options, ensuring consistency between defaults
 	 * and user selections.
@@ -99,27 +101,29 @@
 	const DEFAULT = parseAudioSettingsFromOptions(FFMPEG_DEFAULT_OUTPUT_OPTIONS);
 
 	/**
-		* UI state for the FFmpeg command builder.
-		*
-		* These variables are temporary UI state that provide a user-friendly way to construct 
-		* the output options string via dropdown selectors. The output options are persisted.
-		*
-		* To ensure the UI and the options remain in sync, these values are derived by parsing
-		* the output options. When the user changes a selection in the UI, the output options
-		* are rebuilt from scratch using the new values.
-		*/
+	 * UI state for the FFmpeg command builder.
+	 *
+	 * These variables are temporary UI state that provide a user-friendly way to construct
+	 * the output options string via dropdown selectors. The output options are persisted.
+	 *
+	 * To ensure the UI and the options remain in sync, these values are derived by parsing
+	 * the output options. When the user changes a selection in the UI, the output options
+	 * are rebuilt from scratch using the new values.
+	 */
 	let selected = $derived(parseAudioSettingsFromOptions(outputOptions));
 
+	const getPreviewCommand = async () => {
+		const formattedDevice = formatDeviceForPlatform(
+			selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER,
+		);
 
-	// Build the preview command
-	const previewCommand = $derived.by(async () => {
-		const formattedDevice = formatDeviceForPlatform(selectedDeviceId ?? FFMPEG_DEFAULT_DEVICE_IDENTIFIER)
-
-		const outputFolder = settings.value['recording.cpal.outputFolder'] ?? (await getDefaultRecordingsFolder());
+		const outputFolder =
+			settings.value['recording.cpal.outputFolder'] ??
+			(await getDefaultRecordingsFolder());
 		const recordingId = nanoid(); // Generate realistic recording ID for preview
 		const ext = AUDIO_FORMATS[selected.format].extension;
 		const outputPath = await join(outputFolder, `${recordingId}.${ext}`);
-		
+
 		// Build command with all parts, filtering empty strings
 		const commandParts = [
 			'ffmpeg',
@@ -128,17 +132,17 @@
 			'-i',
 			formattedDevice,
 			outputOptions.trim(),
-			`"${outputPath}"`
-		].filter(part => part); // Remove empty strings
-		
+			`"${outputPath}"`,
+		].filter((part) => part); // Remove empty strings
+
+		console.log('🚀 ~ commandParts:', commandParts);
 		return commandParts.join(' ');
-	});
+	};
 
 	// Update output options whenever UI selections change
 	$effect(() => {
 		outputOptions = buildOutputOptionsFromSelections();
 	});
-
 
 	function buildOutputOptionsFromSelections(): string {
 		// Retrieve codec for the currently selected audio format
@@ -147,9 +151,9 @@
 		let options = `-acodec ${codec}`;
 		options += ` -ar ${selected.sampleRate}`;
 		options += ' -ac 1'; // Always mono for Whisper optimization
-		
+
 		if (selected.format !== 'wav') options += ` -b:a ${selected.bitrate}k`;
-		
+
 		return options;
 	}
 </script>
@@ -157,12 +161,14 @@
 <div class="space-y-4">
 	<div class="space-y-4 rounded-lg border p-4">
 		<h4 class="text-sm font-medium">FFmpeg Command Builder</h4>
-		
+
 		<!-- FFmpeg Options Section (in logical order) -->
 		<div class="space-y-4">
 			<!-- 1. Global Options -->
 			<div>
-				<Label for="ffmpeg-global" class="text-sm font-medium mb-2">Global Options</Label>
+				<Label for="ffmpeg-global" class="text-sm font-medium mb-2"
+					>Global Options</Label
+				>
 				<div class="flex items-center gap-2">
 					<Input
 						id="ffmpeg-global"
@@ -176,18 +182,23 @@
 							tooltipContent="Reset to default"
 							variant="outline"
 							size="icon"
-							onclick={() => globalOptions = FFMPEG_DEFAULT_GLOBAL_OPTIONS}
+							onclick={() => (globalOptions = FFMPEG_DEFAULT_GLOBAL_OPTIONS)}
 						>
 							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
 					{/if}
 				</div>
-				<p class="text-xs text-muted-foreground mt-1">General FFmpeg behavior: logging level, progress display, error handling</p>
+				<p class="text-xs text-muted-foreground mt-1">
+					General FFmpeg behavior: logging level, progress display, error
+					handling
+				</p>
 			</div>
-			
+
 			<!-- 2. Input Options -->
 			<div>
-				<Label for="ffmpeg-input" class="text-sm font-medium mb-2">Input Options</Label>
+				<Label for="ffmpeg-input" class="text-sm font-medium mb-2"
+					>Input Options</Label
+				>
 				<div class="flex items-center gap-2">
 					<Input
 						id="ffmpeg-input"
@@ -201,32 +212,50 @@
 							tooltipContent="Reset to platform default"
 							variant="outline"
 							size="icon"
-							onclick={() => inputOptions = FFMPEG_DEFAULT_INPUT_OPTIONS}
+							onclick={() => (inputOptions = FFMPEG_DEFAULT_INPUT_OPTIONS)}
 						>
 							<RotateCcw class="h-4 w-4" />
 						</WhisperingButton>
 					{/if}
 				</div>
 				<div class="text-xs text-muted-foreground mt-1 space-y-1">
-					<p>How to capture audio from your device. Leave empty for auto-detection.</p>
+					<p>
+						How to capture audio from your device. Leave empty for
+						auto-detection.
+					</p>
 					<details class="mt-2">
-						<summary class="cursor-pointer hover:text-foreground">Common options (click to expand)</summary>
+						<summary class="cursor-pointer hover:text-foreground"
+							>Common options (click to expand)</summary
+						>
 						<div class="mt-2 space-y-1 ml-2">
-							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 1</code> - Record in mono (single channel)</p>
-							<p><code class="px-1 py-0.5 rounded bg-muted">-ac 2</code> - Record in stereo (two channels)</p>
-							<p><code class="px-1 py-0.5 rounded bg-muted">-t 60</code> - Limit recording to 60 seconds</p>
+							<p>
+								<code class="px-1 py-0.5 rounded bg-muted">-ac 1</code> - Record
+								in mono (single channel)
+							</p>
+							<p>
+								<code class="px-1 py-0.5 rounded bg-muted">-ac 2</code> - Record
+								in stereo (two channels)
+							</p>
+							<p>
+								<code class="px-1 py-0.5 rounded bg-muted">-t 60</code> - Limit recording
+								to 60 seconds
+							</p>
 							{#if PLATFORM_TYPE === 'windows'}
-								<p><code class="px-1 py-0.5 rounded bg-muted">-audio_buffer_size 20</code> - Reduce latency (Windows)</p>
+								<p>
+									<code class="px-1 py-0.5 rounded bg-muted"
+										>-audio_buffer_size 20</code
+									> - Reduce latency (Windows)
+								</p>
 							{/if}
 						</div>
 					</details>
 				</div>
 			</div>
-			
+
 			<!-- 3. Output Options -->
 			<div class="border-t pt-4">
 				<h5 class="text-sm font-medium mb-3">Output Options</h5>
-				
+
 				<!-- Format & Quality Dropdowns (these affect output options) -->
 				<div class="space-y-3 mb-4">
 					<div class="flex items-center gap-2">
@@ -247,14 +276,15 @@
 								tooltipContent="Reset to default"
 								variant="outline"
 								size="icon"
-								onclick={() => selected = { ...selected, format: DEFAULT.format }}
+								onclick={() =>
+									(selected = { ...selected, format: DEFAULT.format })}
 								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
 							</WhisperingButton>
 						{/if}
 					</div>
-					
+
 					<div class="flex items-center gap-2">
 						<LabeledSelect
 							id="ffmpeg-sample-rate"
@@ -278,14 +308,15 @@
 								tooltipContent="Reset to default"
 								variant="outline"
 								size="icon"
-								onclick={() => selected = { ...selected, sampleRate: DEFAULT.sampleRate }}
+								onclick={() =>
+									(selected = { ...selected, sampleRate: DEFAULT.sampleRate })}
 								class="mt-6"
 							>
 								<RotateCcw class="h-4 w-4" />
 							</WhisperingButton>
 						{/if}
 					</div>
-					
+
 					{#if selected.format !== 'wav'}
 						<div class="flex items-center gap-2">
 							<LabeledSelect
@@ -311,7 +342,8 @@
 									tooltipContent="Reset to default"
 									variant="outline"
 									size="icon"
-									onclick={() => selected = { ...selected, bitrate: DEFAULT.bitrate }}
+									onclick={() =>
+										(selected = { ...selected, bitrate: DEFAULT.bitrate })}
 									class="mt-6"
 								>
 									<RotateCcw class="h-4 w-4" />
@@ -320,10 +352,12 @@
 						</div>
 					{/if}
 				</div>
-				
+
 				<!-- Raw Output Options Field -->
 				<div>
-					<Label for="ffmpeg-output" class="text-sm font-medium mb-2">Raw Output Options</Label>
+					<Label for="ffmpeg-output" class="text-sm font-medium mb-2">
+						Raw Output Options
+					</Label>
 					<div class="flex items-center gap-2">
 						<Input
 							id="ffmpeg-output"
@@ -348,20 +382,24 @@
 						{/if}
 					</div>
 					<p class="text-xs text-muted-foreground mt-1">
-						Direct FFmpeg output options. Modified by the dropdowns above, or edit manually for full control.
+						Direct FFmpeg output options. Modified by the dropdowns above, or
+						edit manually for full control.
 					</p>
 				</div>
 			</div>
-			
+
 			<!-- Preview Section -->
-			{#await previewCommand then cmd}
-				{#if cmd}
-					<div class="rounded-md bg-muted/50 p-3">
-						<p class="text-xs font-medium text-muted-foreground mb-1">Command Preview:</p>
-						<code class="text-xs break-all">{cmd}</code>
-					</div>
-				{/if}
-			{/await}
+			<svelte:boundary>
+				<div class="rounded-md bg-muted/50 p-3">
+					<p class="text-xs font-medium text-muted-foreground mb-1">
+						Command Preview:
+					</p>
+					<code class="text-xs break-all">{await getPreviewCommand()}</code>
+				</div>
+				{#snippet pending()}
+					<p>loading...</p>
+				{/snippet}
+			</svelte:boundary>
 		</div>
 	</div>
 </div>
