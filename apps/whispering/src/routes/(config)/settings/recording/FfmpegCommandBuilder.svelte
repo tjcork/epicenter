@@ -177,45 +177,33 @@
 	function rebuildOutputOptionsFromSelections() {
 		// Retrieve codec for the currently selected audio format
 		const codec = AUDIO_FORMATS[selected.format].codec;
-		
+
 		// Use array for efficient string building
 		const options: string[] = [];
 
 		// Add format-specific container and encoding flags
 		switch (selected.format) {
 			case 'wav':
-				// WAV: Explicit format for proper headers
 				options.push('-f wav', `-acodec ${codec}`);
 				break;
 
 			case 'mp3':
-				// MP3: Strict OpenAI compatibility mode
-				options.push(
-					`-acodec ${codec}`,
-					`-b:a ${selected.bitrate}k`,
-					'-write_xing 0',      // No VBR headers
-					'-id3v2_version 0',   // Disable ID3v2 tags
-					'-write_id3v1 0'      // Disable ID3v1 tags
-				);
+				options.push('-f mp3', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
 				break;
 
 			case 'opus':
-				// Opus: Must specify OGG container for browser playback
 				options.push('-f ogg', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
 				break;
 
 			case 'ogg':
-				// OGG Vorbis: Use quality scale instead of bitrate
 				options.push('-f ogg', `-acodec ${codec}`, `-q:a ${selected.quality}`);
 				break;
 
 			case 'aac':
-				// AAC: Use MP4 container for proper .m4a files
 				options.push('-f mp4', `-acodec ${codec}`, `-b:a ${selected.bitrate}k`);
 				break;
 
 			default:
-				// Fallback to basic codec specification
 				options.push(`-acodec ${codec}`);
 				if (selected.format !== 'wav') {
 					options.push(`-b:a ${selected.bitrate}k`);
@@ -225,7 +213,7 @@
 		// Add common options for all formats
 		options.push(
 			`-ar ${selected.sampleRate}`,
-			'-ac 1'  // Always mono for Whisper optimization
+			'-ac 1', // Always mono for Whisper optimization
 		);
 
 		outputOptions = options.join(' ');
