@@ -3,6 +3,7 @@
 	import NavItems from '$lib/components/NavItems.svelte';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import {
+		RecordingModeSelector,
 		CompressionSelector,
 		TranscriptionSelector,
 		TransformationSelector,
@@ -55,6 +56,7 @@
 				🚫
 			</WhisperingButton>
 		{:else}
+			<RecordingModeSelector />
 			<ManualDeviceSelector />
 			<CompressionSelector />
 			<TranscriptionSelector />
@@ -73,6 +75,7 @@
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
+			<RecordingModeSelector />
 			<VadDeviceSelector />
 			<CompressionSelector />
 			<TranscriptionSelector />
@@ -88,16 +91,16 @@
 			{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
 		</WhisperingButton>
 	{:else if settings.value['recording.mode'] === 'upload'}
+		<RecordingModeSelector />
 		<CompressionSelector />
 		<TranscriptionSelector />
 		<TransformationSelector />
 	{:else if settings.value['recording.mode'] === 'live'}
-		{#if true}
-			<ManualDeviceSelector />
-			<CompressionSelector />
-			<TranscriptionSelector />
-			<TransformationSelector />
-		{/if}
+		<RecordingModeSelector />
+		<ManualDeviceSelector />
+		<CompressionSelector />
+		<TranscriptionSelector />
+		<TransformationSelector />
 		<WhisperingButton
 			tooltipContent="Toggle live recording"
 			onclick={() => {
