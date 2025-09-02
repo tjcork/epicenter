@@ -1,3 +1,4 @@
+import { invoke } from '@tauri-apps/api/core';
 import type {
 	CancelRecordingResult,
 	WhisperingRecordingState,
@@ -12,7 +13,6 @@ import { Child } from '@tauri-apps/plugin-shell';
 import { type } from 'arktype';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
-import { sendSigint } from '../graceful-shutdown';
 import type {
 	Device,
 	DeviceAcquisitionOutcome,
@@ -637,4 +637,21 @@ export function buildFfmpegCommand({
 	].filter((part) => part); // Remove empty strings
 
 	return parts.join(' ');
+}
+
+type SignalResult = {
+	success: boolean;
+	message: string;
+};
+
+/**
+ * Send a SIGINT signal to a process by PID (equivalent to Ctrl+C).
+ * This is the preferred method for gracefully stopping console applications
+ * like FFmpeg, as they're designed to handle Ctrl+C properly.
+ *
+ * On Unix systems, this sends the actual SIGINT signal.
+ * On Windows, this attempts to send a Ctrl+C event to the console process.
+ */
+async function sendSigint(pid: number): Promise<SignalResult> {
+	return invoke<SignalResult>('send_sigint', { pid });
 }
