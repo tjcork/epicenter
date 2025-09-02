@@ -6,7 +6,7 @@ import { PLATFORM_TYPE } from '$lib/constants/platform';
 import * as services from '$lib/services';
 import { asShellCommand } from '$lib/services/command';
 import { join } from '@tauri-apps/api/path';
-import { exists, remove } from '@tauri-apps/plugin-fs';
+import { exists, remove, stat } from '@tauri-apps/plugin-fs';
 import { Child } from '@tauri-apps/plugin-shell';
 import { createPersistedState } from '@repo/svelte-utils';
 import { type } from 'arktype';
@@ -407,8 +407,44 @@ export function createFfmpegRecorderService(): RecorderService {
 			// Clear the session
 			sessionState.value = null;
 
-			// Wait for FFmpeg to finalize the file
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			// Poll for file stabilization
+			const MAX_WAIT_TIME = 3000; // 3 seconds max
+			const POLL_INTERVAL = 100; // Check every 100ms
+			const startTime = Date.now();
+			let lastSize = -1;
+			let stableChecks = 0;
+			const STABLE_THRESHOLD = 2; // File size must be stable for 2 checks
+
+			while (Date.now() - startTime < MAX_WAIT_TIME) {
+				await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
+
+				await tryAsync({
+					try: async () => {
+						const fileExists = await exists(outputPath);
+						if (fileExists) {
+							const stats = await stat(outputPath);
+							const currentSize = stats.size;
+
+							// Check if file size has stabilized
+							if (currentSize > 0 && currentSize === lastSize) {
+								stableChecks++;
+								if (stableChecks >= STABLE_THRESHOLD) {
+									// File is stable, FFmpeg has finished
+									return;
+								}
+							} else {
+								// Size changed, reset stability counter
+								stableChecks = 0;
+								lastSize = currentSize;
+							}
+						}
+					},
+					catch: () => Ok(undefined), // File might not exist yet, continue polling
+				});
+
+				// Break if file is stable
+				if (stableChecks >= STABLE_THRESHOLD) break;
+			}
 
 			// Read the recorded file
 			sendStatus({
