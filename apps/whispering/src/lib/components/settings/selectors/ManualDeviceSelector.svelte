@@ -8,6 +8,7 @@
 	import { cn } from '@repo/ui/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
+	import { Badge } from '@repo/ui/badge';
 
 	const combobox = useCombobox();
 
@@ -15,8 +16,33 @@
 	const settingKey = 'recording.manual.selectedDeviceId';
 
 	const selectedDeviceId = $derived(settings.value[settingKey]);
+	const selectedMethod = $derived(settings.value['recording.method']);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
+
+	// Recording method options with descriptions
+	const RECORDING_METHODS = {
+		cpal: {
+			label: 'CPAL',
+			description: 'Native audio recording with low latency',
+			badge: 'Recommended',
+			isAvailable: window.__TAURI_INTERNALS__, // Desktop only
+		},
+		ffmpeg: {
+			label: 'FFmpeg',
+			description: 'Command-line recording with advanced options',
+			badge: 'Advanced',
+			isAvailable: window.__TAURI_INTERNALS__, // Desktop only
+		},
+		navigator: {
+			label: 'Navigator',
+			description: 'Browser MediaRecorder API',
+			badge: 'Universal',
+			isAvailable: true, // Always available
+		},
+	} as const;
+
+	type RecordingMethod = keyof typeof RECORDING_METHODS;
 
 	const getDevicesQuery = createQuery(() => ({
 		...rpc.recorder.enumerateDevices.options(),
@@ -36,8 +62,8 @@
 			<WhisperingButton
 				{...props}
 				tooltipContent={isDeviceSelected
-					? 'Change recording device'
-					: 'Select a recording device'}
+					? `Recording via ${RECORDING_METHODS[selectedMethod].label} - Change device or method`
+					: `Select recording device (${RECORDING_METHODS[selectedMethod].label} method)`}
 				role="combobox"
 				aria-expanded={combobox.open}
 				variant="ghost"
@@ -51,59 +77,105 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0">
+	<Popover.Content class="p-0">
 		<Command.Root loop>
-			<Command.Input placeholder="Select recording device..." />
-			<Command.Empty>No recording devices found.</Command.Empty>
-			<Command.Group class="overflow-y-auto max-h-[400px]">
-				{#if getDevicesQuery.isPending}
-					<div class="p-4 text-center text-sm text-muted-foreground">
-						Loading devices...
-					</div>
-				{:else if getDevicesQuery.isError}
-					<div class="p-4 text-center text-sm text-destructive">
-						{getDevicesQuery.error.title}
-					</div>
-				{:else}
-					{#each getDevicesQuery.data as device (device.id)}
-						<Command.Item
-							value={device.id}
-							onSelect={() => {
-								const currentDeviceId = selectedDeviceId;
-								settings.updateKey(
-									settingKey,
-									currentDeviceId === device.id ? null : device.id,
-								);
-								combobox.closeAndFocusTrigger();
-							}}
-						>
-							<CheckIcon
-								class={cn(
-									'mr-2 size-4',
-									selectedDeviceId === device.id ? 'opacity-100' : 'opacity-0',
-								)}
-							/>
-							{device.label}
-						</Command.Item>
+			<Command.Input placeholder="Search devices and methods..." />
+			<Command.List class="max-h-[40vh]">
+				<Command.Empty>No recording devices found.</Command.Empty>
+
+				<!-- Recording Method Selection -->
+				<Command.Group heading="Recording Method">
+					{#each Object.entries(RECORDING_METHODS) as [methodKey, method]}
+						{@const isSelected = selectedMethod === methodKey}
+						{#if method.isAvailable}
+							<Command.Item
+								value={`method-${methodKey} ${method.label} ${method.description}`}
+								onSelect={() => {
+									settings.updateKey('recording.method', methodKey);
+								}}
+								class="flex items-center gap-3 px-3 py-2"
+							>
+								<CheckIcon
+									class={cn(
+										'size-4 shrink-0',
+										isSelected ? 'opacity-100' : 'opacity-0',
+									)}
+								/>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2">
+										<span class="font-medium text-sm">{method.label}</span>
+										<Badge
+											variant={isSelected ? 'default' : 'secondary'}
+											class="text-xs"
+										>
+											{method.badge}
+										</Badge>
+									</div>
+									<p class="text-xs text-muted-foreground mb-1">
+										{method.description}
+									</p>
+								</div>
+							</Command.Item>
+						{/if}
 					{/each}
-				{/if}
-			</Command.Group>
-			<Command.Separator />
-			<Command.Group>
-				<Command.Item
-					onSelect={() => {
-						getDevicesQuery.refetch();
-					}}
-				>
-					<RefreshCwIcon
-						class={cn(
-							'mr-2 size-4',
-							getDevicesQuery.isRefetching && 'animate-spin',
-						)}
-					/>
-					Refresh devices
-				</Command.Item>
-			</Command.Group>
+				</Command.Group>
+
+				<Command.Separator />
+
+				<!-- Device Selection -->
+				<Command.Group heading="Recording Device">
+					{#if getDevicesQuery.isPending}
+						<div class="p-4 text-center text-sm text-muted-foreground">
+							Loading devices...
+						</div>
+					{:else if getDevicesQuery.isError}
+						<div class="p-4 text-center text-sm text-destructive">
+							{getDevicesQuery.error.title}
+						</div>
+					{:else}
+						{#each getDevicesQuery.data as device (device.id)}
+							<Command.Item
+								value={`device-${device.id} ${device.label}`}
+								onSelect={() => {
+									const currentDeviceId = selectedDeviceId;
+									settings.updateKey(
+										settingKey,
+										currentDeviceId === device.id ? null : device.id,
+									);
+									combobox.closeAndFocusTrigger();
+								}}
+								class="flex items-center gap-3 px-3 py-2"
+							>
+								<CheckIcon
+									class={cn(
+										'size-4 shrink-0',
+										selectedDeviceId === device.id
+											? 'opacity-100'
+											: 'opacity-0',
+									)}
+								/>
+								<span class="flex-1 text-sm">{device.label}</span>
+							</Command.Item>
+						{/each}
+					{/if}
+				</Command.Group>
+				<Command.Separator />
+				<Command.Group>
+					<Command.Item
+						onSelect={() => {
+							getDevicesQuery.refetch();
+						}}
+					>
+						<RefreshCwIcon
+							class={cn(
+								'mr-2 size-4',
+								getDevicesQuery.isRefetching && 'animate-spin',
+							)}
+						/>
+						Refresh devices
+					</Command.Item>
+				</Command.Group>
+			</Command.List>
 		</Command.Root>
 	</Popover.Content>
 </Popover.Root>
