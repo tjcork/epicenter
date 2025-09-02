@@ -46,6 +46,7 @@ import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
 import { asDeviceIdentifier } from '$lib/services/types';
 import {
 	FFMPEG_DEFAULT_GLOBAL_OPTIONS,
+	FFMPEG_DEFAULT_INPUT_OPTIONS,
 	FFMPEG_DEFAULT_OUTPUT_OPTIONS,
 } from '$lib/services/recorder/ffmpeg';
 import { type ZodBoolean, type ZodString, z } from 'zod';
