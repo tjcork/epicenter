@@ -137,7 +137,7 @@
 		const commandParts = [
 			'ffmpeg',
 			globalOptions.trim(),
-			inputOptions.trim(), // Can be empty - FFmpeg will auto-detect
+			inputOptions.trim(), // Will use the platform default from settings
 			'-i',
 			formattedDevice,
 			outputOptions.trim(),
@@ -195,105 +195,36 @@
 
 		<!-- Output Options (Primary) -->
 		<div class="rounded-lg border p-4 space-y-3">
-			<h5 class="text-sm font-medium flex items-center gap-2">
+			<h5 class="text-sm font-medium">
 				<span class="text-primary">Output</span>
-				<span class="text-xs text-muted-foreground font-normal"
+				<span class="text-xs text-muted-foreground font-normal ml-2"
 					>Primary settings</span
 				>
 			</h5>
 
-			<!-- Compact grid layout for dropdowns -->
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-				<LabeledSelect
-					id="ffmpeg-format"
-					label="Format"
-					items={audioFormatOptions}
-					selected={selected.format}
-					onSelectedChange={(value) => {
-						selected = { ...selected, format: value as AudioFormat };
-						rebuildOutputOptionsFromSelections();
-					}}
-					placeholder="Select format"
-				>
-					{#snippet actionSlot()}
-						{#if selected.format !== DEFAULT.format}
-							<WhisperingButton
-								tooltipContent="Reset"
-								variant="ghost"
-								size="icon"
-								class="h-6 w-6"
-								onclick={() => {
-									selected = { ...selected, format: DEFAULT.format };
-									rebuildOutputOptionsFromSelections();
-								}}
-							>
-								<RotateCcw class="h-3 w-3" />
-							</WhisperingButton>
-						{/if}
-					{/snippet}
-				</LabeledSelect>
-
-				<LabeledSelect
-					id="ffmpeg-sample-rate"
-					label="Sample Rate"
-					items={[
-						{ value: '16000', label: '16 kHz' },
-						{ value: '22050', label: '22 kHz' },
-						{ value: '44100', label: '44.1 kHz' },
-						{ value: '48000', label: '48 kHz' },
-					]}
-					selected={selected.sampleRate}
-					onSelectedChange={(value) => {
-						selected = { ...selected, sampleRate: value };
-						rebuildOutputOptionsFromSelections();
-					}}
-					placeholder="Sample rate"
-				>
-					{#snippet actionSlot()}
-						{#if selected.sampleRate !== DEFAULT.sampleRate}
-							<WhisperingButton
-								tooltipContent="Reset"
-								variant="ghost"
-								size="icon"
-								class="h-6 w-6"
-								onclick={() => {
-									selected = { ...selected, sampleRate: DEFAULT.sampleRate };
-									rebuildOutputOptionsFromSelections();
-								}}
-							>
-								<RotateCcw class="h-3 w-3" />
-							</WhisperingButton>
-						{/if}
-					{/snippet}
-				</LabeledSelect>
-
-				{#if selected.format !== 'wav'}
+			<!-- Flexible layout that adapts to number of controls -->
+			<div class="flex flex-col sm:flex-row gap-3">
+				<div class="flex-1">
 					<LabeledSelect
-						id="ffmpeg-bitrate"
-						label="Bitrate"
-						items={[
-							{ value: '64', label: '64 kbps' },
-							{ value: '128', label: '128 kbps' },
-							{ value: '192', label: '192 kbps' },
-							{ value: '256', label: '256 kbps' },
-							{ value: '320', label: '320 kbps' },
-						]}
-						selected={selected.bitrate}
+						id="ffmpeg-format"
+						label="Format"
+						items={audioFormatOptions}
+						selected={selected.format}
 						onSelectedChange={(value) => {
-							selected = { ...selected, bitrate: value };
+							selected = { ...selected, format: value as AudioFormat };
 							rebuildOutputOptionsFromSelections();
 						}}
-						placeholder="Bitrate"
+						placeholder="Select format"
 					>
 						{#snippet actionSlot()}
-							{#if selected.bitrate !== DEFAULT.bitrate}
+							{#if selected.format !== DEFAULT.format}
 								<WhisperingButton
 									tooltipContent="Reset"
 									variant="ghost"
 									size="icon"
 									class="h-6 w-6"
 									onclick={() => {
-										selected = { ...selected, bitrate: DEFAULT.bitrate };
+										selected = { ...selected, format: DEFAULT.format };
 										rebuildOutputOptionsFromSelections();
 									}}
 								>
@@ -302,6 +233,81 @@
 							{/if}
 						{/snippet}
 					</LabeledSelect>
+				</div>
+
+				<div class="flex-1">
+					<LabeledSelect
+						id="ffmpeg-sample-rate"
+						label="Sample Rate"
+						items={[
+							{ value: '16000', label: '16 kHz' },
+							{ value: '22050', label: '22 kHz' },
+							{ value: '44100', label: '44.1 kHz' },
+							{ value: '48000', label: '48 kHz' },
+						]}
+						selected={selected.sampleRate}
+						onSelectedChange={(value) => {
+							selected = { ...selected, sampleRate: value };
+							rebuildOutputOptionsFromSelections();
+						}}
+						placeholder="Sample rate"
+					>
+						{#snippet actionSlot()}
+							{#if selected.sampleRate !== DEFAULT.sampleRate}
+								<WhisperingButton
+									tooltipContent="Reset"
+									variant="ghost"
+									size="icon"
+									class="h-6 w-6"
+									onclick={() => {
+										selected = { ...selected, sampleRate: DEFAULT.sampleRate };
+										rebuildOutputOptionsFromSelections();
+									}}
+								>
+									<RotateCcw class="h-3 w-3" />
+								</WhisperingButton>
+							{/if}
+						{/snippet}
+					</LabeledSelect>
+				</div>
+
+				{#if selected.format !== 'wav'}
+					<div class="flex-1">
+						<LabeledSelect
+							id="ffmpeg-bitrate"
+							label="Bitrate"
+							items={[
+								{ value: '64', label: '64 kbps' },
+								{ value: '128', label: '128 kbps' },
+								{ value: '192', label: '192 kbps' },
+								{ value: '256', label: '256 kbps' },
+								{ value: '320', label: '320 kbps' },
+							]}
+							selected={selected.bitrate}
+							onSelectedChange={(value) => {
+								selected = { ...selected, bitrate: value };
+								rebuildOutputOptionsFromSelections();
+							}}
+							placeholder="Bitrate"
+						>
+							{#snippet actionSlot()}
+								{#if selected.bitrate !== DEFAULT.bitrate}
+									<WhisperingButton
+										tooltipContent="Reset"
+										variant="ghost"
+										size="icon"
+										class="h-6 w-6"
+										onclick={() => {
+											selected = { ...selected, bitrate: DEFAULT.bitrate };
+											rebuildOutputOptionsFromSelections();
+										}}
+									>
+										<RotateCcw class="h-3 w-3" />
+									</WhisperingButton>
+								{/if}
+							{/snippet}
+						</LabeledSelect>
+					</div>
 				{/if}
 			</div>
 
@@ -387,7 +393,7 @@
 						/>
 						{#if inputOptions !== FFMPEG_DEFAULT_INPUT_OPTIONS}
 							<WhisperingButton
-								tooltipContent="Reset"
+								tooltipContent="Reset to platform default"
 								variant="ghost"
 								size="icon"
 								class="h-8 w-8"
