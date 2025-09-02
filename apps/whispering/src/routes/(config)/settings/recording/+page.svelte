@@ -27,10 +27,28 @@
 	] as const;
 
 	const RECORDING_BACKEND_OPTIONS = [
-		{ value: 'cpal', label: 'CPAL (Rust)' },
-		{ value: 'navigator', label: 'Navigator (MediaRecorder)' },
-		{ value: 'ffmpeg', label: 'FFmpeg (Command-line)' },
-	] as const;
+		{
+			value: 'ffmpeg',
+			label: 'FFmpeg',
+			description: IS_MACOS
+				? 'Recommended. Supports all audio formats with advanced customization options. Reliable with keyboard shortcuts.'
+				: 'Recommended. Supports all audio formats with advanced customization options.',
+		},
+		{
+			value: 'cpal',
+			label: 'CPAL',
+			description: IS_MACOS
+				? 'Native Rust audio backend. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
+				: 'Native Rust audio backend. Records uncompressed WAV format, creates larger files.',
+		},
+		{
+			value: 'navigator',
+			label: 'Browser API',
+			description: IS_MACOS
+				? 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription services, but may have delays with shortcuts when app is in background (macOS AppNap).'
+				: 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription services.',
+		},
+	];
 
 	const isUsingNavigatorBackend = $derived(
 		!window.__TAURI_INTERNALS__ ||
@@ -82,14 +100,16 @@
 				);
 			}}
 			placeholder="Select a recording backend"
-			description={{
-				cpal: 'CPAL: Uses Rust audio backend for lower-level access and potentially better quality',
-				navigator:
-					'Browser: Uses web standards (MediaRecorder API) for better compatibility',
-				ffmpeg:
-					'FFmpeg: Uses FFmpeg command-line tool for maximum flexibility and format support',
-			}[settings.value['recording.backend']]}
-		/>
+		>
+			{#snippet renderOption({ item })}
+				<div class="flex flex-col gap-0.5">
+					<div class="font-medium">{item.label}</div>
+					{#if item.description}
+						<div class="text-xs text-muted-foreground">{item.description}</div>
+					{/if}
+				</div>
+			{/snippet}
+		</LabeledSelect>
 
 		{#if settings.value['recording.backend'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
