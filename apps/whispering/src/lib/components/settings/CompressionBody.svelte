@@ -20,18 +20,18 @@
 			options:
 				'-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
 		},
+		preserve: {
+			label: 'Preserve Audio',
+			icon: '📼',
+			description: 'Compress but keep all audio',
+			options: '-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
+		},
 		smallest: {
 			label: 'Smallest',
 			icon: '🗜️',
 			description: 'Maximum compression with silence removal',
 			options:
 				'-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 16k -ar 16000 -ac 1 -compression_level 10',
-		},
-		preserve: {
-			label: 'Preserve Audio',
-			icon: '📼',
-			description: 'Compress but keep all audio',
-			options: '-c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
 		},
 		compatible: {
 			label: 'MP3',
