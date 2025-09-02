@@ -10,7 +10,10 @@ import { FsServiceErr } from './types';
  */
 function getMimeTypeFromPath(filePath: string): string {
 	const ext = filePath.split('.').pop()?.toLowerCase() ?? '';
-	return MIME_TYPE_MAP[ext as keyof typeof MIME_TYPE_MAP] ?? 'application/octet-stream';
+	return (
+		MIME_TYPE_MAP[ext as keyof typeof MIME_TYPE_MAP] ??
+		'application/octet-stream'
+	);
 }
 
 export function createFsServiceDesktop(): FsService {
@@ -22,7 +25,7 @@ export function createFsServiceDesktop(): FsService {
 					const mimeType = getMimeTypeFromPath(path);
 					return new Blob([fileBytes], { type: mimeType });
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					FsServiceErr({
 						message: `Failed to read file as Blob: ${path}`,
 						cause: error,
@@ -38,7 +41,7 @@ export function createFsServiceDesktop(): FsService {
 					const mimeType = getMimeTypeFromPath(path);
 					return new File([fileBytes], fileName, { type: mimeType });
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					FsServiceErr({
 						message: `Failed to read file as File: ${path}`,
 						cause: error,
@@ -59,7 +62,7 @@ export function createFsServiceDesktop(): FsService {
 					}
 					return files;
 				},
-				mapErr: (error) =>
+				catch: (error) =>
 					FsServiceErr({
 						message: `Failed to read files: ${paths.join(', ')}`,
 						cause: error,

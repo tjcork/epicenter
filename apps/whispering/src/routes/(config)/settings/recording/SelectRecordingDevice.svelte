@@ -22,7 +22,7 @@
 	const isUsingBrowserBackend = $derived(
 		mode === 'vad' || 
 		!window.__TAURI_INTERNALS__ ||
-		settings.value['recording.backend'] === 'browser' 
+		settings.value['recording.backend'] === 'navigator' 
 	);
 
 	const getDevicesQuery = createQuery(

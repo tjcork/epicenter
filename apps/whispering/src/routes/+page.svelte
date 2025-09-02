@@ -5,10 +5,11 @@
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import { ClipboardIcon } from '$lib/components/icons';
 	import {
-		DeviceSelector,
 		TranscriptionSelector,
 		TransformationSelector,
 	} from '$lib/components/settings';
+	import ManualDeviceSelector from '$lib/components/settings/selectors/ManualDeviceSelector.svelte';
+	import VadDeviceSelector from '$lib/components/settings/selectors/VadDeviceSelector.svelte';
 	import {
 		RECORDING_MODE_OPTIONS,
 		type RecordingMode,
@@ -93,7 +94,6 @@
 		'm4v',
 	] as const;
 
-
 	// Store unlisten function for drag drop events
 	let unlistenDragDrop: UnlistenFn | undefined;
 
@@ -141,7 +141,8 @@
 					await rpc.settings.switchRecordingMode.execute('upload');
 
 					// Convert file paths to File objects using the fs service
-					const { data: files, error } = await services.fs.pathsToFiles(validPaths);
+					const { data: files, error } =
+						await services.fs.pathsToFiles(validPaths);
 
 					if (error) {
 						rpc.notify.error.execute({
@@ -239,7 +240,7 @@
 							🚫
 						</WhisperingButton>
 					{:else}
-						<DeviceSelector mode="manual" />
+						<ManualDeviceSelector />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
@@ -264,7 +265,7 @@
 				<!-- Right column: Selectors -->
 				<div class="flex justify-end items-center gap-1.5 mb-2">
 					{#if getVadStateQuery.data === 'IDLE'}
-						<DeviceSelector mode="vad" />
+						<VadDeviceSelector />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					{/if}
@@ -380,7 +381,7 @@
 			{/if}
 			<p class="text-muted-foreground text-center text-sm font-light">
 				{#if !window.__TAURI_INTERNALS__}
-					Tired of switching tabs? 
+					Tired of switching tabs?
 					<WhisperingButton
 						tooltipContent="Get Whispering for desktop"
 						href="https://epicenter.so/whispering"

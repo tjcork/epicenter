@@ -1,4 +1,4 @@
-import type { CancelRecordingResult } from '$lib/constants/audio';
+import type { CancelRecordingResult, WhisperingRecordingState } from '$lib/constants/audio';
 import { createTaggedError } from 'wellcrafted/error';
 import type { Result } from 'wellcrafted/result';
 import type {
@@ -7,7 +7,6 @@ import type {
 	DeviceAcquisitionOutcome,
 	UpdateStatusMessageFn,
 } from '../types';
-import type { TemplateString } from '$lib/utils/template';
 
 /**
  * Base error type for recorder services
@@ -30,7 +29,7 @@ type BaseRecordingParams = {
  */
 export type CpalRecordingParams = BaseRecordingParams & {
 	implementation: 'cpal';
-	outputFolder: string | null;
+	outputFolder: string;
 	sampleRate: string;
 };
 
@@ -47,7 +46,10 @@ export type NavigatorRecordingParams = BaseRecordingParams & {
  */
 export type FfmpegRecordingParams = BaseRecordingParams & {
 	implementation: 'ffmpeg';
-	commandTemplate: TemplateString | null;
+	globalOptions: string;
+	inputOptions: string;
+	outputOptions: string;
+	outputFolder: string;
 };
 
 /**
@@ -59,14 +61,14 @@ export type StartRecordingParams =
 	| FfmpegRecordingParams;
 
 /**
- * Unified recorder service interface that both desktop and web implementations must satisfy
+ * Recorder service interface shared by all implementations
  */
 export type RecorderService = {
 	/**
-	 * Get the current recording ID if a recording is in progress
-	 * Returns null if no recording is active
+	 * Get the current recorder state
+	 * Returns 'IDLE' if no recording is active, 'RECORDING' if recording is in progress
 	 */
-	getCurrentRecordingId(): Promise<Result<string | null, RecorderServiceError>>;
+	getRecorderState(): Promise<Result<WhisperingRecordingState, RecorderServiceError>>;
 
 	/**
 	 * Enumerate available recording devices with their labels and identifiers

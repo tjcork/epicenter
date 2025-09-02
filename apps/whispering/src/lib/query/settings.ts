@@ -71,13 +71,13 @@ export const settings = {
  * @returns Object containing array of errors that occurred while stopping recordings
  */
 async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
-	const { data: currentRecordingId } =
-		await recorderService().getCurrentRecordingId();
+	const { data: recorderState } =
+		await recorderService().getRecorderState();
 	// Each recording mode with its check and stop logic
 	const recordingModes = [
 		{
 			mode: 'manual' as const,
-			isActive: () => currentRecordingId === 'RECORDING',
+			isActive: () => recorderState === 'RECORDING',
 			stop: () =>
 				recorderService().stopRecording({
 					sendStatus: () => {}, // Silent cancel - no UI notifications
@@ -88,15 +88,6 @@ async function stopAllRecordingModesExcept(modeToKeep: RecordingMode) {
 			isActive: () => services.vad.getVadState() !== 'IDLE',
 			stop: () => services.vad.stopActiveListening(),
 		},
-		// {
-		// 	mode: 'cpal' as const,
-		// 	isActive: () =>
-		// 		services.cpalRecorder.getRecorderState().data === 'RECORDING',
-		// 	stop: () =>
-		// 		services.cpalRecorder.stopRecording({
-		// 			sendStatus: () => {}, // Silent cancel - no UI notifications
-		// 		}),
-		// },
 	] satisfies {
 		mode: RecordingMode;
 		isActive: () => boolean;

@@ -9,35 +9,24 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { CheckIcon, MicIcon, RefreshCwIcon } from '@lucide/svelte';
 
-	let {
-		mode = 'manual'
-	}: {
-		mode: 'manual' | 'vad'
-	} = $props();
-
 	const combobox = useCombobox();
-	
-	// Setting key is based on mode
-	const settingKey = $derived(
-		mode === 'vad' 
-			? 'recording.vad.selectedDeviceId'
-			: 'recording.manual.selectedDeviceId'
-	) 
-	
+
+	// Setting key for manual mode
+	const settingKey = 'recording.manual.selectedDeviceId';
+
 	// Determine which backend to use for device enumeration
-	// VAD always uses browser, manual uses the configured backend
+	// Manual mode uses the configured backend
 	const isUsingBrowserBackend = $derived(
-		mode === 'vad' || 
 		!window.__TAURI_INTERNALS__ ||
-		settings.value['recording.backend'] === 'browser'
+			settings.value['recording.backend'] === 'navigator',
 	);
-	
+
 	const selectedDeviceId = $derived(settings.value[settingKey]);
-	
+
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...(isUsingBrowserBackend 
+		...(isUsingBrowserBackend
 			? rpc.vadRecorder.enumerateDevices.options()
 			: rpc.recorder.enumerateDevices.options()),
 		enabled: combobox.open,
@@ -45,9 +34,7 @@
 
 	$effect(() => {
 		if (getDevicesQuery.isError) {
-			rpc.notify.warning.execute(
-				getDevicesQuery.error
-			);
+			rpc.notify.warning.execute(getDevicesQuery.error);
 		}
 	});
 </script>
@@ -98,34 +85,34 @@
 								);
 								combobox.closeAndFocusTrigger();
 							}}
-							class="flex items-center gap-2 p-2"
 						>
 							<CheckIcon
 								class={cn(
-									'size-4 shrink-0 mx-2',
-									selectedDeviceId !== device.id && 'text-transparent',
+									'mr-2 size-4',
+									selectedDeviceId === device.id ? 'opacity-100' : 'opacity-0',
 								)}
 							/>
-							<div class="flex flex-col min-w-0">
-								<span class="font-medium truncate">
-									{device.label}
-								</span>
-							</div>
+							{device.label}
 						</Command.Item>
 					{/each}
 				{/if}
 			</Command.Group>
-			<Command.Item
-				value="Refresh devices"
-				onSelect={() => {
-					getDevicesQuery.refetch();
-					combobox.closeAndFocusTrigger();
-				}}
-				class="rounded-none p-2 bg-muted/50 text-muted-foreground"
-			>
-				<RefreshCwIcon class="size-4 mx-2.5" />
-				Refresh devices
-			</Command.Item>
+			<Command.Separator />
+			<Command.Group>
+				<Command.Item
+					onSelect={() => {
+						getDevicesQuery.refetch();
+					}}
+				>
+					<RefreshCwIcon
+						class={cn(
+							'mr-2 size-4',
+							getDevicesQuery.isRefetching && 'animate-spin',
+						)}
+					/>
+					Refresh devices
+				</Command.Item>
+			</Command.Group>
 		</Command.Root>
 	</Popover.Content>
 </Popover.Root>

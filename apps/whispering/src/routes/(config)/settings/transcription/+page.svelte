@@ -35,7 +35,7 @@
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import {
 		isUsingWhisperCppWithBrowserBackend,
-		isUsingNativeBackendAtWrongSampleRate,
+		isUsingCpalBackendAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
 </script>
 
@@ -361,7 +361,7 @@
 						</Link>
 					</Alert.Description>
 				</Alert.Root>
-			{:else if isUsingNativeBackendAtWrongSampleRate()}
+			{:else if isUsingCpalBackendAtWrongSampleRate()}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -369,7 +369,7 @@
 					</Alert.Title>
 					<Alert.Description>
 						Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-						your current {settings.value['recording.desktop.sampleRate']}Hz
+						your current {settings.value['recording.cpal.sampleRate']}Hz
 						sample rate.
 						<Link
 							href="/install-ffmpeg"
