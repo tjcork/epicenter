@@ -17,16 +17,16 @@
 		mode: 'manual' | 'vad';
 	} = $props();
 
-	// Determine which backend to use for device enumeration
-	// VAD always uses browser, manual uses the configured backend
-	const isUsingBrowserBackend = $derived(
+	// Determine which method to use for device enumeration
+	// VAD always uses browser, manual uses the configured method
+	const isUsingBrowserMethod = $derived(
 		mode === 'vad' || 
 		!window.__TAURI_INTERNALS__ ||
-		settings.value['recording.backend'] === 'navigator' 
+		settings.value['recording.method'] === 'navigator' 
 	);
 
 	const getDevicesQuery = createQuery(
-		() => isUsingBrowserBackend 
+		() => isUsingBrowserMethod 
 			? rpc.vadRecorder.enumerateDevices.options()
 			: rpc.recorder.enumerateDevices.options()
 	);

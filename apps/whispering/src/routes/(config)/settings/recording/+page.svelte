@@ -13,8 +13,8 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
 	import {
-		isUsingCpalBackendWithCloudTranscription,
-		isUsingCpalBackendAtWrongSampleRate,
+		isUsingCpalMethodWithCloudTranscription,
+		isUsingCpalMethodAtWrongSampleRate,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 
@@ -26,7 +26,7 @@
 		{ value: '48000', label: 'High Quality (48kHz): Professional audio' },
 	] as const;
 
-	const RECORDING_BACKEND_OPTIONS = [
+	const RECORDING_METHOD_OPTIONS = [
 		{
 			value: 'ffmpeg',
 			label: 'FFmpeg',
@@ -43,8 +43,8 @@
 			value: 'cpal',
 			label: 'CPAL',
 			description: IS_MACOS
-				? 'Native Rust audio backend. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
-				: 'Native Rust audio backend. Records uncompressed WAV format, creates larger files.',
+				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
+				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
 		},
 		{
 			value: 'navigator',
@@ -55,13 +55,13 @@
 		},
 	];
 
-	const isUsingNavigatorBackend = $derived(
+	const isUsingNavigatorMethod = $derived(
 		!window.__TAURI_INTERNALS__ ||
-			settings.value['recording.backend'] === 'navigator',
+			settings.value['recording.method'] === 'navigator',
 	);
 
-	const isUsingFfmpegBackend = $derived(
-		settings.value['recording.backend'] === 'ffmpeg',
+	const isUsingFfmpegMethod = $derived(
+		settings.value['recording.method'] === 'ffmpeg',
 	);
 </script>
 
@@ -94,19 +94,19 @@
 
 	{#if window.__TAURI_INTERNALS__ && settings.value['recording.mode'] === 'manual'}
 		<LabeledSelect
-			id="recording-backend"
-			label="Recording Backend"
-			items={RECORDING_BACKEND_OPTIONS}
-			selected={settings.value['recording.backend']}
+			id="recording-method"
+			label="Recording Method"
+			items={RECORDING_METHOD_OPTIONS}
+			selected={settings.value['recording.method']}
 			onSelectedChange={(selected) => {
 				settings.updateKey(
-					'recording.backend',
+					'recording.method',
 					selected as 'cpal' | 'navigator' | 'ffmpeg',
 				);
 			}}
-			placeholder="Select a recording backend"
-			description={RECORDING_BACKEND_OPTIONS.find(
-				(option) => option.value === settings.value['recording.backend'],
+			placeholder="Select a recording method"
+			description={RECORDING_METHOD_OPTIONS.find(
+				(option) => option.value === settings.value['recording.method'],
 			)?.description}
 		>
 			{#snippet renderOption({ item })}
@@ -119,14 +119,14 @@
 			{/snippet}
 		</LabeledSelect>
 
-		{#if settings.value['recording.backend'] === 'ffmpeg' && !data.ffmpegInstalled}
+		{#if settings.value['recording.method'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
 				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
 				<Alert.Title class="text-red-600 dark:text-red-400">
 					FFmpeg Not Installed
 				</Alert.Title>
 				<Alert.Description>
-					FFmpeg is required for the FFmpeg recording backend. Please install it
+					FFmpeg is required for the FFmpeg recording method. Please install it
 					to use this feature.
 					<Link
 						href="/install-ffmpeg"
@@ -136,7 +136,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if IS_MACOS && settings.value['recording.backend'] === 'navigator'}
+		{:else if IS_MACOS && settings.value['recording.method'] === 'navigator'}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -145,12 +145,12 @@
 				<Alert.Description>
 					When using the navigator recorder, macOS App Nap may prevent the
 					browser recording logic from starting when not in focus. Consider
-					using the CPAL backend for reliable global shortcut support.
+					using the CPAL method for reliable global shortcut support.
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
 
-		{#if isUsingCpalBackendAtWrongSampleRate() && !data.ffmpegInstalled}
+		{#if isUsingCpalMethodAtWrongSampleRate() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -168,7 +168,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isUsingCpalBackendWithCloudTranscription() && !data.ffmpegInstalled}
+		{:else if isUsingCpalMethodWithCloudTranscription() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -176,7 +176,7 @@
 				</Alert.Title>
 				<Alert.Description>
 					We highly recommend installing FFmpeg for optimal audio processing
-					with the CPAL recording backend. FFmpeg enables audio compression for
+					with the CPAL recording method. FFmpeg enables audio compression for
 					faster uploads to transcription services.
 					<Link
 						href="/install-ffmpeg"
@@ -206,7 +206,7 @@
 			<Alert.Description>
 				VAD mode uses the browser's Web Audio API for real-time voice detection.
 				Unlike manual recording, VAD mode cannot use alternative recording
-				implementations and must use the browser's MediaRecorder API.
+				methods and must use the browser's MediaRecorder API.
 			</Alert.Description>
 		</Alert.Root>
 
@@ -220,8 +220,8 @@
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}
-		{#if isUsingNavigatorBackend}
-			<!-- Browser backend settings -->
+		{#if isUsingNavigatorMethod}
+			<!-- Browser method settings -->
 			<LabeledSelect
 				id="bit-rate"
 				label="Bitrate"
@@ -236,8 +236,8 @@
 				placeholder="Select a bitrate"
 				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
-		{:else if isUsingFfmpegBackend}
-			<!-- FFmpeg backend settings -->
+		{:else if isUsingFfmpegMethod}
+			<!-- FFmpeg method settings -->
 			<div class="space-y-2">
 				<label for="output-folder" class="text-sm font-medium">
 					Recording Output Folder
@@ -264,7 +264,7 @@
 				}
 			/>
 		{:else}
-			<!-- CPAL backend settings -->
+			<!-- CPAL method settings -->
 			<LabeledSelect
 				id="sample-rate"
 				label="Sample Rate"

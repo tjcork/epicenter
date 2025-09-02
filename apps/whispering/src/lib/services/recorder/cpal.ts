@@ -1,5 +1,9 @@
-import type { CancelRecordingResult, WhisperingRecordingState } from '$lib/constants/audio';
+import type {
+	CancelRecordingResult,
+	WhisperingRecordingState,
+} from '$lib/constants/audio';
 import { invoke as tauriInvoke } from '@tauri-apps/api/core';
+import { readFile, remove } from '@tauri-apps/plugin-fs';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
 import type { Device, DeviceAcquisitionOutcome } from '../types';
 import { asDeviceIdentifier } from '../types';
@@ -7,14 +11,11 @@ import type {
 	CpalRecordingParams,
 	RecorderService,
 	RecorderServiceError,
-	StartRecordingParams,
 } from './types';
 import { RecorderServiceErr } from './types';
-import { readFile } from '@tauri-apps/plugin-fs';
-import { remove } from '@tauri-apps/plugin-fs';
 
 /**
- * Audio recording data returned from the Rust backend
+ * Audio recording data returned from the Rust method
  */
 type AudioRecording = {
 	sampleRate: number;
@@ -48,8 +49,9 @@ export function createCpalRecorderService(): RecorderService {
 		getRecorderState: async (): Promise<
 			Result<WhisperingRecordingState, RecorderServiceError>
 		> => {
-			const { data: recordingId, error: getRecorderStateError } =
-				await invoke<string | null>('get_current_recording_id');
+			const { data: recordingId, error: getRecorderStateError } = await invoke<
+				string | null
+			>('get_current_recording_id');
 			if (getRecorderStateError)
 				return RecorderServiceErr({
 					message:
@@ -107,7 +109,8 @@ export function createCpalRecorderService(): RecorderService {
 				// Check if the selected device exists in the devices array
 				const deviceExists = deviceIds.includes(selectedDeviceId);
 
-				if (deviceExists) return Ok({ outcome: 'success', deviceId: selectedDeviceId });
+				if (deviceExists)
+					return Ok({ outcome: 'success', deviceId: selectedDeviceId });
 
 				sendStatus({
 					title: '⚠️ Finding a New Microphone',
@@ -196,7 +199,7 @@ export function createCpalRecorderService(): RecorderService {
 			// Desktop recorder should always write to a file
 			if (!filePath) {
 				return RecorderServiceErr({
-					message: 'Recording file path not provided by backend.',
+					message: 'Recording file path not provided by method.',
 					context: {
 						operation: 'stopRecording',
 						audioRecording,
@@ -311,7 +314,7 @@ export function createCpalRecorderService(): RecorderService {
 }
 
 /**
- * CPAL recorder service that uses the Rust backend CPAL implementation.
+ * CPAL recorder service that uses the Rust CPAL method.
  * This is the CPAL audio recorder for desktop environments.
  */
 export const CpalRecorderServiceLive = createCpalRecorderService();

@@ -14,21 +14,12 @@
 	// Setting key for manual mode
 	const settingKey = 'recording.manual.selectedDeviceId';
 
-	// Determine which backend to use for device enumeration
-	// Manual mode uses the configured backend
-	const isUsingBrowserBackend = $derived(
-		!window.__TAURI_INTERNALS__ ||
-			settings.value['recording.backend'] === 'navigator',
-	);
-
 	const selectedDeviceId = $derived(settings.value[settingKey]);
 
 	const isDeviceSelected = $derived(!!selectedDeviceId);
 
 	const getDevicesQuery = createQuery(() => ({
-		...(isUsingBrowserBackend
-			? rpc.vadRecorder.enumerateDevices.options()
-			: rpc.recorder.enumerateDevices.options()),
+		...rpc.recorder.enumerateDevices.options(),
 		enabled: combobox.open,
 	}));
 

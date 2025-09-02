@@ -15,19 +15,19 @@ function isUsingWhisperCpp(): boolean {
 }
 
 /**
- * Checks if the CPAL (Rust) recording backend is selected
- * @returns true if using CPAL backend for recording
+ * Checks if the CPAL (Rust) recording method is selected
+ * @returns true if using CPAL method for recording
  */
-function isUsingCpalBackend(): boolean {
-	return settings.value['recording.backend'] === 'cpal';
+function isUsingCpalMethod(): boolean {
+	return settings.value['recording.method'] === 'cpal';
 }
 
 /**
- * Checks if the navigator (MediaRecorder) recording backend is selected
- * @returns true if using navigator backend for recording
+ * Checks if the navigator (MediaRecorder) recording method is selected
+ * @returns true if using navigator method for recording
  */
-function isUsingNavigatorBackend(): boolean {
-	return settings.value['recording.backend'] === 'navigator';
+function isUsingNavigatorMethod(): boolean {
+	return settings.value['recording.method'] === 'navigator';
 }
 
 /**
@@ -41,41 +41,41 @@ function isUsing16kHz(): boolean {
 
 /**
  * Checks if FFmpeg is REQUIRED for Whisper C++ with browser recording
- * Browser backend cannot produce 16kHz WAV directly, so FFmpeg is required
- * @returns true if using Whisper C++ with browser backend
+ * Browser method cannot produce 16kHz WAV directly, so FFmpeg is required
+ * @returns true if using Whisper C++ with browser method
  */
-export function isUsingWhisperCppWithBrowserBackend(): boolean {
-	return isUsingWhisperCpp() && isUsingNavigatorBackend();
+export function isUsingWhisperCppWithBrowserMethod(): boolean {
+	return isUsingWhisperCpp() && isUsingNavigatorMethod();
 }
 
 /**
  * Checks if FFmpeg is REQUIRED for Whisper C++ with wrong sample rate
- * CPAL backend with non-16kHz audio needs FFmpeg to convert for Whisper C++
- * @returns true if using Whisper C++ with CPAL backend at non-16kHz
+ * CPAL method with non-16kHz audio needs FFmpeg to convert for Whisper C++
+ * @returns true if using Whisper C++ with CPAL method at non-16kHz
  */
-export function isUsingCpalBackendAtWrongSampleRate(): boolean {
-	return isUsingWhisperCpp() && isUsingCpalBackend() && !isUsing16kHz();
+export function isUsingCpalMethodAtWrongSampleRate(): boolean {
+	return isUsingWhisperCpp() && isUsingCpalMethod() && !isUsing16kHz();
 }
 
 /**
- * Checks if FFmpeg would benefit cloud transcription with CPAL backend
+ * Checks if FFmpeg would benefit cloud transcription with CPAL method
  * FFmpeg enables audio compression for faster uploads to cloud services
- * Only relevant when using CPAL backend with cloud providers (not Whisper C++)
- * @returns true if using CPAL backend with any cloud transcription service
+ * Only relevant when using CPAL method with cloud providers (not Whisper C++)
+ * @returns true if using CPAL method with any cloud transcription service
  */
-export function isUsingCpalBackendWithCloudTranscription(): boolean {
-	return isUsingCpalBackend() && !isUsingWhisperCpp();
+export function isUsingCpalMethodWithCloudTranscription(): boolean {
+	return isUsingCpalMethod() && !isUsingWhisperCpp();
 }
 
 /**
  * Checks for FFmpeg installation and shows an appropriate toast based on current settings.
  *
  * FFmpeg is REQUIRED when:
- * - Using Whisper C++ with browser recording backend
- * - Using Whisper C++ with CPAL recording backend at any sample rate other than 16kHz
+ * - Using Whisper C++ with browser recording method
+ * - Using Whisper C++ with CPAL recording method at any sample rate other than 16kHz
  *
  * FFmpeg is RECOMMENDED when:
- * - Using CPAL recording backend with cloud transcription services (for compression)
+ * - Using CPAL recording method with cloud transcription services (for compression)
  */
 export async function checkFfmpeg() {
 	// Only check in Tauri desktop app
@@ -86,8 +86,8 @@ export async function checkFfmpeg() {
 
 	if (ffmpegInstalled === true) return; // FFmpeg is installed, all good
 
-	// Case 1: Whisper C++ with browser backend - always requires FFmpeg
-	if (isUsingWhisperCppWithBrowserBackend()) {
+	// Case 1: Whisper C++ with browser method - always requires FFmpeg
+	if (isUsingWhisperCppWithBrowserMethod()) {
 		toast.warning('FFmpeg Required for Current Settings', {
 			description:
 				'Whisper C++ requires FFmpeg to convert audio to 16kHz WAV format when using browser recording.',
@@ -100,8 +100,8 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// Case 2: Whisper C++ with CPAL backend at wrong sample rate
-	if (isUsingCpalBackendAtWrongSampleRate()) {
+	// Case 2: Whisper C++ with CPAL method at wrong sample rate
+	if (isUsingCpalMethodAtWrongSampleRate()) {
 		toast.warning('FFmpeg Required for Current Settings', {
 			description:
 				'Whisper C++ requires 16kHz audio. FFmpeg is needed to convert your current sample rate.',
@@ -114,8 +114,8 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// Case 3: CPAL backend with cloud services - recommended for compression
-	if (isUsingCpalBackendWithCloudTranscription()) {
+	// Case 3: CPAL method with cloud services - recommended for compression
+	if (isUsingCpalMethodWithCloudTranscription()) {
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
 			description:
 				'FFmpeg enables audio compression for faster uploads to transcription services.',
