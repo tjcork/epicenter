@@ -40,7 +40,7 @@ export function isCompressionRecommended(): boolean {
  * Checks for FFmpeg installation and shows an appropriate toast based on current settings.
  *
  * REQUIRED: Whisper C++ + any method except CPAL at 16kHz
- * RECOMMENDED: CPAL + cloud transcription
+ * RECOMMENDED: When compression is recommended (CPAL + cloud transcription + compression not enabled)
  */
 export async function checkFfmpeg() {
 	if (!window.__TAURI_INTERNALS__) return;
@@ -77,11 +77,11 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// FFmpeg is RECOMMENDED for CPAL + cloud transcription
-	if (settings.value['recording.method'] === 'cpal' && !isUsingWhisperCpp()) {
-		toast.info('Install FFmpeg for Enhanced Audio Support', {
+	// FFmpeg is RECOMMENDED for compression (CPAL + cloud transcription + compression not enabled)
+	if (isCompressionRecommended()) {
+		toast.info('Enable Compression for Faster Uploads', {
 			description:
-				'FFmpeg enables audio compression for faster uploads to transcription services.',
+				'Since you\'re using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times. First, install FFmpeg.',
 			action: {
 				label: 'Install FFmpeg',
 				onClick: () => goto('/install-ffmpeg'),
