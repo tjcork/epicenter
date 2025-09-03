@@ -139,7 +139,7 @@
 						return;
 					}
 
-					await rpc.settings.switchRecordingMode.execute('upload');
+					await settings.switchRecordingMode('upload');
 
 					// Convert file paths to File objects using the fs service
 					const { data: files, error } =
@@ -194,7 +194,7 @@
 			class="w-full"
 			onValueChange={async (mode) => {
 				if (!mode) return;
-				await rpc.settings.switchRecordingMode.execute(mode as RecordingMode);
+				await settings.switchRecordingMode(mode as RecordingMode);
 			}}
 		>
 			{#each availableModes as option}
