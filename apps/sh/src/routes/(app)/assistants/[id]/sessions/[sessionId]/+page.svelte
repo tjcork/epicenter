@@ -100,11 +100,6 @@
 			description: 'This feature is still being implemented.',
 		});
 	}
-
-	function handleModeChange(mode: string) {
-		messageMode = mode;
-		toast.success(`Switched to ${mode} mode`);
-	}
 </script>
 
 <svelte:head>
@@ -287,8 +282,13 @@
 			<div class="flex items-center gap-2">
 				<ModeSelector
 					{assistantConfig}
-					bind:value={messageMode}
-					onModeChange={handleModeChange}
+					bind:value={
+						() => messageMode,
+						(mode) => {
+							messageMode = mode;
+							toast.success(`Switched to ${mode} mode`);
+						}
+					}
 				/>
 				<ModelSelector {assistantConfig} bind:value={selectedModel} />
 			</div>

@@ -190,12 +190,14 @@
 
 		<ToggleGroup.Root
 			type="single"
-			value={settings.value['recording.mode']}
+			bind:value={
+				() => settings.value['recording.mode'],
+				(mode) => {
+					if (!mode) return;
+					rpc.settings.switchRecordingMode.execute(mode);
+				}
+			}
 			class="w-full"
-			onValueChange={async (mode) => {
-				if (!mode) return;
-				await rpc.settings.switchRecordingMode.execute(mode as RecordingMode);
-			}}
 		>
 			{#each availableModes as option}
 				<ToggleGroup.Item
