@@ -14,7 +14,7 @@
 	import ManualSelectRecordingDevice from './ManualSelectRecordingDevice.svelte';
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
-		isFfmpegRecommended,
+		isCompressionRecommended,
 		isFfmpegRequired,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
@@ -169,21 +169,21 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isFfmpegRecommended() && !data.ffmpegInstalled}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					FFmpeg Recommended
+		{:else if isCompressionRecommended()}
+			<Alert.Root class="border-blue-500/20 bg-blue-500/5">
+				<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
+				<Alert.Title class="text-blue-600 dark:text-blue-400">
+					Enable Compression for Faster Uploads
 				</Alert.Title>
 				<Alert.Description>
-					We highly recommend installing FFmpeg for optimal audio processing
-					with the CPAL recording method. FFmpeg enables audio compression for
-					faster uploads to transcription services.
+					Since you're using CPAL recording with cloud transcription, we
+					recommend enabling audio compression to reduce file sizes and upload
+					times.
 					<Link
-						href="/install-ffmpeg"
-						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						href="/settings/transcription"
+						class="font-medium underline underline-offset-4 hover:text-blue-700 dark:hover:text-blue-300"
 					>
-						Install FFmpeg →
+						Enable in Transcription Settings →
 					</Link>
 				</Alert.Description>
 			</Alert.Root>

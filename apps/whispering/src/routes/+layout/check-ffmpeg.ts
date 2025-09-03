@@ -15,14 +15,6 @@ function isUsing16kHz(): boolean {
 }
 
 /**
- * FFmpeg is RECOMMENDED when using CPAL recording with cloud transcription
- * @returns true when using CPAL + cloud transcription (non-WhisperC++)
- */
-export function isFfmpegRecommended(): boolean {
-	return settings.value['recording.method'] === 'cpal' && !isUsingWhisperCpp();
-}
-
-/**
  * FFmpeg is REQUIRED when using Whisper C++ with any recording method except CPAL at 16kHz
  * @returns true when using Whisper C++ + (not CPAL at 16kHz)
  */
@@ -34,6 +26,14 @@ export function isFfmpegRequired(): boolean {
 	}
 
 	return true; // All other Whisper C++ combinations need FFmpeg
+}
+
+/**
+ * Compression is RECOMMENDED when using CPAL + cloud transcription AND compression is not enabled
+ * @returns true when compression should be recommended to the user
+ */
+export function isCompressionRecommended(): boolean {
+	return settings.value['recording.method'] === 'cpal' && !isUsingWhisperCpp() && !settings.value['transcription.compressionEnabled'];
 }
 
 /**
@@ -78,7 +78,7 @@ export async function checkFfmpeg() {
 	}
 
 	// FFmpeg is RECOMMENDED for CPAL + cloud transcription
-	if (isFfmpegRecommended()) {
+	if (settings.value['recording.method'] === 'cpal' && !isUsingWhisperCpp()) {
 		toast.info('Install FFmpeg for Enhanced Audio Support', {
 			description:
 				'FFmpeg enables audio compression for faster uploads to transcription services.',
