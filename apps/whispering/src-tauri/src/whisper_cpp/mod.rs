@@ -3,34 +3,6 @@ mod error;
 use error::WhisperCppError;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 use std::io::Write;
-use serde::Serialize;
-
-#[derive(Serialize)]
-pub struct GpuInfo {
-    pub platform: String,
-    pub expected_backend: String,
-    pub gpu_enabled_in_settings: bool,
-}
-
-/// Get information about the expected GPU backend for the current platform
-#[tauri::command]
-pub fn get_gpu_info(use_gpu: bool) -> GpuInfo {
-    let (platform, expected_backend) = if cfg!(target_os = "windows") {
-        ("Windows", "CUDA (NVIDIA GPU)")
-    } else if cfg!(target_os = "macos") {
-        ("macOS", "Metal/CoreML (Apple Silicon)")
-    } else if cfg!(target_os = "linux") {
-        ("Linux", "CUDA (NVIDIA GPU)")
-    } else {
-        ("Unknown", "CPU only")
-    };
-    
-    GpuInfo {
-        platform: platform.to_string(),
-        expected_backend: expected_backend.to_string(),
-        gpu_enabled_in_settings: use_gpu,
-    }
-}
 
 /// Check if audio is already in whisper-compatible format (16kHz, mono, 16-bit PCM)
 fn is_valid_wav_format(audio_data: &[u8]) -> bool {
@@ -113,40 +85,18 @@ fn convert_audio_for_whisper(audio_data: Vec<u8>) -> Result<Vec<u8>, WhisperCppE
     })
 }
 
-/// Load Whisper model with automatic GPU fallback to CPU if needed
-fn load_whisper_model(model_path: &str, use_gpu: bool) -> Result<WhisperContext, WhisperCppError> {
-    let mut params = WhisperContextParameters::default();
-    params.use_gpu = use_gpu;
+/// Load Whisper model with automatic GPU support based on compiled features
+fn load_whisper_model(model_path: &str) -> Result<WhisperContext, WhisperCppError> {
+    // GPU acceleration is automatically enabled based on compile-time features:
+    // - macOS: Metal + CoreML
+    // - Windows: CUDA + Vulkan  
+    // - Linux: CUDA + Vulkan + HipBLAS
+    // The whisper-rs library automatically selects the best available backend
     
-    // Try loading with requested settings
-    match WhisperContext::new_with_params(model_path, params) {
-        Ok(context) => {
-            let backend = if use_gpu { "GPU" } else { "CPU" };
-            tracing::info!("Whisper model loaded with {} backend", backend);
-            Ok(context)
-        }
-        Err(first_error) => {
-            // If GPU was requested and failed, try CPU fallback
-            if use_gpu {
-                tracing::warn!("GPU failed, trying CPU fallback");
-                params.use_gpu = false;
-                
-                WhisperContext::new_with_params(model_path, params)
-                    .map(|ctx| {
-                        tracing::info!("Successfully fell back to CPU");
-                        ctx
-                    })
-                    .map_err(|_| WhisperCppError::ModelLoadError {
-                        message: format!("Failed to load model (GPU and CPU both failed)")
-                    })
-            } else {
-                // CPU failed with no fallback option
-                Err(WhisperCppError::ModelLoadError {
-                    message: first_error.to_string()
-                })
-            }
-        }
-    }
+    WhisperContext::new_with_params(model_path, WhisperContextParameters::default())
+        .map_err(|e| WhisperCppError::ModelLoadError {
+            message: format!("Failed to load model: {}", e)
+        })
 }
 
 #[tauri::command]
@@ -154,7 +104,6 @@ pub async fn transcribe_with_whisper_cpp(
     audio_data: Vec<u8>,
     model_path: String,
     language: Option<String>,
-    use_gpu: bool,
     prompt: String,
     temperature: f32,
 ) -> Result<String, WhisperCppError> {
@@ -182,8 +131,8 @@ pub async fn transcribe_with_whisper_cpp(
         return Ok(String::new());
     }
     
-    // Load model with automatic GPU fallback
-    let context = load_whisper_model(&model_path, use_gpu)?;
+    // Load model with automatic GPU acceleration based on compiled features
+    let context = load_whisper_model(&model_path)?;
     
     // Create state and configure parameters
     let mut state = context
@@ -197,7 +146,7 @@ pub async fn transcribe_with_whisper_cpp(
     params.set_no_timestamps(true);
     params.set_temperature(temperature);
     params.set_no_speech_thold(0.2);  // Better silence detection
-    params.set_suppress_non_speech_tokens(true);  // Prevent hallucinations
+    params.set_suppress_nst(true);  // Prevent hallucinations (non-speech tokens)
     
     // Set language if specified
     if let Some(ref lang) = language {
@@ -218,18 +167,19 @@ pub async fn transcribe_with_whisper_cpp(
         })?;
     
     // Collect transcribed text from all segments
-    let num_segments = state.full_n_segments()
-        .map_err(|e| WhisperCppError::TranscriptionError {
-            message: format!("Failed to get segments: {}", e),
-        })?;
+    let num_segments = state.full_n_segments();
     
     let mut text = String::new();
     for i in 0..num_segments {
-        let segment = state.full_get_segment_text(i)
-            .map_err(|e| WhisperCppError::TranscriptionError {
-                message: format!("Failed to get segment {}: {}", i, e),
+        let segment = state.get_segment(i)
+            .ok_or_else(|| WhisperCppError::TranscriptionError {
+                message: format!("Failed to get segment {}", i),
             })?;
-        text.push_str(&segment);
+        let segment_text = segment.to_str()
+            .map_err(|e| WhisperCppError::TranscriptionError {
+                message: format!("Failed to get segment {} text: {}", i, e),
+            })?;
+        text.push_str(segment_text);
     }
     
     Ok(text.trim().to_string())
