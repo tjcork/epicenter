@@ -68,12 +68,14 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-updater = "2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# Windows: CUDA for NVIDIA GPUs, Vulkan for AMD/Intel GPUs
-whisper-rs = { version = "0.15.0", features = ["cuda", "vulkan"] }
+# Windows: GPU acceleration disabled in CI/CD builds
+# Uncomment the following line to enable GPU support when building locally:
+# whisper-rs = { version = "0.15.0", features = ["cuda", "vulkan"] }
 
 [target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
-# Linux: CUDA for NVIDIA, Vulkan for AMD/Intel, HipBLAS for AMD ROCm
-whisper-rs = { version = "0.15.0", features = ["cuda", "vulkan", "hipblas"] }
+# Linux: GPU acceleration disabled in CI/CD builds
+# Uncomment the following line to enable GPU support when building locally:
+# whisper-rs = { version = "0.15.0", features = ["cuda", "vulkan", "hipblas"] }
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
