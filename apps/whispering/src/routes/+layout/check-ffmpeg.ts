@@ -3,8 +3,8 @@ import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
-export const FFMPEG_REQUIRED_MESSAGE =
-	'Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording at 16kHz produces this natively; all other recording methods and sample rates need FFmpeg to convert the audio.';
+export const RECORDING_COMPATIBILITY_MESSAGE =
+	'Whisper C++ requires audio in 16kHz WAV format. To resolve this, either: 1) Install FFmpeg to convert audio automatically, or 2) Switch to CPAL recording at 16kHz which produces compatible audio natively.';
 
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
@@ -21,10 +21,11 @@ function isUsing16kHz(): boolean {
 }
 
 /**
- * FFmpeg is REQUIRED when using Whisper C++ with any recording method except CPAL at 16kHz
- * @returns true when using Whisper C++ + (not CPAL at 16kHz)
+ * Checks if there's a compatibility issue between recording and transcription settings.
+ * This occurs when using Whisper C++ with any recording method except CPAL at 16kHz.
+ * @returns true when there's a compatibility issue that needs to be resolved
  */
-export function isFfmpegRequired(): boolean {
+export function hasRecordingCompatibilityIssue(): boolean {
 	if (!isUsingWhisperCpp()) return false;
 
 	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
@@ -73,13 +74,13 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// FFmpeg is REQUIRED for Whisper C++ (except CPAL at 16kHz)
-	if (isFfmpegRequired()) {
-		toast.warning('FFmpeg Required for Current Settings', {
-			description: FFMPEG_REQUIRED_MESSAGE,
+	// Recording compatibility issue with Whisper C++ (except CPAL at 16kHz)
+	if (hasRecordingCompatibilityIssue()) {
+		toast.warning('Recording Settings Incompatible', {
+			description: RECORDING_COMPATIBILITY_MESSAGE,
 			action: {
-				label: 'Install FFmpeg',
-				onClick: () => goto('/install-ffmpeg'),
+				label: 'Go to Recording Settings',
+				onClick: () => goto('/settings/recording'),
 			},
 			duration: 15000,
 		});

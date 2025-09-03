@@ -15,8 +15,8 @@
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
 		isCompressionRecommended,
-		isFfmpegRequired,
-		FFMPEG_REQUIRED_MESSAGE,
+		hasRecordingCompatibilityIssue,
+		RECORDING_COMPATIBILITY_MESSAGE,
 		COMPRESSION_RECOMMENDED_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
@@ -153,20 +153,30 @@
 			</Alert.Root>
 		{/if}
 
-		{#if isFfmpegRequired() && !data.ffmpegInstalled}
+		{#if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					FFmpeg Required
+					Recording Compatibility Issue
 				</Alert.Title>
 				<Alert.Description>
-					{FFMPEG_REQUIRED_MESSAGE}
-					<Link
-						href="/install-ffmpeg"
-						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
-					>
-						Install FFmpeg →
-					</Link>
+					{RECORDING_COMPATIBILITY_MESSAGE}
+					<div class="mt-2 space-y-1">
+						<div>
+							Option 1: Switch to CPAL recording at 16kHz (no additional
+							software needed)
+						</div>
+						<div>
+							Option 2:
+							<Link
+								href="/install-ffmpeg"
+								class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+							>
+								Install FFmpeg
+							</Link>
+							to keep your current settings
+						</div>
+					</div>
 				</Alert.Description>
 			</Alert.Root>
 		{:else if isCompressionRecommended()}
