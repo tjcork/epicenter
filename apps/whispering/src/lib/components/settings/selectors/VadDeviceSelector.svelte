@@ -11,8 +11,8 @@
 
 	const combobox = useCombobox();
 
-	// Setting key for VAD mode
-	const settingKey = 'recording.vad.selectedDeviceId';
+	// VAD always uses navigator device ID
+	const settingKey = 'recording.navigator.deviceId';
 
 	const selectedDeviceId = $derived(settings.value[settingKey]);
 
@@ -52,7 +52,7 @@
 			</WhisperingButton>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-80 max-w-xl p-0">
+	<Popover.Content class="p-0">
 		<Command.Root loop>
 			<Command.Input placeholder="Select VAD recording device..." />
 			<Command.Empty>No recording devices found.</Command.Empty>

@@ -11,7 +11,8 @@
 		RECORDING_MODE_OPTIONS,
 	} from '$lib/constants/audio';
 	import { settings } from '$lib/stores/settings.svelte';
-	import SelectRecordingDevice from './SelectRecordingDevice.svelte';
+	import ManualSelectRecordingDevice from './ManualSelectRecordingDevice.svelte';
+	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
 		isUsingCpalMethodWithoutWhisperCpp,
 		isUsingCpalMethodAtWrongSampleRate,
@@ -28,6 +29,13 @@
 
 	const RECORDING_METHOD_OPTIONS = [
 		{
+			value: 'cpal',
+			label: 'CPAL',
+			description: IS_MACOS
+				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
+				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
+		},
+		{
 			value: 'ffmpeg',
 			label: 'FFmpeg',
 			description: {
@@ -38,13 +46,6 @@
 				windows:
 					'Supports all audio formats with advanced customization options.',
 			}[PLATFORM_TYPE],
-		},
-		{
-			value: 'cpal',
-			label: 'CPAL',
-			description: IS_MACOS
-				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
-				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
 		},
 		{
 			value: 'navigator',
@@ -190,13 +191,13 @@
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual'}
-		<SelectRecordingDevice
-			selected={settings.value['recording.manual.selectedDeviceId']}
+		{@const method = settings.value['recording.method']}
+		<ManualSelectRecordingDevice
+			selected={settings.value[`recording.${method}.deviceId`]}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.manual.selectedDeviceId', selected);
+				settings.updateKey(`recording.${method}.deviceId`, selected);
 			}}
-			mode="manual"
-		></SelectRecordingDevice>
+		/>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		<Alert.Root class="border-blue-500/20 bg-blue-500/5">
 			<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
@@ -210,13 +211,12 @@
 			</Alert.Description>
 		</Alert.Root>
 
-		<SelectRecordingDevice
-			selected={settings.value['recording.vad.selectedDeviceId']}
+		<VadSelectRecordingDevice
+			selected={settings.value['recording.navigator.deviceId']}
 			onSelectedChange={(selected) => {
-				settings.updateKey('recording.vad.selectedDeviceId', selected);
+				settings.updateKey('recording.navigator.deviceId', selected);
 			}}
-			mode="vad"
-		></SelectRecordingDevice>
+		/>
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual' || settings.value['recording.mode'] === 'vad'}

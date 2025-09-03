@@ -126,11 +126,11 @@ async function transcribeBlob(
 	// Compress audio if enabled, else pass through original blob
 	let audioToTranscribe = blob;
 	if (settings.value['transcription.compressionEnabled']) {
-		const compressionOptions =
-			settings.value['transcription.compressionOptions'];
-
 		const { data: compressedBlob, error: compressionError } =
-			await services.ffmpeg.compressAudioBlob(blob, compressionOptions);
+			await services.ffmpeg.compressAudioBlob(
+				blob,
+				settings.value['transcription.compressionOptions'],
+			);
 
 		if (compressionError) {
 			// Log compression failure but continue with original blob

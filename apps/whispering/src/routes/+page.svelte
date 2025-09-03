@@ -7,6 +7,7 @@
 	import {
 		TranscriptionSelector,
 		TransformationSelector,
+		CompressionSelector,
 	} from '$lib/components/settings';
 	import ManualDeviceSelector from '$lib/components/settings/selectors/ManualDeviceSelector.svelte';
 	import VadDeviceSelector from '$lib/components/settings/selectors/VadDeviceSelector.svelte';
@@ -207,67 +208,75 @@
 			{/each}
 		</ToggleGroup.Root>
 
-		<div class="w-full grid grid-cols-[1fr_auto_1fr] items-end gap-2 pt-1">
-			<!-- Empty left column for centering -->
-			<div></div>
+		<div class="w-full flex justify-center pt-1">
 			{#if settings.value['recording.mode'] === 'manual'}
-				<!-- Center column: Recording button -->
-				<WhisperingButton
-					tooltipContent={getRecorderStateQuery.data === 'IDLE'
-						? 'Start recording'
-						: 'Stop recording'}
-					onclick={commandCallbacks.toggleManualRecording}
-					variant="ghost"
-					class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
-				>
-					<span
-						style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-						class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
+				<!-- Container with relative positioning for the button and absolute selectors -->
+				<div class="relative">
+					<!-- Recording button -->
+					<WhisperingButton
+						tooltipContent={getRecorderStateQuery.data === 'IDLE'
+							? 'Start recording'
+							: 'Stop recording'}
+						onclick={commandCallbacks.toggleManualRecording}
+						variant="ghost"
+						class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 					>
-						{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
-					</span>
-				</WhisperingButton>
-				<!-- Right column: Selectors -->
-				<div class="flex justify-end items-center gap-1.5 mb-2">
-					{#if getRecorderStateQuery.data === 'RECORDING'}
-						<WhisperingButton
-							tooltipContent="Cancel recording"
-							onclick={commandCallbacks.cancelManualRecording}
-							variant="ghost"
-							size="icon"
-							style="view-transition-name: cancel-icon;"
+						<span
+							style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
+							class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
 						>
-							🚫
-						</WhisperingButton>
+							{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
+						</span>
+					</WhisperingButton>
+					<!-- Absolutely positioned selectors -->
+					{#if getRecorderStateQuery.data === 'RECORDING'}
+						<div class="absolute -right-12 bottom-4 flex items-center">
+							<WhisperingButton
+								tooltipContent="Cancel recording"
+								onclick={commandCallbacks.cancelManualRecording}
+								variant="ghost"
+								size="icon"
+								style="view-transition-name: cancel-icon;"
+							>
+								🚫
+							</WhisperingButton>
+						</div>
 					{:else}
-						<ManualDeviceSelector />
-						<TranscriptionSelector />
-						<TransformationSelector />
+						<div class="absolute -right-32 bottom-4 flex items-center gap-0.5">
+							<ManualDeviceSelector />
+							<CompressionSelector />
+							<TranscriptionSelector />
+							<TransformationSelector />
+						</div>
 					{/if}
 				</div>
 			{:else if settings.value['recording.mode'] === 'vad'}
-				<!-- Center column: Recording button -->
-				<WhisperingButton
-					tooltipContent={getVadStateQuery.data === 'IDLE'
-						? 'Start voice activated session'
-						: 'Stop voice activated session'}
-					onclick={commandCallbacks.toggleVadRecording}
-					variant="ghost"
-					class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
-				>
-					<span
-						style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
-						class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
+				<!-- Container with relative positioning for the button and absolute selectors -->
+				<div class="relative">
+					<!-- Recording button -->
+					<WhisperingButton
+						tooltipContent={getVadStateQuery.data === 'IDLE'
+							? 'Start voice activated session'
+							: 'Stop voice activated session'}
+						onclick={commandCallbacks.toggleVadRecording}
+						variant="ghost"
+						class="shrink-0 size-32 sm:size-36 lg:size-40 xl:size-44 transform items-center justify-center overflow-hidden duration-300 ease-in-out"
 					>
-						{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
-					</span>
-				</WhisperingButton>
-				<!-- Right column: Selectors -->
-				<div class="flex justify-end items-center gap-1.5 mb-2">
+						<span
+							style="filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5)); view-transition-name: microphone-icon;"
+							class="text-[100px] sm:text-[110px] lg:text-[120px] xl:text-[130px] leading-none"
+						>
+							{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
+						</span>
+					</WhisperingButton>
+					<!-- Absolutely positioned selectors -->
 					{#if getVadStateQuery.data === 'IDLE'}
-						<VadDeviceSelector />
-						<TranscriptionSelector />
-						<TransformationSelector />
+						<div class="absolute -right-32 bottom-4 flex items-center gap-0.5">
+							<VadDeviceSelector />
+							<CompressionSelector />
+							<TranscriptionSelector />
+							<TransformationSelector />
+						</div>
 					{/if}
 				</div>
 			{:else if settings.value['recording.mode'] === 'upload'}
@@ -291,6 +300,7 @@
 						class="h-32 sm:h-36 lg:h-40 xl:h-44 w-full"
 					/>
 					<div class="flex items-center gap-1.5">
+						<CompressionSelector />
 						<TranscriptionSelector />
 						<TransformationSelector />
 					</div>

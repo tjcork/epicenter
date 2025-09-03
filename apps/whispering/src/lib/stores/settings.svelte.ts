@@ -6,12 +6,14 @@ import {
 	parseStoredSettings,
 	settingsSchema,
 } from '$lib/settings/settings';
+import { enumerateDevices } from '$lib/services/device-stream';
 import { createPersistedState } from '@repo/svelte-utils';
 import {
 	syncGlobalShortcutsWithSettings,
 	syncLocalShortcutsWithSettings,
 } from '../../routes/+layout/register-commands';
 import { extractErrorMessage } from 'wellcrafted/error';
+import * as services from '$lib/services';
 
 /**
  * Encapsulated settings object with controlled access.
