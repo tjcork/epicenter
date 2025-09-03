@@ -139,7 +139,7 @@
 						return;
 					}
 
-					await rpc.settings.switchRecordingMode.execute('upload');
+					await settings.switchRecordingMode('upload');
 
 					// Convert file paths to File objects using the fs service
 					const { data: files, error } =
@@ -194,7 +194,7 @@
 				() => settings.value['recording.mode'],
 				(mode) => {
 					if (!mode) return;
-					rpc.settings.switchRecordingMode.execute(mode);
+					settings.switchRecordingMode(mode);
 				}
 			}
 			class="w-full"

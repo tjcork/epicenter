@@ -22,7 +22,7 @@ let manualRecordingStartTime: number | null = null;
 const startManualRecording = defineMutation({
 	mutationKey: ['commands', 'startManualRecording'] as const,
 	resultMutationFn: async () => {
-		await rpc.settings.switchRecordingMode.execute('manual');
+		await settings.switchRecordingMode('manual');
 
 		const toastId = nanoid();
 		notify.loading.execute({
@@ -144,7 +144,7 @@ const stopManualRecording = defineMutation({
 const startVadRecording = defineMutation({
 	mutationKey: ['commands', 'startVadRecording'] as const,
 	resultMutationFn: async () => {
-		await rpc.settings.switchRecordingMode.execute('vad');
+		await settings.switchRecordingMode('vad');
 
 		const toastId = nanoid();
 		console.info('Starting voice activated capture');
@@ -353,6 +353,7 @@ export const commands = {
 	uploadRecordings: defineMutation({
 		mutationKey: ['recordings', 'uploadRecordings'] as const,
 		resultMutationFn: async ({ files }: { files: File[] }) => {
+			await settings.switchRecordingMode('upload');
 			// Partition files into valid and invalid in a single pass
 			const { valid: validFiles, invalid: invalidFiles } = files.reduce<{
 				valid: File[];

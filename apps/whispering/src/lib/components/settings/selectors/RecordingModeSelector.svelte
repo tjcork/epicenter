@@ -59,7 +59,7 @@
 						<Command.Item
 							value={mode.value}
 							onSelect={async () => {
-								await rpc.settings.switchRecordingMode.execute(
+								await settings.switchRecordingMode(
 									mode.value as RecordingMode,
 								);
 								combobox.closeAndFocusTrigger();
