@@ -33,6 +33,7 @@
 	import { Separator } from '@repo/ui/separator';
 	import {
 		hasRecordingCompatibilityIssue,
+		switchToCpalAt16kHz,
 		RECORDING_COMPATIBILITY_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 
@@ -352,25 +353,21 @@
 					</Alert.Title>
 					<Alert.Description>
 						{RECORDING_COMPATIBILITY_MESSAGE}
-						<div class="mt-2 space-y-1">
-							<div>
-								Option 1:
-								<Link
-									href="/settings/recording"
-									class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						<div class="mt-3 space-y-2">
+							<div class="text-sm">
+								<strong>Option 1:</strong>
+								Switch to
+								<Button
+									onclick={switchToCpalAt16kHz}
+									variant="link"
+									class="hover:cursor-pointer"
 								>
-									Change recording settings
-								</Link>
-								to CPAL at 16kHz
+									CPAL recording at 16kHz
+								</Button>
 							</div>
-							<div>
-								Option 2:
-								<Link
-									href="/install-ffmpeg"
-									class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
-								>
-									Install FFmpeg
-								</Link>
+							<div class="text-sm">
+								<strong>Option 2:</strong>
+								<Link href="/install-ffmpeg">Install FFmpeg</Link>
 								to keep your current settings
 							</div>
 						</div>
