@@ -83,15 +83,13 @@
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
-				You can find more details about the models in the <Button
-					variant="link"
-					class="px-0.3 py-0.2 h-fit"
+				You can find more details about the models in the <Link
 					href="https://platform.openai.com/docs/guides/speech-to-text"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
 					OpenAI docs
-				</Button>.
+				</Link>.
 			{/snippet}
 		</LabeledSelect>
 		<OpenAiApiKeyInput />
@@ -111,15 +109,13 @@
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
-				You can find more details about the models in the <Button
-					variant="link"
-					class="px-0.3 py-0.2 h-fit"
+				You can find more details about the models in the <Link
 					href="https://console.groq.com/docs/speech-to-text"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
 					Groq docs
-				</Button>.
+				</Link>.
 			{/snippet}
 		</LabeledSelect>
 		<GroqApiKeyInput />
@@ -155,15 +151,13 @@
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
-				You can find more details about the models in the <Button
-					variant="link"
-					class="px-0.3 py-0.2 h-fit"
+				You can find more details about the models in the <Link
 					href="https://elevenlabs.io/docs/capabilities/speech-to-text"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
 					ElevenLabs docs
-				</Button>.
+				</Link>.
 			{/snippet}
 		</LabeledSelect>
 		<ElevenLabsApiKeyInput />
@@ -205,16 +199,13 @@
 							</p>
 							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
 								<li class="list-disc">
-									Download the necessary docker compose files from the <Button
-										variant="link"
-										size="sm"
-										class="px-0 h-auto underline"
+									Download the necessary docker compose files from the <Link
 										href="https://speaches.ai/installation/"
 										target="_blank"
 										rel="noopener noreferrer"
 									>
 										installation guide
-									</Button>
+									</Link>
 								</li>
 								<li class="list-disc">
 									Choose CUDA, CUDA with CDI, or CPU variant depending on your
@@ -241,16 +232,13 @@
 							</p>
 							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
 								<li class="list-disc">
-									View available models in the <Button
-										variant="link"
-										size="sm"
-										class="px-0 h-auto underline"
+									View available models in the <Link
 										href="https://speaches.ai/usage/speech-to-text/"
 										target="_blank"
 										rel="noopener noreferrer"
 									>
 										speech-to-text guide
-									</Button>
+									</Link>
 								</li>
 								<li class="list-disc">
 									Run the following command to download a model:

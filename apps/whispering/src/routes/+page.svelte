@@ -361,7 +361,6 @@
 					tooltipContent="Go to local shortcut in settings"
 					href="/settings/shortcuts/local"
 					variant="link"
-					size="inline"
 				>
 					<kbd
 						class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
@@ -378,7 +377,6 @@
 						tooltipContent="Go to global shortcut in settings"
 						href="/settings/shortcuts/global"
 						variant="link"
-						size="inline"
 					>
 						<kbd
 							class="bg-muted relative rounded px-[0.3rem] py-[0.15rem] font-mono text-sm font-semibold"
@@ -398,7 +396,6 @@
 						target="_blank"
 						rel="noopener noreferrer"
 						variant="link"
-						size="inline"
 					>
 						Get the native desktop app
 					</WhisperingButton>
