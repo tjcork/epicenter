@@ -43,7 +43,7 @@
 		<span class="text-lg font-bold">whispering</span>
 	</WhisperingButton>
 
-	<div class="flex">
+	<div class="flex items-center gap-1.5">
 		<div class="flex items-center gap-1.5">
 			{#if settings.value['recording.mode'] === 'manual'}
 				{#if getRecorderStateQuery.data === 'RECORDING'}
