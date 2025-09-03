@@ -3,6 +3,12 @@ import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
+export const FFMPEG_REQUIRED_MESSAGE =
+	'Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording at 16kHz produces this natively; all other recording methods and sample rates need FFmpeg to convert the audio.';
+
+export const COMPRESSION_RECOMMENDED_MESSAGE =
+	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
+
 function isUsingWhisperCpp(): boolean {
 	return (
 		settings.value['transcription.selectedTranscriptionService'] ===
@@ -33,7 +39,11 @@ export function isFfmpegRequired(): boolean {
  * @returns true when compression should be recommended to the user
  */
 export function isCompressionRecommended(): boolean {
-	return settings.value['recording.method'] === 'cpal' && !isUsingWhisperCpp() && !settings.value['transcription.compressionEnabled'];
+	return (
+		settings.value['recording.method'] === 'cpal' &&
+		!isUsingWhisperCpp() &&
+		!settings.value['transcription.compressionEnabled']
+	);
 }
 
 /**
@@ -66,11 +76,10 @@ export async function checkFfmpeg() {
 	// FFmpeg is REQUIRED for Whisper C++ (except CPAL at 16kHz)
 	if (isFfmpegRequired()) {
 		toast.warning('FFmpeg Required for Current Settings', {
-			description:
-				'Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording at 16kHz produces this natively; all other recording methods and sample rates need FFmpeg to convert the audio.',
+			description: FFMPEG_REQUIRED_MESSAGE,
 			action: {
-				label: 'Go to Recording Settings',
-				onClick: () => goto('/settings/recording'),
+				label: 'Install FFmpeg',
+				onClick: () => goto('/install-ffmpeg'),
 			},
 			duration: 15000,
 		});
@@ -80,11 +89,10 @@ export async function checkFfmpeg() {
 	// FFmpeg is RECOMMENDED for compression (CPAL + cloud transcription + compression not enabled)
 	if (isCompressionRecommended()) {
 		toast.info('Enable Compression for Faster Uploads', {
-			description:
-				'Since you\'re using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times. First, install FFmpeg.',
+			description: COMPRESSION_RECOMMENDED_MESSAGE,
 			action: {
-				label: 'Install FFmpeg',
-				onClick: () => goto('/install-ffmpeg'),
+				label: 'Go to Transcription Settings',
+				onClick: () => goto('/settings/transcription'),
 			},
 			duration: 10000,
 		});

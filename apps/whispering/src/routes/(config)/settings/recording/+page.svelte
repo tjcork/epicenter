@@ -16,6 +16,8 @@
 	import {
 		isCompressionRecommended,
 		isFfmpegRequired,
+		FFMPEG_REQUIRED_MESSAGE,
+		COMPRESSION_RECOMMENDED_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 
@@ -158,9 +160,7 @@
 					FFmpeg Required
 				</Alert.Title>
 				<Alert.Description>
-					Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording at
-					16kHz produces this natively; all other recording methods and sample
-					rates need FFmpeg to convert the audio.
+					{FFMPEG_REQUIRED_MESSAGE}
 					<Link
 						href="/install-ffmpeg"
 						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
@@ -176,9 +176,7 @@
 					Enable Compression for Faster Uploads
 				</Alert.Title>
 				<Alert.Description>
-					Since you're using CPAL recording with cloud transcription, we
-					recommend enabling audio compression to reduce file sizes and upload
-					times.
+					{COMPRESSION_RECOMMENDED_MESSAGE}
 					<Link
 						href="/settings/transcription"
 						class="font-medium underline underline-offset-4 hover:text-blue-700 dark:hover:text-blue-300"

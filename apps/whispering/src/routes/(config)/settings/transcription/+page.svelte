@@ -31,7 +31,7 @@
 	import { Checkbox } from '@repo/ui/checkbox';
 	import { Link } from '@repo/ui/link';
 	import { Separator } from '@repo/ui/separator';
-	import { isFfmpegRequired } from '../../../+layout/check-ffmpeg';
+	import { isFfmpegRequired, FFMPEG_REQUIRED_MESSAGE } from '../../../+layout/check-ffmpeg';
 
 	const { data } = $props();
 </script>
@@ -348,9 +348,7 @@
 						FFmpeg Required
 					</Alert.Title>
 					<Alert.Description>
-						Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording
-						at 16kHz produces this natively; all other recording methods and
-						sample rates need FFmpeg to convert the audio.
+						{FFMPEG_REQUIRED_MESSAGE}
 						<Link
 							href="/install-ffmpeg"
 							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
