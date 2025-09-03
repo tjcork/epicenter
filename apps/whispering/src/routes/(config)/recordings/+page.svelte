@@ -81,7 +81,7 @@
 	);
 	const copyToClipboard = createMutation(rpc.text.copyToClipboard.options);
 
-	const DATE_FORMAT = "PP p"; // e.g., Aug 13, 2025, 10:00 AM
+	const DATE_FORMAT = 'PP p'; // e.g., Aug 13, 2025, 10:00 AM
 
 	const columns: ColumnDef<Recording>[] = [
 		{
