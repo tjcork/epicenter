@@ -69,10 +69,11 @@
 	<div class="flex items-center gap-3">
 		<Checkbox
 			id="compression-enabled-{Math.random().toString(36).substr(2, 9)}"
-			checked={settings.value['transcription.compressionEnabled']}
-			onCheckedChange={(checked) => {
-				settings.updateKey('transcription.compressionEnabled', checked);
-			}}
+			bind:checked={
+				() => settings.value['transcription.compressionEnabled'],
+				(checked) =>
+					settings.updateKey('transcription.compressionEnabled', checked)
+			}
 			disabled={!isFfmpegInstalled}
 		/>
 		<div class="flex-1">

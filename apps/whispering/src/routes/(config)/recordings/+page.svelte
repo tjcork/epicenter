@@ -579,8 +579,10 @@
 							.getAllColumns()
 							.filter((c) => c.getCanHide()) as column (column.id)}
 							<DropdownMenu.CheckboxItem
-								checked={column.getIsVisible()}
-								onCheckedChange={(value) => column.toggleVisibility(!!value)}
+								bind:checked={
+									() => column.getIsVisible(),
+									(value) => column.toggleVisibility(!!value)
+								}
 							>
 								{column.columnDef.id}
 							</DropdownMenu.CheckboxItem>

@@ -57,13 +57,13 @@
 		id="selected-transcription-service"
 		label="Transcription Service"
 		items={TRANSCRIPTION_SERVICE_OPTIONS}
-		selected={settings.value['transcription.selectedTranscriptionService']}
-		onSelectedChange={(selected) => {
-			settings.updateKey(
+		bind:selected={
+			() => settings.value['transcription.selectedTranscriptionService'],
+			(selected) => settings.updateKey(
 				'transcription.selectedTranscriptionService',
-				selected,
-			);
-		}}
+				selected
+			)
+		}
 		placeholder="Select a transcription service"
 	/>
 
@@ -76,10 +76,10 @@
 				label: model.name,
 				...model,
 			}))}
-			selected={settings.value['transcription.openai.model']}
-			onSelectedChange={(selected) => {
-				settings.updateKey('transcription.openai.model', selected);
-			}}
+			bind:selected={
+				() => settings.value['transcription.openai.model'],
+				(selected) => settings.updateKey('transcription.openai.model', selected)
+			}
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
@@ -102,10 +102,10 @@
 				label: model.name,
 				...model,
 			}))}
-			selected={settings.value['transcription.groq.model']}
-			onSelectedChange={(selected) => {
-				settings.updateKey('transcription.groq.model', selected);
-			}}
+			bind:selected={
+				() => settings.value['transcription.groq.model'],
+				(selected) => settings.updateKey('transcription.groq.model', selected)
+			}
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
@@ -128,10 +128,10 @@
 				label: model.name,
 				...model,
 			}))}
-			selected={settings.value['transcription.deepgram.model']}
-			onSelectedChange={(selected) => {
-				settings.updateKey('transcription.deepgram.model', selected);
-			}}
+			bind:selected={
+				() => settings.value['transcription.deepgram.model'],
+				(selected) => settings.updateKey('transcription.deepgram.model', selected)
+			}
 			renderOption={renderModelOption}
 		/>
 		<DeepgramApiKeyInput />
@@ -144,10 +144,10 @@
 				label: model.name,
 				...model,
 			}))}
-			selected={settings.value['transcription.elevenlabs.model']}
-			onSelectedChange={(selected) => {
-				settings.updateKey('transcription.elevenlabs.model', selected);
-			}}
+			bind:selected={
+				() => settings.value['transcription.elevenlabs.model'],
+				(selected) => settings.updateKey('transcription.elevenlabs.model', selected)
+			}
 			renderOption={renderModelOption}
 		>
 			{#snippet description()}
@@ -366,10 +366,10 @@
 		<div class="flex items-center space-x-2">
 			<Checkbox
 				id="whispercpp-use-gpu"
-				checked={settings.value['transcription.whispercpp.useGpu']}
-				onCheckedChange={(checked) => {
-					settings.updateKey('transcription.whispercpp.useGpu', checked);
-				}}
+				bind:checked={
+					() => settings.value['transcription.whispercpp.useGpu'],
+					(checked) => settings.updateKey('transcription.whispercpp.useGpu', checked)
+				}
 			/>
 			<label for="whispercpp-use-gpu" class="text-sm font-medium">
 				Use GPU acceleration (if available)
@@ -384,10 +384,10 @@
 		id="output-language"
 		label="Output Language"
 		items={SUPPORTED_LANGUAGES_OPTIONS}
-		selected={settings.value['transcription.outputLanguage']}
-		onSelectedChange={(selected) => {
-			settings.updateKey('transcription.outputLanguage', selected);
-		}}
+		bind:selected={
+			() => settings.value['transcription.outputLanguage'],
+			(selected) => settings.updateKey('transcription.outputLanguage', selected)
+		}
 		placeholder="Select a language"
 	/>
 

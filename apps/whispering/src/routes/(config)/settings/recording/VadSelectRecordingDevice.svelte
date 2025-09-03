@@ -6,11 +6,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
-		selected,
-		onSelectedChange,
+		selected = $bindable(),
 	}: {
 		selected: DeviceIdentifier | null;
-		onSelectedChange: (selected: DeviceIdentifier | null) => void;
 	} = $props();
 
 	// Use vadRecorder.enumerateDevices for VAD (navigator devices only)
@@ -29,8 +27,7 @@
 		label="VAD Recording Device"
 		placeholder="Loading devices..."
 		items={[{ value: '', label: 'Loading devices...' }]}
-		selected={''}
-		onSelectedChange={() => {}}
+		bind:selected={() => '', () => {}}
 		disabled
 	/>
 {:else if getDevicesQuery.isError}
@@ -46,9 +43,10 @@
 		id="vad-recording-device"
 		label="VAD Recording Device"
 		{items}
-		selected={selected ?? asDeviceIdentifier('')}
-		onSelectedChange={(value) =>
-			onSelectedChange(value ? asDeviceIdentifier(value) : null)}
+		bind:selected={
+			() => selected ?? asDeviceIdentifier(''),
+			(value) => selected = value ? asDeviceIdentifier(value) : null
+		}
 		placeholder="Select a device"
 	/>
 {/if}
