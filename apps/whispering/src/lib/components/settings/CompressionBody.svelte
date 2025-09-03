@@ -17,8 +17,7 @@
 			label: 'Recommended',
 			icon: '🎯',
 			description: 'Best for speech with silence removal',
-			options:
-				'-af silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB:detection=peak,aformat=s16:16000:1 -c:a libopus -b:a 32k -ar 16000 -ac 1 -compression_level 10',
+			options: FFMPEG_DEFAULT_COMPRESSION_OPTIONS,
 		},
 		preserve: {
 			label: 'Preserve Audio',
