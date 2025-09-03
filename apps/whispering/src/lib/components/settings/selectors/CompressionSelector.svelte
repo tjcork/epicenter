@@ -58,7 +58,7 @@
 		{/snippet}
 	</Popover.Trigger>
 
-	<Popover.Content class="w-full max-w-xl max-h-[40vh] overflow-auto p-0">
+	<Popover.Content class="sm:w-[36rem] max-h-[40vh] overflow-auto p-0">
 		<div class="p-4">
 			<CompressionBody />
 		</div>
