@@ -7,7 +7,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { RotateCcw } from '@lucide/svelte';
-	import { isUsingCpalMethodWithoutWhisperCpp } from '../../../routes/+layout/check-ffmpeg';
+	import { isFfmpegRecommended } from '../../../routes/+layout/check-ffmpeg';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc } from '$lib/query';
 
@@ -62,7 +62,7 @@
 
 	// Check if we should show "Recommended" badge
 	const shouldShowRecommendedBadge = $derived(
-		isUsingCpalMethodWithoutWhisperCpp() &&
+		isFfmpegRecommended() &&
 			!settings.value['transcription.compressionEnabled'],
 	);
 </script>
@@ -124,7 +124,7 @@
 		</div>
 	</div>
 
-	{#if isUsingCpalMethodWithoutWhisperCpp() && !settings.value['transcription.compressionEnabled'] && isFfmpegInstalled}
+	{#if isFfmpegRecommended() && !settings.value['transcription.compressionEnabled'] && isFfmpegInstalled}
 		<p class="text-muted-foreground text-sm ml-6">
 			Recommended because you're using CPAL recording with cloud transcription.
 			Compression reduces file sizes for faster uploads and lower API costs.

@@ -8,7 +8,7 @@
 	import { useCombobox } from '@repo/ui/hooks';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
-	import { isUsingCpalMethodWithoutWhisperCpp } from '../../../../routes/+layout/check-ffmpeg';
+	import { isFfmpegRecommended } from '../../../../routes/+layout/check-ffmpeg';
 	import { PackageIcon, SettingsIcon } from '@lucide/svelte';
 
 	let { class: className }: { class?: string } = $props();
@@ -17,7 +17,7 @@
 
 	// Check if we should show "Recommended" badge
 	const shouldShowRecommendedBadge = $derived(
-		isUsingCpalMethodWithoutWhisperCpp() &&
+		isFfmpegRecommended() &&
 			!settings.value['transcription.compressionEnabled'],
 	);
 

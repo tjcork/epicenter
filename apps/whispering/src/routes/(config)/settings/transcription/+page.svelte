@@ -1,5 +1,4 @@
 <script lang="ts">
-	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
 	import CopyToClipboardButton from '$lib/components/copyable/CopyToClipboardButton.svelte';
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
 	import {
@@ -8,12 +7,12 @@
 		LabeledTextarea,
 	} from '$lib/components/labeled/index.js';
 	import {
+		CompressionBody,
 		DeepgramApiKeyInput,
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import { CompressionBody } from '$lib/components/settings';
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
@@ -24,27 +23,17 @@
 		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
-	import {
-		CheckIcon,
-		InfoIcon,
-		RotateCcw,
-		TriangleAlert,
-	} from '@lucide/svelte';
+	import { CheckIcon, InfoIcon } from '@lucide/svelte';
 	import * as Alert from '@repo/ui/alert';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
 	import { Checkbox } from '@repo/ui/checkbox';
-	import * as Collapsible from '@repo/ui/collapsible';
-	import { Input } from '@repo/ui/input';
 	import { Link } from '@repo/ui/link';
-	import * as Select from '@repo/ui/select';
 	import { Separator } from '@repo/ui/separator';
-	import {
-		isUsingCpalMethodAtWrongSampleRate,
-		isUsingCpalMethodWithoutWhisperCpp,
-		isUsingWhisperCppWithBrowserMethod,
-	} from '../../../+layout/check-ffmpeg';
+	import { isFfmpegRequired } from '../../../+layout/check-ffmpeg';
+
+	const { data } = $props();
 </script>
 
 <svelte:head>
@@ -352,33 +341,16 @@
 				<WhisperModelSelector />
 			{/if}
 
-			{#if isUsingWhisperCppWithBrowserMethod()}
+			{#if isFfmpegRequired() && !data.ffmpegInstalled}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
 						FFmpeg Required
 					</Alert.Title>
 					<Alert.Description>
-						Whisper C++ requires FFmpeg to convert audio to 16kHz WAV format
-						when using browser recording.
-						<Link
-							href="/install-ffmpeg"
-							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
-						>
-							Install FFmpeg →
-						</Link>
-					</Alert.Description>
-				</Alert.Root>
-			{:else if isUsingCpalMethodAtWrongSampleRate()}
-				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-					<Alert.Title class="text-amber-600 dark:text-amber-400">
-						FFmpeg Required
-					</Alert.Title>
-					<Alert.Description>
-						Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-						your current {settings.value['recording.cpal.sampleRate']}Hz sample
-						rate.
+						Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording
+						at 16kHz produces this natively; all other recording methods and
+						sample rates need FFmpeg to convert the audio.
 						<Link
 							href="/install-ffmpeg"
 							class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"

@@ -14,8 +14,8 @@
 	import ManualSelectRecordingDevice from './ManualSelectRecordingDevice.svelte';
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
-		isUsingCpalMethodWithoutWhisperCpp,
-		isUsingCpalMethodAtWrongSampleRate,
+		isFfmpegRecommended,
+		isFfmpegRequired,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 
@@ -151,16 +151,16 @@
 			</Alert.Root>
 		{/if}
 
-		{#if isUsingCpalMethodAtWrongSampleRate() && !data.ffmpegInstalled}
+		{#if isFfmpegRequired() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
 					FFmpeg Required
 				</Alert.Title>
 				<Alert.Description>
-					Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-					your current {settings.value['recording.cpal.sampleRate']}Hz sample
-					rate.
+					Whisper C++ requires audio in 16kHz WAV format. Only CPAL recording at
+					16kHz produces this natively; all other recording methods and sample
+					rates need FFmpeg to convert the audio.
 					<Link
 						href="/install-ffmpeg"
 						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
@@ -169,7 +169,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if isUsingCpalMethodWithoutWhisperCpp() && !data.ffmpegInstalled}
+		{:else if isFfmpegRecommended() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
