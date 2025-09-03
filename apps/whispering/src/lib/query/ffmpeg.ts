@@ -13,7 +13,7 @@ export const ffmpeg = {
 					title: '❌ Error checking FFmpeg installation',
 				});
 			}
-			return Ok(null);
+			return Ok(data);
 		},
 	}),
 };
