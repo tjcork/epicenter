@@ -4,7 +4,7 @@ import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
 export const RECORDING_COMPATIBILITY_MESSAGE =
-	'Whisper C++ requires audio in 16kHz WAV format. Your current recording settings require FFmpeg to be installed or you can switch to CPAL at 16kHz for direct compatibility.';
+	'Whisper C++ requires audio in 16kHz WAV format. Install FFmpeg to convert your recordings or switch to CPAL 16kHz mode.';
 
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";

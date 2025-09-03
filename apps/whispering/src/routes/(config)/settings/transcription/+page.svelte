@@ -353,22 +353,21 @@
 					</Alert.Title>
 					<Alert.Description>
 						{RECORDING_COMPATIBILITY_MESSAGE}
-						<div class="mt-3 space-y-2">
-							<div class="text-sm">
-								<strong>Option 1:</strong>
-								Switch to
+						<div class="mt-3 space-y-3">
+							<div class="flex items-center gap-2">
+								<span class="text-sm"><strong>Option 1:</strong></span>
 								<Button
 									onclick={switchToCpalAt16kHz}
-									variant="link"
-									class="hover:cursor-pointer"
+									variant="secondary"
+									size="sm"
 								>
-									CPAL recording at 16kHz
+									Switch to CPAL 16kHz
 								</Button>
 							</div>
 							<div class="text-sm">
 								<strong>Option 2:</strong>
 								<Link href="/install-ffmpeg">Install FFmpeg</Link>
-								to keep your current settings
+								to keep your current recording settings
 							</div>
 						</div>
 					</Alert.Description>
