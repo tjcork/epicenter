@@ -14,10 +14,14 @@
 	import ManualSelectRecordingDevice from './ManualSelectRecordingDevice.svelte';
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
-		isUsingCpalMethodWithoutWhisperCpp,
-		isUsingCpalMethodAtWrongSampleRate,
+		isCompressionRecommended,
+		hasRecordingCompatibilityIssue,
+		switchToCpalAt16kHz,
+		RECORDING_COMPATIBILITY_MESSAGE,
+		COMPRESSION_RECOMMENDED_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
+	import { Button } from '@repo/ui/button';
 
 	const { data } = $props();
 
@@ -120,6 +124,20 @@
 			{/snippet}
 		</LabeledSelect>
 
+		{#if IS_MACOS && settings.value['recording.method'] === 'navigator'}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					Global Shortcuts May Be Unreliable
+				</Alert.Title>
+				<Alert.Description>
+					When using the navigator recorder, macOS App Nap may prevent the
+					browser recording logic from starting when not in focus. Consider
+					using the CPAL method for reliable global shortcut support.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
+
 		{#if settings.value['recording.method'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
 				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
@@ -137,53 +155,46 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if IS_MACOS && settings.value['recording.method'] === 'navigator'}
+		{:else if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					Global Shortcuts May Be Unreliable
+					Recording Compatibility Issue
 				</Alert.Title>
 				<Alert.Description>
-					When using the navigator recorder, macOS App Nap may prevent the
-					browser recording logic from starting when not in focus. Consider
-					using the CPAL method for reliable global shortcut support.
+					{RECORDING_COMPATIBILITY_MESSAGE}
+					<div class="mt-3 space-y-3">
+						<div class="flex items-center gap-2">
+							<span class="text-sm"><strong>Option 1:</strong></span>
+							<Button
+								onclick={switchToCpalAt16kHz}
+								variant="secondary"
+								size="sm"
+							>
+								Switch to CPAL 16kHz
+							</Button>
+						</div>
+						<div class="text-sm">
+							<strong>Option 2:</strong>
+							<Link href="/install-ffmpeg">Install FFmpeg</Link>
+							to keep your current recording settings
+						</div>
+					</div>
 				</Alert.Description>
 			</Alert.Root>
-		{/if}
-
-		{#if isUsingCpalMethodAtWrongSampleRate() && !data.ffmpegInstalled}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					FFmpeg Required
+		{:else if isCompressionRecommended()}
+			<Alert.Root class="border-blue-500/20 bg-blue-500/5">
+				<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
+				<Alert.Title class="text-blue-600 dark:text-blue-400">
+					Enable Compression for Faster Uploads
 				</Alert.Title>
 				<Alert.Description>
-					Whisper C++ requires 16kHz audio. FFmpeg is needed to convert from
-					your current {settings.value['recording.cpal.sampleRate']}Hz sample
-					rate.
+					{COMPRESSION_RECOMMENDED_MESSAGE}
 					<Link
-						href="/install-ffmpeg"
-						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
+						href="/settings/transcription"
+						class="font-medium underline underline-offset-4 hover:text-blue-700 dark:hover:text-blue-300"
 					>
-						Install FFmpeg →
-					</Link>
-				</Alert.Description>
-			</Alert.Root>
-		{:else if isUsingCpalMethodWithoutWhisperCpp() && !data.ffmpegInstalled}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					FFmpeg Recommended
-				</Alert.Title>
-				<Alert.Description>
-					We highly recommend installing FFmpeg for optimal audio processing
-					with the CPAL recording method. FFmpeg enables audio compression for
-					faster uploads to transcription services.
-					<Link
-						href="/install-ffmpeg"
-						class="font-medium underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300"
-					>
-						Install FFmpeg →
+						Enable in Transcription Settings →
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
