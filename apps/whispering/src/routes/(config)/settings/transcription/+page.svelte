@@ -59,10 +59,11 @@
 		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		bind:selected={
 			() => settings.value['transcription.selectedTranscriptionService'],
-			(selected) => settings.updateKey(
-				'transcription.selectedTranscriptionService',
-				selected
-			)
+			(selected) =>
+				settings.updateKey(
+					'transcription.selectedTranscriptionService',
+					selected,
+				)
 		}
 		placeholder="Select a transcription service"
 	/>
@@ -130,7 +131,8 @@
 			}))}
 			bind:selected={
 				() => settings.value['transcription.deepgram.model'],
-				(selected) => settings.updateKey('transcription.deepgram.model', selected)
+				(selected) =>
+					settings.updateKey('transcription.deepgram.model', selected)
 			}
 			renderOption={renderModelOption}
 		/>
@@ -146,7 +148,8 @@
 			}))}
 			bind:selected={
 				() => settings.value['transcription.elevenlabs.model'],
-				(selected) => settings.updateKey('transcription.elevenlabs.model', selected)
+				(selected) =>
+					settings.updateKey('transcription.elevenlabs.model', selected)
 			}
 			renderOption={renderModelOption}
 		>
@@ -361,19 +364,6 @@
 					</Alert.Description>
 				</Alert.Root>
 			{/if}
-		</div>
-
-		<div class="flex items-center space-x-2">
-			<Checkbox
-				id="whispercpp-use-gpu"
-				bind:checked={
-					() => settings.value['transcription.whispercpp.useGpu'],
-					(checked) => settings.updateKey('transcription.whispercpp.useGpu', checked)
-				}
-			/>
-			<label for="whispercpp-use-gpu" class="text-sm font-medium">
-				Use GPU acceleration (if available)
-			</label>
 		</div>
 	{/if}
 

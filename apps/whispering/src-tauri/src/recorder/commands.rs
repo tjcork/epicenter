@@ -1,7 +1,7 @@
 use crate::recorder::recorder::{AudioRecording, RecorderState, Result};
 use std::path::PathBuf;
 use std::sync::Mutex;
-use tauri::{Manager, State};
+use tauri::State;
 use tracing::{debug, info};
 
 /// Application state containing the recorder
@@ -34,7 +34,7 @@ pub async fn init_recording_session(
     output_folder: String,
     sample_rate: Option<u32>,
     state: State<'_, AppData>,
-    app_handle: tauri::AppHandle,
+    _app_handle: tauri::AppHandle,
 ) -> Result<()> {
     info!(
         "Initializing recording session: device={}, id={}, folder={}, sample_rate={:?}",
