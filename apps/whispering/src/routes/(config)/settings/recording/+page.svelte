@@ -124,6 +124,20 @@
 			{/snippet}
 		</LabeledSelect>
 
+		{#if IS_MACOS && settings.value['recording.method'] === 'navigator'}
+			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+				<Alert.Title class="text-amber-600 dark:text-amber-400">
+					Global Shortcuts May Be Unreliable
+				</Alert.Title>
+				<Alert.Description>
+					When using the navigator recorder, macOS App Nap may prevent the
+					browser recording logic from starting when not in focus. Consider
+					using the CPAL method for reliable global shortcut support.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
+
 		{#if settings.value['recording.method'] === 'ffmpeg' && !data.ffmpegInstalled}
 			<Alert.Root class="border-red-500/20 bg-red-500/5">
 				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
@@ -141,21 +155,7 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if IS_MACOS && settings.value['recording.method'] === 'navigator'}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					Global Shortcuts May Be Unreliable
-				</Alert.Title>
-				<Alert.Description>
-					When using the navigator recorder, macOS App Nap may prevent the
-					browser recording logic from starting when not in focus. Consider
-					using the CPAL method for reliable global shortcut support.
-				</Alert.Description>
-			</Alert.Root>
-		{/if}
-
-		{#if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
+		{:else if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
 			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 				<Alert.Title class="text-amber-600 dark:text-amber-400">
