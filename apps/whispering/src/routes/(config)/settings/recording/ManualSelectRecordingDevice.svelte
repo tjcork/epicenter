@@ -6,11 +6,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 
 	let {
-		selected,
-		onSelectedChange,
+		selected = $bindable(),
 	}: {
 		selected: DeviceIdentifier | null;
-		onSelectedChange: (selected: DeviceIdentifier | null) => void;
 	} = $props();
 
 	// Use recorder.enumerateDevices for manual recording (includes desktop devices)
@@ -29,8 +27,7 @@
 		label="Recording Device"
 		placeholder="Loading devices..."
 		items={[{ value: '', label: 'Loading devices...' }]}
-		selected={''}
-		onSelectedChange={() => {}}
+		bind:selected={() => '', () => {}}
 		disabled
 	/>
 {:else if getDevicesQuery.isError}
@@ -46,9 +43,10 @@
 		id="manual-recording-device"
 		label="Recording Device"
 		{items}
-		selected={selected ?? asDeviceIdentifier('')}
-		onSelectedChange={(value) =>
-			onSelectedChange(value ? asDeviceIdentifier(value) : null)}
+		bind:selected={
+			() => selected ?? asDeviceIdentifier(''),
+			(value) => selected = value ? asDeviceIdentifier(value) : null
+		}
 		placeholder="Select a device"
 	/>
 {/if}

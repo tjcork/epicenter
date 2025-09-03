@@ -83,10 +83,10 @@
 		id="recording-mode"
 		label="Recording Mode"
 		items={RECORDING_MODE_OPTIONS}
-		selected={settings.value['recording.mode']}
-		onSelectedChange={(selected) => {
-			settings.updateKey('recording.mode', selected);
-		}}
+		bind:selected={
+			() => settings.value['recording.mode'],
+			(selected) => settings.updateKey('recording.mode', selected)
+		}
 		placeholder="Select a recording mode"
 		description={`Choose how you want to activate recording: ${RECORDING_MODE_OPTIONS.map(
 			(option) => option.label.toLowerCase(),
@@ -98,13 +98,14 @@
 			id="recording-method"
 			label="Recording Method"
 			items={RECORDING_METHOD_OPTIONS}
-			selected={settings.value['recording.method']}
-			onSelectedChange={(selected) => {
-				settings.updateKey(
-					'recording.method',
-					selected as 'cpal' | 'navigator' | 'ffmpeg',
-				);
-			}}
+			bind:selected={
+				() => settings.value['recording.method'],
+				(selected) =>
+					settings.updateKey(
+						'recording.method',
+						selected as 'cpal' | 'navigator' | 'ffmpeg',
+					)
+			}
 			placeholder="Select a recording method"
 			description={RECORDING_METHOD_OPTIONS.find(
 				(option) => option.value === settings.value['recording.method'],
@@ -193,10 +194,11 @@
 	{#if settings.value['recording.mode'] === 'manual'}
 		{@const method = settings.value['recording.method']}
 		<ManualSelectRecordingDevice
-			selected={settings.value[`recording.${method}.deviceId`]}
-			onSelectedChange={(selected) => {
-				settings.updateKey(`recording.${method}.deviceId`, selected);
-			}}
+			bind:selected={
+				() => settings.value[`recording.${method}.deviceId`],
+				(selected) =>
+					settings.updateKey(`recording.${method}.deviceId`, selected)
+			}
 		/>
 	{:else if settings.value['recording.mode'] === 'vad'}
 		<Alert.Root class="border-blue-500/20 bg-blue-500/5">
@@ -212,10 +214,11 @@
 		</Alert.Root>
 
 		<VadSelectRecordingDevice
-			selected={settings.value['recording.navigator.deviceId']}
-			onSelectedChange={(selected) => {
-				settings.updateKey('recording.navigator.deviceId', selected);
-			}}
+			bind:selected={
+				() => settings.value['recording.navigator.deviceId'],
+				(selected) =>
+					settings.updateKey('recording.navigator.deviceId', selected)
+			}
 		/>
 	{/if}
 
@@ -229,10 +232,11 @@
 					value: option.value,
 					label: option.label,
 				}))}
-				selected={settings.value['recording.navigator.bitrateKbps']}
-				onSelectedChange={(selected) => {
-					settings.updateKey('recording.navigator.bitrateKbps', selected);
-				}}
+				bind:selected={
+					() => settings.value['recording.navigator.bitrateKbps'],
+					(selected) =>
+						settings.updateKey('recording.navigator.bitrateKbps', selected)
+				}
 				placeholder="Select a bitrate"
 				description="The bitrate of the recording. Higher values mean better quality but larger file sizes."
 			/>
@@ -269,13 +273,11 @@
 				id="sample-rate"
 				label="Sample Rate"
 				items={SAMPLE_RATE_OPTIONS}
-				selected={settings.value['recording.cpal.sampleRate']}
-				onSelectedChange={(selected) => {
-					settings.updateKey(
-						'recording.cpal.sampleRate',
-						selected as (typeof SAMPLE_RATE_OPTIONS)[number]['value'],
-					);
-				}}
+				bind:selected={
+					() => settings.value['recording.cpal.sampleRate'],
+					(selected) =>
+						settings.updateKey('recording.cpal.sampleRate', selected)
+				}
 				placeholder="Select sample rate"
 				description="Higher sample rates provide better quality but create larger files"
 			/>

@@ -248,11 +248,13 @@
 						id="ffmpeg-format"
 						label="Format"
 						items={audioFormatOptions}
-						selected={selected.format}
-						onSelectedChange={(value) => {
-							selected = { ...selected, format: value as AudioFormat };
-							rebuildOutputOptionsFromSelections();
-						}}
+						bind:selected={
+							() => selected.format,
+							(value) => {
+								selected = { ...selected, format: value };
+								rebuildOutputOptionsFromSelections();
+							}
+						}
 						placeholder="Select format"
 					/>
 				</div>
@@ -267,11 +269,13 @@
 							{ value: '44100', label: '44.1 kHz - CD quality' },
 							{ value: '48000', label: '48 kHz - Studio quality' },
 						]}
-						selected={selected.sampleRate}
-						onSelectedChange={(value) => {
-							selected = { ...selected, sampleRate: value };
-							rebuildOutputOptionsFromSelections();
-						}}
+						bind:selected={
+							() => selected.sampleRate,
+							(value) => {
+								selected = { ...selected, sampleRate: value };
+								rebuildOutputOptionsFromSelections();
+							}
+						}
 						placeholder="Sample rate"
 					/>
 				</div>
@@ -290,11 +294,13 @@
 								{ value: '7', label: 'Q7 - ~224 kbps' },
 								{ value: '10', label: 'Q10 - ~500 kbps (Maximum)' },
 							]}
-							selected={selected.quality}
-							onSelectedChange={(value) => {
-								selected = { ...selected, quality: value };
-								rebuildOutputOptionsFromSelections();
-							}}
+							bind:selected={
+								() => selected.quality,
+								(value) => {
+									selected = { ...selected, quality: value };
+									rebuildOutputOptionsFromSelections();
+								}
+							}
 							placeholder="Quality"
 						/>
 					</div>
@@ -311,11 +317,13 @@
 								{ value: '256', label: '256 kbps - Excellent' },
 								{ value: '320', label: '320 kbps - Maximum' },
 							]}
-							selected={selected.bitrate}
-							onSelectedChange={(value) => {
-								selected = { ...selected, bitrate: value };
-								rebuildOutputOptionsFromSelections();
-							}}
+							bind:selected={
+								() => selected.bitrate,
+								(value) => {
+									selected = { ...selected, bitrate: value };
+									rebuildOutputOptionsFromSelections();
+								}
+							}
 							placeholder="Bitrate"
 						/>
 					</div>

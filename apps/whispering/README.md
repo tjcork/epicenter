@@ -784,10 +784,10 @@ Adding a new transcription service involves four main steps:
          label: model.name,
          ...model,
        }))}
-       selected={settings.value['transcription.yourservice.model']}
-       onSelectedChange={(selected) => {
-         settings.updateKey('transcription.yourservice.model', selected);
-       }}
+       bind:selected={
+         () => settings.value['transcription.yourservice.model'],
+         (selected) => settings.updateKey('transcription.yourservice.model', selected)
+       }
        renderOption={renderModelOption}
      />
      <YourServiceApiKeyInput />

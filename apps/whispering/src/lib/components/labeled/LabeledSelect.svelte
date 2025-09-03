@@ -13,8 +13,7 @@
 		id,
 		label,
 		items = [],
-		selected,
-		onSelectedChange,
+		selected = $bindable(),
 		placeholder = 'Select an option',
 		class: className,
 		disabled = false,
@@ -27,7 +26,6 @@
 		label: string;
 		items: TItem[];
 		selected: T;
-		onSelectedChange: (selected: T) => void;
 		placeholder?: string;
 		class?: string;
 		disabled?: boolean;
@@ -62,11 +60,7 @@
 		<Select.Root
 			type="single"
 			{items}
-			value={selected}
-			onValueChange={(selected) => {
-				const selectedValue = selected as T;
-				onSelectedChange(selectedValue);
-			}}
+			bind:value={() => selected, (value) => (selected = value)}
 			{disabled}
 		>
 			<Select.Trigger class={cn('w-full flex-1', className)}>
