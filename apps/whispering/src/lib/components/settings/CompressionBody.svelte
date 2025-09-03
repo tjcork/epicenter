@@ -7,7 +7,7 @@
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
 	import { RotateCcw } from '@lucide/svelte';
-	import { isUsingCpalMethodWithoutWhisperCpp } from '../../../routes/+layout/check-ffmpeg';
+	import { isCompressionRecommended } from '../../../routes/+layout/check-ffmpeg';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc } from '$lib/query';
 
@@ -60,11 +60,8 @@
 	const isFfmpegInstalled = $derived(ffmpegQuery.data ?? false);
 	const isFfmpegCheckLoading = $derived(ffmpegQuery.isPending);
 
-	// Check if we should show "Recommended" badge
-	const shouldShowRecommendedBadge = $derived(
-		isUsingCpalMethodWithoutWhisperCpp() &&
-			!settings.value['transcription.compressionEnabled'],
-	);
+	// Show recommended badge if compression is recommended
+	const showRecommendedBadge = $derived(isCompressionRecommended());
 </script>
 
 <div class="space-y-4">
@@ -74,9 +71,10 @@
 			id="compression-enabled-{Math.random().toString(36).substr(2, 9)}"
 			bind:checked={
 				() => settings.value['transcription.compressionEnabled'],
-				(checked) => settings.updateKey('transcription.compressionEnabled', checked)
+				(checked) =>
+					settings.updateKey('transcription.compressionEnabled', checked)
 			}
-			disabled={!isFfmpegInstalled || isFfmpegCheckLoading}
+			disabled={!isFfmpegInstalled}
 		/>
 		<div class="flex-1">
 			<div class="flex items-center gap-2">
@@ -84,52 +82,21 @@
 					for="compression-enabled"
 					class={cn(
 						'text-sm font-medium',
-						(!isFfmpegInstalled || isFfmpegCheckLoading) &&
-							'text-muted-foreground',
+						!isFfmpegInstalled && 'text-muted-foreground',
 					)}
 				>
 					Compress audio before transcription
 				</label>
-				{#if shouldShowRecommendedBadge && isFfmpegInstalled}
+				{#if showRecommendedBadge}
 					<Badge variant="secondary" class="text-xs">Recommended</Badge>
 				{/if}
-				{#if !isFfmpegInstalled && !isFfmpegCheckLoading}
-					<Badge variant="destructive" class="text-xs">FFmpeg Required</Badge>
-				{/if}
 			</div>
-			<p
-				class={cn(
-					'text-xs mt-1',
-					!isFfmpegInstalled || isFfmpegCheckLoading
-						? 'text-muted-foreground/50'
-						: 'text-muted-foreground',
-				)}
-			>
-				{#if !isFfmpegInstalled && !isFfmpegCheckLoading}
-					FFmpeg is required for audio compression.
-					<a
-						href="/install-ffmpeg"
-						class="text-primary underline-offset-4 hover:underline"
-					>
-						Install FFmpeg
-					</a>
-					to enable this feature.
-				{:else if isFfmpegCheckLoading}
-					Checking FFmpeg installation...
-				{:else}
-					Reduce file sizes and trim silence for faster uploads and lower API
-					costs
-				{/if}
+			<p class="text-xs mt-1 text-muted-foreground">
+				Reduce file sizes and trim silence for faster uploads and lower API
+				costs
 			</p>
 		</div>
 	</div>
-
-	{#if isUsingCpalMethodWithoutWhisperCpp() && !settings.value['transcription.compressionEnabled'] && isFfmpegInstalled}
-		<p class="text-muted-foreground text-sm ml-6">
-			Recommended because you're using CPAL recording with cloud transcription.
-			Compression reduces file sizes for faster uploads and lower API costs.
-		</p>
-	{/if}
 
 	{#if settings.value['transcription.compressionEnabled']}
 		<!-- Preset Selection Badges -->

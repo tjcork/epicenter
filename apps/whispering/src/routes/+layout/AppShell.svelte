@@ -113,7 +113,7 @@
 	</span>
 </button>
 
-<div class="hidden flex-col items-center gap-2 xxs:flex">
+<div class="hidden flex-col items-center gap-2 xxs:flex min-w-0">
 	{@render children()}
 </div>
 

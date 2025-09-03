@@ -814,15 +814,13 @@ Adding a new transcription service involves four main steps:
    >
      {#snippet description()}
        <p class="text-muted-foreground text-sm">
-         You can find your YourService API key in your <Button
-           variant="link"
-           class="px-0.3 py-0.2 h-fit"
+         You can find your YourService API key in your <Link
            href="https://yourservice.com/api-keys"
            target="_blank"
            rel="noopener noreferrer"
          >
            YourService dashboard
-         </Button>.
+         </Link>.
        </p>
      {/snippet}
    </LabeledInput>
