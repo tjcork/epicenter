@@ -56,63 +56,94 @@
 				🚫
 			</WhisperingButton>
 		{:else}
-			<RecordingModeSelector />
 			<ManualDeviceSelector />
 			<CompressionSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
-		<WhisperingButton
-			tooltipContent={getRecorderStateQuery.data === 'RECORDING'
-				? 'Stop recording'
-				: 'Start recording'}
-			onclick={commandCallbacks.toggleManualRecording}
-			variant="ghost"
-			size="icon"
-			style="view-transition-name: microphone-icon"
-		>
-			{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
-		</WhisperingButton>
+		{#if getRecorderStateQuery.data === 'RECORDING'}
+			<WhisperingButton
+				tooltipContent="Stop recording"
+				onclick={commandCallbacks.toggleManualRecording}
+				variant="ghost"
+				size="icon"
+				style="view-transition-name: microphone-icon"
+			>
+				{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
+			</WhisperingButton>
+		{:else}
+			<div class="flex">
+				<WhisperingButton
+					tooltipContent="Start recording"
+					onclick={commandCallbacks.toggleManualRecording}
+					variant="ghost"
+					size="icon"
+					style="view-transition-name: microphone-icon"
+					class="rounded-r-none border-r-0"
+				>
+					{recorderStateToIcons[getRecorderStateQuery.data ?? 'IDLE']}
+				</WhisperingButton>
+				<RecordingModeSelector class="rounded-l-none" />
+			</div>
+		{/if}
 	{:else if settings.value['recording.mode'] === 'vad'}
 		{#if getVadStateQuery.data === 'IDLE'}
-			<RecordingModeSelector />
 			<VadDeviceSelector />
 			<CompressionSelector />
 			<TranscriptionSelector />
 			<TransformationSelector />
 		{/if}
-		<WhisperingButton
-			tooltipContent="Toggle voice activated recording"
-			onclick={commandCallbacks.toggleVadRecording}
-			variant="ghost"
-			size="icon"
-			style="view-transition-name: microphone-icon"
-		>
-			{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
-		</WhisperingButton>
+		{#if getVadStateQuery.data === 'IDLE'}
+			<div class="flex">
+				<WhisperingButton
+					tooltipContent="Start voice activated recording"
+					onclick={commandCallbacks.toggleVadRecording}
+					variant="ghost"
+					size="icon"
+					style="view-transition-name: microphone-icon"
+					class="rounded-r-none border-r-0"
+				>
+					{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
+				</WhisperingButton>
+				<RecordingModeSelector class="rounded-l-none" />
+			</div>
+		{:else}
+			<WhisperingButton
+				tooltipContent="Stop voice activated recording"
+				onclick={commandCallbacks.toggleVadRecording}
+				variant="ghost"
+				size="icon"
+				style="view-transition-name: microphone-icon"
+			>
+				{vadStateToIcons[getVadStateQuery.data ?? 'IDLE']}
+			</WhisperingButton>
+		{/if}
 	{:else if settings.value['recording.mode'] === 'upload'}
-		<RecordingModeSelector />
 		<CompressionSelector />
 		<TranscriptionSelector />
 		<TransformationSelector />
-	{:else if settings.value['recording.mode'] === 'live'}
 		<RecordingModeSelector />
+	{:else if settings.value['recording.mode'] === 'live'}
 		<ManualDeviceSelector />
 		<CompressionSelector />
 		<TranscriptionSelector />
 		<TransformationSelector />
-		<WhisperingButton
-			tooltipContent="Toggle live recording"
-			onclick={() => {
-				// TODO: Implement live recording toggle
-				alert('Live recording not yet implemented');
-			}}
-			variant="ghost"
-			size="icon"
-			style="view-transition-name: microphone-icon"
-		>
-			🎬
-		</WhisperingButton>
+		<div class="flex">
+			<WhisperingButton
+				tooltipContent="Toggle live recording"
+				onclick={() => {
+					// TODO: Implement live recording toggle
+					alert('Live recording not yet implemented');
+				}}
+				variant="ghost"
+				size="icon"
+				style="view-transition-name: microphone-icon"
+				class="rounded-r-none border-r-0"
+			>
+				🎬
+			</WhisperingButton>
+			<RecordingModeSelector class="rounded-l-none" />
+		</div>
 	{/if}
 
 	<NavItems class="-mr-4" collapsed={isMobile.current} />
