@@ -34,7 +34,7 @@
 				variant="outline"
 				size="sm"
 				onclick={() => {
-					settings.resetShortcuts('global');
+					settings.resetGlobalShortcuts();
 					rpc.notify.success.execute({
 						title: 'Shortcuts reset',
 						description: 'All global shortcuts have been reset to defaults.',
