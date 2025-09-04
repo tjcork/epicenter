@@ -133,7 +133,10 @@
 			"mcp__nia__nia_web_search",
 			"mcp__nia__search_documentation",
 			"mcp__nia__nia_deep_research_agent"
-		]
+		],
+		"deny": [],
+		"ask": [],
+		"additionalDirectories": ["../wellcrafted"]
 	},
 	"model": "opus"
 }
