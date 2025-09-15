@@ -8,8 +8,8 @@ use recorder::commands::{
     get_current_recording_id, init_recording_session, start_recording, stop_recording, AppData,
 };
 
-pub mod whisper_cpp;
-use whisper_cpp::transcribe_with_whisper_cpp;
+pub mod transcription;
+use transcription::transcribe_audio;
 
 pub mod windows_path;
 use windows_path::fix_windows_path;
@@ -77,8 +77,7 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
-        // Whisper transcription
-        transcribe_with_whisper_cpp,
+        transcribe_audio,
         send_sigint,
     ]);
 
