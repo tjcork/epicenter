@@ -1,16 +1,15 @@
 <script lang="ts">
+	import { settings } from '$lib/stores/settings.svelte';
+	import { Paperclip, X } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import * as Tabs from '@repo/ui/tabs';
 	import { Input } from '@repo/ui/input';
 	import { Link } from '@repo/ui/link';
-	import { Paperclip, X } from '@lucide/svelte';
-	import ModelDownloadCard from './ModelDownloadCard.svelte';
+	import * as Tabs from '@repo/ui/tabs';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { exists } from '@tauri-apps/plugin-fs';
 	import { toast } from 'svelte-sonner';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { appDataDir, join } from '@tauri-apps/api/path';
-	import { exists, mkdir } from '@tauri-apps/plugin-fs';
+	import ModelDownloadCard from './ModelDownloadCard.svelte';
 
 	// Pre-built models configuration
 	const WHISPER_MODELS = [
