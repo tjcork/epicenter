@@ -6,30 +6,27 @@ import {
 import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
-import { exists } from '@tauri-apps/plugin-fs';
+import { exists, stat } from '@tauri-apps/plugin-fs';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 import { rpc } from '$lib/query';
 
-const WhisperCppErrorType = type({
-	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
+const ParakeetErrorType = type({
+	name: "'AudioReadError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
-export function createWhisperCppTranscriptionService() {
+export function createParakeetTranscriptionService() {
 	return {
 		async transcribe(
 			audioBlob: Blob,
-			options: {
-				outputLanguage: Settings['transcription.outputLanguage'];
-				modelPath: string;
-			},
+			options: { modelPath: string },
 		): Promise<Result<string, WhisperingError>> {
 			// Pre-validation
 			if (!options.modelPath) {
 				return WhisperingErr({
-					title: '📁 Model File Required',
-					description: 'Please select a Whisper model file in settings.',
+					title: '📁 Model Directory Required',
+					description: 'Please select a Parakeet model directory in settings.',
 					action: {
 						type: 'link',
 						label: 'Configure model',
@@ -38,7 +35,7 @@ export function createWhisperCppTranscriptionService() {
 				});
 			}
 
-			// Check if model file exists
+			// Check if model directory exists
 			const { data: isExists } = await tryAsync({
 				try: () => exists(options.modelPath),
 				catch: () => Ok(false),
@@ -46,11 +43,30 @@ export function createWhisperCppTranscriptionService() {
 
 			if (!isExists) {
 				return WhisperingErr({
-					title: '❌ Model File Not Found',
-					description: `The model file "${options.modelPath}" does not exist.`,
+					title: '❌ Model Directory Not Found',
+					description: `The model directory "${options.modelPath}" does not exist.`,
 					action: {
 						type: 'link',
 						label: 'Select model',
+						href: '/settings/transcription',
+					},
+				});
+			}
+
+			// Check if it's actually a directory
+			const { data: stats } = await tryAsync({
+				try: () => stat(options.modelPath),
+				catch: () => Ok(null),
+			});
+
+			if (!stats || !stats.isDirectory) {
+				return WhisperingErr({
+					title: '❌ Invalid Model Path',
+					description:
+						'Parakeet models must be directories containing model files.',
+					action: {
+						type: 'link',
+						label: 'Select model directory',
 						href: '/settings/transcription',
 					},
 				});
@@ -63,7 +79,7 @@ export function createWhisperCppTranscriptionService() {
 				return WhisperingWarningErr({
 					title: '🛠️ Install FFmpeg',
 					description:
-						'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
+						'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Parakeet.',
 					action: {
 						type: 'link',
 						label: 'Install FFmpeg',
@@ -76,21 +92,19 @@ export function createWhisperCppTranscriptionService() {
 			const arrayBuffer = await audioBlob.arrayBuffer();
 			const audioData = Array.from(new Uint8Array(arrayBuffer));
 
-			// Call Tauri command to transcribe with whisper-cpp
-			// Note: temperature and prompt are not supported by local models (transcribe-rs)
+			// Call Tauri command to transcribe with Parakeet
+			// Note: Parakeet doesn't support language selection, temperature, or prompt
 			const result = await tryAsync({
 				try: () =>
-					invoke<string>('transcribe_audio_whisper', {
+					invoke<string>('transcribe_audio_parakeet', {
 						audioData: audioData,
 						modelPath: options.modelPath,
-						language:
-							options.outputLanguage === 'auto' ? null : options.outputLanguage,
 					}),
 				catch: (unknownError) => {
-					const result = WhisperCppErrorType(unknownError);
+					const result = ParakeetErrorType(unknownError);
 					if (result instanceof type.errors) {
 						return WhisperingErr({
-							title: '❌ Unexpected Whisper C++ Error',
+							title: '❌ Unexpected Parakeet Error',
 							description: extractErrorMessage(unknownError),
 							action: { type: 'more-details', error: unknownError },
 						});
@@ -104,17 +118,6 @@ export function createWhisperCppTranscriptionService() {
 								action: {
 									type: 'more-details',
 									error: new Error(error.message),
-								},
-							});
-
-						case 'GpuError':
-							return WhisperingErr({
-								title: '🎮 GPU Error',
-								description: error.message,
-								action: {
-									type: 'link',
-									label: 'Configure settings',
-									href: '/settings/transcription',
 								},
 							});
 
@@ -140,7 +143,7 @@ export function createWhisperCppTranscriptionService() {
 
 						default:
 							return WhisperingErr({
-								title: '❌ Whisper C++ Error',
+								title: '❌ Parakeet Error',
 								description: 'An unexpected error occurred.',
 								action: {
 									type: 'more-details',
@@ -156,9 +159,9 @@ export function createWhisperCppTranscriptionService() {
 	};
 }
 
-export type WhisperCppTranscriptionService = ReturnType<
-	typeof createWhisperCppTranscriptionService
+export type ParakeetTranscriptionService = ReturnType<
+	typeof createParakeetTranscriptionService
 >;
 
-export const WhisperCppTranscriptionServiceLive =
-	createWhisperCppTranscriptionService();
+export const ParakeetTranscriptionServiceLive =
+	createParakeetTranscriptionService();

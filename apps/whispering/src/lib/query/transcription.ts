@@ -224,10 +224,13 @@ async function transcribeBlob(
 						audioToTranscribe,
 						{
 							outputLanguage: settings.value['transcription.outputLanguage'],
-							prompt: settings.value['transcription.prompt'],
-							temperature: settings.value['transcription.temperature'],
 							modelPath: settings.value['transcription.whispercpp.modelPath'],
 						},
+					);
+				case 'parakeet':
+					return await services.transcriptions.parakeet.transcribe(
+						audioToTranscribe,
+						{ modelPath: settings.value['transcription.parakeet.modelPath'] },
 					);
 				default:
 					return WhisperingErr({

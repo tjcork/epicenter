@@ -9,7 +9,7 @@ use recorder::commands::{
 };
 
 pub mod transcription;
-use transcription::transcribe_audio;
+use transcription::{transcribe_audio_whisper, transcribe_audio_parakeet};
 
 pub mod windows_path;
 use windows_path::fix_windows_path;
@@ -77,7 +77,8 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
-        transcribe_audio,
+        transcribe_audio_whisper,
+        transcribe_audio_parakeet,
         send_sigint,
     ]);
 

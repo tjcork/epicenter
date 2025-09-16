@@ -6,6 +6,7 @@ import type { Settings } from '$lib/settings';
 // Import SVG icons as strings
 import groqIcon from '$lib/constants/icons/groq.svg?raw';
 import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
+import nvidiaIcon from '$lib/constants/icons/nvidia.svg?raw';
 import openaiIcon from '$lib/constants/icons/openai.svg?raw';
 import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
 import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
@@ -32,6 +33,7 @@ type TranscriptionModel =
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'whispercpp',
+	'parakeet',
 	'Groq',
 	'OpenAI',
 	'ElevenLabs',
@@ -82,6 +84,15 @@ export const TRANSCRIPTION_SERVICES = [
 		invertInDarkMode: true,
 		description: 'Fast local transcription with no internet required',
 		modelPathField: 'transcription.whispercpp.modelPath',
+		location: 'local',
+	},
+	{
+		id: 'parakeet',
+		name: 'Parakeet',
+		icon: nvidiaIcon,
+		invertInDarkMode: false,
+		description: 'NVIDIA NeMo model for fast local transcription',
+		modelPathField: 'transcription.parakeet.modelPath',
 		location: 'local',
 	},
 	// Cloud services (API-based)

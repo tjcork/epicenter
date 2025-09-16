@@ -14,6 +14,7 @@
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
+	import ParakeetModelSelector from '$lib/components/settings/ParakeetModelSelector.svelte';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		DEEPGRAM_TRANSCRIPTION_MODELS,
@@ -39,10 +40,17 @@
 
 	const { data } = $props();
 
-	// Prompt and temperature are not supported for local models like transcribe-rs (whispercpp)
+	// Prompt and temperature are not supported for local models like transcribe-rs (whispercpp/parakeet)
 	const isPromptAndTemperatureSupported = $derived(
 		settings.value['transcription.selectedTranscriptionService'] ===
-			'whispercpp',
+			'whispercpp' ||
+			settings.value['transcription.selectedTranscriptionService'] ===
+				'parakeet',
+	);
+
+	// Parakeet doesn't support language selection (auto-detect only)
+	const isLanguageSelectionSupported = $derived(
+		settings.value['transcription.selectedTranscriptionService'] !== 'parakeet',
 	);
 </script>
 
@@ -371,6 +379,42 @@
 				</Alert.Root>
 			{/if}
 		</div>
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'parakeet'}
+		<div class="space-y-4">
+			<!-- Parakeet Model Selector Component -->
+			{#if window.__TAURI_INTERNALS__}
+				<ParakeetModelSelector />
+			{/if}
+
+			{#if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
+				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
+					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
+					<Alert.Title class="text-amber-600 dark:text-amber-400">
+						Recording Compatibility Issue
+					</Alert.Title>
+					<Alert.Description>
+						{RECORDING_COMPATIBILITY_MESSAGE}
+						<div class="mt-3 space-y-3">
+							<div class="flex items-center gap-2">
+								<span class="text-sm"><strong>Option 1:</strong></span>
+								<Button
+									onclick={switchToCpalAt16kHz}
+									variant="secondary"
+									size="sm"
+								>
+									Switch to CPAL 16kHz
+								</Button>
+							</div>
+							<div class="text-sm">
+								<strong>Option 2:</strong>
+								<Link href="/install-ffmpeg">Install FFmpeg</Link>
+								to keep your current recording settings
+							</div>
+						</div>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
+		</div>
 	{/if}
 
 	<!-- Audio Compression Settings -->
@@ -385,6 +429,10 @@
 			(selected) => settings.updateKey('transcription.outputLanguage', selected)
 		}
 		placeholder="Select a language"
+		disabled={!isLanguageSelectionSupported}
+		description={!isLanguageSelectionSupported
+			? 'Parakeet automatically detects the language'
+			: undefined}
 	/>
 
 	<LabeledInput

@@ -5,7 +5,10 @@ use std::path::PathBuf;
 use std::io::Write;
 use transcribe_rs::{
     TranscriptionEngine,
-    engines::whisper::{WhisperEngine, WhisperInferenceParams},
+    engines::{
+        whisper::{WhisperEngine, WhisperInferenceParams},
+        parakeet::{ParakeetEngine, ParakeetModelParams},
+    },
 };
 
 /// Check if audio is already in whisper-compatible format (16kHz, mono, 16-bit PCM)
@@ -110,7 +113,7 @@ fn extract_samples_from_wav(wav_data: Vec<u8>) -> Result<Vec<f32>, Transcription
 }
 
 #[tauri::command]
-pub async fn transcribe_audio(
+pub async fn transcribe_audio_whisper(
     audio_data: Vec<u8>,
     model_path: String,
     language: Option<String>,
@@ -148,6 +151,43 @@ pub async fn transcribe_audio(
 
     // Run transcription
     let result = engine.transcribe_samples(samples, Some(params))
+        .map_err(|e| TranscriptionError::TranscriptionError {
+            message: e.to_string(),
+        })?;
+
+    // Unload model to free memory
+    engine.unload_model();
+
+    Ok(result.text.trim().to_string())
+}
+
+#[tauri::command]
+pub async fn transcribe_audio_parakeet(
+    audio_data: Vec<u8>,
+    model_path: String,
+) -> Result<String, TranscriptionError> {
+    // Convert audio to 16kHz mono format
+    let wav_data = convert_audio_for_whisper(audio_data)?;
+
+    // Extract samples from WAV
+    let samples = extract_samples_from_wav(wav_data)?;
+
+    // Return early if audio is empty
+    if samples.is_empty() {
+        return Ok(String::new());
+    }
+
+    // Create Parakeet engine using transcribe-rs
+    let mut engine = ParakeetEngine::new();
+
+    // Load the model with int8 quantization for better performance
+    engine.load_model_with_params(&PathBuf::from(&model_path), ParakeetModelParams::int8())
+        .map_err(|e| TranscriptionError::ModelLoadError {
+            message: format!("Failed to load Parakeet model: {}", e)
+        })?;
+
+    // Run transcription - Parakeet doesn't support language selection
+    let result = engine.transcribe_samples(samples, None)
         .map_err(|e| TranscriptionError::TranscriptionError {
             message: e.to_string(),
         })?;
