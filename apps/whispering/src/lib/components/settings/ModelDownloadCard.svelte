@@ -275,17 +275,17 @@
 	</div>
 
 	<div class="flex items-center gap-2">
-		{#if isDownloading || isExtracting}
+		{#if modelState.type === 'downloading'}
 			<div class="flex items-center gap-2 min-w-[120px]">
-				{#if isExtracting}
-					<Archive class="size-4 animate-pulse" />
-					<span class="text-sm">Extracting...</span>
-				{:else}
-					<LoaderCircle class="size-4 animate-spin" />
-					<span class="text-sm font-medium">{downloadProgress}%</span>
-				{/if}
+				<LoaderCircle class="size-4 animate-spin" />
+				<span class="text-sm font-medium">{modelState.progress}%</span>
 			</div>
-		{:else if isDownloaded}
+		{:else if modelState.type === 'extracting'}
+			<div class="flex items-center gap-2 min-w-[120px]">
+				<Archive class="size-4 animate-pulse" />
+				<span class="text-sm">Extracting...</span>
+			</div>
+		{:else if modelState.type === 'ready'}
 			{#if !isActive}
 				<Button size="sm" variant="outline" onclick={activateModel}>
 					Activate
@@ -308,6 +308,6 @@
 	</div>
 </div>
 
-{#if isDownloading && downloadProgress > 0}
-	<Progress value={downloadProgress} class="mt-2 h-2" />
+{#if modelState.type === 'downloading' && modelState.progress > 0}
+	<Progress value={modelState.progress} class="mt-2 h-2" />
 {/if}
