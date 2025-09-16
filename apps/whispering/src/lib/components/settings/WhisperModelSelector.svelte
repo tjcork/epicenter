@@ -52,71 +52,6 @@
 		},
 	] as const;
 
-	/**
-	 * Gets the default directory where the app downloads Whisper models.
-	 * This is not the only place models can be loaded from - users can browse
-	 * for models anywhere on their filesystem. This is just the default location
-	 * where the app stores downloaded models.
-	 * @returns Path to the app's whisper-models directory (e.g., ~/Library/Application Support/com.epicenter.whispering/whisper-models)
-	 */
-	async function getDefaultModelsDownloadDirectory(): Promise<string> {
-		const appDir = await appDataDir();
-		return await join(appDir, 'whisper-models');
-	}
-
-	/**
-	 * Creates the default models download directory if it doesn't exist.
-	 * This ensures the directory is available before attempting to download models.
-	 */
-	async function ensureDefaultModelsDirectory(): Promise<void> {
-		const modelsDir = await getDefaultModelsDownloadDirectory();
-		const dirExists = await exists(modelsDir);
-		if (!dirExists) {
-			await mkdir(modelsDir, { recursive: true });
-		}
-	}
-
-	/**
-	 * Constructs the full path to a model file within the default download directory.
-	 * @param filename - The model filename (e.g., 'ggml-tiny.bin')
-	 * @returns Full path to the model file in the default download directory
-	 */
-	async function getDefaultModelPath(filename: string): Promise<string> {
-		const modelsDir = await getDefaultModelsDownloadDirectory();
-		return await join(modelsDir, filename);
-	}
-
-	// Query to check which models are downloaded
-	const downloadedModelsQuery = createQuery(() => ({
-		queryKey: ['whisperModels', 'downloaded'],
-		queryFn: async () => {
-			if (!window.__TAURI_INTERNALS__) return [];
-
-			const downloaded: string[] = [];
-			for (const model of WHISPER_MODELS) {
-				const modelPath = await getDefaultModelPath(model.filename);
-				if (await exists(modelPath)) {
-					downloaded.push(model.id);
-				}
-			}
-			return downloaded;
-		},
-		staleTime: 5000,
-		enabled: !!window.__TAURI_INTERNALS__,
-	}));
-
-	// Handle model download complete
-	async function handleModelDownloaded(modelPath: string) {
-		settings.updateKey('transcription.whispercpp.modelPath', modelPath);
-		await downloadedModelsQuery.refetch();
-	}
-
-	// Activate an already downloaded model
-	async function activateModel(modelPath: string) {
-		settings.updateKey('transcription.whispercpp.modelPath', modelPath);
-		toast.success('Model activated');
-	}
-
 	// Handle manual file selection
 	async function selectManualModel() {
 		if (!window.__TAURI_INTERNALS__) return;
@@ -191,10 +126,7 @@
 				<div class="grid gap-3">
 					{#each WHISPER_MODELS as model}
 						{@const isActive = activeModelId === model.id}
-						<ModelDownloadCard
-							{model}
-							{isActive}
-						/>
+						<ModelDownloadCard {model} {isActive} />
 					{/each}
 				</div>
 			</Tabs.Content>
