@@ -23,23 +23,21 @@
 	import { appDataDir, join, dirname } from '@tauri-apps/api/path';
 	import { settings } from '$lib/stores/settings.svelte';
 
-	type ModelConfig = {
-		id: string;
-		name: string;
-		description: string;
-		size: string;
-		sizeBytes: number;
-		url: string;
-		filename: string;
-		needsExtraction?: boolean;
-		archiveName?: string;
-	};
-
 	let {
 		model,
 		isActive = false,
 	}: {
-		model: ModelConfig;
+		model: {
+			id: string;
+			name: string;
+			description: string;
+			size: string;
+			sizeBytes: number;
+			url: string;
+			filename: string;
+			needsExtraction?: boolean;
+			archiveName?: string;
+		};
 		isActive?: boolean;
 	} = $props();
 
