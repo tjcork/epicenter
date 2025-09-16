@@ -1,15 +1,12 @@
 import {
 	WhisperingErr,
-	WhisperingWarningErr,
 	type WhisperingError,
 } from '$lib/result';
-import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists, stat } from '@tauri-apps/plugin-fs';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
-import { rpc } from '$lib/query';
 
 const ParakeetErrorType = type({
 	name: "'AudioReadError' | 'ModelLoadError' | 'TranscriptionError'",
@@ -72,21 +69,6 @@ export function createParakeetTranscriptionService() {
 				});
 			}
 
-			// Check if FFmpeg is installed
-			const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-			if (ffmpegResult.error) return ffmpegResult;
-			if (!ffmpegResult.data) {
-				return WhisperingWarningErr({
-					title: '🛠️ Install FFmpeg',
-					description:
-						'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Parakeet.',
-					action: {
-						type: 'link',
-						label: 'Install FFmpeg',
-						href: '/install-ffmpeg',
-					},
-				});
-			}
 
 			// Convert audio blob to byte array
 			const arrayBuffer = await audioBlob.arrayBuffer();
