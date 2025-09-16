@@ -48,6 +48,8 @@ tempfile = "3.8"
 tauri-plugin-macos-permissions = "2.3.0"
 fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
 transcribe-rs = "0.1.0"
+flate2 = "1.0"
+tar = "0.4"
 
 [target.'cfg(unix)'.dependencies]
 nix = { version = "0.29", features = ["signal"] }

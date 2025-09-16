@@ -17,6 +17,9 @@ use windows_path::fix_windows_path;
 pub mod graceful_shutdown;
 use graceful_shutdown::send_sigint;
 
+pub mod archive;
+use archive::extract_parakeet_model;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
@@ -80,6 +83,7 @@ pub async fn run() {
         transcribe_audio_whisper,
         transcribe_audio_parakeet,
         send_sigint,
+        extract_parakeet_model,
     ]);
 
     let app = builder
