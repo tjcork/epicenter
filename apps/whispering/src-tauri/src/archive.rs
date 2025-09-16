@@ -39,7 +39,7 @@ pub async fn extract_parakeet_model(
     // Extract to the target directory
     archive
         .unpack(target_dir)
-        .map_err(|e| ArchiveExtractionError::ExtractionError {
+        .map_err(|e| ArchiveExtractionError::ArchiveExtractionError {
             message: format!("Failed to extract archive: {}", e),
         })?;
 
