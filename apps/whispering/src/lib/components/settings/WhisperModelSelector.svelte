@@ -2,25 +2,15 @@
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
 	import * as Tabs from '@repo/ui/tabs';
-	import { Badge } from '@repo/ui/badge';
 	import { Input } from '@repo/ui/input';
 	import { Link } from '@repo/ui/link';
-	import * as Progress from '@repo/ui/progress';
-	import {
-		Download,
-		CheckIcon,
-		Paperclip,
-		LoaderCircle,
-		X,
-	} from '@lucide/svelte';
+	import { Paperclip, X } from '@lucide/svelte';
+	import ModelDownloadCard from './ModelDownloadCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { appDataDir, join } from '@tauri-apps/api/path';
-	import { exists, mkdir, writeFile } from '@tauri-apps/plugin-fs';
-	import { fetch } from '@tauri-apps/plugin-http';
-	import { SvelteSet } from 'svelte/reactivity';
-	import { extractErrorMessage } from 'wellcrafted/error';
+	import { exists, mkdir } from '@tauri-apps/plugin-fs';
 
 	// Pre-built models configuration
 	const WHISPER_MODELS = [
@@ -60,11 +50,7 @@
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
 			filename: 'ggml-large-v3-turbo.bin',
 		},
-	];
-
-	// Component state
-	let downloadProgress = $state<{ [key: string]: number }>({});
-	let downloadingModels = new SvelteSet<string>();
+	] as const;
 
 	/**
 	 * Gets the default directory where the app downloads Whisper models.
@@ -119,93 +105,16 @@
 		enabled: !!window.__TAURI_INTERNALS__,
 	}));
 
-	const downloadedModels = $derived(new Set(downloadedModelsQuery.data || []));
-
-	// Download model function
-	async function downloadModel(modelId: string) {
-		const model = WHISPER_MODELS.find((m) => m.id === modelId);
-		if (!model || downloadingModels.has(modelId)) return;
-
-		downloadingModels.add(modelId);
-		downloadProgress[modelId] = 0;
-
-		try {
-			await ensureDefaultModelsDirectory();
-			const modelPath = await getDefaultModelPath(model.filename);
-
-			// Check if already exists
-			if (await exists(modelPath)) {
-				settings.updateKey('transcription.whispercpp.modelPath', modelPath);
-				toast.success('Model already downloaded and activated');
-				await downloadedModelsQuery.refetch();
-				return;
-			}
-
-			// Download the model
-			const response = await fetch(model.url);
-			if (!response.ok) {
-				throw new Error(`Failed to download: ${response.status}`);
-			}
-
-			const contentLength = response.headers.get('content-length');
-			const totalBytes = contentLength
-				? Number.parseInt(contentLength, 10)
-				: model.sizeBytes;
-
-			const reader = response.body?.getReader();
-			if (!reader) {
-				throw new Error('Failed to read response body');
-			}
-
-			const chunks: Uint8Array[] = [];
-			let downloadedBytes = 0;
-
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-
-				chunks.push(value);
-				downloadedBytes += value.length;
-				downloadProgress[modelId] = Math.round(
-					(downloadedBytes / totalBytes) * 100,
-				);
-			}
-
-			// Combine chunks and save
-			const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-			const fileContent = new Uint8Array(totalLength);
-			let position = 0;
-			for (const chunk of chunks) {
-				fileContent.set(chunk, position);
-				position += chunk.length;
-			}
-
-			await writeFile(modelPath, fileContent);
-
-			// Update settings and refresh
-			settings.updateKey('transcription.whispercpp.modelPath', modelPath);
-			toast.success('Model downloaded and activated successfully');
-			await downloadedModelsQuery.refetch();
-		} catch (error) {
-			console.error('Download failed:', error);
-			toast.error('Failed to download model', {
-				description: extractErrorMessage(error),
-			});
-		} finally {
-			downloadingModels.delete(modelId);
-			delete downloadProgress[modelId];
-		}
+	// Handle model download complete
+	async function handleModelDownloaded(modelPath: string) {
+		settings.updateKey('transcription.whispercpp.modelPath', modelPath);
+		await downloadedModelsQuery.refetch();
 	}
 
 	// Activate an already downloaded model
-	async function activateModel(modelId: string) {
-		const model = WHISPER_MODELS.find((m) => m.id === modelId);
-		if (!model) return;
-
-		const modelPath = await getDefaultModelPath(model.filename);
+	async function activateModel(modelPath: string) {
 		settings.updateKey('transcription.whispercpp.modelPath', modelPath);
-		toast.success(`${model.name} model activated`);
-		downloadedModelsQuery.refetch();
+		toast.success('Model activated');
 	}
 
 	// Handle manual file selection
@@ -282,75 +191,10 @@
 				<div class="grid gap-3">
 					{#each WHISPER_MODELS as model}
 						{@const isActive = activeModelId === model.id}
-						{@const isDownloaded = downloadedModels.has(model.id)}
-						{@const isDownloading = downloadingModels.has(model.id)}
-						{@const progress = downloadProgress[model.id] || 0}
-
-						<div
-							class="flex items-center gap-3 p-3 rounded-lg border {isActive
-								? 'border-primary bg-primary/5'
-								: ''}"
-						>
-							<div class="flex-1">
-								<div class="flex items-center gap-2">
-									<span class="font-medium">{model.name}</span>
-									{#if isActive}
-										<Badge variant="default" class="text-xs">Active</Badge>
-									{:else if isDownloaded}
-										<Badge variant="secondary" class="text-xs">Downloaded</Badge
-										>
-									{/if}
-								</div>
-								<div class="text-sm text-muted-foreground">
-									{model.description}
-								</div>
-								<div class="text-xs text-muted-foreground mt-1">
-									{model.size}
-								</div>
-							</div>
-
-							<div class="flex items-center gap-2">
-								{#if isDownloading}
-									<div class="flex items-center gap-2 min-w-[120px]">
-										<LoaderCircle class="size-4 animate-spin" />
-										<span class="text-sm font-medium">{progress}%</span>
-									</div>
-								{:else if isDownloaded}
-									{#if !isActive}
-										<Button
-											size="sm"
-											variant="outline"
-											onclick={() => activateModel(model.id)}
-										>
-											Activate
-										</Button>
-									{:else}
-										<Button size="sm" variant="default" disabled>
-											<CheckIcon class="size-4 mr-1" />
-											Activated
-										</Button>
-									{/if}
-								{:else}
-									<Button
-										size="sm"
-										variant="outline"
-										onclick={() => downloadModel(model.id)}
-									>
-										<Download class="size-4 mr-2" />
-										Download
-									</Button>
-								{/if}
-							</div>
-						</div>
-
-						{#if isDownloading && progress > 0}
-							<Progress.Root value={progress} class="mt-3 h-2">
-								<Progress.Indicator
-									class="h-full bg-primary transition-all"
-									style="width: {progress}%"
-								/>
-							</Progress.Root>
-						{/if}
+						<ModelDownloadCard
+							{model}
+							{isActive}
+						/>
 					{/each}
 				</div>
 			</Tabs.Content>
