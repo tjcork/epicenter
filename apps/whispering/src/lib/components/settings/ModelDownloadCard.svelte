@@ -174,7 +174,7 @@
 
 				// Extract based on file type
 				if (model.archiveName.endsWith('.tar.gz')) {
-					await invoke('extract_parakeet_model', {
+					await invoke('extract_tar_gz_archive', {
 						archivePath: archivePath,
 						targetDir: await dirname(path),
 					});

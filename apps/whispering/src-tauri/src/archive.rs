@@ -14,7 +14,7 @@ pub enum ArchiveExtractionError {
 
 /// Extract a tar.gz archive to a target directory
 #[tauri::command]
-pub async fn extract_parakeet_model(
+pub async fn extract_tar_gz_archive(
     archive_path: String,
     target_dir: String,
 ) -> Result<(), ArchiveExtractionError> {
