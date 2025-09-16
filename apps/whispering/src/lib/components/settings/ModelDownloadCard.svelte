@@ -42,13 +42,12 @@
 	} = $props();
 
 	type ModelState =
-		| { type: 'idle' }
+		| { type: 'not-downloaded' }
 		| { type: 'downloading'; progress: number }
-		| { type: 'extracting' }
+		| { type: 'extracting' } // Optional: only for models with needsExtraction=true
 		| { type: 'ready' };
 
-	// Component state - each card manages its own state
-	let modelState = $state<ModelState>({ type: 'idle' });
+	let modelState = $state<ModelState>({ type: 'not-downloaded' });
 
 	// Get destination path for this model
 	const destinationPath = $derived.by(async () => {
@@ -72,19 +71,19 @@
 						const stats = await stat(path);
 						modelState = stats.isDirectory
 							? { type: 'ready' }
-							: { type: 'idle' };
+							: { type: 'not-downloaded' };
 					} catch {
-						modelState = { type: 'idle' };
+						modelState = { type: 'not-downloaded' };
 					}
 				} else {
 					// If no extraction needed, just check if file exists
 					modelState = { type: 'ready' };
 				}
 			} else {
-				modelState = { type: 'idle' };
+				modelState = { type: 'not-downloaded' };
 			}
 		} catch {
-			modelState = { type: 'idle' };
+			modelState = { type: 'not-downloaded' };
 		}
 	}
 
@@ -196,7 +195,7 @@
 			toast.error('Failed to download model', {
 				description: extractErrorMessage(error),
 			});
-			modelState = { type: 'idle' };
+			modelState = { type: 'not-downloaded' };
 		}
 	}
 
@@ -240,7 +239,7 @@
 				settings.updateKey(settingsKey, '');
 			}
 
-			modelState = { type: 'idle' };
+			modelState = { type: 'not-downloaded' };
 			toast.success('Model deleted');
 		} catch (error) {
 			toast.error('Failed to delete model', {
