@@ -10,6 +10,8 @@
 	import { readDir } from '@tauri-apps/plugin-fs';
 	import { toast } from 'svelte-sonner';
 	import { extractErrorMessage } from 'wellcrafted/error';
+	import { tryAsync, Ok } from 'wellcrafted/result';
+	import { basename } from '@tauri-apps/api/path';
 	import ModelDownloadCard from './ModelDownloadCard.svelte';
 
 	// Pre-built Parakeet models configuration (using Handy blob storage)
@@ -28,18 +30,19 @@
 
 	// Browse for custom model directory
 	async function browseForModel() {
-		try {
-			const selected = await open({
-				directory: true,
-				multiple: false,
-				title: 'Select Parakeet Model Directory',
-			});
+		await tryAsync({
+			try: async () => {
+				const selected = await open({
+					directory: true,
+					multiple: false,
+					title: 'Select Parakeet Model Directory',
+				});
+				if (!selected) return;
 
-			if (selected) {
 				// Verify it's a valid Parakeet model directory
 				const modelFiles = await readDir(selected);
 				const hasOnnxFiles = modelFiles.some((entry) =>
-					entry.name?.endsWith('.onnx'),
+					entry.name.endsWith('.onnx'),
 				);
 
 				if (!hasOnnxFiles) {
@@ -51,12 +54,14 @@
 
 				settings.updateKey('transcription.parakeet.modelPath', selected);
 				toast.success('Model directory selected');
-			}
-		} catch (error) {
-			toast.error('Failed to select model', {
-				description: extractErrorMessage(error),
-			});
-		}
+			},
+			catch: (error) => {
+				toast.error('Failed to select model', {
+					description: extractErrorMessage(error),
+				});
+				return Ok(undefined);
+			},
+		});
 	}
 
 	// Check if a model is currently active
@@ -64,31 +69,14 @@
 		const model = PARAKEET_MODELS.find((m) => m.id === modelId);
 		if (!model) return false;
 
-		const currentPath = settings.value['transcription.parakeet.modelPath'];
-		// Check if the current path ends with the model's filename
-		return currentPath?.endsWith(model.filename) || false;
+		return settings.value['transcription.parakeet.modelPath'].endsWith(
+			model.filename,
+		);
 	};
 
-	// Get model directory info
-	const modelDirInfo = $derived.by(() => {
-		if (!settings.value['transcription.parakeet.modelPath']) return null;
-
-		// Extract just the directory name for display
-		const parts =
-			settings.value['transcription.parakeet.modelPath'].split(/[/\\]/);
-		const dirName = parts[parts.length - 1];
-
-		// Check if it's a pre-built model
-		const prebuiltModel = PARAKEET_MODELS.find((m) =>
-			settings.value['transcription.parakeet.modelPath'].endsWith(m.filename),
-		);
-
-		return {
-			path: settings.value['transcription.parakeet.modelPath'],
-			name: dirName,
-			isPrebuilt: !!prebuiltModel,
-			modelInfo: prebuiltModel,
-		};
+	// Extract directory name from path
+	const modelDirName = $derived.by(async () => {
+		return await basename(settings.value['transcription.parakeet.modelPath']);
 	});
 </script>
 
@@ -138,7 +126,7 @@
 					<div class="flex gap-2">
 						<Input
 							id="model-path"
-							value={settings.value['transcription.parakeet.modelPath'] || ''}
+							value={settings.value['transcription.parakeet.modelPath']}
 							placeholder="/path/to/parakeet-model-directory"
 							readonly
 							class="flex-1"
@@ -147,22 +135,12 @@
 							<FolderOpen class="size-4" />
 						</Button>
 					</div>
-					{#if modelDirInfo}
-						<div class="mt-2 space-y-1">
+					{#if settings.value['transcription.parakeet.modelPath']}
+						<div class="mt-2">
 							<p class="text-sm text-muted-foreground">
-								<span class="font-medium">Available Model:</span>{' '}
-								{modelDirInfo.name}
+								<span class="font-medium">Selected Model:</span>{' '}
+								{modelDirName}
 							</p>
-							{#if modelDirInfo.isPrebuilt && modelDirInfo.modelInfo}
-								<p class="text-sm text-muted-foreground">
-									<span class="font-medium">Size:</span>{' '}
-									{modelDirInfo.modelInfo.size} (directory with ONNX files)
-								</p>
-								<p class="text-sm text-muted-foreground">
-									<span class="font-medium">Performance:</span> Int8 quantization
-									for faster inference
-								</p>
-							{/if}
 						</div>
 					{/if}
 				</div>
