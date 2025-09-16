@@ -58,15 +58,16 @@
 
 	// Check if model is already downloaded on mount
 	$effect(() => {
-		checkDownloadedStatus();
+		refreshStatus();
 	});
 
-	async function checkDownloadedStatus() {
+	async function refreshStatus() {
 		try {
 			const path = await destinationPath;
 			if (await exists(path)) {
-				if (model.needsExtraction) {
-					// If needs extraction, check if it's a directory
+				if (!model.needsExtraction) {
+					modelState = { type: 'ready' };
+				} else {
 					try {
 						const stats = await stat(path);
 						modelState = stats.isDirectory
@@ -75,9 +76,6 @@
 					} catch {
 						modelState = { type: 'not-downloaded' };
 					}
-				} else {
-					// If no extraction needed, just check if file exists
-					modelState = { type: 'ready' };
 				}
 			} else {
 				modelState = { type: 'not-downloaded' };
@@ -106,7 +104,7 @@
 			await ensureDirectory(path);
 
 			// Check if already exists
-			await checkDownloadedStatus();
+			await refreshStatus();
 			if (modelState.type === 'ready') {
 				activateModel();
 				toast.success('Model already downloaded and activated');
