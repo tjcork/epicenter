@@ -15,13 +15,13 @@
 	} from '$lib/components/settings';
 	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
 	import ParakeetModelSelector from '$lib/components/settings/ParakeetModelSelector.svelte';
+	import TranscriptionServiceSelect from '$lib/components/settings/TranscriptionServiceSelect.svelte';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		DEEPGRAM_TRANSCRIPTION_MODELS,
 		ELEVENLABS_TRANSCRIPTION_MODELS,
 		GROQ_MODELS,
 		OPENAI_TRANSCRIPTION_MODELS,
-		TRANSCRIPTION_SERVICE_OPTIONS,
 	} from '$lib/constants/transcription';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon, InfoIcon } from '@lucide/svelte';
@@ -29,7 +29,6 @@
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { Checkbox } from '@repo/ui/checkbox';
 	import { Link } from '@repo/ui/link';
 	import { Separator } from '@repo/ui/separator';
 	import {
@@ -67,10 +66,9 @@
 	</div>
 	<Separator />
 
-	<LabeledSelect
+	<TranscriptionServiceSelect
 		id="selected-transcription-service"
 		label="Transcription Service"
-		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		bind:selected={
 			() => settings.value['transcription.selectedTranscriptionService'],
 			(selected) =>
@@ -79,7 +77,6 @@
 					selected,
 				)
 		}
-		placeholder="Select a transcription service"
 	/>
 
 	{#if settings.value['transcription.selectedTranscriptionService'] === 'OpenAI'}
