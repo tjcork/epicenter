@@ -5,6 +5,7 @@
 	import { Badge } from '@repo/ui/badge';
 	import { Input } from '@repo/ui/input';
 	import { Link } from '@repo/ui/link';
+	import * as Progress from '@repo/ui/progress';
 	import {
 		Download,
 		CheckIcon,
@@ -342,13 +343,13 @@
 							</div>
 						</div>
 
-						{#if isDownloading}
-							<div class="w-full bg-secondary rounded-full h-1.5 -mt-2">
-								<div
-									class="bg-primary h-1.5 rounded-full transition-all duration-300"
+						{#if isDownloading && progress > 0}
+							<Progress.Root value={progress} class="mt-3 h-2">
+								<Progress.Indicator
+									class="h-full bg-primary transition-all"
 									style="width: {progress}%"
-								></div>
-							</div>
+								/>
+							</Progress.Root>
 						{/if}
 					{/each}
 				</div>
