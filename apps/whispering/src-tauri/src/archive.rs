@@ -7,7 +7,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug, Serialize, Deserialize)]
 #[serde(tag = "name")]
-enum ArchiveExtractionError {
+pub enum ArchiveExtractionError {
     #[error("Archive extraction failed: {message}")]
     ArchiveExtractionError { message: String },
 }
