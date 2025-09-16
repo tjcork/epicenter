@@ -1,7 +1,4 @@
-import {
-	WhisperingErr,
-	type WhisperingError,
-} from '$lib/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
@@ -54,7 +51,6 @@ export function createWhisperCppTranscriptionService() {
 				});
 			}
 
-
 			// Convert audio blob to byte array
 			const arrayBuffer = await audioBlob.arrayBuffer();
 			const audioData = Array.from(new Uint8Array(arrayBuffer));
@@ -79,6 +75,7 @@ export function createWhisperCppTranscriptionService() {
 						});
 					}
 					const error = result;
+
 					switch (error.name) {
 						case 'ModelLoadError':
 							return WhisperingErr({

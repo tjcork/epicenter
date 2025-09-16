@@ -1,7 +1,4 @@
-import {
-	WhisperingErr,
-	type WhisperingError,
-} from '$lib/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists, stat } from '@tauri-apps/plugin-fs';
@@ -69,7 +66,6 @@ export function createParakeetTranscriptionService() {
 				});
 			}
 
-
 			// Convert audio blob to byte array
 			const arrayBuffer = await audioBlob.arrayBuffer();
 			const audioData = Array.from(new Uint8Array(arrayBuffer));
@@ -92,6 +88,7 @@ export function createParakeetTranscriptionService() {
 						});
 					}
 					const error = result;
+
 					switch (error.name) {
 						case 'ModelLoadError':
 							return WhisperingErr({
