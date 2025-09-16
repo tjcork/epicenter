@@ -1,18 +1,16 @@
 <script lang="ts">
+	import { settings } from '$lib/stores/settings.svelte';
+	import { FolderOpen } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import * as Tabs from '@repo/ui/tabs';
 	import { Input } from '@repo/ui/input';
 	import { Link } from '@repo/ui/link';
-	import { FolderOpen } from '@lucide/svelte';
-	import ModelDownloadCard from './ModelDownloadCard.svelte';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { toast } from 'svelte-sonner';
-	import { settings } from '$lib/stores/settings.svelte';
-	import { appDataDir, join } from '@tauri-apps/api/path';
-	import { exists, readDir, stat, mkdir } from '@tauri-apps/plugin-fs';
-	import { extractErrorMessage } from 'wellcrafted/error';
+	import * as Tabs from '@repo/ui/tabs';
 	import { open } from '@tauri-apps/plugin-dialog';
+	import { readDir } from '@tauri-apps/plugin-fs';
+	import { toast } from 'svelte-sonner';
+	import { extractErrorMessage } from 'wellcrafted/error';
+	import ModelDownloadCard from './ModelDownloadCard.svelte';
 
 	// Pre-built Parakeet models configuration (using Handy blob storage)
 	const PARAKEET_MODELS = [
@@ -24,105 +22,9 @@
 			sizeBytes: 892_000_000, // Approximate size of tar.gz
 			url: 'https://blob.handy.computer/parakeet-v3-int8.tar.gz',
 			filename: 'parakeet-tdt-0.6b-v3-int8', // Directory name after extraction
-			needsExtraction: true,
-			archiveName: 'parakeet-v3-int8.tar.gz',
+			isMultiFileModel: true,
 		},
 	] as const;
-
-	// Component state
-	let customModelPath = $state(
-		settings.value['transcription.parakeet.modelPath'] || '',
-	);
-
-	// Update customModelPath when settings change
-	$effect(() => {
-		customModelPath = settings.value['transcription.parakeet.modelPath'] || '';
-	});
-
-	/**
-	 * Gets the default directory where the app downloads models.
-	 * This is shared with Whisper models for consistency.
-	 */
-	async function getDefaultModelsDownloadDirectory(): Promise<string> {
-		const appDir = await appDataDir();
-		return await join(appDir, 'whisper-models'); // Use same directory as Whisper
-	}
-
-	/**
-	 * Creates the default models download directory if it doesn't exist.
-	 */
-	async function ensureDefaultModelsDirectory(): Promise<void> {
-		const modelsDir = await getDefaultModelsDownloadDirectory();
-		const dirExists = await exists(modelsDir);
-		if (!dirExists) {
-			await mkdir(modelsDir, { recursive: true });
-		}
-	}
-
-	/**
-	 * Constructs the full path to a model directory within the default download directory.
-	 */
-	async function getDefaultModelPath(dirname: string): Promise<string> {
-		const modelsDir = await getDefaultModelsDownloadDirectory();
-		return await join(modelsDir, dirname);
-	}
-
-	/**
-	 * Constructs the path to the archive file.
-	 */
-	async function getArchivePath(archiveName: string): Promise<string> {
-		const modelsDir = await getDefaultModelsDownloadDirectory();
-		return await join(modelsDir, archiveName);
-	}
-
-	// Query to check which models are downloaded
-	const downloadedModelsQuery = createQuery(() => ({
-		queryKey: ['parakeetModels', 'downloaded'],
-		queryFn: async () => {
-			if (!window.__TAURI_INTERNALS__) return [];
-
-			const downloaded: string[] = [];
-			for (const model of PARAKEET_MODELS) {
-				const modelPath = await getDefaultModelPath(model.filename);
-				if (await exists(modelPath)) {
-					// Verify it's a directory with expected files
-					try {
-						const stats = await stat(modelPath);
-						if (stats.isDirectory) {
-							downloaded.push(model.id);
-						}
-					} catch {
-						// Directory doesn't exist or isn't accessible
-					}
-				}
-			}
-			return downloaded;
-		},
-		staleTime: 5000,
-		enabled: !!window.__TAURI_INTERNALS__,
-	}));
-
-
-	// Handle model download complete
-	async function handleModelDownloaded(modelPath: string) {
-		settings.updateKey('transcription.parakeet.modelPath', modelPath);
-		await downloadedModelsQuery.refetch();
-	}
-
-	// Activate an already downloaded model
-	async function activateModel(modelPath: string) {
-		settings.updateKey('transcription.parakeet.modelPath', modelPath);
-		toast.success('Model activated');
-	}
-
-	// Delete a model
-	async function deleteModel(modelPath: string) {
-		// Clear settings if this was the active model
-		if (settings.value['transcription.parakeet.modelPath'] === modelPath) {
-			settings.updateKey('transcription.parakeet.modelPath', '');
-		}
-		await downloadedModelsQuery.refetch();
-	}
 
 	// Browse for custom model directory
 	async function browseForModel() {
@@ -148,7 +50,6 @@
 				}
 
 				settings.updateKey('transcription.parakeet.modelPath', selected);
-				customModelPath = selected;
 				toast.success('Model directory selected');
 			}
 		} catch (error) {
@@ -163,25 +64,27 @@
 		const model = PARAKEET_MODELS.find((m) => m.id === modelId);
 		if (!model) return false;
 
+		const currentPath = settings.value['transcription.parakeet.modelPath'];
 		// Check if the current path ends with the model's filename
-		return customModelPath.endsWith(model.filename);
+		return currentPath?.endsWith(model.filename) || false;
 	};
 
 	// Get model directory info
 	const modelDirInfo = $derived.by(() => {
-		if (!customModelPath) return null;
+		if (!settings.value['transcription.parakeet.modelPath']) return null;
 
 		// Extract just the directory name for display
-		const parts = customModelPath.split(/[/\\]/);
+		const parts =
+			settings.value['transcription.parakeet.modelPath'].split(/[/\\]/);
 		const dirName = parts[parts.length - 1];
 
 		// Check if it's a pre-built model
 		const prebuiltModel = PARAKEET_MODELS.find((m) =>
-			customModelPath.endsWith(m.filename),
+			settings.value['transcription.parakeet.modelPath'].endsWith(m.filename),
 		);
 
 		return {
-			path: customModelPath,
+			path: settings.value['transcription.parakeet.modelPath'],
 			name: dirName,
 			isPrebuilt: !!prebuiltModel,
 			modelInfo: prebuiltModel,
@@ -208,10 +111,7 @@
 			<Tabs.Content value="prebuilt" class="mt-4 space-y-3">
 				{#each PARAKEET_MODELS as model}
 					{@const isActive = isModelActive(model.id)}
-					<ModelDownloadCard
-						{model}
-						{isActive}
-					/>
+					<ModelDownloadCard {model} {isActive} />
 				{/each}
 
 				<div class="rounded-lg border bg-muted/50 p-4">
@@ -238,7 +138,7 @@
 					<div class="flex gap-2">
 						<Input
 							id="model-path"
-							value={customModelPath}
+							value={settings.value['transcription.parakeet.modelPath'] || ''}
 							placeholder="/path/to/parakeet-model-directory"
 							readonly
 							class="flex-1"

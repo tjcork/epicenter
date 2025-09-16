@@ -20,77 +20,136 @@
 	import { fetch } from '@tauri-apps/plugin-http';
 	import { invoke } from '@tauri-apps/api/core';
 	import { extractErrorMessage } from 'wellcrafted/error';
+	import { tryAsync, Ok } from 'wellcrafted/result';
 	import { appDataDir, join, dirname } from '@tauri-apps/api/path';
 	import { settings } from '$lib/stores/settings.svelte';
+
+	/**
+	 * Configuration for downloadable ASR models
+	 */
+	type ModelConfig = {
+		/** Unique identifier for the model */
+		id: string;
+
+		/** Display name shown in the UI */
+		name: string;
+
+		/** Brief description of the model's capabilities */
+		description: string;
+
+		/** Human-readable file size (e.g., "~850 MB") */
+		size: string;
+
+		/** Exact size in bytes for progress tracking */
+		sizeBytes: number;
+
+		/** URL to download the model from */
+		url: string;
+
+		/**
+		 * Target filename or directory name after download/extraction.
+		 * For single-file models: the .bin filename
+		 * For multi-file models: the directory name
+		 */
+		filename: string;
+
+		/**
+		 * Whether this model consists of multiple files.
+		 * - true: Model is distributed as archive (.tar.gz) containing multiple files
+		 * - false/undefined: Model is a single binary file
+		 */
+		isMultiFileModel?: boolean;
+	};
 
 	let {
 		model,
 		isActive = false,
 	}: {
-		model: {
-			id: string;
-			name: string;
-			description: string;
-			size: string;
-			sizeBytes: number;
-			url: string;
-			filename: string;
-			needsExtraction?: boolean;
-			archiveName?: string;
-		};
+		model: ModelConfig;
 		isActive?: boolean;
 	} = $props();
 
 	type ModelState =
 		| { type: 'not-downloaded' }
 		| { type: 'downloading'; progress: number }
-		| { type: 'extracting' } // Optional: only for models with needsExtraction=true
+		| { type: 'extracting' }
 		| { type: 'ready' };
 
 	let modelState = $state<ModelState>({ type: 'not-downloaded' });
 
 	// Get destination path for this model
-	const destinationPath = $derived.by(async () => {
+	async function getDestinationPath(): Promise<string> {
 		const appDir = await appDataDir();
 		const modelsDir = await join(appDir, 'whisper-models');
 		return await join(modelsDir, model.filename);
-	});
+	}
 
-	// Check if model is already downloaded on mount
+	/**
+	 * Extracts the filename from a URL (last segment after /)
+	 */
+	function getArchiveNameFromUrl(url: string): string {
+		const segments = url.split('/');
+		return segments[segments.length - 1];
+	}
+
+	/**
+	 * Checks if a model is properly installed at the given path.
+	 * For multi-file models: verifies the path is a directory
+	 * For single-file models: verifies the file exists
+	 */
+	async function checkModelStatus(
+		path: string,
+		isMultiFileModel: boolean,
+	): Promise<boolean> {
+		if (!(await exists(path))) return false;
+
+		if (isMultiFileModel) {
+			// For multi-file models, path must be a directory
+			const { data: stats } = await tryAsync({
+				try: () => stat(path),
+				catch: () => Ok(null),
+			});
+			return stats?.isDirectory ?? false;
+		}
+
+		// For non-extraction models, file existence is sufficient
+		return true;
+	}
+
+	/**
+	 * Gets the path where the archive file will be temporarily saved
+	 * before extraction (for multi-file models only)
+	 */
+	async function getArchivePath(): Promise<string> {
+		if (!model.isMultiFileModel) {
+			throw new Error('Archive path only applies to multi-file models');
+		}
+		const modelPath = await getDestinationPath();
+		const dir = await dirname(modelPath);
+		const archiveName = getArchiveNameFromUrl(model.url);
+		return await join(dir, archiveName);
+	}
+
+	// Check model status on mount and when path changes
 	$effect(() => {
 		refreshStatus();
 	});
 
 	async function refreshStatus() {
-		try {
-			const path = await destinationPath;
-			if (await exists(path)) {
-				if (!model.needsExtraction) {
-					modelState = { type: 'ready' };
-				} else {
-					try {
-						const stats = await stat(path);
-						modelState = stats.isDirectory
-							? { type: 'ready' }
-							: { type: 'not-downloaded' };
-					} catch {
-						modelState = { type: 'not-downloaded' };
-					}
-				}
-			} else {
+		await tryAsync({
+			try: async () => {
+				const path = await getDestinationPath();
+				const isReady = await checkModelStatus(
+					path,
+					model.isMultiFileModel || false,
+				);
+				modelState = isReady ? { type: 'ready' } : { type: 'not-downloaded' };
+			},
+			catch: () => {
 				modelState = { type: 'not-downloaded' };
-			}
-		} catch {
-			modelState = { type: 'not-downloaded' };
-		}
-	}
-
-	async function ensureDirectory(path: string) {
-		const dir = await dirname(path);
-		const dirExists = await exists(dir);
-		if (!dirExists) {
-			await mkdir(dir, { recursive: true });
-		}
+				return Ok(undefined);
+			},
+		});
 	}
 
 	async function downloadModel() {
@@ -99,151 +158,171 @@
 
 		modelState = { type: 'downloading', progress: 0 };
 
-		try {
-			const path = await destinationPath;
-			await ensureDirectory(path);
+		await tryAsync({
+			try: async () => {
+				const ensureDirectory = async (path: string) => {
+					const dir = await dirname(path);
+					const dirExists = await exists(dir);
+					if (!dirExists) {
+						await mkdir(dir, { recursive: true });
+					}
+				};
 
-			// Check if already exists
-			await refreshStatus();
-			if (modelState.type === 'ready') {
-				activateModel();
-				toast.success('Model already downloaded and activated');
-				return;
-			}
+				const downloadFileContent = async (
+					url: string,
+					onProgress: (progress: number) => void,
+				): Promise<Uint8Array> => {
+					const response = await fetch(url);
+					if (!response.ok) {
+						throw new Error(`Failed to download: ${response.status}`);
+					}
 
-			// Download the file
-			const response = await fetch(model.url);
-			if (!response.ok) {
-				throw new Error(`Failed to download: ${response.status}`);
-			}
+					const contentLength = response.headers.get('content-length');
+					const totalBytes = contentLength
+						? Number.parseInt(contentLength, 10)
+						: model.sizeBytes;
 
-			const contentLength = response.headers.get('content-length');
-			const totalBytes = contentLength
-				? Number.parseInt(contentLength, 10)
-				: model.sizeBytes;
+					const reader = response.body?.getReader();
+					if (!reader) {
+						throw new Error('Failed to read response body');
+					}
 
-			const reader = response.body?.getReader();
-			if (!reader) {
-				throw new Error('Failed to read response body');
-			}
+					const chunks: Uint8Array[] = [];
+					let downloadedBytes = 0;
 
-			const chunks: Uint8Array[] = [];
-			let downloadedBytes = 0;
+					while (true) {
+						const { done, value } = await reader.read();
+						if (done) break;
 
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
+						chunks.push(value);
+						downloadedBytes += value.length;
+						const progress = Math.round((downloadedBytes / totalBytes) * 100);
+						onProgress(progress);
+					}
 
-				chunks.push(value);
-				downloadedBytes += value.length;
-				const progress = Math.round((downloadedBytes / totalBytes) * 100);
-				modelState = { type: 'downloading', progress };
-			}
+					// Combine chunks into single array
+					const totalLength = chunks.reduce(
+						(acc, chunk) => acc + chunk.length,
+						0,
+					);
+					const fileContent = new Uint8Array(totalLength);
+					let position = 0;
+					for (const chunk of chunks) {
+						fileContent.set(chunk, position);
+						position += chunk.length;
+					}
 
-			// Combine chunks
-			const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-			const fileContent = new Uint8Array(totalLength);
-			let position = 0;
-			for (const chunk of chunks) {
-				fileContent.set(chunk, position);
-				position += chunk.length;
-			}
+					return fileContent;
+				};
 
-			const path = await destinationPath;
+				const path = await getDestinationPath();
+				await ensureDirectory(path);
 
-			// Handle extraction if needed
-			if (model.needsExtraction && model.archiveName) {
-				const archivePath = path.replace(
-					path.split('/').pop() || '',
-					model.archiveName,
-				);
-
-				// Write archive file
-				await writeFile(archivePath, fileContent);
-
-				// Extract
-				modelState = { type: 'extracting' };
-				toast.info('Extracting model archive...');
-
-				// Clean up any existing directory
-				if (await exists(path)) {
-					await remove(path, { recursive: true });
+				// Check if already exists
+				await refreshStatus();
+				if (modelState.type === 'ready') {
+					await activateModel();
+					toast.success('Model already downloaded and activated');
+					return;
 				}
 
-				// Extract based on file type
-				if (model.archiveName.endsWith('.tar.gz')) {
-					await invoke('extract_tar_gz_archive', {
-						archivePath: archivePath,
-						targetDir: await dirname(path),
-					});
+				// Download the file content
+				const fileContent = await downloadFileContent(model.url, (progress) => {
+					modelState = { type: 'downloading', progress };
+				});
+
+				// Handle extraction if needed
+				if (model.isMultiFileModel) {
+					const archivePath = await getArchivePath();
+
+					// Write archive file
+					await writeFile(archivePath, fileContent);
+
+					// Extract
+					modelState = { type: 'extracting' };
+					toast.info('Extracting model archive...');
+
+					// Clean up any existing directory
+					if (await exists(path)) {
+						await remove(path, { recursive: true });
+					}
+
+					// Extract based on file type
+					const archiveName = getArchiveNameFromUrl(model.url);
+					if (archiveName.endsWith('.tar.gz')) {
+						await invoke('extract_tar_gz_archive', {
+							archivePath: archivePath,
+							targetDir: await dirname(path),
+						});
+					}
+
+					// Clean up archive after successful extraction
+					await remove(archivePath);
+				} else {
+					// Direct file download (no extraction needed)
+					await writeFile(path, fileContent);
 				}
 
-				// Clean up archive after successful extraction
-				await remove(archivePath);
-			} else {
-				// Direct file download (no extraction needed)
-				await writeFile(path, fileContent);
-			}
-
-			modelState = { type: 'ready' };
-			activateModel();
-			toast.success('Model downloaded and activated successfully');
-		} catch (error) {
-			console.error('Download failed:', error);
-			toast.error('Failed to download model', {
-				description: extractErrorMessage(error),
-			});
-			modelState = { type: 'not-downloaded' };
-		}
+				modelState = { type: 'ready' };
+				await activateModel();
+				toast.success('Model downloaded and activated successfully');
+			},
+			catch: (error) => {
+				console.error('Download failed:', error);
+				toast.error('Failed to download model', {
+					description: extractErrorMessage(error),
+				});
+				modelState = { type: 'not-downloaded' };
+				return Ok(undefined);
+			},
+		});
 	}
 
-	function activateModel() {
-		(async () => {
-			const path = await destinationPath;
-			// Determine settings key based on whether model needs extraction
-			const settingsKey = model.needsExtraction
-				? 'transcription.parakeet.modelPath'
-				: 'transcription.whispercpp.modelPath';
+	async function activateModel() {
+		const path = await getDestinationPath();
+		const settingsKey = model.isMultiFileModel
+			? 'transcription.parakeet.modelPath'
+			: 'transcription.whispercpp.modelPath';
 
-			settings.updateKey(settingsKey, path);
-			toast.success('Model activated');
-		})();
+		settings.updateKey(settingsKey, path);
+		toast.success('Model activated');
 	}
 
 	async function deleteModel() {
-		try {
-			const path = await destinationPath;
-			if (await exists(path)) {
-				await remove(path, { recursive: model.needsExtraction });
-			}
-
-			// Clean up any partial downloads or archives
-			if (model.needsExtraction && model.archiveName) {
-				const archivePath = path.replace(
-					path.split('/').pop() || '',
-					model.archiveName,
-				);
-				if (await exists(archivePath)) {
-					await remove(archivePath);
+		await tryAsync({
+			try: async () => {
+				const path = await getDestinationPath();
+				if (await exists(path)) {
+					await remove(path, { recursive: model.isMultiFileModel });
 				}
-			}
 
-			// Clear settings if this was the active model
-			const settingsKey = model.needsExtraction
-				? 'transcription.parakeet.modelPath'
-				: 'transcription.whispercpp.modelPath';
+				// Clean up any partial downloads or archives
+				if (model.isMultiFileModel) {
+					const archivePath = await getArchivePath();
+					if (await exists(archivePath)) {
+						await remove(archivePath);
+					}
+				}
 
-			if (settings.value[settingsKey] === path) {
-				settings.updateKey(settingsKey, '');
-			}
+				// Clear settings if this was the active model
+				const settingsKey = model.isMultiFileModel
+					? 'transcription.parakeet.modelPath'
+					: 'transcription.whispercpp.modelPath';
 
-			modelState = { type: 'not-downloaded' };
-			toast.success('Model deleted');
-		} catch (error) {
-			toast.error('Failed to delete model', {
-				description: extractErrorMessage(error),
-			});
-		}
+				if (settings.value[settingsKey] === path) {
+					settings.updateKey(settingsKey, '');
+				}
+
+				modelState = { type: 'not-downloaded' };
+				toast.success('Model deleted');
+			},
+			catch: (error) => {
+				toast.error('Failed to delete model', {
+					description: extractErrorMessage(error),
+				});
+				return Ok(undefined);
+			},
+		});
 	}
 </script>
 
