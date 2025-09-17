@@ -14,16 +14,16 @@ import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
-} from '$lib/services/transcription/elevenlabs';
-import { GROQ_MODELS, type GroqModel } from '$lib/services/transcription/groq';
+} from './cloud/elevenlabs';
+import { GROQ_MODELS, type GroqModel } from './cloud/groq';
 import {
 	OPENAI_TRANSCRIPTION_MODELS,
 	type OpenAIModel,
-} from '$lib/services/transcription/openai';
+} from './cloud/openai';
 import {
 	DEEPGRAM_TRANSCRIPTION_MODELS,
 	type DeepgramModel,
-} from '$lib/services/transcription/deepgram';
+} from './cloud/deepgram';
 
 type TranscriptionModel =
 	| OpenAIModel
