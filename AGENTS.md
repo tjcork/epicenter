@@ -122,6 +122,17 @@ When a handler function only calls `.mutate()`, inline it directly:
 6. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
 7. Finally, add a review section to the .md file with a summary of the changes you made and any other relevant information.
 
+# Expensive/destructive actions
+1. Always get prior approval before performing expensive/destructive actions (tool calls).
+   - Expensive actions require extended time to complete. Examples: test, build.
+     - Why: Unexpected tests/builds just waste time and tokens. The test results are often innaccurate ("It works!" when it doesn't.)
+   - Destructive actions result in permanant changes to project files. Examples: commit to git, push changes, edit a GitHub PR description.
+      - Why: changes should be verified before adding to permanent project history. Often additional changes are needed.
+2. Instead, you may automatically show a plan for the tool call you would like to make.
+   - Commit messages should follow the conventional commits specification.
+3. Then either the plan will be explicitly approved or changes to the plan will be requested.
+4. Unless otherwise stated, any approval applies only to the plan directly before it. So any future action will require a new plan with associated approval.
+
 
 # Human-Readable Control Flow
 When refactoring complex control flow, mirror natural human reasoning patterns:
