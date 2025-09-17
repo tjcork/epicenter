@@ -38,6 +38,12 @@
 	} from '../../../+layout/check-ffmpeg';
 
 	const { data } = $props();
+
+	// Prompt and temperature are not supported for local models like transcribe-rs (whispercpp)
+	const isPromptAndTemperatureSupported = $derived(
+		settings.value['transcription.selectedTranscriptionService'] ===
+			'whispercpp',
+	);
 </script>
 
 <svelte:head>
@@ -393,7 +399,10 @@
 			() => settings.value['transcription.temperature'],
 			(value) => settings.updateKey('transcription.temperature', value)
 		}
-		description="Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."
+		description={isPromptAndTemperatureSupported
+			? 'Temperature is not supported for local models (transcribe-rs)'
+			: "Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."}
+		disabled={isPromptAndTemperatureSupported}
 	/>
 
 	<LabeledTextarea
@@ -404,7 +413,10 @@
 			() => settings.value['transcription.prompt'],
 			(value) => settings.updateKey('transcription.prompt', value)
 		}
-		description="Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules."
+		description={isPromptAndTemperatureSupported
+			? 'System prompt is not supported for local models (transcribe-rs)'
+			: 'Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules.'}
+		disabled={isPromptAndTemperatureSupported}
 	/>
 </div>
 

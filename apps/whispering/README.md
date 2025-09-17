@@ -1033,6 +1033,21 @@ After running the script, follow the displayed instructions to commit, tag, and 
 
 Feel free to suggest and implement any features that improve usability—I'll do my best to integrate contributions that make Whispering better for everyone.
 
+## Acknowledgments
+
+### Local Transcription
+
+Whispering's local transcription capabilities are powered by amazing open-source projects:
+
+- **[transcribe-rs](https://github.com/cjpais/transcribe-rs)** by [CJ Pais](https://github.com/cjpais) - A unified Rust library providing abstraction over multiple speech-to-text engines (Whisper and Parakeet). This library enables Whispering to seamlessly support different transcription engines with a consistent API.
+
+- **[Handy](https://github.com/cjpais/handy)** by [CJ Pais](https://github.com/cjpais) - The original project that birthed `transcribe-rs`. Handy is a an awesome cross-platform desktop speech-to-text application, and I personally use it especially when developing Whispering locally.
+
+- **[whisper.cpp](https://github.com/ggerganov/whisper.cpp)** by Georgi Gerganov - High-performance C/C++ port of OpenAI's Whisper model that makes local transcription fast and efficient.
+
+Special thanks to [CJ Pais](https://github.com/cjpais) for creating and maintaining essential libraries that make local, privacy-preserving transcription possible in Whispering.
+
+
 ## Support and Community
 
 ### License
