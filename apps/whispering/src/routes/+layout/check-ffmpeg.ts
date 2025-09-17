@@ -4,7 +4,7 @@ import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
 export const RECORDING_COMPATIBILITY_MESSAGE =
-	'Whisper C++ requires audio in 16kHz WAV format. Install FFmpeg to convert your recordings or switch to CPAL 16kHz mode.';
+	'Local transcription models (Whisper C++ and Parakeet) require audio in 16kHz WAV format. Install FFmpeg to convert your recordings or switch to CPAL 16kHz mode.';
 
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
@@ -23,11 +23,9 @@ export function switchToCpalAt16kHz() {
 	});
 }
 
-function isUsingWhisperCpp(): boolean {
-	return (
-		settings.value['transcription.selectedTranscriptionService'] ===
-		'whispercpp'
-	);
+function isUsingLocalTranscription(): boolean {
+	const service = settings.value['transcription.selectedTranscriptionService'];
+	return service === 'whispercpp' || service === 'parakeet';
 }
 
 function isUsing16kHz(): boolean {
@@ -35,18 +33,19 @@ function isUsing16kHz(): boolean {
 }
 
 /**
- * Checks if there's a compatibility issue between recording and transcription settings.
- * This occurs when using Whisper C++ with any recording method except CPAL at 16kHz.
- * @returns true when there's a compatibility issue that needs to be resolved
+ * Checks if FFmpeg is required for local transcription models.
+ * FFmpeg is NOT required when using CPAL recording at 16kHz since audio is already in the correct format.
+ * FFmpeg IS required for all other recording methods or sample rates to convert audio to 16kHz.
+ * @returns true when FFmpeg is required for transcription
  */
-export function hasRecordingCompatibilityIssue(): boolean {
-	if (!isUsingWhisperCpp()) return false;
+export function requiresFFmpegForLocalTranscription(): boolean {
+	if (!isUsingLocalTranscription()) return false;
 
 	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
-		return false; // CPAL at 16kHz with Whisper C++ doesn't need FFmpeg
+		return false; // CPAL at 16kHz with local models doesn't need FFmpeg
 	}
 
-	return true; // All other Whisper C++ combinations need FFmpeg
+	return true; // All other local transcription combinations need FFmpeg
 }
 
 /**
@@ -56,7 +55,7 @@ export function hasRecordingCompatibilityIssue(): boolean {
 export function isCompressionRecommended(): boolean {
 	return (
 		settings.value['recording.method'] === 'cpal' &&
-		!isUsingWhisperCpp() &&
+		!isUsingLocalTranscription() &&
 		!settings.value['transcription.compressionEnabled']
 	);
 }
@@ -88,8 +87,8 @@ export async function checkFfmpeg() {
 		return;
 	}
 
-	// Recording compatibility issue with Whisper C++ (except CPAL at 16kHz)
-	if (hasRecordingCompatibilityIssue()) {
+	// Recording compatibility issue with local transcription models (except CPAL at 16kHz)
+	if (requiresFFmpegForLocalTranscription()) {
 		toast.warning('Recording Settings Incompatible', {
 			description: RECORDING_COMPATIBILITY_MESSAGE,
 			action: {

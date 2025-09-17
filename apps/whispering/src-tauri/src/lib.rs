@@ -9,13 +9,16 @@ use recorder::commands::{
 };
 
 pub mod transcription;
-use transcription::transcribe_audio;
+use transcription::{transcribe_audio_whisper, transcribe_audio_parakeet};
 
 pub mod windows_path;
 use windows_path::fix_windows_path;
 
 pub mod graceful_shutdown;
 use graceful_shutdown::send_sigint;
+
+pub mod archive;
+use archive::extract_tar_gz_archive;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
@@ -77,8 +80,10 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
-        transcribe_audio,
+        transcribe_audio_whisper,
+        transcribe_audio_parakeet,
         send_sigint,
+        extract_tar_gz_archive,
     ]);
 
     let app = builder

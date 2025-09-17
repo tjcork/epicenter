@@ -1,4 +1,8 @@
-import { WhisperingErr, type WhisperingError } from '$lib/result';
+import {
+	WhisperingErr,
+	WhisperingWarningErr,
+	type WhisperingError,
+} from '$lib/result';
 import * as services from '$lib/services';
 import type { Recording } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
@@ -7,6 +11,7 @@ import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
 import { rpc } from './';
+import { requiresFFmpegForLocalTranscription } from '../../routes/+layout/check-ffmpeg';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -219,16 +224,53 @@ async function transcribeBlob(
 							modelName: settings.value['transcription.deepgram.model'],
 						},
 					);
-				case 'whispercpp':
+				case 'whispercpp': {
+					if (requiresFFmpegForLocalTranscription()) {
+						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+						if (ffmpegResult.error) return Err(ffmpegResult.error);
+						if (!ffmpegResult.data) {
+							return WhisperingWarningErr({
+								title: '🛠️ Install FFmpeg',
+								description:
+									'FFmpeg is required to convert audio to 16kHz format for Whisper C++. Install it or switch to CPAL recording at 16kHz.',
+								action: {
+									type: 'link',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
+								},
+							});
+						}
+					}
 					return await services.transcriptions.whispercpp.transcribe(
 						audioToTranscribe,
 						{
 							outputLanguage: settings.value['transcription.outputLanguage'],
-							prompt: settings.value['transcription.prompt'],
-							temperature: settings.value['transcription.temperature'],
 							modelPath: settings.value['transcription.whispercpp.modelPath'],
 						},
 					);
+				}
+				case 'parakeet': {
+					if (requiresFFmpegForLocalTranscription()) {
+						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+						if (ffmpegResult.error) return Err(ffmpegResult.error);
+						if (!ffmpegResult.data) {
+							return WhisperingWarningErr({
+								title: '🛠️ Install FFmpeg',
+								description:
+									'FFmpeg is required to convert audio to 16kHz format for Parakeet. Install it or switch to CPAL recording at 16kHz.',
+								action: {
+									type: 'link',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
+								},
+							});
+						}
+					}
+					return await services.transcriptions.parakeet.transcribe(
+						audioToTranscribe,
+						{ modelPath: settings.value['transcription.parakeet.modelPath'] },
+					);
+				}
 				default:
 					return WhisperingErr({
 						title: '⚠️ No transcription service selected',

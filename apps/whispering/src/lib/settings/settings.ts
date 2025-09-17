@@ -198,6 +198,7 @@ export const settingsSchema = z.object({
 		.string()
 		.default('Systran/faster-distil-whisper-small.en'),
 	'transcription.whispercpp.modelPath': z.string().default(''),
+	'transcription.parakeet.modelPath': z.string().default(''),
 
 	'transformations.selectedTransformationId': z
 		.string()

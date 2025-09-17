@@ -4,6 +4,7 @@ import { GroqTranscriptionServiceLive } from './groq';
 import { OpenaiTranscriptionServiceLive } from './openai';
 import { SpeachesTranscriptionServiceLive } from './speaches';
 import { WhisperCppTranscriptionServiceLive } from './whispercpp';
+import { ParakeetTranscriptionServiceLive } from './parakeet';
 
 export {
 	ElevenlabsTranscriptionServiceLive as elevenlabs,
@@ -12,6 +13,7 @@ export {
 	SpeachesTranscriptionServiceLive as speaches,
 	DeepgramTranscriptionServiceLive as deepgram,
 	WhisperCppTranscriptionServiceLive as whispercpp,
+	ParakeetTranscriptionServiceLive as parakeet,
 };
 
 export type { ElevenLabsTranscriptionService } from './elevenlabs';
@@ -20,3 +22,4 @@ export type { OpenaiTranscriptionService } from './openai';
 export type { SpeachesTranscriptionService } from './speaches';
 export type { DeepgramTranscriptionService } from './deepgram';
 export type { WhisperCppTranscriptionService } from './whispercpp';
+export type { ParakeetTranscriptionService } from './parakeet';
