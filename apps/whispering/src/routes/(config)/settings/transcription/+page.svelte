@@ -39,7 +39,7 @@
 	const { data } = $props();
 
 	// Prompt and temperature are not supported for local models like transcribe-rs (whispercpp/parakeet)
-	const isPromptAndTemperatureSupported = $derived(
+	const isPromptAndTemperatureNotSupported = $derived(
 		settings.value['transcription.selectedTranscriptionService'] ===
 			'whispercpp' ||
 			settings.value['transcription.selectedTranscriptionService'] ===
@@ -564,10 +564,10 @@
 			() => settings.value['transcription.temperature'],
 			(value) => settings.updateKey('transcription.temperature', value)
 		}
-		description={isPromptAndTemperatureSupported
+		description={isPromptAndTemperatureNotSupported
 			? 'Temperature is not supported for local models (transcribe-rs)'
 			: "Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."}
-		disabled={isPromptAndTemperatureSupported}
+		disabled={isPromptAndTemperatureNotSupported}
 	/>
 
 	<LabeledTextarea
@@ -578,10 +578,10 @@
 			() => settings.value['transcription.prompt'],
 			(value) => settings.updateKey('transcription.prompt', value)
 		}
-		description={isPromptAndTemperatureSupported
+		description={isPromptAndTemperatureNotSupported
 			? 'System prompt is not supported for local models (transcribe-rs)'
 			: 'Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules.'}
-		disabled={isPromptAndTemperatureSupported}
+		disabled={isPromptAndTemperatureNotSupported}
 	/>
 </div>
 
