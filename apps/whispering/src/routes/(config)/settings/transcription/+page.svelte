@@ -13,9 +13,9 @@
 		GroqApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
-	import ParakeetModelSelector from '$lib/components/settings/ParakeetModelSelector.svelte';
+	import LocalModelSelector from '$lib/components/settings/LocalModelSelector.svelte';
 	import TranscriptionServiceSelect from '$lib/components/settings/TranscriptionServiceSelect.svelte';
+	import { WHISPER_MODELS, PARAKEET_MODELS } from '$lib/constants/localModels';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
 	import {
 		DEEPGRAM_TRANSCRIPTION_MODELS,
@@ -344,7 +344,61 @@
 		<div class="space-y-4">
 			<!-- Whisper Model Selector Component -->
 			{#if window.__TAURI_INTERNALS__}
-				<WhisperModelSelector />
+				<LocalModelSelector
+					models={WHISPER_MODELS}
+					title="Whisper Model"
+					description="Select a pre-built model or browse for your own. Models run locally for private, offline transcription."
+					fileSelectionMode="file"
+					fileExtensions={['bin', 'gguf', 'ggml']}
+					bind:value={
+						() => settings.value['transcription.whispercpp.modelPath'],
+						(v) => settings.updateKey('transcription.whispercpp.modelPath', v)
+					}
+				>
+					{#snippet prebuiltFooter()}
+						<p class="text-sm text-muted-foreground">
+							Models are downloaded from{' '}
+							<Link
+								href="https://huggingface.co/ggerganov/whisper.cpp"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Hugging Face
+							</Link>
+							{' '}and stored locally in your app data directory. Quantized
+							models offer smaller sizes with minimal quality loss.
+						</p>
+					{/snippet}
+
+					{#snippet manualInstructions()}
+						<div>
+							<p class="text-sm font-medium mb-2">
+								<span class="text-muted-foreground">Step 1:</span> Download a Whisper
+								model
+							</p>
+							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
+								<li class="list-disc">
+									Visit the{' '}
+									<Link
+										href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										model repository
+									</Link>
+								</li>
+								<li class="list-disc">
+									Download any model file (e.g., ggml-base.en.bin for
+									English-only)
+								</li>
+								<li class="list-disc">
+									Quantized models (q5_0, q8_0) offer smaller sizes with minimal
+									quality loss
+								</li>
+							</ul>
+						</div>
+					{/snippet}
+				</LocalModelSelector>
 			{/if}
 
 			{#if requiresFFmpegForLocalTranscription() && !data.ffmpegInstalled}
@@ -380,7 +434,74 @@
 		<div class="space-y-4">
 			<!-- Parakeet Model Selector Component -->
 			{#if window.__TAURI_INTERNALS__}
-				<ParakeetModelSelector />
+				<LocalModelSelector
+					models={PARAKEET_MODELS}
+					title="Parakeet Model"
+					description="Parakeet is an NVIDIA NeMo model optimized for fast local transcription. It automatically detects the language and doesn't support manual language selection."
+					fileSelectionMode="directory"
+					bind:value={
+						() => settings.value['transcription.parakeet.modelPath'],
+						(v) => settings.updateKey('transcription.parakeet.modelPath', v)
+					}
+				>
+					{#snippet prebuiltFooter()}
+						<p class="text-sm text-muted-foreground">
+							Models are downloaded from{' '}
+							<Link
+								href="https://handy.computer/"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Handy's
+							</Link>
+							{' '}blob storage and stored in your app data directory. The
+							archive is extracted automatically after download.
+						</p>
+					{/snippet}
+
+					{#snippet manualInstructions()}
+						<Card.Root class="bg-muted/50">
+							<Card.Content class="p-4">
+								<h4 class="mb-2 text-sm font-medium">
+									Getting Parakeet Models
+								</h4>
+								<ul class="space-y-2 text-sm text-muted-foreground">
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Download pre-built models from the "Pre-built Models" tab
+										</span>
+									</li>
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Or download from{' '}
+											<Link
+												href="https://github.com/NVIDIA/NeMo"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												NVIDIA NeMo
+											</Link>
+										</span>
+									</li>
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Parakeet models are directories containing ONNX files
+										</span>
+									</li>
+								</ul>
+							</Card.Content>
+						</Card.Root>
+					{/snippet}
+				</LocalModelSelector>
 			{/if}
 
 			{#if requiresFFmpegForLocalTranscription() && !data.ffmpegInstalled}

@@ -23,49 +23,13 @@
 	import { tryAsync, Ok } from 'wellcrafted/result';
 	import { appDataDir, join, dirname } from '@tauri-apps/api/path';
 	import { settings } from '$lib/stores/settings.svelte';
-
-	/**
-	 * Configuration for downloadable ASR models
-	 */
-	type ModelConfig = {
-		/** Unique identifier for the model */
-		id: string;
-
-		/** Display name shown in the UI */
-		name: string;
-
-		/** Brief description of the model's capabilities */
-		description: string;
-
-		/** Human-readable file size (e.g., "~850 MB") */
-		size: string;
-
-		/** Exact size in bytes for progress tracking */
-		sizeBytes: number;
-
-		/** URL to download the model from */
-		url: string;
-
-		/**
-		 * Target filename or directory name after download/extraction.
-		 * For single-file models: the .bin filename
-		 * For multi-file models: the directory name
-		 */
-		filename: string;
-
-		/**
-		 * Whether this model consists of multiple files.
-		 * - true: Model is distributed as archive (.tar.gz) containing multiple files
-		 * - false/undefined: Model is a single binary file
-		 */
-		isMultiFileModel?: boolean;
-	};
+	import type { LocalModelConfig } from '$lib/types/models';
 
 	let {
 		model,
 		isActive = false,
 	}: {
-		model: ModelConfig;
+		model: LocalModelConfig;
 		isActive?: boolean;
 	} = $props();
 
@@ -99,11 +63,11 @@
 	 */
 	async function checkModelStatus(
 		path: string,
-		isMultiFileModel: boolean,
+		needsExtraction: boolean,
 	): Promise<boolean> {
 		if (!(await exists(path))) return false;
 
-		if (isMultiFileModel) {
+		if (needsExtraction) {
 			// For multi-file models, path must be a directory
 			const { data: stats } = await tryAsync({
 				try: () => stat(path),
@@ -121,7 +85,7 @@
 	 * before extraction (for multi-file models only)
 	 */
 	async function getArchivePath(): Promise<string> {
-		if (!model.isMultiFileModel) {
+		if (!model.needsExtraction) {
 			throw new Error('Archive path only applies to multi-file models');
 		}
 		const modelPath = await getDestinationPath();
@@ -141,7 +105,7 @@
 				const path = await getDestinationPath();
 				const isReady = await checkModelStatus(
 					path,
-					model.isMultiFileModel || false,
+					model.needsExtraction || false,
 				);
 				modelState = isReady ? { type: 'ready' } : { type: 'not-downloaded' };
 			},
@@ -232,7 +196,7 @@
 				});
 
 				// Handle extraction if needed
-				if (model.isMultiFileModel) {
+				if (model.needsExtraction) {
 					const archivePath = await getArchivePath();
 
 					// Write archive file
@@ -280,7 +244,7 @@
 
 	async function activateModel() {
 		const path = await getDestinationPath();
-		const settingsKey = model.isMultiFileModel
+		const settingsKey = model.needsExtraction
 			? 'transcription.parakeet.modelPath'
 			: 'transcription.whispercpp.modelPath';
 
@@ -293,11 +257,11 @@
 			try: async () => {
 				const path = await getDestinationPath();
 				if (await exists(path)) {
-					await remove(path, { recursive: model.isMultiFileModel });
+					await remove(path, { recursive: model.needsExtraction });
 				}
 
 				// Clean up any partial downloads or archives
-				if (model.isMultiFileModel) {
+				if (model.needsExtraction) {
 					const archivePath = await getArchivePath();
 					if (await exists(archivePath)) {
 						await remove(archivePath);
@@ -305,7 +269,7 @@
 				}
 
 				// Clear settings if this was the active model
-				const settingsKey = model.isMultiFileModel
+				const settingsKey = model.needsExtraction
 					? 'transcription.parakeet.modelPath'
 					: 'transcription.whispercpp.modelPath';
 
