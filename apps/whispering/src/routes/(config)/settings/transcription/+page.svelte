@@ -15,14 +15,13 @@
 	} from '$lib/components/settings';
 	import LocalModelSelector from '$lib/components/settings/LocalModelSelector.svelte';
 	import TranscriptionServiceSelect from '$lib/components/settings/TranscriptionServiceSelect.svelte';
-	import { WHISPER_MODELS, PARAKEET_MODELS } from '$lib/constants/localModels';
+	import { WHISPER_MODELS } from '$lib/services/transcription/local/whispercpp';
+	import { PARAKEET_MODELS } from '$lib/services/transcription/local/parakeet';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
-	import {
-		DEEPGRAM_TRANSCRIPTION_MODELS,
-		ELEVENLABS_TRANSCRIPTION_MODELS,
-		GROQ_MODELS,
-		OPENAI_TRANSCRIPTION_MODELS,
-	} from '$lib/constants/transcription';
+	import { DEEPGRAM_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/deepgram';
+	import { ELEVENLABS_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/elevenlabs';
+	import { GROQ_MODELS } from '$lib/services/transcription/cloud/groq';
+	import { OPENAI_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/openai';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon, InfoIcon } from '@lucide/svelte';
 	import * as Alert from '@repo/ui/alert';

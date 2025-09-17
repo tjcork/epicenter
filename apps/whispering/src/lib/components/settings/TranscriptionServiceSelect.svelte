@@ -8,7 +8,7 @@
 		TRANSCRIPTION_SERVICES,
 		type TranscriptionService,
 		TRANSCRIPTION_SERVICE_IDS,
-	} from '$lib/constants/transcription';
+	} from '$lib/services/transcription/registry';
 
 	type TranscriptionServiceId = (typeof TRANSCRIPTION_SERVICE_IDS)[number];
 
