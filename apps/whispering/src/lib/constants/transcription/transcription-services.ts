@@ -103,7 +103,7 @@ export const TRANSCRIPTION_SERVICES = [
 		invertInDarkMode: false, // Groq has a colored logo that works in both modes
 		description: 'Lightning-fast cloud transcription',
 		models: GROQ_MODELS,
-		defaultModel: GROQ_MODELS[2],
+		defaultModel: GROQ_MODELS[1],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
 		location: 'cloud',
