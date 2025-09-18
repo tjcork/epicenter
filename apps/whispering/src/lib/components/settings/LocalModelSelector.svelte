@@ -61,14 +61,6 @@
 		return await basename(path);
 	});
 
-	// Determine which model is currently active
-	const activeModelId = $derived.by(() => {
-		if (!value) return null;
-
-		const model = models.find((m) => value.endsWith(m.filename));
-		return model?.id ?? 'custom';
-	});
-
 	// Check if a specific model is active
 	const isModelActive = (modelId: string): boolean => {
 		if (!value) return false;
