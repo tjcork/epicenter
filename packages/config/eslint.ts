@@ -11,52 +11,6 @@ import js from '@eslint/js';
  * This should be included in all configurations to ensure consistent formatting.
  */
 export const base = [
-	perfectionist.configs['recommended-natural'],
-	{
-		rules: {
-			'perfectionist/sort-exports': 'off', // Only sort imports, not exports
-			'perfectionist/sort-objects': [
-				'error',
-				{
-					type: 'natural',
-					order: 'asc',
-					groups: ['children', 'title', 'description', 'cause', 'context', 'message', 'unknown'],
-					customGroups: [
-						{
-							groupName: 'children',
-							selector: 'property',
-							elementNamePattern: '^children$',
-						},
-						{
-							groupName: 'title',
-							selector: 'property',
-							elementNamePattern: '^title$',
-						},
-						{
-							groupName: 'description',
-							selector: 'property',
-							elementNamePattern: '^description$',
-						},
-						{
-							groupName: 'cause',
-							selector: 'property',
-							elementNamePattern: '^cause$',
-						},
-						{
-							groupName: 'context',
-							selector: 'property',
-							elementNamePattern: '^context$',
-						},
-						{
-							groupName: 'message',
-							selector: 'property',
-							elementNamePattern: '^message$',
-						},
-					],
-				},
-			],
-		},
-	},
 	{
 		ignores: [
 			// Build outputs
