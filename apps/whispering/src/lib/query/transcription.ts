@@ -11,7 +11,11 @@ import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
 import { rpc } from './';
-import { requiresFFmpegForLocalTranscription } from '../../routes/+layout/check-ffmpeg';
+import {
+	RECORDING_COMPATIBILITY_MESSAGE,
+	hasLocalTranscriptionCompatibilityIssue,
+} from '../../routes/+layout/check-ffmpeg';
+import { goto } from '$app/navigation';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -225,18 +229,17 @@ async function transcribeBlob(
 						},
 					);
 				case 'whispercpp': {
-					if (requiresFFmpegForLocalTranscription()) {
+					if (hasLocalTranscriptionCompatibilityIssue()) {
 						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 						if (ffmpegResult.error) return Err(ffmpegResult.error);
 						if (!ffmpegResult.data) {
-							return WhisperingWarningErr({
-								title: '🛠️ Install FFmpeg',
-								description:
-									'FFmpeg is required to convert audio to 16kHz format for Whisper C++. Install it or switch to CPAL recording at 16kHz.',
+							return WhisperingErr({
+								title: 'Recording Settings Incompatible',
+								description: RECORDING_COMPATIBILITY_MESSAGE,
 								action: {
 									type: 'link',
-									label: 'Install FFmpeg',
-									href: '/install-ffmpeg',
+									label: 'Go to Recording Settings',
+									href: '/settings/recording',
 								},
 							});
 						}
@@ -250,18 +253,17 @@ async function transcribeBlob(
 					);
 				}
 				case 'parakeet': {
-					if (requiresFFmpegForLocalTranscription()) {
+					if (hasLocalTranscriptionCompatibilityIssue()) {
 						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 						if (ffmpegResult.error) return Err(ffmpegResult.error);
 						if (!ffmpegResult.data) {
-							return WhisperingWarningErr({
-								title: '🛠️ Install FFmpeg',
-								description:
-									'FFmpeg is required to convert audio to 16kHz format for Parakeet. Install it or switch to CPAL recording at 16kHz.',
+							return WhisperingErr({
+								title: 'Recording Settings Incompatible',
+								description: RECORDING_COMPATIBILITY_MESSAGE,
 								action: {
 									type: 'link',
-									label: 'Install FFmpeg',
-									href: '/install-ffmpeg',
+									label: 'Go to Recording Settings',
+									href: '/settings/recording',
 								},
 							});
 						}
