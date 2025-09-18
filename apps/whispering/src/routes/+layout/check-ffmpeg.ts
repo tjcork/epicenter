@@ -33,12 +33,17 @@ function isUsing16kHz(): boolean {
 }
 
 /**
- * Checks if FFmpeg is required for local transcription models.
- * FFmpeg is NOT required when using CPAL recording at 16kHz since audio is already in the correct format.
- * FFmpeg IS required for all other recording methods or sample rates to convert audio to 16kHz.
- * @returns true when FFmpeg is required for transcription
+ * Checks if there's a compatibility issue between current recording settings
+ * and local transcription models (Whisper C++ and Parakeet).
+ *
+ * Local models require audio in 16kHz mono WAV format. When incompatible settings
+ * are detected, users have two options:
+ * 1. Install FFmpeg to automatically convert audio to the required format
+ * 2. Switch to CPAL recording at 16kHz (which natively produces compatible audio)
+ *
+ * @returns true when current settings are incompatible with local transcription models
  */
-export function requiresFFmpegForLocalTranscription(): boolean {
+export function hasLocalTranscriptionCompatibilityIssue(): boolean {
 	if (!isUsingLocalTranscription()) return false;
 
 	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
@@ -88,7 +93,7 @@ export async function checkFfmpeg() {
 	}
 
 	// Recording compatibility issue with local transcription models (except CPAL at 16kHz)
-	if (requiresFFmpegForLocalTranscription()) {
+	if (hasLocalTranscriptionCompatibilityIssue()) {
 		toast.warning('Recording Settings Incompatible', {
 			description: RECORDING_COMPATIBILITY_MESSAGE,
 			action: {

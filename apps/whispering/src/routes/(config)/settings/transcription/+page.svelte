@@ -31,7 +31,7 @@
 	import { Link } from '@repo/ui/link';
 	import { Separator } from '@repo/ui/separator';
 	import {
-		requiresFFmpegForLocalTranscription,
+		hasLocalTranscriptionCompatibilityIssue,
 		switchToCpalAt16kHz,
 		RECORDING_COMPATIBILITY_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
@@ -400,7 +400,7 @@
 				</LocalModelSelector>
 			{/if}
 
-			{#if requiresFFmpegForLocalTranscription() && !data.ffmpegInstalled}
+			{#if hasLocalTranscriptionCompatibilityIssue() && !data.ffmpegInstalled}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -503,7 +503,7 @@
 				</LocalModelSelector>
 			{/if}
 
-			{#if requiresFFmpegForLocalTranscription() && !data.ffmpegInstalled}
+			{#if hasLocalTranscriptionCompatibilityIssue() && !data.ffmpegInstalled}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
