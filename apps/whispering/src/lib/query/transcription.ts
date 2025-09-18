@@ -229,20 +229,19 @@ async function transcribeBlob(
 						},
 					);
 				case 'whispercpp': {
-					if (hasLocalTranscriptionCompatibilityIssue()) {
-						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-						if (ffmpegResult.error) return Err(ffmpegResult.error);
-						if (!ffmpegResult.data) {
-							return WhisperingErr({
-								title: 'Recording Settings Incompatible',
-								description: RECORDING_COMPATIBILITY_MESSAGE,
-								action: {
-									type: 'link',
-									label: 'Go to Recording Settings',
-									href: '/settings/recording',
-								},
-							});
-						}
+					const { data: isFFmpegInstalled, error: checkFfmpegInstalledError } =
+						await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+					if (checkFfmpegInstalledError) return Err(checkFfmpegInstalledError);
+					if (hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled })) {
+						return WhisperingErr({
+							title: 'Recording Settings Incompatible',
+							description: RECORDING_COMPATIBILITY_MESSAGE,
+							action: {
+								type: 'link',
+								label: 'Go to Recording Settings',
+								href: '/settings/recording',
+							},
+						});
 					}
 					return await services.transcriptions.whispercpp.transcribe(
 						audioToTranscribe,
@@ -253,20 +252,19 @@ async function transcribeBlob(
 					);
 				}
 				case 'parakeet': {
-					if (hasLocalTranscriptionCompatibilityIssue()) {
-						const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-						if (ffmpegResult.error) return Err(ffmpegResult.error);
-						if (!ffmpegResult.data) {
-							return WhisperingErr({
-								title: 'Recording Settings Incompatible',
-								description: RECORDING_COMPATIBILITY_MESSAGE,
-								action: {
-									type: 'link',
-									label: 'Go to Recording Settings',
-									href: '/settings/recording',
-								},
-							});
-						}
+					const { data: isFFmpegInstalled, error: checkFfmpegInstalledError } =
+						await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+					if (checkFfmpegInstalledError) return Err(checkFfmpegInstalledError);
+					if (hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled })) {
+						return WhisperingErr({
+							title: 'Recording Settings Incompatible',
+							description: RECORDING_COMPATIBILITY_MESSAGE,
+							action: {
+								type: 'link',
+								label: 'Go to Recording Settings',
+								href: '/settings/recording',
+							},
+						});
 					}
 					return await services.transcriptions.parakeet.transcribe(
 						audioToTranscribe,

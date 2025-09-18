@@ -41,16 +41,34 @@ function isUsing16kHz(): boolean {
  * 1. Install FFmpeg to automatically convert audio to the required format
  * 2. Switch to CPAL recording at 16kHz (which natively produces compatible audio)
  *
+ * Why FFmpeg status is a parameter instead of checked internally:
+ * - Checking FFmpeg requires an async RPC call (rpc.ffmpeg.checkFfmpegInstalled)
+ * - This function must remain synchronous for use in Svelte template conditionals
+ * - By accepting FFmpeg status as a parameter, we invert control - callers fetch
+ *   the async data in their appropriate context (data loader or async function body)
+ *   then pass it to this pure synchronous function
+ *
+ * @param isFFmpegInstalled - Whether FFmpeg is installed on the system. When true,
+ *                            FFmpeg can convert audio formats, resolving compatibility issues.
+ *                            Callers should fetch this via rpc.ffmpeg.checkFfmpegInstalled.ensure()
  * @returns true when current settings are incompatible with local transcription models
  */
-export function hasLocalTranscriptionCompatibilityIssue(): boolean {
+export function hasLocalTranscriptionCompatibilityIssue({
+	isFFmpegInstalled,
+}: { isFFmpegInstalled: boolean }): boolean {
+	// If FFmpeg is installed, it can convert audio formats, so no compatibility issue
+	if (isFFmpegInstalled) return false;
+
+	// No issue if not using local transcription
 	if (!isUsingLocalTranscription()) return false;
 
+	// No issue if using CPAL at 16kHz (produces compatible audio natively)
 	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
-		return false; // CPAL at 16kHz with local models doesn't need FFmpeg
+		return false;
 	}
 
-	return true; // All other local transcription combinations need FFmpeg
+	// All other combinations have compatibility issues without FFmpeg
+	return true;
 }
 
 /**
@@ -109,12 +127,16 @@ export async function checkFfmpegRecordingMethodCompatibility() {
 export async function checkLocalTranscriptionCompatibility() {
 	if (!window.__TAURI_INTERNALS__) return;
 
-	// Check if there are compatibility issues with local transcription
-	if (!hasLocalTranscriptionCompatibilityIssue()) return;
-
 	const { data: ffmpegInstalled } =
 		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-	if (ffmpegInstalled) return; // FFmpeg solves the compatibility issue
+
+	// Check if there are compatibility issues with local transcription
+	if (
+		!hasLocalTranscriptionCompatibilityIssue({
+			isFFmpegInstalled: ffmpegInstalled ?? false,
+		})
+	)
+		return;
 
 	// Recording compatibility issue with local transcription models
 	toast.warning('Recording Settings Incompatible', {
