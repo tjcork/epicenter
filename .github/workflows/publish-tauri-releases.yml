@@ -81,7 +81,10 @@ jobs:
           # - libxdo-dev: Keyboard/mouse automation
           # - libasound2-dev: Audio support
           # - libopenblas-dev: GPU acceleration support
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libxdo-dev libasound2-dev libopenblas-dev
+          # - libx11-dev: X11 development files for window system interaction
+          # - libxtst-dev: X11 testing extensions for input simulation
+          # - libxrandr-dev: X11 RandR extension for display configuration
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libxdo-dev libasound2-dev libopenblas-dev libx11-dev libxtst-dev libxrandr-dev
 
       # Linux Vulkan SDK installation
       - name: Prepare Vulkan SDK for Ubuntu
@@ -207,3 +210,55 @@ jobs:
           
           # Platform-specific build arguments (e.g., --target for macOS)
           args: ${{ matrix.args }}
+
+      # Install FUSE for AppImage processing
+      - name: Install FUSE for AppImage processing
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fuse libfuse2
+
+      # Remove libwayland-client.so from AppImage for better compatibility
+      # This fixes EGL_BAD_PARAMETER errors on Wayland systems (Issues #114, #121)
+      - name: Remove libwayland-client.so from AppImage
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          # Find the AppImage file
+          APPIMAGE_PATH=$(find apps/whispering/src-tauri/target/release/bundle/appimage -name "*.AppImage" | head -1)
+
+          if [ -n "$APPIMAGE_PATH" ]; then
+            echo "Processing AppImage: $APPIMAGE_PATH"
+
+            # Make AppImage executable
+            chmod +x "$APPIMAGE_PATH"
+
+            # Extract using the AppImage itself
+            cd "$(dirname "$APPIMAGE_PATH")"
+            APPIMAGE_NAME=$(basename "$APPIMAGE_PATH")
+            "./$APPIMAGE_NAME" --appimage-extract
+
+            # Remove libwayland-client.so files
+            echo "Removing libwayland-client.so files..."
+            find squashfs-root -name "libwayland-client.so*" -type f -delete
+
+            # List what was removed for verification
+            echo "Files remaining in lib directories:"
+            find squashfs-root -name "lib*" -type d | head -5 | while read dir; do
+              echo "Contents of $dir:"
+              ls "$dir" | grep -E "(wayland|fuse)" || echo "  No wayland/fuse libraries found"
+            done
+
+            # Get appimagetool
+            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+            chmod +x appimagetool-x86_64.AppImage
+
+            # Repackage AppImage with no-appstream to avoid warnings
+            ARCH=x86_64 ./appimagetool-x86_64.AppImage --no-appstream squashfs-root "$APPIMAGE_NAME"
+
+            # Clean up
+            rm -rf squashfs-root appimagetool-x86_64.AppImage
+
+            echo "libwayland-client.so removed from AppImage successfully"
+          else
+            echo "No AppImage found to process"
+          fi
