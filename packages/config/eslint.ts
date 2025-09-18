@@ -1,7 +1,6 @@
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
-import perfectionist from 'eslint-plugin-perfectionist';
 import type { Linter } from 'eslint';
 import ts from 'typescript-eslint';
 import js from '@eslint/js';
