@@ -16,6 +16,40 @@
   }
   ```
 
+# Type Co-location Principles
+
+## Never Use Generic Type Buckets
+Don't create generic type files like `$lib/types/models.ts`. This creates unclear dependencies and makes code harder to maintain.
+
+### Bad Pattern
+```typescript
+// $lib/types/models.ts - Generic bucket for unrelated types
+export type LocalModelConfig = { ... };
+export type UserModel = { ... };
+export type SessionModel = { ... };
+```
+
+### Good Pattern
+```typescript
+// $lib/services/transcription/local/types.ts - Co-located with service
+export type LocalModelConfig = { ... };
+
+// $lib/services/user/types.ts - Co-located with user service
+export type UserModel = { ... };
+```
+
+## Co-location Rules
+1. **Service-specific types**: Place in `[service-folder]/types.ts`
+2. **Component-specific types**: Define directly in the component file
+3. **Shared domain types**: Place in the domain folder's `types.ts`
+4. **Cross-domain types**: Only if truly shared across multiple domains, place in `$lib/types/[specific-name].ts`
+
+## Benefits
+- Clear ownership and dependencies
+- Easier refactoring and deletion
+- Better code organization
+- Reduces coupling between unrelated features
+
 # Mutation Pattern Preference
 
 ## In Svelte Files (.svelte)
