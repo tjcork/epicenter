@@ -68,12 +68,25 @@
 		const model = models.find((m) => m.id === modelId);
 		if (!model) return false;
 
-		return value.endsWith(model.filename);
+		switch (model.engine) {
+			case 'whispercpp':
+				return value.endsWith(model.file.filename);
+			case 'parakeet':
+				return value.endsWith(model.directoryName);
+		}
 	};
 
 	// Check if current model is pre-built
 	const prebuiltModelInfo = $derived(
-		models.find((m) => value?.endsWith(m.filename)) ?? null,
+		models.find((m) => {
+			if (!value) return false;
+			switch (m.engine) {
+				case 'whispercpp':
+					return value.endsWith(m.file.filename);
+				case 'parakeet':
+					return value.endsWith(m.directoryName);
+			}
+		}) ?? null,
 	);
 	const isPrebuiltModel = $derived(!!prebuiltModelInfo);
 

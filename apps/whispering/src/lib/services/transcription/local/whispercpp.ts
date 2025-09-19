@@ -18,7 +18,7 @@ export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 		description: 'Fastest, basic accuracy',
 		size: '78 MB',
 		sizeBytes: 77_700_000,
-		engine: 'whisper',
+		engine: 'whispercpp',
 		file: {
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin',
 			filename: 'ggml-tiny.bin',
@@ -30,7 +30,7 @@ export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 		description: 'Fast, good accuracy',
 		size: '488 MB',
 		sizeBytes: 488_000_000,
-		engine: 'whisper',
+		engine: 'whispercpp',
 		file: {
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
 			filename: 'ggml-small.bin',
@@ -42,7 +42,7 @@ export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 		description: 'Balanced speed & accuracy',
 		size: '1.5 GB',
 		sizeBytes: 1_530_000_000,
-		engine: 'whisper',
+		engine: 'whispercpp',
 		file: {
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin',
 			filename: 'ggml-medium.bin',
@@ -54,7 +54,7 @@ export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 		description: 'Best accuracy, slower',
 		size: '1.6 GB',
 		sizeBytes: 1_620_000_000,
-		engine: 'whisper',
+		engine: 'whispercpp',
 		file: {
 			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
 			filename: 'ggml-large-v3-turbo.bin',

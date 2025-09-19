@@ -49,7 +49,7 @@
 		const appDir = await appDataDir();
 
 		switch (model.engine) {
-			case 'whisper': {
+			case 'whispercpp': {
 				const modelsDir = await join(appDir, 'whisper-models');
 				// Ensure directory exists
 				if (!(await exists(modelsDir))) {
@@ -74,7 +74,7 @@
 	 */
 	async function checkModelStatus(path: string): Promise<boolean> {
 		switch (model.engine) {
-			case 'whisper': {
+			case 'whispercpp': {
 				// For Whisper models, file existence is sufficient
 				return await exists(path);
 			}
@@ -181,7 +181,7 @@
 					return;
 				}
 
-				if (model.engine === 'whisper') {
+				if (model.engine === 'whispercpp') {
 					// Single file download for Whisper
 					const fileContent = await downloadFileContent(
 						model.file.url,
@@ -235,10 +235,7 @@
 
 	async function activateModel() {
 		const path = await ensureModelDestinationPath();
-		const settingsKey =
-			model.engine === 'parakeet'
-				? 'transcription.parakeet.modelPath'
-				: 'transcription.whispercpp.modelPath';
+		const settingsKey = `transcription.${model.engine}.modelPath` as const;
 
 		settings.updateKey(settingsKey, path);
 		toast.success('Model activated');
@@ -253,10 +250,7 @@
 				}
 
 				// Clear settings if this was the active model
-				const settingsKey =
-					model.engine === 'parakeet'
-						? 'transcription.parakeet.modelPath'
-						: 'transcription.whispercpp.modelPath';
+				const settingsKey = `transcription.${model.engine}.modelPath` as const;
 
 				if (settings.value[settingsKey] === path) {
 					settings.updateKey(settingsKey, '');

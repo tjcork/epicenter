@@ -22,7 +22,7 @@ type BaseModelConfig = {
  * Configuration for Whisper models, which consist of a single .bin file.
  */
 export type WhisperModelConfig = BaseModelConfig & {
-	engine: 'whisper';
+	engine: 'whispercpp';
 	file: {
 		/** URL to download the model file from */
 		url: string;
