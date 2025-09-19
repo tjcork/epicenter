@@ -36,6 +36,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # macOS specific: Install create-dmg for DMG bundling
+      - name: Install create-dmg (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: brew install create-dmg
+
       # Ubuntu/Linux specific: Install system dependencies required by Tauri
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
@@ -136,6 +141,9 @@ jobs:
       # Main Tauri build and release action
       - uses: tauri-apps/tauri-action@v0
         env:
+          # Set CI environment variable to help with DMG bundling
+          CI: true
+
           # Required: GitHub token for creating releases and uploading assets
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
