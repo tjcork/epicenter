@@ -140,8 +140,9 @@
 				const downloadFileContent = async (
 					url: string,
 					sizeBytes: number,
+					filePath: string,
 					onProgress: (progress: number) => void,
-				): Promise<Uint8Array> => {
+				): Promise<void> => {
 					const response = await fetch(url);
 					if (!response.ok) {
 						throw new Error(`Failed to download: ${response.status}`);
@@ -157,32 +158,22 @@
 						throw new Error('Failed to read response body');
 					}
 
-					const chunks: Uint8Array[] = [];
+					// Create or truncate the file first
+					await writeFile(filePath, new Uint8Array());
+
 					let downloadedBytes = 0;
 
 					while (true) {
 						const { done, value } = await reader.read();
 						if (done) break;
 
-						chunks.push(value);
+						// Write each chunk directly to disk using append mode
+						await writeFile(filePath, value, { append: true });
+
 						downloadedBytes += value.length;
 						const progress = Math.round((downloadedBytes / totalBytes) * 100);
 						onProgress(progress);
 					}
-
-					// Combine chunks into single array
-					const totalLength = chunks.reduce(
-						(acc, chunk) => acc + chunk.length,
-						0,
-					);
-					const fileContent = new Uint8Array(totalLength);
-					let position = 0;
-					for (const chunk of chunks) {
-						fileContent.set(chunk, position);
-						position += chunk.length;
-					}
-
-					return fileContent;
 				};
 
 				const path = await ensureModelDestinationPath();
@@ -200,14 +191,14 @@
 				switch (model.engine) {
 					case 'whispercpp': {
 						// Single file download for Whisper
-						const fileContent = await downloadFileContent(
+						await downloadFileContent(
 							model.file.url,
 							model.sizeBytes,
+							path,
 							(progress) => {
 								modelState = { type: 'downloading', progress };
 							},
 						);
-						await writeFile(path, fileContent);
 						break;
 					}
 					case 'parakeet': {
@@ -220,9 +211,10 @@
 
 						for (const file of model.files) {
 							const filePath = await join(path, file.filename);
-							const fileContent = await downloadFileContent(
+							await downloadFileContent(
 								file.url,
 								file.sizeBytes,
+								filePath,
 								(fileProgress) => {
 									const overallProgress = Math.round(
 										((downloadedBytes + (file.sizeBytes * fileProgress) / 100) /
@@ -235,7 +227,6 @@
 									};
 								},
 							);
-							await writeFile(filePath, fileContent);
 							downloadedBytes += file.sizeBytes;
 						}
 						break;
