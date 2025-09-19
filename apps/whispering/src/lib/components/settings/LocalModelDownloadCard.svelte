@@ -2,13 +2,7 @@
 	import { Button } from '@repo/ui/button';
 	import { Badge } from '@repo/ui/badge';
 	import { Progress } from '@repo/ui/progress';
-	import {
-		Download,
-		CheckIcon,
-		LoaderCircle,
-		Archive,
-		X,
-	} from '@lucide/svelte';
+	import { Download, CheckIcon, LoaderCircle, X } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		exists,
@@ -18,12 +12,15 @@
 		stat,
 	} from '@tauri-apps/plugin-fs';
 	import { fetch } from '@tauri-apps/plugin-http';
-	import { invoke } from '@tauri-apps/api/core';
 	import { extractErrorMessage } from 'wellcrafted/error';
 	import { tryAsync, Ok } from 'wellcrafted/result';
-	import { appDataDir, join, dirname } from '@tauri-apps/api/path';
+	import { appDataDir, join } from '@tauri-apps/api/path';
 	import { settings } from '$lib/stores/settings.svelte';
-	import type { LocalModelConfig } from '$lib/services/transcription/local/types';
+	import type {
+		LocalModelConfig,
+		WhisperModelConfig,
+		ParakeetModelConfig,
+	} from '$lib/services/transcription/local/types';
 
 	let {
 		model,
@@ -36,62 +33,68 @@
 	type ModelState =
 		| { type: 'not-downloaded' }
 		| { type: 'downloading'; progress: number }
-		| { type: 'extracting' }
 		| { type: 'ready' };
 
 	let modelState = $state<ModelState>({ type: 'not-downloaded' });
 
-	// Get destination path for this model
-	async function getDestinationPath(): Promise<string> {
-		const appDir = await appDataDir();
-		const modelsDir = await join(appDir, 'whisper-models');
-		return await join(modelsDir, model.filename);
-	}
-
 	/**
-	 * Extracts the filename from a URL (last segment after /)
+	 * Calculates the destination path where this model will be downloaded and stored,
+	 * and ensures that the parent directory structure exists.
+	 *
+	 * @returns The full path where the model should be stored:
+	 * - For Whisper models: `{appDataDir}/whisper-models/{filename}` (a single file)
+	 * - For Parakeet models: `{appDataDir}/parakeet-models/{directoryName}/` (a directory containing multiple files)
 	 */
-	function getArchiveNameFromUrl(url: string): string {
-		const segments = url.split('/');
-		return segments[segments.length - 1];
+	async function ensureModelDestinationPath(): Promise<string> {
+		const appDir = await appDataDir();
+
+		switch (model.engine) {
+			case 'whisper': {
+				const modelsDir = await join(appDir, 'whisper-models');
+				// Ensure directory exists
+				if (!(await exists(modelsDir))) {
+					await mkdir(modelsDir, { recursive: true });
+				}
+				return await join(modelsDir, model.file.filename);
+			}
+			case 'parakeet': {
+				// Parakeet models are stored in a directory
+				const parakeetModelsDir = await join(appDir, 'parakeet-models');
+				// Ensure directory exists
+				if (!(await exists(parakeetModelsDir))) {
+					await mkdir(parakeetModelsDir, { recursive: true });
+				}
+				return await join(parakeetModelsDir, model.directoryName);
+			}
+		}
 	}
 
 	/**
 	 * Checks if a model is properly installed at the given path.
-	 * For multi-file models: verifies the path is a directory
-	 * For single-file models: verifies the file exists
 	 */
-	async function checkModelStatus(
-		path: string,
-		needsExtraction: boolean,
-	): Promise<boolean> {
-		if (!(await exists(path))) return false;
+	async function checkModelStatus(path: string): Promise<boolean> {
+		switch (model.engine) {
+			case 'whisper': {
+				// For Whisper models, file existence is sufficient
+				return await exists(path);
+			}
+			case 'parakeet': {
+				if (!(await exists(path))) return false;
+				// For Parakeet models, path must be a directory containing all files
+				const { data: stats } = await tryAsync({
+					try: () => stat(path),
+					catch: () => Ok(null),
+				});
+				if (!stats?.isDirectory) return false;
 
-		if (needsExtraction) {
-			// For multi-file models, path must be a directory
-			const { data: stats } = await tryAsync({
-				try: () => stat(path),
-				catch: () => Ok(null),
-			});
-			return stats?.isDirectory ?? false;
+				// Check that all required files exist
+				for (const file of model.files) {
+					const filePath = await join(path, file.filename);
+					if (!(await exists(filePath))) return false;
+				}
+				return true;
+			}
 		}
-
-		// For non-extraction models, file existence is sufficient
-		return true;
-	}
-
-	/**
-	 * Gets the path where the archive file will be temporarily saved
-	 * before extraction (for multi-file models only)
-	 */
-	async function getArchivePath(): Promise<string> {
-		if (!model.needsExtraction) {
-			throw new Error('Archive path only applies to multi-file models');
-		}
-		const modelPath = await getDestinationPath();
-		const dir = await dirname(modelPath);
-		const archiveName = getArchiveNameFromUrl(model.url);
-		return await join(dir, archiveName);
 	}
 
 	// Check model status on mount and when path changes
@@ -102,11 +105,8 @@
 	async function refreshStatus() {
 		await tryAsync({
 			try: async () => {
-				const path = await getDestinationPath();
-				const isReady = await checkModelStatus(
-					path,
-					model.needsExtraction ?? false,
-				);
+				const path = await ensureModelDestinationPath();
+				const isReady = await checkModelStatus(path);
 				modelState = isReady ? { type: 'ready' } : { type: 'not-downloaded' };
 			},
 			catch: () => {
@@ -117,23 +117,15 @@
 	}
 
 	async function downloadModel() {
-		if (modelState.type === 'downloading' || modelState.type === 'extracting')
-			return;
+		if (modelState.type === 'downloading') return;
 
 		modelState = { type: 'downloading', progress: 0 };
 
 		await tryAsync({
 			try: async () => {
-				const ensureDirectory = async (path: string) => {
-					const dir = await dirname(path);
-					const dirExists = await exists(dir);
-					if (!dirExists) {
-						await mkdir(dir, { recursive: true });
-					}
-				};
-
 				const downloadFileContent = async (
 					url: string,
+					sizeBytes: number,
 					onProgress: (progress: number) => void,
 				): Promise<Uint8Array> => {
 					const response = await fetch(url);
@@ -144,7 +136,7 @@
 					const contentLength = response.headers.get('content-length');
 					const totalBytes = contentLength
 						? Number.parseInt(contentLength, 10)
-						: model.sizeBytes;
+						: sizeBytes;
 
 					const reader = response.body?.getReader();
 					if (!reader) {
@@ -179,8 +171,7 @@
 					return fileContent;
 				};
 
-				const path = await getDestinationPath();
-				await ensureDirectory(path);
+				const path = await ensureModelDestinationPath();
 
 				// Check if already exists
 				await refreshStatus();
@@ -190,41 +181,41 @@
 					return;
 				}
 
-				// Download the file content
-				const fileContent = await downloadFileContent(model.url, (progress) => {
-					modelState = { type: 'downloading', progress };
-				});
-
-				// Handle extraction if needed
-				if (model.needsExtraction) {
-					const archivePath = await getArchivePath();
-
-					// Write archive file
-					await writeFile(archivePath, fileContent);
-
-					// Extract
-					modelState = { type: 'extracting' };
-					toast.info('Extracting model archive...');
-
-					// Clean up any existing directory
-					if (await exists(path)) {
-						await remove(path, { recursive: true });
-					}
-
-					// Extract based on file type
-					const archiveName = getArchiveNameFromUrl(model.url);
-					if (archiveName.endsWith('.tar.gz')) {
-						await invoke('extract_tar_gz_archive', {
-							archivePath: archivePath,
-							targetDir: await dirname(path),
-						});
-					}
-
-					// Clean up archive after successful extraction
-					await remove(archivePath);
-				} else {
-					// Direct file download (no extraction needed)
+				if (model.engine === 'whisper') {
+					// Single file download for Whisper
+					const fileContent = await downloadFileContent(
+						model.file.url,
+						model.sizeBytes,
+						(progress) => {
+							modelState = { type: 'downloading', progress };
+						},
+					);
 					await writeFile(path, fileContent);
+				} else {
+					// Multiple file downloads for Parakeet
+					const totalBytes = model.sizeBytes;
+					let downloadedBytes = 0;
+
+					// Create directory for model files
+					await mkdir(path, { recursive: true });
+
+					for (const file of model.files) {
+						const filePath = await join(path, file.filename);
+						const fileContent = await downloadFileContent(
+							file.url,
+							file.sizeBytes,
+							(fileProgress) => {
+								const overallProgress = Math.round(
+									((downloadedBytes + (file.sizeBytes * fileProgress) / 100) /
+										totalBytes) *
+										100,
+								);
+								modelState = { type: 'downloading', progress: overallProgress };
+							},
+						);
+						await writeFile(filePath, fileContent);
+						downloadedBytes += file.sizeBytes;
+					}
 				}
 
 				modelState = { type: 'ready' };
@@ -243,10 +234,11 @@
 	}
 
 	async function activateModel() {
-		const path = await getDestinationPath();
-		const settingsKey = model.needsExtraction
-			? 'transcription.parakeet.modelPath'
-			: 'transcription.whispercpp.modelPath';
+		const path = await ensureModelDestinationPath();
+		const settingsKey =
+			model.engine === 'parakeet'
+				? 'transcription.parakeet.modelPath'
+				: 'transcription.whispercpp.modelPath';
 
 		settings.updateKey(settingsKey, path);
 		toast.success('Model activated');
@@ -255,23 +247,16 @@
 	async function deleteModel() {
 		await tryAsync({
 			try: async () => {
-				const path = await getDestinationPath();
+				const path = await ensureModelDestinationPath();
 				if (await exists(path)) {
-					await remove(path, { recursive: model.needsExtraction });
-				}
-
-				// Clean up any partial downloads or archives
-				if (model.needsExtraction) {
-					const archivePath = await getArchivePath();
-					if (await exists(archivePath)) {
-						await remove(archivePath);
-					}
+					await remove(path, { recursive: model.engine === 'parakeet' });
 				}
 
 				// Clear settings if this was the active model
-				const settingsKey = model.needsExtraction
-					? 'transcription.parakeet.modelPath'
-					: 'transcription.whispercpp.modelPath';
+				const settingsKey =
+					model.engine === 'parakeet'
+						? 'transcription.parakeet.modelPath'
+						: 'transcription.whispercpp.modelPath';
 
 				if (settings.value[settingsKey] === path) {
 					settings.updateKey(settingsKey, '');
@@ -317,11 +302,6 @@
 			<div class="flex items-center gap-2 min-w-[120px]">
 				<LoaderCircle class="size-4 animate-spin" />
 				<span class="text-sm font-medium">{modelState.progress}%</span>
-			</div>
-		{:else if modelState.type === 'extracting'}
-			<div class="flex items-center gap-2 min-w-[120px]">
-				<Archive class="size-4 animate-pulse" />
-				<span class="text-sm">Extracting...</span>
 			</div>
 		{:else if modelState.type === 'ready'}
 			{#if !isActive}
