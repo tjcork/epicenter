@@ -1,6 +1,6 @@
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
-import type { LocalModelConfig } from '$lib/types/models';
+import type { WhisperModelConfig } from './types';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists } from '@tauri-apps/plugin-fs';
@@ -11,15 +11,18 @@ import { type } from 'arktype';
  * Pre-built Whisper models available for download from Hugging Face.
  * These are ggml-format models compatible with whisper.cpp.
  */
-export const WHISPER_MODELS: readonly LocalModelConfig[] = [
+export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 	{
 		id: 'tiny',
 		name: 'Tiny',
 		description: 'Fastest, basic accuracy',
 		size: '78 MB',
 		sizeBytes: 77_700_000,
-		url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin',
-		filename: 'ggml-tiny.bin',
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin',
+			filename: 'ggml-tiny.bin',
+		},
 	},
 	{
 		id: 'small',
@@ -27,8 +30,11 @@ export const WHISPER_MODELS: readonly LocalModelConfig[] = [
 		description: 'Fast, good accuracy',
 		size: '488 MB',
 		sizeBytes: 488_000_000,
-		url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-		filename: 'ggml-small.bin',
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
+			filename: 'ggml-small.bin',
+		},
 	},
 	{
 		id: 'medium',
@@ -36,8 +42,11 @@ export const WHISPER_MODELS: readonly LocalModelConfig[] = [
 		description: 'Balanced speed & accuracy',
 		size: '1.5 GB',
 		sizeBytes: 1_530_000_000,
-		url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin',
-		filename: 'ggml-medium.bin',
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin',
+			filename: 'ggml-medium.bin',
+		},
 	},
 	{
 		id: 'large-v3-turbo',
@@ -45,8 +54,11 @@ export const WHISPER_MODELS: readonly LocalModelConfig[] = [
 		description: 'Best accuracy, slower',
 		size: '1.6 GB',
 		sizeBytes: 1_620_000_000,
-		url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
-		filename: 'ggml-large-v3-turbo.bin',
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
+			filename: 'ggml-large-v3-turbo.bin',
+		},
 	},
 ] as const;
 

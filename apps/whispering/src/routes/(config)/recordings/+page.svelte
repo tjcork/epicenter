@@ -61,7 +61,7 @@
 			const value = getValue();
 			if (!value) return '';
 			const date = new Date(value);
-			if (isNaN(date.getTime())) return value;
+			if (Number.isNaN(date.getTime())) return value;
 			try {
 				return format(date, formatString);
 			} catch {

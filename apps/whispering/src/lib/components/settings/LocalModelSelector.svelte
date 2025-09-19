@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { LocalModelConfig } from '$lib/types/models';
+	import type { LocalModelConfig } from '$lib/services/transcription/local/types';
 	import { FolderOpen, Paperclip, X } from '@lucide/svelte';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
@@ -61,19 +61,17 @@
 		return await basename(path);
 	});
 
-	// Check if a specific model is active
-	const isModelActive = (modelId: string): boolean => {
-		if (!value) return false;
-
-		const model = models.find((m) => m.id === modelId);
-		if (!model) return false;
-
-		return value.endsWith(model.filename);
-	};
-
 	// Check if current model is pre-built
 	const prebuiltModelInfo = $derived(
-		models.find((m) => value?.endsWith(m.filename)) ?? null,
+		models.find((m) => {
+			if (!value) return false;
+			switch (m.engine) {
+				case 'whispercpp':
+					return value.endsWith(m.file.filename);
+				case 'parakeet':
+					return value.endsWith(m.directoryName);
+			}
+		}) ?? null,
 	);
 	const isPrebuiltModel = $derived(!!prebuiltModelInfo);
 
@@ -161,8 +159,7 @@
 			<!-- Pre-built Models Tab -->
 			<Tabs.Content value="prebuilt" class="mt-4 space-y-3">
 				{#each models as model}
-					{@const isActive = isModelActive(model.id)}
-					<LocalModelDownloadCard {model} {isActive} />
+					<LocalModelDownloadCard {model} />
 				{/each}
 
 				{#if prebuiltFooter}
