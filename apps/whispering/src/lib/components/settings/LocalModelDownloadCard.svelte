@@ -23,7 +23,7 @@
 	import { tryAsync, Ok } from 'wellcrafted/result';
 	import { appDataDir, join, dirname } from '@tauri-apps/api/path';
 	import { settings } from '$lib/stores/settings.svelte';
-	import type { LocalModelConfig } from '$lib/types/models';
+	import type { LocalModelConfig } from '$lib/services/transcription/local/types';
 
 	let {
 		model,
@@ -105,7 +105,7 @@
 				const path = await getDestinationPath();
 				const isReady = await checkModelStatus(
 					path,
-					model.needsExtraction || false,
+					model.needsExtraction ?? false,
 				);
 				modelState = isReady ? { type: 'ready' } : { type: 'not-downloaded' };
 			},

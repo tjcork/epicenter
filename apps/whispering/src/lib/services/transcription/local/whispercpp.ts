@@ -1,6 +1,6 @@
 import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
-import type { LocalModelConfig } from '$lib/types/models';
+import type { LocalModelConfig } from './types';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists } from '@tauri-apps/plugin-fs';
