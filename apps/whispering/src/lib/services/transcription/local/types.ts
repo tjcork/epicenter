@@ -1,8 +1,7 @@
 /**
- * Configuration for a local AI model that can be downloaded and used for transcription.
- * Supports both direct file downloads and archives that need extraction.
+ * Base configuration for a local AI model that can be downloaded and used for transcription.
  */
-export type LocalModelConfig = {
+type BaseModelConfig = {
 	/** Unique identifier for the model */
 	id: string;
 
@@ -17,28 +16,40 @@ export type LocalModelConfig = {
 
 	/** Exact size in bytes for progress tracking */
 	sizeBytes: number;
-
-	/** URL to download the model from */
-	url: string;
-
-	/**
-	 * Target filename or directory name after download/extraction.
-	 * For direct downloads: the filename to save as
-	 * For archives: the directory name after extraction
-	 */
-	filename: string;
-
-	/**
-	 * Whether the model is distributed as an archive that needs extraction.
-	 * If true, the model will be downloaded as an archive and extracted.
-	 * If false/undefined, the model is downloaded as a ready-to-use file.
-	 */
-	needsExtraction?: boolean;
-
-	/**
-	 * The archive filename if needsExtraction is true.
-	 * Required when needsExtraction is true.
-	 * Example: "parakeet-tdt-0.6b-v3-int8.tar.gz"
-	 */
-	archiveName?: string;
 };
+
+/**
+ * Configuration for Whisper models, which consist of a single .bin file.
+ */
+export type WhisperModelConfig = BaseModelConfig & {
+	engine: 'whisper';
+	file: {
+		/** URL to download the model file from */
+		url: string;
+		/** Filename to save the model as */
+		filename: string;
+	};
+};
+
+/**
+ * Configuration for Parakeet models, which consist of multiple ONNX files in a directory structure.
+ */
+export type ParakeetModelConfig = BaseModelConfig & {
+	engine: 'parakeet';
+	/** Name of the directory where files will be stored */
+	directoryName: string;
+	/** Array of files that make up the model */
+	files: Array<{
+		/** URL to download this file from */
+		url: string;
+		/** Filename to save this file as */
+		filename: string;
+		/** Size of this individual file in bytes */
+		sizeBytes: number;
+	}>;
+};
+
+/**
+ * Union type for all supported local model configurations.
+ */
+export type LocalModelConfig = WhisperModelConfig | ParakeetModelConfig;

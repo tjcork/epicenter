@@ -1,5 +1,5 @@
 import { WhisperingErr, type WhisperingError } from '$lib/result';
-import type { LocalModelConfig } from './types';
+import type { ParakeetModelConfig } from './types';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists, stat } from '@tauri-apps/plugin-fs';
@@ -8,19 +8,44 @@ import { type } from 'arktype';
 
 /**
  * Pre-built Parakeet models available for download from GitHub releases.
- * These are NVIDIA NeMo models that come as tar.gz archives containing ONNX files.
+ * These are NVIDIA NeMo models consisting of multiple ONNX files.
  */
-export const PARAKEET_MODELS: readonly LocalModelConfig[] = [
+export const PARAKEET_MODELS: readonly ParakeetModelConfig[] = [
 	{
 		id: 'parakeet-tdt-0.6b-v3-int8',
 		name: 'Parakeet TDT 0.6B v3 (INT8)',
 		description: 'Fast and accurate NVIDIA NeMo model',
-		size: '~850 MB',
-		sizeBytes: 892_000_000, // Approximate size of tar.gz
-		url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/parakeet-tdt-0.6b-v3-int8.tar.gz',
-		filename: 'parakeet-tdt-0.6b-v3-int8', // Directory name after extraction
-		needsExtraction: true,
-		archiveName: 'parakeet-tdt-0.6b-v3-int8.tar.gz',
+		size: '~670 MB',
+		sizeBytes: 670_619_803, // Total size of all individual files
+		engine: 'parakeet',
+		directoryName: 'parakeet-tdt-0.6b-v3-int8',
+		files: [
+			{
+				url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/config.json',
+				filename: 'config.json',
+				sizeBytes: 97,
+			},
+			{
+				url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/decoder_joint-model.int8.onnx',
+				filename: 'decoder_joint-model.int8.onnx',
+				sizeBytes: 18_202_004,
+			},
+			{
+				url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/encoder-model.int8.onnx',
+				filename: 'encoder-model.int8.onnx',
+				sizeBytes: 652_183_999,
+			},
+			{
+				url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/nemo128.onnx',
+				filename: 'nemo128.onnx',
+				sizeBytes: 139_764,
+			},
+			{
+				url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/vocab.txt',
+				filename: 'vocab.txt',
+				sizeBytes: 93_939,
+			},
+		],
 	},
 ] as const;
 
