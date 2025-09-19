@@ -17,8 +17,6 @@ use windows_path::fix_windows_path;
 pub mod graceful_shutdown;
 use graceful_shutdown::send_sigint;
 
-pub mod archive;
-use archive::extract_tar_gz_archive;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
@@ -83,7 +81,6 @@ pub async fn run() {
         transcribe_audio_whisper,
         transcribe_audio_parakeet,
         send_sigint,
-        extract_tar_gz_archive,
     ]);
 
     let app = builder
