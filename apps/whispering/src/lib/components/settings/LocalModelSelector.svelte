@@ -61,21 +61,6 @@
 		return await basename(path);
 	});
 
-	// Check if a specific model is active
-	const isModelActive = (modelId: string): boolean => {
-		if (!value) return false;
-
-		const model = models.find((m) => m.id === modelId);
-		if (!model) return false;
-
-		switch (model.engine) {
-			case 'whispercpp':
-				return value.endsWith(model.file.filename);
-			case 'parakeet':
-				return value.endsWith(model.directoryName);
-		}
-	};
-
 	// Check if current model is pre-built
 	const prebuiltModelInfo = $derived(
 		models.find((m) => {
@@ -174,8 +159,7 @@
 			<!-- Pre-built Models Tab -->
 			<Tabs.Content value="prebuilt" class="mt-4 space-y-3">
 				{#each models as model}
-					{@const isActive = isModelActive(model.id)}
-					<LocalModelDownloadCard {model} {isActive} />
+					<LocalModelDownloadCard {model} />
 				{/each}
 
 				{#if prebuiltFooter}

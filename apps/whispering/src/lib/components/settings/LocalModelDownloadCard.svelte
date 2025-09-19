@@ -24,16 +24,15 @@
 
 	let {
 		model,
-		isActive = false,
 	}: {
 		model: LocalModelConfig;
-		isActive?: boolean;
 	} = $props();
 
 	type ModelState =
 		| { type: 'not-downloaded' }
 		| { type: 'downloading'; progress: number }
-		| { type: 'ready' };
+		| { type: 'ready' }
+		| { type: 'active' };
 
 	let modelState = $state<ModelState>({ type: 'not-downloaded' });
 
@@ -70,9 +69,9 @@
 	}
 
 	/**
-	 * Checks if a model is properly installed at the given path.
+	 * Validates if a model is properly installed at the given path.
 	 */
-	async function checkModelStatus(path: string): Promise<boolean> {
+	async function isModelValid(path: string): Promise<boolean> {
 		switch (model.engine) {
 			case 'whispercpp': {
 				// For Whisper models, file existence is sufficient
@@ -97,8 +96,12 @@
 		}
 	}
 
-	// Check model status on mount and when path changes
+	// Check model status on mount and when settings change
 	$effect(() => {
+		// React to settings changes for this engine
+		const settingsKey = `transcription.${model.engine}.modelPath` as const;
+		const currentPath = settings.value[settingsKey];
+		// Trigger refresh when settings change (currentPath is a dependency)
 		refreshStatus();
 	});
 
@@ -106,8 +109,19 @@
 		await tryAsync({
 			try: async () => {
 				const path = await ensureModelDestinationPath();
-				const isReady = await checkModelStatus(path);
-				modelState = isReady ? { type: 'ready' } : { type: 'not-downloaded' };
+				const isValid = await isModelValid(path);
+
+				if (!isValid) {
+					modelState = { type: 'not-downloaded' };
+					return;
+				}
+
+				// Check if this model is active in settings
+				const settingsKey = `transcription.${model.engine}.modelPath` as const;
+				const currentPath = settings.value[settingsKey];
+				const isActive = currentPath === path;
+
+				modelState = isActive ? { type: 'active' } : { type: 'ready' };
 			},
 			catch: () => {
 				modelState = { type: 'not-downloaded' };
@@ -175,51 +189,62 @@
 
 				// Check if already exists
 				await refreshStatus();
-				if (modelState.type === 'ready') {
-					await activateModel();
+				if (modelState.type === 'ready' || modelState.type === 'active') {
+					if (modelState.type === 'ready') {
+						await activateModel();
+					}
 					toast.success('Model already downloaded and activated');
 					return;
 				}
 
-				if (model.engine === 'whispercpp') {
-					// Single file download for Whisper
-					const fileContent = await downloadFileContent(
-						model.file.url,
-						model.sizeBytes,
-						(progress) => {
-							modelState = { type: 'downloading', progress };
-						},
-					);
-					await writeFile(path, fileContent);
-				} else {
-					// Multiple file downloads for Parakeet
-					const totalBytes = model.sizeBytes;
-					let downloadedBytes = 0;
-
-					// Create directory for model files
-					await mkdir(path, { recursive: true });
-
-					for (const file of model.files) {
-						const filePath = await join(path, file.filename);
+				switch (model.engine) {
+					case 'whispercpp': {
+						// Single file download for Whisper
 						const fileContent = await downloadFileContent(
-							file.url,
-							file.sizeBytes,
-							(fileProgress) => {
-								const overallProgress = Math.round(
-									((downloadedBytes + (file.sizeBytes * fileProgress) / 100) /
-										totalBytes) *
-										100,
-								);
-								modelState = { type: 'downloading', progress: overallProgress };
+							model.file.url,
+							model.sizeBytes,
+							(progress) => {
+								modelState = { type: 'downloading', progress };
 							},
 						);
-						await writeFile(filePath, fileContent);
-						downloadedBytes += file.sizeBytes;
+						await writeFile(path, fileContent);
+						break;
+					}
+					case 'parakeet': {
+						// Multiple file downloads for Parakeet
+						const totalBytes = model.sizeBytes;
+						let downloadedBytes = 0;
+
+						// Create directory for model files
+						await mkdir(path, { recursive: true });
+
+						for (const file of model.files) {
+							const filePath = await join(path, file.filename);
+							const fileContent = await downloadFileContent(
+								file.url,
+								file.sizeBytes,
+								(fileProgress) => {
+									const overallProgress = Math.round(
+										((downloadedBytes + (file.sizeBytes * fileProgress) / 100) /
+											totalBytes) *
+											100,
+									);
+									modelState = {
+										type: 'downloading',
+										progress: overallProgress,
+									};
+								},
+							);
+							await writeFile(filePath, fileContent);
+							downloadedBytes += file.sizeBytes;
+						}
+						break;
 					}
 				}
 
-				modelState = { type: 'ready' };
+				// After download, activate the model
 				await activateModel();
+				modelState = { type: 'active' };
 				toast.success('Model downloaded and activated successfully');
 			},
 			catch: (error) => {
@@ -238,6 +263,7 @@
 		const settingsKey = `transcription.${model.engine}.modelPath` as const;
 
 		settings.updateKey(settingsKey, path);
+		// The settings watcher will update modelState to 'active'
 		toast.success('Model activated');
 	}
 
@@ -270,14 +296,15 @@
 </script>
 
 <div
-	class="flex items-center gap-3 p-3 rounded-lg border {isActive
+	class="flex items-center gap-3 p-3 rounded-lg border {modelState.type ===
+	'active'
 		? 'border-primary bg-primary/5'
 		: ''}"
 >
 	<div class="flex-1">
 		<div class="flex items-center gap-2">
 			<span class="font-medium">{model.name}</span>
-			{#if isActive}
+			{#if modelState.type === 'active'}
 				<Badge variant="default" class="text-xs">Active</Badge>
 			{:else if modelState.type === 'ready'}
 				<Badge variant="secondary" class="text-xs">Downloaded</Badge>
@@ -298,16 +325,17 @@
 				<span class="text-sm font-medium">{modelState.progress}%</span>
 			</div>
 		{:else if modelState.type === 'ready'}
-			{#if !isActive}
-				<Button size="sm" variant="outline" onclick={activateModel}>
-					Activate
-				</Button>
-			{:else}
-				<Button size="sm" variant="default" disabled>
-					<CheckIcon class="size-4 mr-1" />
-					Activated
-				</Button>
-			{/if}
+			<Button size="sm" variant="outline" onclick={activateModel}>
+				Activate
+			</Button>
+			<Button size="sm" variant="ghost" onclick={deleteModel}>
+				<X class="size-4" />
+			</Button>
+		{:else if modelState.type === 'active'}
+			<Button size="sm" variant="default" disabled>
+				<CheckIcon class="size-4 mr-1" />
+				Activated
+			</Button>
 			<Button size="sm" variant="ghost" onclick={deleteModel}>
 				<X class="size-4" />
 			</Button>
