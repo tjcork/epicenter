@@ -400,7 +400,7 @@
 				</LocalModelSelector>
 			{/if}
 
-			{#if hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled: data.ffmpegInstalled })}
+			{#if hasLocalTranscriptionCompatibilityIssue( { isFFmpegInstalled: data.ffmpegInstalled }, )}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">
@@ -447,14 +447,15 @@
 						<p class="text-sm text-muted-foreground">
 							Models are downloaded from{' '}
 							<Link
-								href="https://handy.computer/"
+								href="https://github.com/epicenter-md/epicenter/releases/tag/models/parakeet-tdt-0.6b-v3-int8"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								Handy's
+								GitHub releases
 							</Link>
-							{' '}blob storage and stored in your app data directory. The
-							archive is extracted automatically after download.
+							{' '}and stored in your app data directory. The pre-packaged
+							archive contains the NVIDIA Parakeet model with INT8 quantization
+							and is extracted after download.
 						</p>
 					{/snippet}
 
@@ -503,7 +504,7 @@
 				</LocalModelSelector>
 			{/if}
 
-			{#if hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled: data.ffmpegInstalled })}
+			{#if hasLocalTranscriptionCompatibilityIssue( { isFFmpegInstalled: data.ffmpegInstalled }, )}
 				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
 					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
 					<Alert.Title class="text-amber-600 dark:text-amber-400">

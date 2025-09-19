@@ -38,7 +38,7 @@ export type LocalModelConfig = {
 	/**
 	 * The archive filename if needsExtraction is true.
 	 * Required when needsExtraction is true.
-	 * Example: "parakeet-v3-int8.tar.gz"
+	 * Example: "parakeet-tdt-0.6b-v3-int8.tar.gz"
 	 */
 	archiveName?: string;
 };

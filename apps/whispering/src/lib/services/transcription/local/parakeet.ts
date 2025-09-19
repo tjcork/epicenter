@@ -7,7 +7,7 @@ import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
 
 /**
- * Pre-built Parakeet models available for download from Handy's blob storage.
+ * Pre-built Parakeet models available for download from GitHub releases.
  * These are NVIDIA NeMo models that come as tar.gz archives containing ONNX files.
  */
 export const PARAKEET_MODELS: readonly LocalModelConfig[] = [
@@ -17,10 +17,10 @@ export const PARAKEET_MODELS: readonly LocalModelConfig[] = [
 		description: 'Fast and accurate NVIDIA NeMo model',
 		size: '~850 MB',
 		sizeBytes: 892_000_000, // Approximate size of tar.gz
-		url: 'https://blob.handy.computer/parakeet-v3-int8.tar.gz',
+		url: 'https://github.com/epicenter-md/epicenter/releases/download/models/parakeet-tdt-0.6b-v3-int8/parakeet-tdt-0.6b-v3-int8.tar.gz',
 		filename: 'parakeet-tdt-0.6b-v3-int8', // Directory name after extraction
 		needsExtraction: true,
-		archiveName: 'parakeet-v3-int8.tar.gz',
+		archiveName: 'parakeet-tdt-0.6b-v3-int8.tar.gz',
 	},
 ] as const;
 
