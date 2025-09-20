@@ -25,8 +25,8 @@ pub struct AudioRecording {
 /// Simple recorder commands for worker thread communication
 #[derive(Debug)]
 enum RecorderCmd {
-    Start,
-    Stop,
+    Start(mpsc::Sender<()>), // Response channel to confirm command processed
+    Stop(mpsc::Sender<()>),  // Response channel to confirm command processed
     Shutdown,
 }
 
@@ -142,13 +142,15 @@ impl RecorderState {
             // This blocks but is responsive - no sleeping!
             loop {
                 match cmd_rx.recv() {
-                    Ok(RecorderCmd::Start) => {
+                    Ok(RecorderCmd::Start(reply_tx)) => {
                         is_recording.store(true, Ordering::Relaxed);
                         info!("Recording started");
+                        let _ = reply_tx.send(()); // Confirm command processed
                     }
-                    Ok(RecorderCmd::Stop) => {
+                    Ok(RecorderCmd::Stop(reply_tx)) => {
                         is_recording.store(false, Ordering::Relaxed);
                         info!("Recording stopped");
+                        let _ = reply_tx.send(()); // Confirm command processed
                     }
                     Ok(RecorderCmd::Shutdown) | Err(_) => {
                         info!("Shutting down audio worker");
@@ -175,11 +177,15 @@ impl RecorderState {
         Ok(())
     }
 
-    /// Start recording - send command to worker thread
+    /// Start recording - send command to worker thread and wait for confirmation
     pub fn start_recording(&mut self) -> Result<()> {
         if let Some(tx) = &self.cmd_tx {
-            tx.send(RecorderCmd::Start)
+            let (reply_tx, reply_rx) = mpsc::channel();
+            tx.send(RecorderCmd::Start(reply_tx))
                 .map_err(|e| format!("Failed to send start command: {}", e))?;
+            // Wait for worker thread to confirm the command was processed
+            reply_rx.recv()
+                .map_err(|e| format!("Failed to receive start confirmation: {}", e))?;
         } else {
             return Err("No recording session initialized".to_string());
         }
@@ -188,10 +194,14 @@ impl RecorderState {
 
     /// Stop recording - return file info
     pub fn stop_recording(&mut self) -> Result<AudioRecording> {
-        // Send stop command to worker thread
+        // Send stop command to worker thread and wait for confirmation
         if let Some(tx) = &self.cmd_tx {
-            tx.send(RecorderCmd::Stop)
+            let (reply_tx, reply_rx) = mpsc::channel();
+            tx.send(RecorderCmd::Stop(reply_tx))
                 .map_err(|e| format!("Failed to send stop command: {}", e))?;
+            // Wait for worker thread to confirm the command was processed
+            reply_rx.recv()
+                .map_err(|e| format!("Failed to receive stop confirmation: {}", e))?;
         }
 
         // Finalize the WAV file and get metadata
@@ -226,7 +236,9 @@ impl RecorderState {
     pub fn cancel_recording(&mut self) -> Result<()> {
         // Send stop command
         if let Some(tx) = &self.cmd_tx {
-            let _ = tx.send(RecorderCmd::Stop);
+            let (reply_tx, reply_rx) = mpsc::channel();
+            let _ = tx.send(RecorderCmd::Stop(reply_tx));
+            let _ = reply_rx.recv(); // Wait for confirmation but ignore errors during cancel
         }
 
         // Delete the file if it exists
