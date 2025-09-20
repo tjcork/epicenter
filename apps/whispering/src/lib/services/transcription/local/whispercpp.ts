@@ -1,15 +1,66 @@
-import {
-	WhisperingErr,
-	WhisperingWarningErr,
-	type WhisperingError,
-} from '$lib/result';
+import { WhisperingErr, type WhisperingError } from '$lib/result';
 import type { Settings } from '$lib/settings';
+import type { WhisperModelConfig } from './types';
 import { Ok, tryAsync, type Result } from 'wellcrafted/result';
 import { invoke } from '@tauri-apps/api/core';
 import { exists } from '@tauri-apps/plugin-fs';
 import { extractErrorMessage } from 'wellcrafted/error';
 import { type } from 'arktype';
-import { rpc } from '$lib/query';
+
+/**
+ * Pre-built Whisper models available for download from Hugging Face.
+ * These are ggml-format models compatible with whisper.cpp.
+ */
+export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
+	{
+		id: 'tiny',
+		name: 'Tiny',
+		description: 'Fastest, basic accuracy',
+		size: '78 MB',
+		sizeBytes: 77_700_000,
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin',
+			filename: 'ggml-tiny.bin',
+		},
+	},
+	{
+		id: 'small',
+		name: 'Small',
+		description: 'Fast, good accuracy',
+		size: '488 MB',
+		sizeBytes: 488_000_000,
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
+			filename: 'ggml-small.bin',
+		},
+	},
+	{
+		id: 'medium',
+		name: 'Medium',
+		description: 'Balanced speed & accuracy',
+		size: '1.5 GB',
+		sizeBytes: 1_530_000_000,
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.bin',
+			filename: 'ggml-medium.bin',
+		},
+	},
+	{
+		id: 'large-v3-turbo',
+		name: 'Large v3 Turbo',
+		description: 'Best accuracy, slower',
+		size: '1.6 GB',
+		sizeBytes: 1_620_000_000,
+		engine: 'whispercpp',
+		file: {
+			url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
+			filename: 'ggml-large-v3-turbo.bin',
+		},
+	},
+] as const;
 
 const WhisperCppErrorType = type({
 	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
@@ -21,8 +72,6 @@ export function createWhisperCppTranscriptionService() {
 		async transcribe(
 			audioBlob: Blob,
 			options: {
-				prompt: string;
-				temperature: string;
 				outputLanguage: Settings['transcription.outputLanguage'];
 				modelPath: string;
 			},
@@ -58,36 +107,19 @@ export function createWhisperCppTranscriptionService() {
 				});
 			}
 
-			// Check if FFmpeg is installed
-			const ffmpegResult = await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-			if (ffmpegResult.error) return ffmpegResult;
-			if (!ffmpegResult.data) {
-				return WhisperingWarningErr({
-					title: '🛠️ Install FFmpeg',
-					description:
-						'FFmpeg is required for enhanced audio format support. Install it to transcribe non-WAV audio files with Whisper C++.',
-					action: {
-						type: 'link',
-						label: 'Install FFmpeg',
-						href: '/install-ffmpeg',
-					},
-				});
-			}
-
 			// Convert audio blob to byte array
 			const arrayBuffer = await audioBlob.arrayBuffer();
 			const audioData = Array.from(new Uint8Array(arrayBuffer));
 
 			// Call Tauri command to transcribe with whisper-cpp
+			// Note: temperature and prompt are not supported by local models (transcribe-rs)
 			const result = await tryAsync({
 				try: () =>
-					invoke<string>('transcribe_with_whisper_cpp', {
+					invoke<string>('transcribe_audio_whisper', {
 						audioData: audioData,
 						modelPath: options.modelPath,
 						language:
 							options.outputLanguage === 'auto' ? null : options.outputLanguage,
-						prompt: options.prompt,
-						temperature: Number.parseFloat(options.temperature),
 					}),
 				catch: (unknownError) => {
 					const result = WhisperCppErrorType(unknownError);
@@ -99,6 +131,7 @@ export function createWhisperCppTranscriptionService() {
 						});
 					}
 					const error = result;
+
 					switch (error.name) {
 						case 'ModelLoadError':
 							return WhisperingErr({

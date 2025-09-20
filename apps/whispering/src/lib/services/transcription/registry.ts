@@ -6,6 +6,7 @@ import type { Settings } from '$lib/settings';
 // Import SVG icons as strings
 import groqIcon from '$lib/constants/icons/groq.svg?raw';
 import ggmlIcon from '$lib/constants/icons/ggml.svg?raw';
+import nvidiaIcon from '$lib/constants/icons/nvidia.svg?raw';
 import openaiIcon from '$lib/constants/icons/openai.svg?raw';
 import elevenlabsIcon from '$lib/constants/icons/elevenlabs.svg?raw';
 import speachesIcon from '$lib/constants/icons/speaches.svg?raw';
@@ -13,16 +14,16 @@ import deepgramIcon from '$lib/constants/icons/deepgram.svg?raw';
 import {
 	ELEVENLABS_TRANSCRIPTION_MODELS,
 	type ElevenLabsModel,
-} from '$lib/services/transcription/elevenlabs';
-import { GROQ_MODELS, type GroqModel } from '$lib/services/transcription/groq';
+} from './cloud/elevenlabs';
+import { GROQ_MODELS, type GroqModel } from './cloud/groq';
 import {
 	OPENAI_TRANSCRIPTION_MODELS,
 	type OpenAIModel,
-} from '$lib/services/transcription/openai';
+} from './cloud/openai';
 import {
 	DEEPGRAM_TRANSCRIPTION_MODELS,
 	type DeepgramModel,
-} from '$lib/services/transcription/deepgram';
+} from './cloud/deepgram';
 
 type TranscriptionModel =
 	| OpenAIModel
@@ -32,6 +33,7 @@ type TranscriptionModel =
 
 export const TRANSCRIPTION_SERVICE_IDS = [
 	'whispercpp',
+	'parakeet',
 	'Groq',
 	'OpenAI',
 	'ElevenLabs',
@@ -84,6 +86,15 @@ export const TRANSCRIPTION_SERVICES = [
 		modelPathField: 'transcription.whispercpp.modelPath',
 		location: 'local',
 	},
+	{
+		id: 'parakeet',
+		name: 'Parakeet',
+		icon: nvidiaIcon,
+		invertInDarkMode: false,
+		description: 'NVIDIA NeMo model for fast local transcription',
+		modelPathField: 'transcription.parakeet.modelPath',
+		location: 'local',
+	},
 	// Cloud services (API-based)
 	{
 		id: 'Groq',
@@ -92,7 +103,7 @@ export const TRANSCRIPTION_SERVICES = [
 		invertInDarkMode: false, // Groq has a colored logo that works in both modes
 		description: 'Lightning-fast cloud transcription',
 		models: GROQ_MODELS,
-		defaultModel: GROQ_MODELS[2],
+		defaultModel: GROQ_MODELS[1],
 		modelSettingKey: 'transcription.groq.model',
 		apiKeyField: 'apiKeys.groq',
 		location: 'cloud',
