@@ -1,0 +1,187 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature] "
+labels: ["feature request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your feature suggestion! We love hearing ideas from the community.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Describe the problem this feature would solve
+      placeholder: |
+        I'm always frustrated when...
+        Currently, I have to...
+        There's no way to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe how you'd like this feature to work
+      placeholder: |
+        I would like to be able to...
+        The feature should...
+        It would work by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe a real-world scenario where this would be helpful
+      placeholder: |
+        For example, when I'm transcribing meetings...
+        This would help users who...
+        My workflow requires...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "### Discord Origin (Optional)"
+
+  - type: input
+    id: discord-link
+    attributes:
+      label: Discord Thread Link
+      description: If this feature was discussed on Discord, provide the link
+      placeholder: https://discord.com/channels/...
+    validations:
+      required: false
+
+  - type: textarea
+    id: discord-context
+    attributes:
+      label: Discord Discussion
+      description: Paste relevant Discord messages if this originated from Discord
+      placeholder: |
+        @username: Original feature idea...
+        @anotheruser: Additional suggestions...
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: "### Additional Details"
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternatives have you considered or are currently using?
+      placeholder: |
+        I've tried using...
+        Current workaround is...
+        Other apps do this by...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Relevant Platforms
+      description: Which platforms would benefit from this feature?
+      multiple: true
+      options:
+        - Mac OS
+        - Windows
+        - Linux
+        - Web
+        - Mobile (iOS/Android)
+        - All Platforms
+    validations:
+      required: true
+
+  - type: dropdown
+    id: components
+    attributes:
+      label: Related Components
+      description: Which parts of the app does this feature touch?
+      multiple: true
+      options:
+        - Audio (recording/playback)
+        - UI-App (desktop interface)
+        - UI-Web (web interface)
+        - Backend (API/server)
+        - System (shortcuts/permissions)
+        - API Provider integration
+        - File Management
+        - Settings
+        - Transcription
+        - Local Models
+        - Export/Import
+        - Notifications
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority-request
+    attributes:
+      label: How important is this feature to you?
+      description: Help us understand the priority
+      options:
+        - Nice to have
+        - Would improve my workflow
+        - Important for my use case
+        - Critical for my use case
+      default: 1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Willing to Contribute?
+      description: Would you be interested in helping implement this feature?
+      options:
+        - "Yes, I can implement this"
+        - "Yes, but I'd need guidance"
+        - "No, but I can test it"
+        - "No"
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups or Examples
+      description: Add any mockups, screenshots, or links to similar features
+      placeholder: |
+        You can paste images, links to other apps with similar features,
+        or describe how other tools handle this.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context or information
+      placeholder: |
+        Related issues...
+        Technical considerations...
+        Performance implications...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues and this feature hasn't been requested
+          required: true
+        - label: This feature aligns with Whispering's goal of local-first, privacy-focused transcription
+          required: false
+        - label: This feature request originated from Discord discussions
+          required: false
