@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report a bug or unexpected behavior
-title: "[Bug] "
+title: ""
 labels: ["bug"]
 body:
   - type: markdown
@@ -11,15 +11,17 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: What happened?
-      description: Describe the bug and what you expected to happen instead. Below is a recommended structure, but feel free to organize your description however works best
+      label: Bug Description
+      description: Describe the bug, expected behavior, and any additional context. Below is a recommended structure, but feel free to organize however works best
       placeholder: |
         Please include:
-        - What went wrong
+        - What went wrong and any error messages
         - What you expected to happen
         - Steps to reproduce (1. Go to... 2. Click on... 3. See error)
-        - Any error messages you saw
-        - If from Discord, paste the conversation here
+        - Screenshots (drag & drop images)
+        - Error logs or console output
+        - Browser/system details if relevant
+        - If from Discord, paste the Discord message body here
       value: |
         ### Bug:
 
@@ -31,6 +33,10 @@ body:
         1.
         2.
         3.
+
+
+        ### Additional context:
+
     validations:
       required: true
 
@@ -93,26 +99,11 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Information
-      description: Screenshots, logs, or any other relevant context
-      placeholder: |
-        Optional: Add any additional context that might help
-        - Paste screenshots or drag & drop images
-        - Error logs or console output
-        - Browser/system details
-        - Network conditions
-        - Recent changes to your system
-    validations:
-      required: false
-
   - type: input
     id: discord-link
     attributes:
       label: Discord Link
-      description: If this issue originated from Discord, provide the message or thread link
+      description: If this issue originated from Discord, provide the message or thread link (optional)
       placeholder: https://discord.com/channels/...
     validations:
       required: false

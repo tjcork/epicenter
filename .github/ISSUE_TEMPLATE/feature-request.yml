@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest a new feature or enhancement
-title: "[Feature] "
+title: ""
 labels: ["feature request"]
 body:
   - type: markdown
@@ -11,15 +11,17 @@ body:
   - type: textarea
     id: feature-description
     attributes:
-      label: What feature would you like?
-      description: Describe the problem and your proposed solution. Below is a suggested template, but feel free to structure your request however you prefer
+      label: Feature Description
+      description: Describe the problem, proposed solution, and use case. Below is a suggested template, but feel free to structure your request however you prefer
       placeholder: |
         Please include:
         - What problem this solves or frustration it addresses
         - How you'd like it to work
         - A real-world use case or scenario
         - Any alternatives you've considered
-        - If from Discord, paste the discussion here
+        - Mockups or screenshots (drag & drop images)
+        - Links to similar features in other apps
+        - If from Discord, paste the Discord message body here
       value: |
         ### Problem:
 
@@ -28,6 +30,9 @@ body:
 
 
         ### Use case:
+
+
+        ### Additional details:
 
     validations:
       required: true
@@ -76,25 +81,11 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: additional-info
-    attributes:
-      label: Additional Information
-      description: Mockups, examples, or any other context
-      placeholder: |
-        Optional: Add any additional context
-        - Paste mockups or screenshots
-        - Links to similar features in other apps
-        - Technical considerations
-        - Related issues
-    validations:
-      required: false
-
   - type: input
     id: discord-link
     attributes:
       label: Discord Link
-      description: If this feature was discussed on Discord, provide the message or thread link
+      description: If this feature was discussed on Discord, provide the message or thread link (optional)
       placeholder: https://discord.com/channels/...
     validations:
       required: false
