@@ -12,7 +12,7 @@ body:
     id: description
     attributes:
       label: What happened?
-      description: Describe the bug and what you expected to happen instead
+      description: Describe the bug and what you expected to happen instead. Below is a recommended structure, but feel free to organize your description however works best
       placeholder: |
         Please include:
         - What went wrong

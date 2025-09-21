@@ -12,7 +12,7 @@ body:
     id: feature-description
     attributes:
       label: What feature would you like?
-      description: Describe the problem and your proposed solution
+      description: Describe the problem and your proposed solution. Below is a suggested template, but feel free to structure your request however you prefer
       placeholder: |
         Please include:
         - What problem this solves or frustration it addresses
@@ -107,5 +107,3 @@ body:
       options:
         - label: I have searched existing issues and this feature hasn't been requested
           required: true
-        - label: This feature aligns with Whispering's goal of local-first, privacy-focused transcription
-          required: false
