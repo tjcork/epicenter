@@ -1,0 +1,29 @@
+name: Discord Bug Report (Simple)
+description: Quick form to report Discord-discussed issues
+title: "[Discord] "
+labels: ["bug", "from-discord"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Brief description of the issue
+    validations:
+      required: true
+
+  - type: input
+    id: discord-link
+    attributes:
+      label: Discord Link
+      description: Link to the Discord message
+      placeholder: https://discord.com/channels/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: discord-message
+    attributes:
+      label: Discord Message
+      description: Paste the Discord message here
+    validations:
+      required: true

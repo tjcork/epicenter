@@ -1,0 +1,77 @@
+name: Discord Bug Report
+description: Report a bug or issue originally discussed on Discord
+title: "[Discord] "
+labels: ["bug", "from-discord"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to report bugs or issues that were originally posted in our Discord server.
+        This helps us track and resolve community-reported issues more effectively.
+
+  - type: input
+    id: title
+    attributes:
+      label: Issue Title
+      description: Provide a clear, concise title for this issue
+      placeholder: e.g., "Keyboard shortcuts not working with non-QWERTY layouts"
+    validations:
+      required: true
+
+  - type: input
+    id: discord-link
+    attributes:
+      label: Discord Message Link
+      description: Link to the original Discord message (right-click message → Copy Message Link)
+      placeholder: https://discord.com/channels/...
+    validations:
+      required: false
+
+  - type: textarea
+    id: discord-message
+    attributes:
+      label: Discord Message Content
+      description: Paste the original Discord message(s) describing the issue
+      placeholder: |
+        Copy and paste the Discord message content here.
+        Include any relevant context from the conversation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any additional information, screenshots, or steps to reproduce
+      placeholder: |
+        - Steps to reproduce
+        - Expected behavior
+        - Actual behavior
+        - System information
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this issue?
+      options:
+        - Minor (cosmetic or minor inconvenience)
+        - Moderate (workaround available)
+        - Major (significant impact, no workaround)
+        - Critical (application unusable)
+      default: 1
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this hasn't been reported already
+          required: true
+        - label: I have permission to share this Discord conversation publicly
+          required: true
