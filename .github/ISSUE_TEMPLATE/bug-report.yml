@@ -34,15 +34,6 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: discord-link
-    attributes:
-      label: Discord Link
-      description: If this issue originated from Discord, provide the message or thread link
-      placeholder: https://discord.com/channels/...
-    validations:
-      required: false
-
   - type: dropdown
     id: platform
     attributes:
@@ -114,6 +105,15 @@ body:
         - Browser/system details
         - Network conditions
         - Recent changes to your system
+    validations:
+      required: false
+
+  - type: input
+    id: discord-link
+    attributes:
+      label: Discord Link
+      description: If this issue originated from Discord, provide the message or thread link
+      placeholder: https://discord.com/channels/...
     validations:
       required: false
 

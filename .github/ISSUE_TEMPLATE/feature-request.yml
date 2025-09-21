@@ -32,15 +32,6 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: discord-link
-    attributes:
-      label: Discord Link
-      description: If this feature was discussed on Discord, provide the message or thread link
-      placeholder: https://discord.com/channels/...
-    validations:
-      required: false
-
   - type: dropdown
     id: platforms
     attributes:
@@ -96,6 +87,15 @@ body:
         - Links to similar features in other apps
         - Technical considerations
         - Related issues
+    validations:
+      required: false
+
+  - type: input
+    id: discord-link
+    attributes:
+      label: Discord Link
+      description: If this feature was discussed on Discord, provide the message or thread link
+      placeholder: https://discord.com/channels/...
     validations:
       required: false
 
