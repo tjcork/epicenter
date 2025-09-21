@@ -44,33 +44,14 @@ body:
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: "### Discord Origin (Optional)"
-
   - type: input
     id: discord-link
     attributes:
-      label: Discord Thread Link
-      description: If this feature was discussed on Discord, provide the link
+      label: Discord Link
+      description: If this feature was discussed on Discord, provide the message or thread link
       placeholder: https://discord.com/channels/...
     validations:
       required: false
-
-  - type: textarea
-    id: discord-context
-    attributes:
-      label: Discord Discussion
-      description: Paste relevant Discord messages if this originated from Discord
-      placeholder: |
-        @username: Original feature idea...
-        @anotheruser: Additional suggestions...
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: "### Additional Details"
 
   - type: textarea
     id: alternatives
@@ -182,6 +163,4 @@ body:
         - label: I have searched existing issues and this feature hasn't been requested
           required: true
         - label: This feature aligns with Whispering's goal of local-first, privacy-focused transcription
-          required: false
-        - label: This feature request originated from Discord discussions
           required: false

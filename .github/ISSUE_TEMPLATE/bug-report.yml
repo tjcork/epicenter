@@ -16,36 +16,18 @@ body:
       placeholder: |
         Describe what went wrong...
         Include any error messages you saw.
+        If this came from Discord, paste the conversation here.
     validations:
       required: true
-
-  - type: markdown
-    attributes:
-      value: "### Discord Origin (Optional)"
 
   - type: input
     id: discord-link
     attributes:
-      label: Discord Thread Link
-      description: If this issue originated from Discord, provide the link
+      label: Discord Link
+      description: If this issue originated from Discord, provide the message or thread link
       placeholder: https://discord.com/channels/...
     validations:
       required: false
-
-  - type: textarea
-    id: discord-context
-    attributes:
-      label: Discord Conversation
-      description: Paste relevant Discord messages if this came from Discord
-      placeholder: |
-        @username: Original message about the bug...
-        @anotheruser: Additional context...
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: "### Bug Details"
 
   - type: textarea
     id: steps
@@ -62,7 +44,7 @@ body:
         2.
         3.
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: expected
@@ -141,17 +123,17 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: logs
-    attributes:
-      label: Error Logs
-      description: Please paste any relevant error logs or console output
-      placeholder: |
-        Paste error logs here...
-        You can find logs in the developer console (F12) or application logs.
-      render: shell
-    validations:
-      required: false
+  # - type: textarea
+  #   id: logs
+  #   attributes:
+  #     label: Error Logs
+  #     description: Please paste any relevant error logs or console output
+  #     placeholder: |
+  #       Paste error logs here...
+  #       You can find logs in the developer console (F12) or application logs.
+  #     render: shell
+  #   validations:
+  #     required: false
 
   - type: textarea
     id: screenshots
@@ -189,5 +171,3 @@ body:
           required: false
         - label: I have included all relevant information above
           required: true
-        - label: This issue originated from Discord discussions
-          required: false
