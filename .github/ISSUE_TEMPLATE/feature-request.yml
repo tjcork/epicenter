@@ -9,38 +9,26 @@ body:
         Thanks for your feature suggestion! We love hearing ideas from the community.
 
   - type: textarea
-    id: problem
+    id: feature-description
     attributes:
-      label: Problem Statement
-      description: Describe the problem this feature would solve
+      label: What feature would you like?
+      description: Describe the problem and your proposed solution
       placeholder: |
-        I'm always frustrated when...
-        Currently, I have to...
-        There's no way to...
-    validations:
-      required: true
+        Please include:
+        - What problem this solves or frustration it addresses
+        - How you'd like it to work
+        - A real-world use case or scenario
+        - Any alternatives you've considered
+        - If from Discord, paste the discussion here
+      value: |
+        ### Problem:
 
-  - type: textarea
-    id: solution
-    attributes:
-      label: Proposed Solution
-      description: Describe how you'd like this feature to work
-      placeholder: |
-        I would like to be able to...
-        The feature should...
-        It would work by...
-    validations:
-      required: true
 
-  - type: textarea
-    id: use-case
-    attributes:
-      label: Use Case
-      description: Describe a real-world scenario where this would be helpful
-      placeholder: |
-        For example, when I'm transcribing meetings...
-        This would help users who...
-        My workflow requires...
+        ### Proposed solution:
+
+
+        ### Use case:
+
     validations:
       required: true
 
@@ -50,18 +38,6 @@ body:
       label: Discord Link
       description: If this feature was discussed on Discord, provide the message or thread link
       placeholder: https://discord.com/channels/...
-    validations:
-      required: false
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives Considered
-      description: What alternatives have you considered or are currently using?
-      placeholder: |
-        I've tried using...
-        Current workaround is...
-        Other apps do this by...
     validations:
       required: false
 
@@ -80,28 +56,6 @@ body:
         - All Platforms
     validations:
       required: true
-
-  - type: dropdown
-    id: components
-    attributes:
-      label: Related Components
-      description: Which parts of the app does this feature touch?
-      multiple: true
-      options:
-        - Audio (recording/playback)
-        - UI-App (desktop interface)
-        - UI-Web (web interface)
-        - Backend (API/server)
-        - System (shortcuts/permissions)
-        - API Provider integration
-        - File Management
-        - Settings
-        - Transcription
-        - Local Models
-        - Export/Import
-        - Notifications
-    validations:
-      required: false
 
   - type: dropdown
     id: priority-request
@@ -132,25 +86,16 @@ body:
       required: true
 
   - type: textarea
-    id: mockups
+    id: additional-info
     attributes:
-      label: Mockups or Examples
-      description: Add any mockups, screenshots, or links to similar features
+      label: Additional Information
+      description: Mockups, examples, or any other context
       placeholder: |
-        You can paste images, links to other apps with similar features,
-        or describe how other tools handle this.
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional Context
-      description: Add any other context or information
-      placeholder: |
-        Related issues...
-        Technical considerations...
-        Performance implications...
+        Optional: Add any additional context
+        - Paste mockups or screenshots
+        - Links to similar features in other apps
+        - Technical considerations
+        - Related issues
     validations:
       required: false
 
