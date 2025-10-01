@@ -85,27 +85,36 @@ Set up Whispering and be ready to transcribe in about two minutes.
 <details>
 <summary><strong>🍎 macOS</strong></summary>
 
-#### Download Options
+#### Option 1: Install via Homebrew (Recommended)
+
+The fastest way to install Whispering on macOS:
+
+```bash
+brew install --cask epicenter-whispering
+```
+
+This automatically handles installation and updates.
+
+#### Option 2: Direct Download
 
 | Architecture      | Download                                                                                                                        | Requirements     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | **Apple Silicon** | [Whispering_7.5.1_aarch64.dmg](https://github.com/epicenter-md/epicenter/releases/download/v7.5.1/Whispering_7.5.1_aarch64.dmg) | M1/M2/M3/M4 Macs |
 | **Intel**         | [Whispering_7.5.1_x64.dmg](https://github.com/epicenter-md/epicenter/releases/download/v7.5.1/Whispering_7.5.1_x64.dmg)         | Intel-based Macs |
 
-> [!TIP]
-> **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
+> **💡 Tip:** Not sure which Mac you have? Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 >
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
 
-#### Installation steps:
+**Installation steps:**
 
 1. Download the `.dmg` file for your architecture
 2. Open the downloaded file
 3. Drag Whispering to your Applications folder
 4. Open Whispering from Applications
 
-### Troubleshooting:
+#### Troubleshooting:
 
 - **"Unverified developer" warning:** Right-click the app → Open → Open
 - **"App is damaged" error (Apple Silicon):** Run `xattr -cr /Applications/Whispering.app` in Terminal
@@ -182,8 +191,7 @@ sudo rpm -i Whispering-7.5.1-1.x86_64.rpm
 
 No installation needed! Works in any modern browser.
 
-> [!NOTE]
-> The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
+> **📝 Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
@@ -210,8 +218,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 6. Wait for download to complete (may take a few minutes)
 7. Verify the model shows as **activated**
 
-> [!IMPORTANT]
-> You must download a model before you can transcribe.
+> **⚠️ Important:** You must download a model before you can transcribe.
 
 #### Test Your Setup
 
@@ -221,8 +228,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
-> [!NOTE]
-> Local transcription is slower than cloud options but provides complete privacy. Processing speed depends on your hardware and the model size you chose.
+> **📝 Note:** Local transcription is slower than cloud options but provides complete privacy. Processing speed depends on your hardware and the model size you chose.
 
 </details>
 
@@ -233,8 +239,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 
 I personally use Groq for most of my transcriptions because it's incredibly fast and accurate.
 
-> [!TIP]
-> **Why Groq?** Fastest transcription models, super accurate, generous free tier, and unbeatable pricing (as cheap as $0.04/hour using `whisper-large-v3-turbo`)
+> **💡 Tip:** Why Groq? Fastest transcription models, super accurate, generous free tier, and unbeatable pricing (as cheap as $0.04/hour using `whisper-large-v3-turbo`)
 
 #### Get Your Free API Key
 
@@ -257,8 +262,7 @@ I personally use Groq for most of my transcriptions because it's incredibly fast
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
-> [!NOTE]
-> Cloud transcription requires an internet connection and sends your audio to Groq's servers. Your API key ensures the data goes directly from you to Groq with no middleman.
+> **📝 Note:** Cloud transcription requires an internet connection and sends your audio to Groq's servers. Your API key ensures the data goes directly from you to Groq with no middleman.
 
 </details>
 
