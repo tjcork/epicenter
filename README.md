@@ -99,7 +99,7 @@ Our vision is to build a personal workspace where you own your data, choose your
 
 ### Install Epicenter Whispering
 
-The most popular tool in the ecosystem. Choose your installation method:
+Our first app in the ecosystem. Choose your installation method:
 
 **macOS (Homebrew)**
 ```bash
