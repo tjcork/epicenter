@@ -85,7 +85,17 @@ Set up Whispering and be ready to transcribe in about two minutes.
 <details>
 <summary><strong>🍎 macOS</strong></summary>
 
-#### Download Options
+#### Option 1: Install via Homebrew (Recommended)
+
+The fastest way to install Whispering on macOS:
+
+```bash
+brew install --cask epicenter-whispering
+```
+
+This automatically handles installation and updates.
+
+#### Option 2: Direct Download
 
 | Architecture      | Download                                                                                                                        | Requirements     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
@@ -98,14 +108,14 @@ Set up Whispering and be ready to transcribe in about two minutes.
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
 
-#### Installation steps:
+**Installation steps:**
 
 1. Download the `.dmg` file for your architecture
 2. Open the downloaded file
 3. Drag Whispering to your Applications folder
 4. Open Whispering from Applications
 
-### Troubleshooting:
+#### Troubleshooting:
 
 - **"Unverified developer" warning:** Right-click the app → Open → Open
 - **"App is damaged" error (Apple Silicon):** Run `xattr -cr /Applications/Whispering.app` in Terminal
