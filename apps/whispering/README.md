@@ -676,10 +676,13 @@ We'd love to expand Whispering's capabilities with more transcription and AI ser
 
 Adding a new transcription service involves four main steps:
 
-1. **Create the service implementation** in `src/lib/services/transcription/`:
+1. **Create the service implementation** in the appropriate transcription subdirectory:
+   - **Cloud services**: `src/lib/services/transcription/cloud/` (OpenAI, Groq, Deepgram, ElevenLabs)
+   - **Local services**: `src/lib/services/transcription/local/` (WhisperCpp, Parakeet)
+   - **Self-hosted services**: `src/lib/services/transcription/self-hosted/` (Speaches)
 
    ```typescript
-   // src/lib/services/transcription/your-service.ts
+   // Example: src/lib/services/transcription/cloud/your-service.ts
    import { WhisperingErr, type WhisperingError } from '$lib/result';
    import type { Settings } from '$lib/settings';
    import { Err, Ok, tryAsync, type Result } from 'wellcrafted/result';
@@ -750,7 +753,7 @@ Adding a new transcription service involves four main steps:
    Don't forget to export your service in `src/lib/services/transcription/index.ts`:
 
    ```typescript
-   import { YourServiceTranscriptionServiceLive } from './your-service';
+   import { YourServiceTranscriptionServiceLive } from './cloud/your-service';
 
    export {
    	// ... existing exports
@@ -764,38 +767,56 @@ Adding a new transcription service involves four main steps:
    'apiKeys.yourservice': z.string().default(''),
    ```
 
-2. **Update the service configuration** in `src/lib/constants/transcription/service-config.ts`:
+2. **Update the service registry** in `src/lib/services/transcription/registry.ts`:
 
    ```typescript
-   import { YourServiceIcon } from '@lucide/svelte';
+   // Add import for your service icon (as SVG)
+   import yourServiceIcon from '$lib/constants/icons/your-service.svg?raw';
+
+   // Add import for your models
    import {
      YOUR_SERVICE_MODELS,
      type YourServiceModel,
-   } from '$lib/services/transcription/your-service';
+   } from './cloud/your-service';
 
-   // Add to the imports at the top
-   type TranscriptionModel = OpenAIModel | GroqModel | ElevenLabsModel | YourServiceModel;
+   // Add to the TranscriptionModel union type
+   type TranscriptionModel =
+     | OpenAIModel
+     | GroqModel
+     | ElevenLabsModel
+     | DeepgramModel
+     | YourServiceModel;
 
-   // Add to TRANSCRIPTION_SERVICE_IDS
+   // Add to TRANSCRIPTION_SERVICE_IDS array
    export const TRANSCRIPTION_SERVICE_IDS = [
-     'OpenAI',
+     'whispercpp',
+     'parakeet',
      'Groq',
-     'speaches',
+     'OpenAI',
      'ElevenLabs',
-     'YourService', // Add here
+     'Deepgram',
+     'speaches',
+     'YourService', // Add your service here
    ] as const;
 
-   // Add to TRANSCRIPTION_SERVICES array
-   {
-     id: 'YourService',
-     name: 'Your Service Name',
-     icon: YourServiceIcon,
-     models: YOUR_SERVICE_MODELS,
-     defaultModel: YOUR_SERVICE_MODELS[0],
-     modelSettingKey: 'transcription.yourservice.model',
-     apiKeyField: 'apiKeys.yourservice',
-     type: 'api',
-   }
+   // Add to TRANSCRIPTION_SERVICES array (in the appropriate section)
+   export const TRANSCRIPTION_SERVICES = [
+     // ... existing services
+     // Add in the cloud services section:
+     {
+       id: 'YourService',
+       name: 'Your Service Name',
+       icon: yourServiceIcon,
+       invertInDarkMode: true, // or false, depending on your icon
+       description: 'Description of what makes your service special',
+       models: YOUR_SERVICE_MODELS,
+       defaultModel: YOUR_SERVICE_MODELS[0],
+       modelSettingKey: 'transcription.yourservice.model',
+       apiKeyField: 'apiKeys.yourservice',
+       location: 'cloud', // or 'local' or 'self-hosted'
+     },
+     // ... rest of services
+   ] as const satisfies SatisfiedTranscriptionService[];
    ```
 
 3. **Wire up the query layer** in `src/lib/query/transcription.ts`:
@@ -872,15 +893,6 @@ Adding a new transcription service involves four main steps:
 
    ```typescript
    export { default as YourServiceApiKeyInput } from './api-key-inputs/YourServiceApiKeyInput.svelte';
-   ```
-
-   Also update `src/lib/constants/transcription/index.ts` to re-export your models:
-
-   ```typescript
-   export {
-   	YOUR_SERVICE_MODELS,
-   	type YourServiceModel,
-   } from '$lib/services/transcription/your-service';
    ```
 
 ##### Adding an AI Transformation Adapter
@@ -1018,7 +1030,7 @@ const { data, error } = await tryAsync({
 Create a test file alongside your service:
 
 ```typescript
-// src/lib/services/transcription/your-service.test.ts
+// Example: src/lib/services/transcription/cloud/your-service.test.ts
 import { describe, it, expect } from 'vitest';
 import { createYourServiceTranscriptionService } from './your-service';
 
