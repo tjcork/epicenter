@@ -102,8 +102,7 @@ This automatically handles installation and updates.
 | **Apple Silicon** | [Whispering_7.4.0_aarch64.dmg](https://github.com/epicenter-md/epicenter/releases/download/v7.4.0/Whispering_7.4.0_aarch64.dmg) | M1/M2/M3/M4 Macs |
 | **Intel**         | [Whispering_7.4.0_x64.dmg](https://github.com/epicenter-md/epicenter/releases/download/v7.4.0/Whispering_7.4.0_x64.dmg)         | Intel-based Macs |
 
-> [!TIP]
-> **Not sure which Mac you have?** Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
+> **💡 Tip:** Not sure which Mac you have? Click the Apple menu → About This Mac. Look for "Chip" or "Processor":
 >
 > - Apple M1/M2/M3/M4 → Use Apple Silicon version
 > - Intel Core → Use Intel version
@@ -192,8 +191,7 @@ sudo rpm -i Whispering-7.4.0-1.x86_64.rpm
 
 No installation needed! Works in any modern browser.
 
-> [!NOTE]
-> The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
+> **📝 Note:** The web version doesn't have global keyboard shortcuts, but otherwise works great for trying out Whispering before installing.
 
 </details>
 
@@ -220,8 +218,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 6. Wait for download to complete (may take a few minutes)
 7. Verify the model shows as **activated**
 
-> [!IMPORTANT]
-> You must download a model before you can transcribe.
+> **⚠️ Important:** You must download a model before you can transcribe.
 
 #### Test Your Setup
 
@@ -231,8 +228,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
-> [!NOTE]
-> Local transcription is slower than cloud options but provides complete privacy. Processing speed depends on your hardware and the model size you chose.
+> **📝 Note:** Local transcription is slower than cloud options but provides complete privacy. Processing speed depends on your hardware and the model size you chose.
 
 </details>
 
@@ -243,8 +239,7 @@ Your audio never leaves your device. Works without internet. Free forever.
 
 I personally use Groq for most of my transcriptions because it's incredibly fast and accurate.
 
-> [!TIP]
-> **Why Groq?** Fastest transcription models, super accurate, generous free tier, and unbeatable pricing (as cheap as $0.04/hour using `whisper-large-v3-turbo`)
+> **💡 Tip:** Why Groq? Fastest transcription models, super accurate, generous free tier, and unbeatable pricing (as cheap as $0.04/hour using `whisper-large-v3-turbo`)
 
 #### Get Your Free API Key
 
@@ -267,8 +262,7 @@ I personally use Groq for most of my transcriptions because it's incredibly fast
 
 **🎉 Success!** Your words are now in your clipboard. Paste anywhere!
 
-> [!NOTE]
-> Cloud transcription requires an internet connection and sends your audio to Groq's servers. Your API key ensures the data goes directly from you to Groq with no middleman.
+> **📝 Note:** Cloud transcription requires an internet connection and sends your audio to Groq's servers. Your API key ensures the data goes directly from you to Groq with no middleman.
 
 </details>
 
