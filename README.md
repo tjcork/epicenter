@@ -97,17 +97,27 @@ Our vision is to build a personal workspace where you own your data, choose your
 
 ## Quick Start
 
-### Option 1: Install Whispering via Homebrew (macOS only)
+### Install Epicenter Whispering
 
-The fastest way to get started with Epicenter Whispering on macOS:
+The most popular tool in the ecosystem. Choose your installation method:
 
+**macOS (Homebrew)**
 ```bash
 brew install --cask epicenter-whispering
 ```
 
-### Option 2: Build from Source (macOS, Windows, Linux)
+**macOS, Windows, Linux (Direct Download)**
 
-For development or if you want to build from source on any platform:
+Download the installer for your platform from [GitHub Releases](https://github.com/epicenter-md/epicenter/releases/latest):
+- macOS: `.dmg` (Apple Silicon or Intel)
+- Windows: `.msi` or `.exe`
+- Linux: `.AppImage`, `.deb`, or `.rpm`
+
+**→ [Full installation guide and setup instructions](https://github.com/epicenter-md/epicenter/tree/main/apps/whispering#install-whispering)**
+
+### Build from Source
+
+For developers or contributors:
 
 ```bash
 # Prerequisites:
