@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { ClipboardIcon } from '$lib/components/icons';
+	import { rpc } from '$lib/query';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
 	import * as Dialog from '@repo/ui/dialog';
 	import { Textarea } from '@repo/ui/textarea';
-	import { rpc } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
@@ -67,7 +67,7 @@
 				{#snippet trigger({ tooltipProps, tooltip })}
 					<Textarea
 						{...mergeProps(tooltipProps, disabled ? {} : dialogTriggerProps)}
-						class="min-h-0 max-h-24 h-full resize-none text-wrap text-left text-sm leading-snug {disabled ? 'cursor-default' : 'hover:cursor-pointer hover:bg-accent hover:text-accent-foreground'} w-full"
+						class="min-h-0 max-h-24 h-full resize-none text-wrap text-left text-sm leading-snug hover:cursor-pointer hover:bg-accent hover:text-accent-foreground w-full"
 						readonly
 						value={text}
 						style="view-transition-name: {id}"
