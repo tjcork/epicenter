@@ -50,8 +50,8 @@
 				Make sure you have <code class="text-sm bg-muted px-1 py-0.5 rounded"
 					>opencode</code
 				>
-				installed and logged in before running the command below. Install
-				opencode from <Link
+				installed and logged in before running the command below. Install opencode
+				from <Link
 					href="https://opencode.ai/docs/#install"
 					target="_blank"
 					rel="noopener noreferrer"
