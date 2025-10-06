@@ -12,6 +12,7 @@
 		LoaderIcon,
 		RefreshCwIcon,
 		ExternalLinkIcon,
+		ArrowLeftIcon,
 	} from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { goto } from '$app/navigation';
@@ -38,7 +39,16 @@
 </svelte:head>
 
 <main class="flex flex-1 items-center justify-center p-4">
-	<Card.Root class="w-full min-w-[640px] max-w-4xl">
+	<Card.Root class="relative w-full min-w-[640px] max-w-4xl">
+		<Button
+			onclick={() => window.history.back()}
+			variant="ghost"
+			size="icon"
+			class="absolute -left-10 top-5 z-10"
+		>
+			<ArrowLeftIcon class="size-4" />
+		</Button>
+
 		<Card.Header>
 			<div class="flex items-center justify-between">
 				<div class="space-y-1.5">
@@ -170,33 +180,30 @@
 					<!-- Windows Installation -->
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold">Windows Installation</h3>
-						
-						<!-- Step-by-step installation -->
+
 						<ol class="text-sm text-muted-foreground list-decimal list-inside space-y-3">
-							<li>Download FFmpeg from the official website:</li>
-						</ol>
-						<Button
-							href="https://www.gyan.dev/ffmpeg/builds/"
-							target="_blank"
-							rel="noopener noreferrer"
-							variant="outline"
-							class="my-3"
-						>
-							<DownloadIcon class="size-4 mr-2" />
-							Download FFmpeg for Windows
-						</Button>
-						
-						<ol class="text-sm text-muted-foreground list-decimal list-inside space-y-3" start="2">
-							<li>Choose "release builds" → "ffmpeg-release-essentials.zip"</li>
+							<li>
+								Download FFmpeg from GitHub:
+								<Button
+									href="https://github.com/BtbN/FFmpeg-Builds/releases"
+									target="_blank"
+									rel="noopener noreferrer"
+									variant="outline"
+									class="mt-2 ml-6"
+								>
+									<DownloadIcon class="size-4 mr-2" />
+									Download FFmpeg for Windows
+								</Button>
+							</li>
+							<li>Download the latest <code class="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">ffmpeg-master-latest-win64-gpl-shared.zip</code></li>
 							<li>Extract the ZIP file to <code class="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">C:\ffmpeg</code></li>
 							<li>Add <code class="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">C:\ffmpeg\bin</code> to your Windows PATH:</li>
 						</ol>
 
 						<!-- PATH Setup Methods -->
 						<div class="ml-6 mt-4 space-y-4">
-							<!-- GUI Method -->
-							<div class="space-y-3">
-								<p class="text-sm font-medium">Method 1: Using Windows Settings (Recommended)</p>
+							<div>
+								<p class="text-sm font-medium mb-3">Method 1: Using Windows Settings (Recommended)</p>
 								<ol class="text-xs text-muted-foreground list-decimal list-inside space-y-1 ml-4">
 									<li>Press <kbd class="bg-muted px-1 py-0.5 rounded">Windows + X</kbd> and select "System"</li>
 									<li>Click "Advanced system settings" → "Environment Variables..."</li>
@@ -206,16 +213,14 @@
 								</ol>
 							</div>
 
-							<!-- PowerShell Method -->
-							<div class="space-y-3">
-								<p class="text-sm font-medium">Method 2: PowerShell (One Command)</p>
+							<div>
+								<p class="text-sm font-medium mb-2">Method 2: PowerShell (One Command)</p>
 								<Snippet text='[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\ffmpeg\bin", "Machine")' />
-								<p class="text-xs text-muted-foreground ml-2">
+								<p class="text-xs text-muted-foreground ml-2 mt-1">
 									<strong>Note:</strong> Run PowerShell as Administrator for this command
 								</p>
 							</div>
 
-							<!-- Helpful video -->
 							<div class="border rounded-lg p-3 bg-muted/20">
 								<p class="text-xs font-medium mb-1">📹 Need help with PATH setup?</p>
 								<Button
