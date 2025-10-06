@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CopyableTextareaExpandsToDialog from '$lib/components/copyable/CopyableTextareaExpandsToDialog.svelte';
+	import TextPreviewDialog from '$lib/components/copyable/TextPreviewDialog.svelte';
 	import { getRecordingTransitionId } from '$lib/utils/getRecordingTransitionId';
 
 	let {
@@ -18,7 +18,7 @@
 	});
 </script>
 
-<CopyableTextareaExpandsToDialog
+<TextPreviewDialog
 	{id}
 	title="Transcribed Text"
 	label="transcribed text"
