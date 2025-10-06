@@ -339,7 +339,6 @@
 					variant="secondary"
 					disabled={latestRecording.transcriptionStatus === 'TRANSCRIBING' ||
 						hasNoTranscribedText}
-					class="w-10"
 				>
 					{#if latestRecording.transcriptionStatus === 'TRANSCRIBING'}
 						<Loader2Icon class="size-6 animate-spin" />
