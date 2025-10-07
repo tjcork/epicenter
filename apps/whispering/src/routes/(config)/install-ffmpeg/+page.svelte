@@ -38,17 +38,7 @@
 </svelte:head>
 
 <main class="flex flex-1 items-center justify-center p-8">
-	<div class="w-full min-w-[640px] max-w-4xl space-y-6">
-		<Button
-			onclick={() => window.history.back()}
-			variant="ghost"
-			size="sm"
-			class="gap-2"
-		>
-			<ArrowLeftIcon class="size-4" />
-			Back
-		</Button>
-
+	<div class="w-full min-w-[640px] max-w-4xl">
 		<Card.Root>
 			<Card.Header>
 				<div class="flex items-center justify-between">
@@ -128,12 +118,12 @@
 					</Tabs.List>
 
 					<Tabs.Content value="macos" class="mt-6">
-				<div class="space-y-4">
+				<div class="space-y-6">
 					<h3 class="text-lg font-semibold">macOS Installation</h3>
 
 					<div class="space-y-3">
 						<p class="text-sm font-medium">
-							Option 1: Using Homebrew (Recommended)
+							Install using Homebrew (supports both Intel and Apple Silicon)
 						</p>
 						<Snippet text="brew install ffmpeg" />
 
@@ -143,30 +133,17 @@
 								href="https://brew.sh"
 								target="_blank"
 								rel="noopener noreferrer"
+								class="underline"
 							>
 								Install it from brew.sh
 							</Link>
 						</p>
 					</div>
 
-					<div class="space-y-3">
-						<p class="text-sm font-medium">Option 2: Direct Download</p>
-						<Button
-							href="https://evermeet.cx/ffmpeg/"
-							target="_blank"
-							rel="noopener noreferrer"
-							variant="outline"
-						>
-							<DownloadIcon class="size-4 mr-2" />
-							Download FFmpeg for macOS
-						</Button>
-					</div>
-
 					<div class="border-t pt-4">
 						<p class="text-sm font-medium mb-2">Verify Installation</p>
 						<p class="text-sm text-muted-foreground mb-2">
-							After installation, verify FFmpeg is working by running this
-							command:
+							After installation, verify FFmpeg is working:
 						</p>
 						<Snippet text="ffmpeg -version" variant="secondary" />
 					</div>
@@ -178,7 +155,7 @@
 					<!-- Windows Installation Section -->
 					<div class="space-y-6">
 						<div class="space-y-2">
-							<h3 class="text-2xl font-semibold border-b pb-3">Windows Installation</h3>
+							<h3 class="text-lg font-semibold">Windows Installation</h3>
 						</div>
 
 						<ol class="space-y-6 text-sm text-muted-foreground">
@@ -293,27 +270,21 @@
 									</div>
 								</div>
 							</li>
+							<li class="flex gap-4">
+								<span class="font-semibold text-foreground shrink-0">5.</span>
+								<div class="space-y-3 flex-1">
+									<p class="text-sm text-muted-foreground">
+										Restart Whispering, then verify FFmpeg is working:
+									</p>
+									<Snippet text="ffmpeg -version" variant="secondary" />
+								</div>
+							</li>
 						</ol>
-					</div>
-
-					<!-- Verify Installation Section -->
-					<div class="space-y-6 border-t pt-8">
-						<div class="space-y-2">
-							<h3 class="text-2xl font-semibold border-b pb-3">Verify Installation</h3>
-						</div>
-						<div class="space-y-4">
-							<p class="text-sm text-muted-foreground leading-relaxed">
-								Restart Whispering, then test FFmpeg by running:
-							</p>
-							<Snippet text="ffmpeg -version" variant="secondary" />
-						</div>
 					</div>
 
 					<!-- Troubleshooting Section -->
 					<div class="space-y-6 border-t pt-8">
-						<div class="space-y-2">
-							<h3 class="text-2xl font-semibold border-b pb-3">Troubleshooting</h3>
-						</div>
+						<h3 class="text-lg font-semibold">Troubleshooting</h3>
 
 						<div class="space-y-5">
 							<div class="p-5 border rounded-lg bg-muted/10 space-y-4">
@@ -400,13 +371,15 @@
 		</Card.Content>
 
 		{#if ffmpegQuery.data !== true}
-			<Card.Footer>
-				<Link
+			<Card.Footer class="flex justify-center">
+				<Button
 					href="/settings/transcription"
-					class={buttonVariants({ variant: 'outline', class: 'w-full' })}
+					variant="ghost"
+					size="sm"
 				>
+					<ArrowLeftIcon class="size-4 mr-2" />
 					Back to Settings
-				</Link>
+				</Button>
 			</Card.Footer>
 		{/if}
 		</Card.Root>
