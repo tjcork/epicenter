@@ -57,6 +57,9 @@ export const recordings = {
 				recording,
 			);
 			queryClient.invalidateQueries({
+				queryKey: recordingKeys.all,
+			});
+			queryClient.invalidateQueries({
 				queryKey: recordingKeys.latest,
 			});
 

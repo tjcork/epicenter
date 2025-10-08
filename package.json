@@ -2,13 +2,16 @@
 	"name": "epicenter",
 	"type": "module",
 	"private": true,
-	"version": "7.5.1",
+	"version": "7.5.2",
 	"description": "",
 	"keywords": [],
 	"license": "ISC",
 	"author": "",
 	"workspaces": {
-		"packages": ["apps/*", "packages/*"],
+		"packages": [
+			"apps/*",
+			"packages/*"
+		],
 		"catalog": {
 			"@types/node": "^22.15.32",
 			"typescript": "^5.8.3",

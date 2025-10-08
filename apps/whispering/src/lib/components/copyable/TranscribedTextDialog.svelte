@@ -24,10 +24,13 @@
 		transcribedText,
 		/** Number of rows for the preview textarea (default: 2) */
 		rows = 2,
+		/** Whether the dialog trigger is disabled */
+		disabled = false,
 	}: {
 		recordingId: string;
 		transcribedText: string;
 		rows?: number;
+		disabled?: boolean;
 	} = $props();
 
 	const id = getRecordingTransitionId({
@@ -42,4 +45,5 @@
 	label="transcribed text"
 	text={transcribedText}
 	{rows}
+	{disabled}
 />
