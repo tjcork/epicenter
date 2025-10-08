@@ -10,11 +10,15 @@
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 
 	/**
-	 * Props for the CopyableTextDialog component.
+	 * A generic text preview component that displays text in a readonly textarea.
+	 * Clicking the preview opens a dialog with the full text and copy functionality.
+	 *
+	 * This is a low-level, reusable component. For domain-specific use cases like
+	 * transcribed text, consider creating a wrapper component (e.g., TranscribedTextDialog).
 	 *
 	 * @example
 	 * ```svelte
-	 * <CopyableTextDialog
+	 * <TextPreviewDialog
 	 *   id="transcription-1"
 	 *   title="Transcribed Text"
 	 *   text={transcriptionResult}
@@ -25,7 +29,7 @@
 	 *
 	 * @example
 	 * ```svelte
-	 * <CopyableTextDialog
+	 * <TextPreviewDialog
 	 *   id="error-1"
 	 *   title="Transformation Error"
 	 *   text={errorMessage}

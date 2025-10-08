@@ -34,7 +34,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import type { UnlistenFn } from '@tauri-apps/api/event';
 	import { onDestroy, onMount } from 'svelte';
-	import TranscribedTextDialog from './(config)/recordings/TranscribedTextDialog.svelte';
+	import TranscribedTextDialog from '$lib/components/copyable/TranscribedTextDialog.svelte';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -319,8 +319,7 @@
 				<div class="flex-1">
 					<TranscribedTextDialog
 						recordingId={latestRecording.id}
-						transcribedText={latestRecording.transcriptionStatus ===
-						'TRANSCRIBING'
+						transcribedText={latestRecording.transcriptionStatus === 'TRANSCRIBING'
 							? '...'
 							: latestRecording.transcribedText}
 						rows={1}

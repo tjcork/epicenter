@@ -47,7 +47,7 @@
 	import { z } from 'zod';
 	import LatestTransformationRunOutputByRecordingId from './LatestTransformationRunOutputByRecordingId.svelte';
 	import RenderAudioUrl from './RenderAudioUrl.svelte';
-	import TranscribedTextDialog from './TranscribedTextDialog.svelte';
+	import TranscribedTextDialog from '$lib/components/copyable/TranscribedTextDialog.svelte';
 	import { RecordingRowActions } from './row-actions';
 	import { format } from 'date-fns';
 
