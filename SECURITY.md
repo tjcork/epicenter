@@ -2,12 +2,13 @@
 
 ## Supported Versions
 
-We release patches for security vulnerabilities. Which versions are eligible for receiving such patches depends on the CVSS score:
+We actively maintain security updates for the following versions of Epicenter:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| Latest  | :white_check_mark: |
-| < 1.0   | :x:                |
+| 7.x.x   | :white_check_mark: |
+| 6.x.x   | :white_check_mark: |
+| < 6.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -17,39 +18,76 @@ We take the security of Epicenter seriously. If you believe you have found a sec
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to **github@bradenwong.com**.
+#### Preferred Method: GitHub Security Advisories
 
-You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
+For the fastest response and most secure communication:
+1. Go to our [Security Advisories page](https://github.com/epicenter-md/epicenter/security/advisories)
+2. Click "New draft security advisory"
+3. Provide details about the vulnerability
+4. We'll work with you privately to assess and address the issue
 
-Please include the following information in your report:
+#### Alternative: Email
 
-- Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
+You can also report vulnerabilities via email to **github@bradenwong.com**
+
+### What to Include in Your Report
+
+Please include the following information to help us triage your report quickly:
+
+- Type of issue (e.g., remote code execution, API key exposure, cross-site scripting, etc.)
 - Full paths of source file(s) related to the manifestation of the issue
 - The location of the affected source code (tag/branch/commit or direct URL)
 - Any special configuration required to reproduce the issue
 - Step-by-step instructions to reproduce the issue
 - Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit the issue
+- Impact of the issue, including how an attacker might exploit it
 
-This information will help us triage your report more quickly.
+### Security Considerations Specific to Epicenter
+
+Given that Epicenter is a Tauri-based desktop application that handles API keys and sensitive data, we're particularly interested in:
+
+- **API Key Security**: Issues related to how user API keys are stored, transmitted, or exposed
+- **Local Data Storage**: Vulnerabilities in how transcriptions and user data are stored locally
+- **Tauri IPC**: Security issues in the communication between frontend and backend
+- **File System Access**: Unauthorized file system access or path traversal vulnerabilities
+- **Audio Processing**: Issues in audio file handling that could lead to code execution
+- **Update Mechanism**: Vulnerabilities in the auto-update process
+- **Third-party Integrations**: Security issues with LLM provider integrations (OpenAI, Anthropic, etc.)
 
 ### What to Expect
 
-- You will receive an acknowledgment of your report within 48 hours
-- We will work with you to understand the issue
-- We will keep you informed about our progress
-- We will release a fix as soon as possible, depending on the complexity of the issue
+- **Response Time**: You will receive an acknowledgment within 48 hours
+- **Communication**: We will keep you informed about our progress
+- **Collaboration**: We will work with you to understand and validate the issue
+- **Resolution**: We aim to release patches as quickly as possible, prioritizing based on severity
+- **Credit**: We're happy to credit security researchers in our release notes (unless you prefer to remain anonymous)
 
-## Preferred Languages
+## Security Best Practices for Users
 
-We prefer all communications to be in English.
+While using Epicenter:
 
-## Policy
+1. **API Keys**: Never share your API keys. Epicenter stores them locally and never transmits them to our servers
+2. **Updates**: Always keep Epicenter updated to the latest version for security patches
+3. **Downloads**: Only download Epicenter from official sources (GitHub releases or our website)
+4. **Local Storage**: Be aware that your transcriptions are stored locally—secure your device appropriately
 
-We follow the principle of [Coordinated Vulnerability Disclosure](https://vuls.cert.org/confluence/display/Wiki/Vulnerability+Disclosure+Policy).
+## Disclosure Policy
+
+We follow the principle of [Coordinated Vulnerability Disclosure](https://vuls.cert.org/confluence/display/Wiki/Vulnerability+Disclosure+Policy):
+
+1. Security issues are handled with highest priority
+2. We work privately with reporters to understand and fix issues
+3. We coordinate disclosure timing with the reporter
+4. We release patches along with security advisories
 
 ## Safe Harbor
 
 Any activities conducted in a manner consistent with this policy will be considered authorized conduct and we will not initiate legal action against you. If legal action is initiated by a third party against you in connection with activities conducted under this policy, we will take steps to make it known that your actions were conducted in compliance with this policy.
 
-Thank you for helping keep Epicenter and our users safe!
+## License
+
+Epicenter is open source software licensed under the [MIT License](LICENSE).
+
+---
+
+Thank you for helping keep Epicenter and our users safe! Your efforts to responsibly disclose security issues are greatly appreciated.

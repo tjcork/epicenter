@@ -1,33 +1,61 @@
-## Description
+## Summary
 
-Please include a summary of the changes and the related issue. Include relevant motivation and context.
+<!-- Briefly describe what this PR does and why it's needed -->
 
-Fixes #(issue)
+## Type of Change
 
-## Type of change
+<!-- Mark the relevant option with an "x" -->
 
-Please delete options that are not relevant.
+- [ ] `feat`: New feature
+- [ ] `fix`: Bug fix
+- [ ] `docs`: Documentation update
+- [ ] `refactor`: Code refactoring (no functional changes)
+- [ ] `perf`: Performance improvement
+- [ ] `test`: Test additions or changes
+- [ ] `chore`: Maintenance tasks
+- [ ] `style`: Code style changes
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
+## Related Issue
+
+<!-- Link to the issue this PR addresses, if applicable -->
+Closes #
+
+## Changes Made
+
+<!-- Describe your changes in detail. What did you change and how? -->
+
+## Testing
+
+<!-- Describe the tests you ran to verify your changes -->
+
+### Desktop App Testing
+- [ ] Tested on macOS
+- [ ] Tested on Windows
+- [ ] Tested on Linux
+- [ ] Not applicable (web-only change)
+
+### General Testing
+- [ ] Tested with multiple API providers (if applicable)
+- [ ] Verified no API keys are exposed in logs or storage
+- [ ] Checked for console errors
+- [ ] Tested on different screen sizes (if UI change)
 
 ## Checklist
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
+<!-- Make sure you've completed these steps -->
 
-## Screenshots (if applicable)
+- [ ] My code follows the project's coding standards (see [CONTRIBUTING.md](../CONTRIBUTING.md))
+- [ ] I've used `type` instead of `interface` in TypeScript
+- [ ] I've used absolute imports where applicable
+- [ ] I've tested my changes thoroughly
+- [ ] I've added/updated tests for my changes (if applicable)
+- [ ] My changes don't break existing functionality
+- [ ] I've updated documentation (if needed)
 
-Please add screenshots to help explain your changes.
+## Screenshots/Recordings
 
-## Additional context
+<!-- If this is a UI change, please include screenshots or recordings -->
 
-Add any other context about the pull request here.
+## Additional Notes
+
+<!-- Any additional context, considerations, or discussion points -->

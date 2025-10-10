@@ -1,5 +1,7 @@
 # Contributor Covenant 3.0 Code of Conduct
 
+Welcome to the Epicenter community! We're building something special together—local-first, open-source tools where you own your data. To keep our community healthy and productive, we've adopted the Contributor Covenant to guide our interactions.
+
 ## Our Pledge
 
 We pledge to make our community welcoming, safe, and equitable for all.
@@ -43,7 +45,11 @@ We agree to restrict the following behaviors in our community. Instances, threat
 
 Tensions can occur between community members even when they are trying their best to collaborate. Not every conflict represents a code of conduct violation, and this Code of Conduct reinforces encouraged behaviors and norms that can help avoid conflicts and minimize harm.
 
-When an incident does occur, it is important to report it promptly. To report a possible violation, please contact the project maintainers at github@bradenwong.com or through our [Discord community](https://go.epicenter.so/discord).
+When an incident does occur, it is important to report it promptly. To report a possible violation, you can:
+
+- **Email**: Contact the project maintainers at github@bradenwong.com
+- **Discord**: Reach out through our [Discord community](https://go.epicenter.so/discord)
+- **GitHub**: Use [GitHub's private reporting feature](https://github.com/epicenter-md/epicenter/security/advisories/new) for sensitive matters
 
 Community Moderators take reports of violations seriously and will make every effort to respond in a timely manner. They will investigate all reports of code of conduct violations, reviewing messages, logs, and recordings, or interviewing witnesses and other participants. Community Moderators will keep investigation and enforcement actions as transparent as possible while prioritizing safety and confidentiality. In order to honor these values, enforcement actions are carried out in private with the involved parties, but communicating to the whole community may be part of a mutually agreed upon resolution.
 
