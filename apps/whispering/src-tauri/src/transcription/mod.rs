@@ -75,8 +75,17 @@ fn convert_audio_for_whisper(audio_data: Vec<u8>) -> Result<Vec<u8>, Transcripti
             &output_file.path().to_string_lossy(),
         ])
         .output()
-        .map_err(|e| TranscriptionError::AudioReadError {
-            message: format!("Failed to run ffmpeg: {}", e),
+        .map_err(|e| {
+            // Check if error is specifically "command not found"
+            if e.kind() == std::io::ErrorKind::NotFound {
+                TranscriptionError::FfmpegNotFoundError {
+                    message: "FFmpeg is not installed. Install FFmpeg to convert audio formats for local transcription.".to_string(),
+                }
+            } else {
+                TranscriptionError::AudioReadError {
+                    message: format!("Failed to run ffmpeg: {}", e),
+                }
+            }
         })?;
 
     if !output.status.success() {

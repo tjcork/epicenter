@@ -50,7 +50,7 @@ export const PARAKEET_MODELS: readonly ParakeetModelConfig[] = [
 ] as const;
 
 const ParakeetErrorType = type({
-	name: "'AudioReadError' | 'ModelLoadError' | 'TranscriptionError'",
+	name: "'AudioReadError' | 'FfmpegNotFoundError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
@@ -141,6 +141,18 @@ export function createParakeetTranscriptionService() {
 								action: {
 									type: 'more-details',
 									error: new Error(error.message),
+								},
+							});
+
+						case 'FfmpegNotFoundError':
+							return WhisperingErr({
+								title: '🛠️ FFmpeg Not Installed',
+								description:
+									'Parakeet requires FFmpeg to convert audio formats. Please install FFmpeg or switch to CPAL recording at 16kHz.',
+								action: {
+									type: 'link',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
 								},
 							});
 
