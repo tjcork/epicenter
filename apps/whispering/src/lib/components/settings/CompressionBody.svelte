@@ -181,11 +181,10 @@
 			<AlertTriangle class="size-4" />
 			<Alert.Title>FFmpeg Required</Alert.Title>
 			<Alert.Description>
-				Audio compression requires FFmpeg to be installed on your system.
-				<Link href="/install-ffmpeg" class="font-medium underline underline-offset-4">
-					Install FFmpeg
-				</Link>
-				to enable this feature.
+				Audio compression requires FFmpeg to be installed on your system. <Link
+					href="/install-ffmpeg"
+					class="font-medium underline underline-offset-4">Install FFmpeg</Link
+				> to enable this feature.
 			</Alert.Description>
 		</Alert.Root>
 	{/if}
