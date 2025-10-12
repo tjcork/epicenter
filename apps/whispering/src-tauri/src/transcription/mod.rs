@@ -10,6 +10,7 @@ use transcribe_rs::{
         parakeet::{ParakeetEngine, ParakeetModelParams, ParakeetInferenceParams, TimestampGranularity},
     },
 };
+use rubato::{Resampler, SincFixedIn, SincInterpolationType, SincInterpolationParameters, WindowFunction};
 
 /// Check if audio is already in whisper-compatible format (16kHz, mono, 16-bit PCM)
 fn is_valid_wav_format(audio_data: &[u8]) -> bool {
@@ -26,23 +27,220 @@ fn is_valid_wav_format(audio_data: &[u8]) -> bool {
     }
 }
 
-/// Convert audio to whisper-compatible format (16kHz mono PCM WAV) using FFmpeg
+/// Convert audio to whisper-compatible format using pure Rust (no FFmpeg required)
+///
+/// This function converts audio from various formats to 16kHz mono 16-bit PCM WAV.
+/// It handles:
+/// - Channel conversion: stereo → mono (by averaging channels)
+/// - Sample format conversion: any format → f32 → 16-bit PCM
+/// - Sample rate conversion: any Hz → 16kHz using high-quality resampling
+///
+/// This is used as a fallback when FFmpeg is not available, and can handle
+/// most uncompressed WAV formats. For compressed formats (MP3, M4A, etc.),
+/// FFmpeg is still required.
+fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError> {
+    // Read the input WAV file
+    let cursor = std::io::Cursor::new(&audio_data);
+    let mut reader = hound::WavReader::new(cursor).map_err(|e| {
+        TranscriptionError::AudioReadError {
+            message: format!("Failed to parse WAV file: {}", e),
+        }
+    })?;
+
+    let spec = reader.spec();
+    let sample_rate = spec.sample_rate;
+    let channels = spec.channels as usize;
+
+    // Step 1: Read all samples and convert to f32 (normalized to [-1.0, 1.0])
+    let samples_f32: Vec<f32> = match spec.sample_format {
+        hound::SampleFormat::Int => {
+            match spec.bits_per_sample {
+                16 => {
+                    // 16-bit PCM: divide by 32768.0 to normalize
+                    reader
+                        .samples::<i16>()
+                        .map(|s| s.map(|sample| sample as f32 / 32768.0))
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(|e| TranscriptionError::AudioReadError {
+                            message: format!("Failed to read 16-bit samples: {}", e),
+                        })?
+                }
+                32 => {
+                    // 32-bit PCM: divide by 2147483648.0 to normalize
+                    reader
+                        .samples::<i32>()
+                        .map(|s| s.map(|sample| sample as f32 / 2147483648.0))
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(|e| TranscriptionError::AudioReadError {
+                            message: format!("Failed to read 32-bit samples: {}", e),
+                        })?
+                }
+                _ => {
+                    return Err(TranscriptionError::AudioReadError {
+                        message: format!("Unsupported bit depth: {} bits", spec.bits_per_sample),
+                    });
+                }
+            }
+        }
+        hound::SampleFormat::Float => {
+            // 32-bit float: already in [-1.0, 1.0] range
+            reader
+                .samples::<f32>()
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(|e| TranscriptionError::AudioReadError {
+                    message: format!("Failed to read float samples: {}", e),
+                })?
+        }
+    };
+
+    // Step 2: Convert channels to mono (if needed)
+    let mono_samples: Vec<f32> = if channels == 1 {
+        // Already mono, use as-is
+        samples_f32
+    } else if channels == 2 {
+        // Stereo: average left and right channels
+        samples_f32
+            .chunks_exact(2)
+            .map(|chunk| (chunk[0] + chunk[1]) / 2.0)
+            .collect()
+    } else {
+        // More than 2 channels: average all channels
+        samples_f32
+            .chunks_exact(channels)
+            .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
+            .collect()
+    };
+
+    // Step 3: Resample to 16kHz (if needed)
+    let resampled: Vec<f32> = if sample_rate != 16000 {
+        // Calculate resampling parameters
+        let chunk_size = 1024; // Process in chunks for efficiency
+        let params = SincInterpolationParameters {
+            sinc_len: 256,
+            f_cutoff: 0.95,
+            interpolation: SincInterpolationType::Linear,
+            oversampling_factor: 256,
+            window: WindowFunction::BlackmanHarris2,
+        };
+
+        // Create resampler (1 channel, fixed input rate)
+        let mut resampler = SincFixedIn::<f32>::new(
+            16000.0 / sample_rate as f64, // target rate / source rate
+            2.0,                           // max resample ratio
+            params,
+            chunk_size,
+            1, // mono
+        ).map_err(|e| TranscriptionError::AudioReadError {
+            message: format!("Failed to create resampler: {}", e),
+        })?;
+
+        // Prepare input as a vector of channels (only 1 channel for mono)
+        let waves_in = vec![mono_samples.clone()];
+
+        // Resample
+        let waves_out = resampler.process(&waves_in, None).map_err(|e| {
+            TranscriptionError::AudioReadError {
+                message: format!("Resampling failed: {}", e),
+            }
+        })?;
+
+        // Extract the mono channel
+        waves_out[0].clone()
+    } else {
+        // Already at 16kHz
+        mono_samples
+    };
+
+    // Step 4: Convert f32 samples to 16-bit PCM
+    let pcm_samples: Vec<i16> = resampled
+        .iter()
+        .map(|&sample| {
+            // Clamp to [-1.0, 1.0] and convert to i16
+            let clamped = sample.max(-1.0).min(1.0);
+            (clamped * 32767.0) as i16
+        })
+        .collect();
+
+    // Step 5: Write output WAV to memory buffer
+    let mut cursor = std::io::Cursor::new(Vec::new());
+    {
+        let spec = hound::WavSpec {
+            channels: 1,
+            sample_rate: 16000,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+
+        let mut writer = hound::WavWriter::new(&mut cursor, spec).map_err(|e| {
+            TranscriptionError::AudioReadError {
+                message: format!("Failed to create WAV writer: {}", e),
+            }
+        })?;
+
+        for sample in pcm_samples {
+            writer.write_sample(sample).map_err(|e| {
+                TranscriptionError::AudioReadError {
+                    message: format!("Failed to write sample: {}", e),
+                }
+            })?;
+        }
+
+        writer.finalize().map_err(|e| {
+            TranscriptionError::AudioReadError {
+                message: format!("Failed to finalize WAV: {}", e),
+            }
+        })?;
+    }
+
+    Ok(cursor.into_inner())
+}
+
+/// Convert audio to whisper-compatible format (16kHz mono PCM WAV)
 ///
 /// Whisper models require audio in a specific format:
 /// - Sample rate: 16,000 Hz (not the typical 44.1kHz or 48kHz)
 /// - Channels: Mono (1 channel)
 /// - Format: 16-bit PCM WAV
 ///
-/// This function:
-/// 1. Checks if audio is already in the correct format
-/// 2. If not, uses FFmpeg to convert from any format (MP3, M4A, etc.) to the required format
-/// 3. Returns the audio ready for whisper transcription
+/// This function uses a three-tier conversion strategy:
+///
+/// **Tier 1: Format Check (Fast Path)**
+/// - Checks if audio is already in the correct format
+/// - If yes, returns immediately without any processing
+/// - This is the most efficient path for recordings that are already 16kHz mono 16-bit PCM
+///
+/// **Tier 2: Pure Rust Conversion (Fallback)**
+/// - Attempts to convert audio using pure Rust libraries (no external dependencies)
+/// - Handles uncompressed WAV files with various sample rates, channels, and bit depths
+/// - Uses high-quality resampling (SincFixedIn) for sample rate conversion
+/// - Works without FFmpeg installed, making it portable and reliable
+///
+/// **Tier 3: FFmpeg Conversion (Last Resort)**
+/// - Falls back to FFmpeg for complex formats (MP3, M4A, OGG, etc.)
+/// - Provides comprehensive format support but requires FFmpeg installation
+/// - Returns `FfmpegNotFoundError` if FFmpeg is not available
+///
+/// This approach ensures maximum compatibility: users without FFmpeg can still
+/// transcribe most recordings, while complex formats are handled when FFmpeg is available.
 fn convert_audio_for_whisper(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError> {
-    // Skip conversion if already in correct format
+    // Tier 1: Skip conversion if already in correct format (fast path)
     if is_valid_wav_format(&audio_data) {
         return Ok(audio_data);
     }
 
+    // Tier 2: Try pure Rust conversion (no FFmpeg required)
+    match convert_audio_rust(audio_data.clone()) {
+        Ok(converted) => {
+            // Rust conversion succeeded
+            return Ok(converted);
+        }
+        Err(e) => {
+            // Log the error but continue to FFmpeg fallback
+            eprintln!("Pure Rust audio conversion failed: {}, falling back to FFmpeg", e);
+        }
+    }
+
+    // Tier 3: Fall back to FFmpeg for complex formats (MP3, M4A, OGG, etc.)
     // Create temp files for conversion
     let mut input_file = tempfile::Builder::new()
         .suffix(".audio")
