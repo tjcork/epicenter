@@ -128,20 +128,33 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
     let resampled: Vec<f32> = if sample_rate != 16000 {
         println!("[Rust Audio Conversion] Resampling from {} Hz to 16000 Hz", sample_rate);
 
-        // Calculate resampling parameters
+        // Calculate resample ratio and expected output length
+        let resample_ratio = 16000.0 / sample_rate as f64;
+        let expected_output_len = (mono_samples.len() as f64 * resample_ratio).round() as usize;
+
+        println!("[Rust Audio Conversion] Expected output length: {} samples", expected_output_len);
+
+        // Validate sample rate (support down to 2kHz)
+        if resample_ratio > 8.0 {
+            return Err(TranscriptionError::AudioReadError {
+                message: format!("Sample rate {} Hz is too low (minimum 2000 Hz)", sample_rate),
+            });
+        }
+
+        // Calculate resampling parameters (optimized for speech)
         let chunk_size = 1024; // Process in chunks for efficiency
         let params = SincInterpolationParameters {
-            sinc_len: 256,
-            f_cutoff: 0.95,
+            sinc_len: 64,      // Reduced from 256 for better performance (adequate for speech)
+            f_cutoff: 0.95,    // Keep high to preserve speech frequencies
             interpolation: SincInterpolationType::Linear,
-            oversampling_factor: 256,
+            oversampling_factor: 128,  // Reduced from 256 (still good quality)
             window: WindowFunction::BlackmanHarris2,
         };
 
         // Create resampler (1 channel, fixed input rate)
         let mut resampler = SincFixedIn::<f32>::new(
-            16000.0 / sample_rate as f64, // target rate / source rate
-            2.0,                           // max resample ratio
+            resample_ratio,
+            8.0,  // Increased from 2.0 to support down to 2kHz input
             params,
             chunk_size,
             1, // mono
@@ -153,7 +166,8 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
         })?;
 
         // Process audio in chunks since SincFixedIn expects fixed-size chunks
-        let mut output_samples = Vec::new();
+        // Pre-allocate output buffer for efficiency
+        let mut output_samples = Vec::with_capacity(expected_output_len);
         let mut input_pos = 0;
 
         println!("[Rust Audio Conversion] Processing in chunks of {} samples", chunk_size);
@@ -185,8 +199,11 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
             input_pos += chunk_size;
         }
 
-        println!("[Rust Audio Conversion] Resampling complete: {} samples -> {} samples",
-            mono_samples.len(), output_samples.len());
+        // Truncate to expected length to remove artifacts from zero-padding
+        output_samples.truncate(expected_output_len);
+
+        println!("[Rust Audio Conversion] Resampling complete: {} samples -> {} samples (expected: {})",
+            mono_samples.len(), output_samples.len(), expected_output_len);
         output_samples
     } else {
         // Already at 16kHz
