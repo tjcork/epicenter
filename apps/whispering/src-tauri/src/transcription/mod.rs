@@ -39,9 +39,12 @@ fn is_valid_wav_format(audio_data: &[u8]) -> bool {
 /// most uncompressed WAV formats. For compressed formats (MP3, M4A, etc.),
 /// FFmpeg is still required.
 fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError> {
+    println!("[Rust Audio Conversion] Starting conversion of {} bytes", audio_data.len());
+
     // Read the input WAV file
     let cursor = std::io::Cursor::new(&audio_data);
     let mut reader = hound::WavReader::new(cursor).map_err(|e| {
+        eprintln!("[Rust Audio Conversion] Failed to parse WAV file: {}", e);
         TranscriptionError::AudioReadError {
             message: format!("Failed to parse WAV file: {}", e),
         }
@@ -50,6 +53,9 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
     let spec = reader.spec();
     let sample_rate = spec.sample_rate;
     let channels = spec.channels as usize;
+
+    println!("[Rust Audio Conversion] Input format: {} Hz, {} channels, {} bits, {:?} format",
+        sample_rate, channels, spec.bits_per_sample, spec.sample_format);
 
     // Step 1: Read all samples and convert to f32 (normalized to [-1.0, 1.0])
     let samples_f32: Vec<f32> = match spec.sample_format {
@@ -93,26 +99,34 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
         }
     };
 
+    println!("[Rust Audio Conversion] Read {} samples", samples_f32.len());
+
     // Step 2: Convert channels to mono (if needed)
     let mono_samples: Vec<f32> = if channels == 1 {
         // Already mono, use as-is
+        println!("[Rust Audio Conversion] Audio is already mono");
         samples_f32
     } else if channels == 2 {
         // Stereo: average left and right channels
+        println!("[Rust Audio Conversion] Converting stereo to mono by averaging channels");
         samples_f32
             .chunks_exact(2)
             .map(|chunk| (chunk[0] + chunk[1]) / 2.0)
             .collect()
     } else {
         // More than 2 channels: average all channels
+        println!("[Rust Audio Conversion] Converting {} channels to mono by averaging", channels);
         samples_f32
             .chunks_exact(channels)
             .map(|chunk| chunk.iter().sum::<f32>() / channels as f32)
             .collect()
     };
 
+    println!("[Rust Audio Conversion] Mono samples: {}", mono_samples.len());
+
     // Step 3: Resample to 16kHz (if needed)
     let resampled: Vec<f32> = if sample_rate != 16000 {
+        println!("[Rust Audio Conversion] Resampling from {} Hz to 16000 Hz", sample_rate);
         // Calculate resampling parameters
         let chunk_size = 1024; // Process in chunks for efficiency
         let params = SincInterpolationParameters {
@@ -130,8 +144,11 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
             params,
             chunk_size,
             1, // mono
-        ).map_err(|e| TranscriptionError::AudioReadError {
-            message: format!("Failed to create resampler: {}", e),
+        ).map_err(|e| {
+            eprintln!("[Rust Audio Conversion] Failed to create resampler: {}", e);
+            TranscriptionError::AudioReadError {
+                message: format!("Failed to create resampler: {}", e),
+            }
         })?;
 
         // Prepare input as a vector of channels (only 1 channel for mono)
@@ -139,19 +156,25 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
 
         // Resample
         let waves_out = resampler.process(&waves_in, None).map_err(|e| {
+            eprintln!("[Rust Audio Conversion] Resampling failed: {}", e);
             TranscriptionError::AudioReadError {
                 message: format!("Resampling failed: {}", e),
             }
         })?;
 
         // Extract the mono channel
-        waves_out[0].clone()
+        let result = waves_out[0].clone();
+        println!("[Rust Audio Conversion] Resampling complete: {} samples -> {} samples",
+            mono_samples.len(), result.len());
+        result
     } else {
         // Already at 16kHz
+        println!("[Rust Audio Conversion] Audio is already at 16kHz, skipping resampling");
         mono_samples
     };
 
     // Step 4: Convert f32 samples to 16-bit PCM
+    println!("[Rust Audio Conversion] Converting {} f32 samples to 16-bit PCM", resampled.len());
     let pcm_samples: Vec<i16> = resampled
         .iter()
         .map(|&sample| {
@@ -160,6 +183,8 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
             (clamped * 32767.0) as i16
         })
         .collect();
+
+    println!("[Rust Audio Conversion] Converted to {} PCM samples", pcm_samples.len());
 
     // Step 5: Write output WAV to memory buffer
     let mut cursor = std::io::Cursor::new(Vec::new());
@@ -186,13 +211,16 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
         }
 
         writer.finalize().map_err(|e| {
+            eprintln!("[Rust Audio Conversion] Failed to finalize WAV: {}", e);
             TranscriptionError::AudioReadError {
                 message: format!("Failed to finalize WAV: {}", e),
             }
         })?;
     }
 
-    Ok(cursor.into_inner())
+    let output_bytes = cursor.into_inner();
+    println!("[Rust Audio Conversion] Successfully converted audio: {} bytes output", output_bytes.len());
+    Ok(output_bytes)
 }
 
 /// Convert audio to whisper-compatible format (16kHz mono PCM WAV)
@@ -223,20 +251,26 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
 /// This approach ensures maximum compatibility: users without FFmpeg can still
 /// transcribe most recordings, while complex formats are handled when FFmpeg is available.
 fn convert_audio_for_whisper(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError> {
+    println!("[Audio Conversion] Starting 3-tier conversion strategy for {} bytes", audio_data.len());
+
     // Tier 1: Skip conversion if already in correct format (fast path)
     if is_valid_wav_format(&audio_data) {
+        println!("[Audio Conversion] Tier 1: Audio is already in correct format (16kHz mono 16-bit PCM)");
         return Ok(audio_data);
     }
+
+    println!("[Audio Conversion] Tier 1: Audio needs conversion, trying Tier 2 (pure Rust)");
 
     // Tier 2: Try pure Rust conversion (no FFmpeg required)
     match convert_audio_rust(audio_data.clone()) {
         Ok(converted) => {
             // Rust conversion succeeded
+            println!("[Audio Conversion] Tier 2: Pure Rust conversion succeeded");
             return Ok(converted);
         }
         Err(e) => {
             // Log the error but continue to FFmpeg fallback
-            eprintln!("Pure Rust audio conversion failed: {}, falling back to FFmpeg", e);
+            eprintln!("[Audio Conversion] Tier 2: Pure Rust audio conversion failed: {}, falling back to Tier 3 (FFmpeg)", e);
         }
     }
 
@@ -301,20 +335,36 @@ fn convert_audio_for_whisper(audio_data: Vec<u8>) -> Result<Vec<u8>, Transcripti
 
 /// Parse WAV data and extract samples as f32 vector
 fn extract_samples_from_wav(wav_data: Vec<u8>) -> Result<Vec<f32>, TranscriptionError> {
+    println!("[Extract Samples] Parsing {} bytes of WAV data", wav_data.len());
+
     let cursor = std::io::Cursor::new(wav_data);
     let mut reader = hound::WavReader::new(cursor).map_err(|e| {
+        eprintln!("[Extract Samples] Failed to parse WAV: {}", e);
         TranscriptionError::AudioReadError {
             message: format!("Failed to parse WAV: {}", e),
         }
     })?;
 
+    let spec = reader.spec();
+    println!("[Extract Samples] WAV spec: {} Hz, {} channels, {} bits, {:?} format",
+        spec.sample_rate, spec.channels, spec.bits_per_sample, spec.sample_format);
+
     let samples: Vec<f32> = reader
         .samples::<i16>()
         .map(|s| s.map(|sample| sample as f32 / 32768.0))
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| TranscriptionError::AudioReadError {
-            message: format!("Failed to read samples: {}", e),
+        .map_err(|e| {
+            eprintln!("[Extract Samples] Failed to read samples: {}", e);
+            TranscriptionError::AudioReadError {
+                message: format!("Failed to read samples: {}", e),
+            }
         })?;
+
+    println!("[Extract Samples] Extracted {} samples successfully", samples.len());
+
+    if samples.is_empty() {
+        eprintln!("[Extract Samples] WARNING: No samples extracted from audio!");
+    }
 
     Ok(samples)
 }

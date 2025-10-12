@@ -242,20 +242,9 @@ async function transcribeBlob(
 						},
 					);
 				case 'whispercpp': {
-					const { data: isFFmpegInstalled, error: checkFfmpegInstalledError } =
-						await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-					if (checkFfmpegInstalledError) return Err(checkFfmpegInstalledError);
-					if (hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled })) {
-						return WhisperingErr({
-							title: 'Recording Settings Incompatible',
-							description: RECORDING_COMPATIBILITY_MESSAGE,
-							action: {
-								type: 'link',
-								label: 'Go to Recording Settings',
-								href: '/settings/recording',
-							},
-						});
-					}
+					// Pure Rust audio conversion now handles most formats without FFmpeg
+					// Only compressed formats (MP3, M4A) require FFmpeg, which will be
+					// handled automatically as a fallback in the Rust conversion pipeline
 					return await services.transcriptions.whispercpp.transcribe(
 						audioToTranscribe,
 						{
@@ -265,20 +254,9 @@ async function transcribeBlob(
 					);
 				}
 				case 'parakeet': {
-					const { data: isFFmpegInstalled, error: checkFfmpegInstalledError } =
-						await rpc.ffmpeg.checkFfmpegInstalled.ensure();
-					if (checkFfmpegInstalledError) return Err(checkFfmpegInstalledError);
-					if (hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled })) {
-						return WhisperingErr({
-							title: 'Recording Settings Incompatible',
-							description: RECORDING_COMPATIBILITY_MESSAGE,
-							action: {
-								type: 'link',
-								label: 'Go to Recording Settings',
-								href: '/settings/recording',
-							},
-						});
-					}
+					// Pure Rust audio conversion now handles most formats without FFmpeg
+					// Only compressed formats (MP3, M4A) require FFmpeg, which will be
+					// handled automatically as a fallback in the Rust conversion pipeline
 					return await services.transcriptions.parakeet.transcribe(
 						audioToTranscribe,
 						{ modelPath: settings.value['transcription.parakeet.modelPath'] },
