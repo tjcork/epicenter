@@ -143,7 +143,7 @@
     },
     "apps/whispering": {
       "name": "@repo/whispering",
-      "version": "7.5.2",
+      "version": "7.5.3",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.55.0",
         "@aptabase/tauri": "^0.4.1",
@@ -172,12 +172,14 @@
         "@tauri-apps/plugin-updater": "^2.9.0",
         "arktype": "catalog:",
         "audio-recorder-polyfill": "^0.4.1",
+        "bits-ui": "2.8.10",
         "date-fns": "catalog:",
         "dexie": "^4.0.11",
         "elevenlabs": "^1.59.0",
         "groq-sdk": "^0.25.0",
         "nanoid": "catalog:",
         "openai": "^5.7.0",
+        "tailwind-variants": "^1.0.0",
         "tauri-plugin-macos-permissions-api": "^2.3.0",
         "wellcrafted": "catalog:",
         "zod": "catalog:",
