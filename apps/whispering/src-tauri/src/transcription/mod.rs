@@ -127,6 +127,7 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
     // Step 3: Resample to 16kHz (if needed)
     let resampled: Vec<f32> = if sample_rate != 16000 {
         println!("[Rust Audio Conversion] Resampling from {} Hz to 16000 Hz", sample_rate);
+
         // Calculate resampling parameters
         let chunk_size = 1024; // Process in chunks for efficiency
         let params = SincInterpolationParameters {
@@ -151,22 +152,42 @@ fn convert_audio_rust(audio_data: Vec<u8>) -> Result<Vec<u8>, TranscriptionError
             }
         })?;
 
-        // Prepare input as a vector of channels (only 1 channel for mono)
-        let waves_in = vec![mono_samples.clone()];
+        // Process audio in chunks since SincFixedIn expects fixed-size chunks
+        let mut output_samples = Vec::new();
+        let mut input_pos = 0;
 
-        // Resample
-        let waves_out = resampler.process(&waves_in, None).map_err(|e| {
-            eprintln!("[Rust Audio Conversion] Resampling failed: {}", e);
-            TranscriptionError::AudioReadError {
-                message: format!("Resampling failed: {}", e),
+        println!("[Rust Audio Conversion] Processing in chunks of {} samples", chunk_size);
+
+        while input_pos < mono_samples.len() {
+            // Get the next chunk (pad with zeros if needed for the last chunk)
+            let end_pos = (input_pos + chunk_size).min(mono_samples.len());
+            let mut chunk: Vec<f32> = mono_samples[input_pos..end_pos].to_vec();
+
+            // Pad the last chunk with zeros if it's smaller than chunk_size
+            if chunk.len() < chunk_size {
+                chunk.resize(chunk_size, 0.0);
             }
-        })?;
 
-        // Extract the mono channel
-        let result = waves_out[0].clone();
+            // Prepare input as a vector of channels (only 1 channel for mono)
+            let waves_in = vec![chunk];
+
+            // Resample this chunk
+            let waves_out = resampler.process(&waves_in, None).map_err(|e| {
+                eprintln!("[Rust Audio Conversion] Resampling failed at position {}: {}", input_pos, e);
+                TranscriptionError::AudioReadError {
+                    message: format!("Resampling failed: {}", e),
+                }
+            })?;
+
+            // Append the resampled chunk to output
+            output_samples.extend_from_slice(&waves_out[0]);
+
+            input_pos += chunk_size;
+        }
+
         println!("[Rust Audio Conversion] Resampling complete: {} samples -> {} samples",
-            mono_samples.len(), result.len());
-        result
+            mono_samples.len(), output_samples.len());
+        output_samples
     } else {
         // Already at 16kHz
         println!("[Rust Audio Conversion] Audio is already at 16kHz, skipping resampling");
