@@ -11,11 +11,6 @@ import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
 import { recordings } from './recordings';
 import { rpc } from './';
-import {
-	RECORDING_COMPATIBILITY_MESSAGE,
-	hasLocalTranscriptionCompatibilityIssue,
-} from '../../routes/+layout/check-ffmpeg';
-import { goto } from '$app/navigation';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
