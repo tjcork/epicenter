@@ -1,6 +1,6 @@
 {
 	"name": "@repo/whispering",
-	"version": "7.5.2",
+	"version": "7.5.3",
 	"description": "",
 	"exports": {
 		"./commands": "./src/lib/commands.ts"
