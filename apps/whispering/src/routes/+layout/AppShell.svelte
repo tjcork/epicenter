@@ -24,7 +24,6 @@
 	import { registerOnboarding } from './register-onboarding';
 	import {
 		checkFfmpegRecordingMethodCompatibility,
-		checkLocalTranscriptionCompatibility,
 		checkCompressionRecommendation,
 	} from './check-ffmpeg';
 	import {
@@ -47,7 +46,6 @@
 		syncLocalShortcutsWithSettings();
 		resetLocalShortcutsToDefaultIfDuplicates();
 		await checkFfmpegRecordingMethodCompatibility();
-		await checkLocalTranscriptionCompatibility();
 		await checkCompressionRecommendation();
 		if (window.__TAURI_INTERNALS__) {
 			syncGlobalShortcutsWithSettings();

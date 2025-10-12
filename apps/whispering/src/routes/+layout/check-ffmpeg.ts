@@ -3,72 +3,12 @@ import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
-export const RECORDING_COMPATIBILITY_MESSAGE =
-	'Unable to convert audio for local transcription. Most recordings work without FFmpeg, but compressed formats (MP3, M4A) require FFmpeg installation.';
-
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
-
-/**
- * Switches recording settings to CPAL at 16kHz to resolve Whisper C++ compatibility
- */
-export function switchToCpalAt16kHz() {
-	settings.update({
-		'recording.method': 'cpal',
-		'recording.cpal.sampleRate': '16000',
-	});
-	toast.success('Recording settings updated', {
-		description:
-			'Switched to CPAL recording at 16kHz for Whisper C++ compatibility',
-	});
-}
 
 function isUsingLocalTranscription(): boolean {
 	const service = settings.value['transcription.selectedTranscriptionService'];
 	return service === 'whispercpp' || service === 'parakeet';
-}
-
-function isUsing16kHz(): boolean {
-	return settings.value['recording.cpal.sampleRate'] === '16000';
-}
-
-/**
- * Checks if there's a compatibility issue between current recording settings
- * and local transcription models (Whisper C++ and Parakeet).
- *
- * Local models require audio in 16kHz mono WAV format. With the pure Rust audio
- * conversion fallback, most recordings work without FFmpeg. FFmpeg is only required
- * for compressed formats (MP3, M4A, OGG, etc.).
- *
- * NOTE: This function now returns false for most cases since pure Rust conversion
- * handles uncompressed WAV files. It's kept for backwards compatibility and to
- * warn users about compressed formats that require FFmpeg.
- *
- * Why FFmpeg status is a parameter instead of checked internally:
- * - Checking FFmpeg requires an async RPC call (rpc.ffmpeg.checkFfmpegInstalled)
- * - This function must remain synchronous for use in Svelte template conditionals
- * - By accepting FFmpeg status as a parameter, we invert control - callers fetch
- *   the async data in their appropriate context (data loader or async function body)
- *   then pass it to this pure synchronous function
- *
- * @param isFFmpegInstalled - Whether FFmpeg is installed on the system. When true,
- *                            FFmpeg can convert audio formats, resolving compatibility issues.
- *                            Callers should fetch this via rpc.ffmpeg.checkFfmpegInstalled.ensure()
- * @returns true when current settings might have compatibility issues (always false now with Rust fallback)
- */
-export function hasLocalTranscriptionCompatibilityIssue({
-	isFFmpegInstalled,
-}: { isFFmpegInstalled: boolean }): boolean {
-	// With pure Rust audio conversion, most recordings work without FFmpeg
-	// Pure Rust handles: different sample rates, stereo/mono, various bit depths
-	// Only compressed formats (MP3, M4A, OGG) require FFmpeg
-
-	// No issue if not using local transcription
-	if (!isUsingLocalTranscription()) return false;
-
-	// With Rust fallback, there are no compatibility issues for normal recordings
-	// This function is now mainly for backwards compatibility
-	return false;
 }
 
 /**
