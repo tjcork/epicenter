@@ -15,12 +15,12 @@ export const transformations = {
 	queries: {
 		getAllTransformations: defineQuery({
 			queryKey: transformationsKeys.all,
-			resultQueryFn: () => services.db.getAllTransformations(),
+			resultQueryFn: () => services.db.transformations.getAll(),
 		}),
 		getTransformationById: (id: Accessor<string>) =>
 			defineQuery({
 				queryKey: transformationsKeys.byId(id()),
-				resultQueryFn: () => services.db.getTransformationById(id()),
+				resultQueryFn: () => services.db.transformations.getById(id()),
 				initialData: () =>
 					queryClient
 						.getQueryData<Transformation[]>(transformationsKeys.all)
@@ -35,7 +35,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'createTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
-					await services.db.createTransformation(transformation);
+					await services.db.transformations.create(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -57,7 +57,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'updateTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { data, error } =
-					await services.db.updateTransformation(transformation);
+					await services.db.transformations.update(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -81,7 +81,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'deleteTransformation'] as const,
 			resultMutationFn: async (transformation: Transformation) => {
 				const { error } =
-					await services.db.deleteTransformation(transformation);
+					await services.db.transformations.delete(transformation);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(
@@ -109,7 +109,7 @@ export const transformations = {
 			mutationKey: ['transformations', 'deleteTransformations'] as const,
 			resultMutationFn: async (transformations: Transformation[]) => {
 				const { error } =
-					await services.db.deleteTransformations(transformations);
+					await services.db.transformations.delete(transformations);
 				if (error) return Err(error);
 
 				queryClient.setQueryData<Transformation[]>(

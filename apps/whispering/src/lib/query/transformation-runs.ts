@@ -16,19 +16,19 @@ export const transformationRuns = {
 		defineQuery({
 			queryKey: transformationRunKeys.runsByTransformationId(id()),
 			resultQueryFn: () =>
-				services.db.getTransformationRunsByTransformationId(id()),
+				services.db.runs.getByTransformationId(id()),
 		}),
 	getTransformationRunsByRecordingId: (recordingId: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
 			resultQueryFn: () =>
-				services.db.getTransformationRunsByRecordingId(recordingId()),
+				services.db.runs.getByRecordingId(recordingId()),
 		}),
 	getLatestTransformationRunByRecordingId: (recordingId: Accessor<string>) =>
 		defineQuery({
 			queryKey: transformationRunKeys.runsByRecordingId(recordingId()),
 			resultQueryFn: () =>
-				services.db.getTransformationRunsByRecordingId(recordingId()),
+				services.db.runs.getByRecordingId(recordingId()),
 			select: (data) => data.at(0),
 		}),
 };

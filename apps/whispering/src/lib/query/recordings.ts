@@ -13,12 +13,12 @@ const recordingKeys = {
 export const recordings = {
 	getAllRecordings: defineQuery({
 		queryKey: recordingKeys.all,
-		resultQueryFn: () => services.db.getAllRecordings(),
+		resultQueryFn: () => services.db.recordings.getAll(),
 	}),
 
 	getLatestRecording: defineQuery({
 		queryKey: recordingKeys.latest,
-		resultQueryFn: () => services.db.getLatestRecording(),
+		resultQueryFn: () => services.db.recordings.getLatest(),
 		initialData: () =>
 			queryClient
 				.getQueryData<Recording[]>(recordingKeys.all)
@@ -33,7 +33,7 @@ export const recordings = {
 	getRecordingById: (id: Accessor<string>) =>
 		defineQuery({
 			queryKey: recordingKeys.byId(id),
-			resultQueryFn: () => services.db.getRecordingById(id()),
+			resultQueryFn: () => services.db.recordings.getById(id()),
 			initialData: () =>
 				queryClient
 					.getQueryData<Recording[]>(recordingKeys.all)
@@ -45,7 +45,7 @@ export const recordings = {
 	createRecording: defineMutation({
 		mutationKey: ['recordings', 'createRecording'] as const,
 		resultMutationFn: async (recording: Recording) => {
-			const { data, error } = await services.db.createRecording(recording);
+			const { data, error } = await services.db.recordings.create(recording);
 			if (error) return Err(error);
 
 			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
@@ -70,7 +70,7 @@ export const recordings = {
 	updateRecording: defineMutation({
 		mutationKey: ['recordings', 'updateRecording'] as const,
 		resultMutationFn: async (recording: Recording) => {
-			const { data, error } = await services.db.updateRecording(recording);
+			const { data, error } = await services.db.recordings.update(recording);
 			if (error) return Err(error);
 
 			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
@@ -94,7 +94,7 @@ export const recordings = {
 	deleteRecording: defineMutation({
 		mutationKey: ['recordings', 'deleteRecording'] as const,
 		resultMutationFn: async (recording: Recording) => {
-			const { error } = await services.db.deleteRecording(recording);
+			const { error } = await services.db.recordings.delete(recording);
 			if (error) return Err(error);
 
 			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
@@ -115,7 +115,7 @@ export const recordings = {
 	deleteRecordings: defineMutation({
 		mutationKey: ['recordings', 'deleteRecordings'] as const,
 		resultMutationFn: async (recordings: Recording[]) => {
-			const { error } = await services.db.deleteRecordings(recordings);
+			const { error } = await services.db.recordings.delete(recordings);
 			if (error) return Err(error);
 
 			queryClient.setQueryData<Recording[]>(recordingKeys.all, (oldData) => {
