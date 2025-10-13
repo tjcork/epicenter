@@ -365,24 +365,24 @@ export type DbService = {
 		recordingId: string | null;
 		input: string;
 	}): Promise<Result<TransformationRun, DbServiceError>>;
-	addTransformationStep(params: {
+	addRunStep(params: {
 		run: TransformationRun;
 		step: {
 			id: string;
 			input: string;
 		};
 	}): Promise<Result<TransformationStepRun, DbServiceError>>;
-	failTransformationAtStepRun(params: {
+	failRunStep(params: {
 		run: TransformationRun;
 		stepRunId: string;
 		error: string;
 	}): Promise<Result<TransformationRunFailed, DbServiceError>>;
-	completeTransformationStepRun(params: {
+	completeRunStep(params: {
 		run: TransformationRun;
 		stepRunId: string;
 		output: string;
 	}): Promise<Result<TransformationRun, DbServiceError>>;
-	completeTransformation(params: {
+	completeRun(params: {
 		run: TransformationRun;
 		output: string;
 	}): Promise<Result<TransformationRunCompleted, DbServiceError>>;
@@ -795,7 +795,7 @@ export function createDbServiceDexie({
 			return Ok(transformationRunWithTimestamps);
 		},
 
-		addTransformationStep: async ({
+		addRunStep: async ({
 			run,
 			step,
 		}: {
@@ -835,7 +835,7 @@ export function createDbServiceDexie({
 			return Ok(newTransformationStepRun);
 		},
 
-		failTransformationAtStepRun: async ({
+		failRunStep: async ({
 			run,
 			stepRunId,
 			error,
@@ -881,7 +881,7 @@ export function createDbServiceDexie({
 			return Ok(failedRun);
 		},
 
-		completeTransformationStepRun: async ({
+		completeRunStep: async ({
 			run,
 			stepRunId,
 			output,
@@ -924,7 +924,7 @@ export function createDbServiceDexie({
 			return Ok(updatedRun);
 		},
 
-		completeTransformation: async ({
+		completeRun: async ({
 			run,
 			output,
 		}: {

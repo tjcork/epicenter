@@ -49,10 +49,10 @@ services.db.getTransformationRunById(id)
 services.db.getTransformationRunsByTransformationId(transformationId)
 services.db.getTransformationRunsByRecordingId(recordingId)
 services.db.createTransformationRun({...})
-services.db.addTransformationStep({...})
-services.db.completeTransformationStepRun({...})
-services.db.failTransformationAtStepRun({...})
-services.db.completeTransformation({...})
+services.db.addRunStep({...})
+services.db.completeRunStep({...})
+services.db.failRunStep({...})
+services.db.completeRun({...})
 ```
 
 ### Key Findings
