@@ -189,7 +189,7 @@ export function createOpenRouterCompletionService(): CompletionService {
 			}
 
 			// Extract the response text
-			const responseText = completion.choices[0]?.message?.content;
+			const responseText = completion.choices.at(0)?.message?.content;
 			if (!responseText) {
 				return CompletionServiceErr({
 					message: 'OpenRouter API returned an empty response',

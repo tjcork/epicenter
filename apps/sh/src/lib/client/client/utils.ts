@@ -155,7 +155,7 @@ export const getParseAs = (
 		return 'stream';
 	}
 
-	const cleanContent = contentType.split(';')[0]?.trim();
+	const cleanContent = contentType.split(';').at(0)?.trim();
 
 	if (!cleanContent) {
 		return;
