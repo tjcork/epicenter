@@ -338,11 +338,61 @@ const recordingWithSerializedAudioToRecording = (
 	return { ...rest, blob };
 };
 
+export type DbService = {
+	getAllRecordings(): Promise<Result<Recording[], DbServiceError>>;
+	getLatestRecording(): Promise<Result<Recording | null, DbServiceError>>;
+	getTranscribingRecordingIds(): Promise<Result<string[], DbServiceError>>;
+	getRecordingById(id: string): Promise<Result<Recording | null, DbServiceError>>;
+	createRecording(recording: Recording): Promise<Result<Recording, DbServiceError>>;
+	updateRecording(recording: Recording): Promise<Result<Recording, DbServiceError>>;
+	deleteRecording(recording: Recording): Promise<Result<void, DbServiceError>>;
+	deleteRecordings(recordingsToDelete: Recording[]): Promise<Result<void, DbServiceError>>;
+	cleanupExpiredRecordings(params: {
+		recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
+		maxRecordingCount: Settings['database.maxRecordingCount'];
+	}): Promise<Result<void, DbServiceError>>;
+	getAllTransformations(): Promise<Result<Transformation[], DbServiceError>>;
+	getTransformationById(id: string): Promise<Result<Transformation | null, DbServiceError>>;
+	createTransformation(transformation: Transformation): Promise<Result<Transformation, DbServiceError>>;
+	updateTransformation(transformation: Transformation): Promise<Result<Transformation, DbServiceError>>;
+	deleteTransformation(transformation: Transformation): Promise<Result<void, DbServiceError>>;
+	deleteTransformations(transformations: Transformation[]): Promise<Result<void, DbServiceError>>;
+	getTransformationRunById(id: string): Promise<Result<TransformationRun | null, DbServiceError>>;
+	getTransformationRunsByTransformationId(transformationId: string): Promise<Result<TransformationRun[], DbServiceError>>;
+	getTransformationRunsByRecordingId(recordingId: string): Promise<Result<TransformationRun[], DbServiceError>>;
+	createTransformationRun(params: {
+		transformationId: string;
+		recordingId: string | null;
+		input: string;
+	}): Promise<Result<TransformationRun, DbServiceError>>;
+	addTransformationStep(params: {
+		run: TransformationRun;
+		step: {
+			id: string;
+			input: string;
+		};
+	}): Promise<Result<TransformationStepRun, DbServiceError>>;
+	failTransformationAtStepRun(params: {
+		run: TransformationRun;
+		stepRunId: string;
+		error: string;
+	}): Promise<Result<TransformationRunFailed, DbServiceError>>;
+	completeTransformationStepRun(params: {
+		run: TransformationRun;
+		stepRunId: string;
+		output: string;
+	}): Promise<Result<TransformationRun, DbServiceError>>;
+	completeTransformation(params: {
+		run: TransformationRun;
+		output: string;
+	}): Promise<Result<TransformationRunCompleted, DbServiceError>>;
+};
+
 export function createDbServiceDexie({
 	DownloadService,
 }: {
 	DownloadService: DownloadService;
-}) {
+}): DbService {
 	const db = new WhisperingDatabase({ DownloadService });
 	return {
 		async getAllRecordings(): Promise<Result<Recording[], DbServiceError>> {
@@ -935,5 +985,3 @@ export function createDbServiceDexie({
 		},
 	};
 }
-
-export type DbService = ReturnType<typeof createDbServiceDexie>;
