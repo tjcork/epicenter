@@ -216,7 +216,7 @@ export function pressedKeysToTauriAccelerator(
 	const sortedModifiers = sortModifiers(modifiers);
 
 	// Build accelerator
-	const accelerator = [...sortedModifiers, keyCodes[0]].join(
+	const accelerator = [...sortedModifiers, keyCodes.at(0)].join(
 		'+',
 	) as Accelerator;
 
