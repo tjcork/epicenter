@@ -7,10 +7,9 @@ import { defineMutation } from './_client';
 import { delivery } from './delivery';
 import { recorder } from './recorder';
 import { notify } from './notify';
-import { recordings } from './recordings';
+import { db } from './db';
 import { sound } from './sound';
 import { transcription } from './transcription';
-import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
 import { rpc } from './';
@@ -439,7 +438,7 @@ async function processRecordingPipeline({
 	const newRecordingId = nanoid();
 
 	const { data: createdRecording, error: createRecordingError } =
-		await recordings.createRecording.execute({
+		await db.recordings.create.execute({
 			id: newRecordingId,
 			title: '',
 			subtitle: '',
@@ -506,8 +505,8 @@ async function processRecordingPipeline({
 	// Check if transformation is valid if specified
 	if (!transformationId) return;
 	const { data: transformation, error: getTransformationError } =
-		await transformations.queries
-			.getTransformationById(() => transformationId)
+		await db.transformations
+			.getById(() => transformationId)
 			.fetch();
 
 	const transformationNoLongerExists = !transformation;

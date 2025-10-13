@@ -10,7 +10,7 @@
 	let { recordingId }: { recordingId: string } = $props();
 
 	const transformationRunsByRecordingIdQuery = createQuery(
-		rpc.transformationRuns.getTransformationRunsByRecordingId(() => recordingId)
+		rpc.db.runs.getByRecordingId(() => recordingId)
 			.options,
 	);
 

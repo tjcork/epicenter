@@ -9,7 +9,7 @@ import { settings } from '$lib/stores/settings.svelte';
 import { Err, Ok, type Result, partitionResults } from 'wellcrafted/result';
 import { defineMutation, queryClient } from './_client';
 import { notify } from './notify';
-import { recordings } from './recordings';
+import { db } from './db';
 import { rpc } from './';
 
 const transcriptionKeys = {
@@ -36,7 +36,7 @@ export const transcription = {
 				});
 			}
 			const { error: setRecordingTranscribingError } =
-				await recordings.updateRecording.execute({
+				await db.recordings.update.execute({
 					...recording,
 					transcriptionStatus: 'TRANSCRIBING',
 				});
@@ -55,7 +55,7 @@ export const transcription = {
 				await transcribeBlob(recording.blob);
 			if (transcribeError) {
 				const { error: setRecordingTranscribingError } =
-					await recordings.updateRecording.execute({
+					await db.recordings.update.execute({
 						...recording,
 						transcriptionStatus: 'FAILED',
 					});
@@ -74,7 +74,7 @@ export const transcription = {
 			}
 
 			const { error: setRecordingTranscribedTextError } =
-				await recordings.updateRecording.execute({
+				await db.recordings.update.execute({
 					...recording,
 					transcribedText,
 					transcriptionStatus: 'DONE',

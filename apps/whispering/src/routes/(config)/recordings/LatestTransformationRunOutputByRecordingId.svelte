@@ -12,7 +12,7 @@
 	} = $props();
 
 	const latestTransformationRunByRecordingIdQuery = createQuery(
-		rpc.transformationRuns.getLatestTransformationRunByRecordingId(
+		rpc.db.runs.getLatestByRecordingId(
 			() => recordingId,
 		).options,
 	);

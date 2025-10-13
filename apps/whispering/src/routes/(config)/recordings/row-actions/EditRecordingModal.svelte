@@ -14,11 +14,11 @@
 	import { onDestroy } from 'svelte';
 
 	const updateRecording = createMutation(
-		rpc.recordings.updateRecording.options,
+		rpc.db.recordings.update.options,
 	);
 
 	const deleteRecording = createMutation(
-		rpc.recordings.deleteRecording.options,
+		rpc.db.recordings.delete.options,
 	);
 
 	let { recording }: { recording: Recording } = $props();

@@ -71,13 +71,13 @@
 	}
 
 	const getAllRecordingsQuery = createQuery(
-		rpc.recordings.getAllRecordings.options,
+		rpc.db.recordings.getAll.options,
 	);
 	const transcribeRecordings = createMutation(
 		rpc.transcription.transcribeRecordings.options,
 	);
 	const deleteRecordings = createMutation(
-		rpc.recordings.deleteRecordings.options,
+		rpc.db.recordings.delete.options,
 	);
 	const copyToClipboard = createMutation(rpc.text.copyToClipboard.options);
 

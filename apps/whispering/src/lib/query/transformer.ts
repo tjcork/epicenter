@@ -20,8 +20,7 @@ import {
 	type TemplateString,
 } from '$lib/utils/template';
 import { defineMutation, queryClient } from './_client';
-import { transformationRunKeys } from './transformation-runs';
-import { transformationsKeys } from './transformations';
+import { dbKeys } from './db';
 
 const { TransformServiceError, TransformServiceErr } = createTaggedError(
 	'TransformServiceError',
@@ -80,12 +79,12 @@ export const transformer = {
 			const transformationOutputResult = await getTransformationOutput();
 
 			queryClient.invalidateQueries({
-				queryKey: transformationRunKeys.runsByTransformationId(
+				queryKey: dbKeys.runs.byTransformationId(
 					transformation.id,
 				),
 			});
 			queryClient.invalidateQueries({
-				queryKey: transformationsKeys.byId(transformation.id),
+				queryKey: dbKeys.transformations.byId(transformation.id),
 			});
 
 			return transformationOutputResult;
@@ -131,15 +130,15 @@ export const transformer = {
 				});
 
 			queryClient.invalidateQueries({
-				queryKey: transformationRunKeys.runsByRecordingId(recordingId),
+				queryKey: dbKeys.runs.byRecordingId(recordingId),
 			});
 			queryClient.invalidateQueries({
-				queryKey: transformationRunKeys.runsByTransformationId(
+				queryKey: dbKeys.runs.byTransformationId(
 					transformation.id,
 				),
 			});
 			queryClient.invalidateQueries({
-				queryKey: transformationsKeys.byId(transformation.id),
+				queryKey: dbKeys.transformations.byId(transformation.id),
 			});
 
 			return Ok(transformationRun);
