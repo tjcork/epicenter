@@ -710,19 +710,21 @@ export function createDbServiceDexie({
 
 		getTransformationRunsByTransformationId: async (transformationId: string) => {
 			return tryAsync({
-				try: () =>
-					db.transformationRuns
+				try: async () => {
+					const runs = await db.transformationRuns
 						.where('transformationId')
 						.equals(transformationId)
 						.reverse()
-						.toArray()
-						.then((runs) =>
-							runs.sort(
-								(a, b) =>
-									new Date(b.startedAt).getTime() -
-									new Date(a.startedAt).getTime(),
-							),
-						),
+						.toArray();
+
+					if (!runs) return [];
+
+					return runs.sort(
+						(a, b) =>
+							new Date(b.startedAt).getTime() -
+							new Date(a.startedAt).getTime(),
+					);
+				},
 				catch: (error) =>
 					DbServiceErr({
 						message:
@@ -735,18 +737,20 @@ export function createDbServiceDexie({
 
 		getTransformationRunsByRecordingId: async (recordingId: string) => {
 			return tryAsync({
-				try: () =>
-					db.transformationRuns
+				try: async () => {
+					const runs = await db.transformationRuns
 						.where('recordingId')
 						.equals(recordingId)
-						.toArray()
-						.then((runs) =>
-							runs.sort(
-								(a, b) =>
-									new Date(b.startedAt).getTime() -
-									new Date(a.startedAt).getTime(),
-							),
-						),
+						.toArray();
+
+					if (!runs) return [];
+
+					return runs.sort(
+						(a, b) =>
+							new Date(b.startedAt).getTime() -
+							new Date(a.startedAt).getTime(),
+					);
+				},
 				catch: (error) =>
 					DbServiceErr({
 						message:
