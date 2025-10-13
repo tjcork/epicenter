@@ -395,7 +395,7 @@ export function createDbServiceDexie({
 }): DbService {
 	const db = new WhisperingDatabase({ DownloadService });
 	return {
-		async getAllRecordings(): Promise<Result<Recording[], DbServiceError>> {
+		async getAllRecordings() {
 			return tryAsync({
 				try: async () => {
 					const recordings = await db.recordings
@@ -416,9 +416,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async getLatestRecording(): Promise<
-			Result<Recording | null, DbServiceError>
-		> {
+		async getLatestRecording() {
 			return tryAsync({
 				try: async () => {
 					const latestRecording = await db.recordings
@@ -436,9 +434,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async getTranscribingRecordingIds(): Promise<
-			Result<string[], DbServiceError>
-		> {
+		async getTranscribingRecordingIds() {
 			return tryAsync({
 				try: () =>
 					db.recordings
@@ -453,9 +449,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async getRecordingById(
-			id: string,
-		): Promise<Result<Recording | null, DbServiceError>> {
+		async getRecordingById(id: string) {
 			return tryAsync({
 				try: async () => {
 					const maybeRecording = await db.recordings.get(id);
@@ -471,9 +465,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async createRecording(
-			recording: Recording,
-		): Promise<Result<Recording, DbServiceError>> {
+		async createRecording(recording: Recording) {
 			const now = new Date().toISOString();
 			const recordingWithTimestamps = {
 				...recording,
@@ -500,9 +492,7 @@ export function createDbServiceDexie({
 			return Ok(recordingWithTimestamps);
 		},
 
-		async updateRecording(
-			recording: Recording,
-		): Promise<Result<Recording, DbServiceError>> {
+		async updateRecording(recording: Recording) {
 			const now = new Date().toISOString();
 			const recordingWithTimestamp = {
 				...recording,
@@ -528,9 +518,7 @@ export function createDbServiceDexie({
 			return Ok(recordingWithTimestamp);
 		},
 
-		async deleteRecording(
-			recording: Recording,
-		): Promise<Result<void, DbServiceError>> {
+		async deleteRecording(recording: Recording) {
 			const { error: deleteRecordingError } = await tryAsync({
 				try: async () => {
 					await db.recordings.delete(recording.id);
@@ -546,9 +534,7 @@ export function createDbServiceDexie({
 			return Ok(undefined);
 		},
 
-		async deleteRecordings(
-			recordingsToDelete: Recording[],
-		): Promise<Result<void, DbServiceError>> {
+		async deleteRecordings(recordingsToDelete: Recording[]) {
 			const ids = recordingsToDelete.map((r) => r.id);
 			const { error: deleteRecordingsError } = await tryAsync({
 				try: () => db.recordings.bulkDelete(ids),
@@ -576,7 +562,7 @@ export function createDbServiceDexie({
 		}: {
 			recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
 			maxRecordingCount: Settings['database.maxRecordingCount'];
-		}): Promise<Result<void, DbServiceError>> {
+		}) {
 			switch (recordingRetentionStrategy) {
 				case 'keep-forever': {
 					return Ok(undefined);
@@ -617,9 +603,7 @@ export function createDbServiceDexie({
 				}
 			}
 		},
-		async getAllTransformations(): Promise<
-			Result<Transformation[], DbServiceError>
-		> {
+		async getAllTransformations() {
 			return tryAsync({
 				try: () => db.transformations.toArray(),
 				catch: (error) =>
@@ -630,9 +614,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async getTransformationById(
-			id: string,
-		): Promise<Result<Transformation | null, DbServiceError>> {
+		async getTransformationById(id: string) {
 			return tryAsync({
 				try: async () => {
 					const maybeTransformation =
@@ -648,9 +630,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async createTransformation(
-			transformation: Transformation,
-		): Promise<Result<Transformation, DbServiceError>> {
+		async createTransformation(transformation: Transformation) {
 			const { error: createTransformationError } = await tryAsync({
 				try: () => db.transformations.add(transformation),
 				catch: (error) =>
@@ -664,9 +644,7 @@ export function createDbServiceDexie({
 			return Ok(transformation);
 		},
 
-		async updateTransformation(
-			transformation: Transformation,
-		): Promise<Result<Transformation, DbServiceError>> {
+		async updateTransformation(transformation: Transformation) {
 			const now = new Date().toISOString();
 			const transformationWithTimestamp = {
 				...transformation,
@@ -685,9 +663,7 @@ export function createDbServiceDexie({
 			return Ok(transformationWithTimestamp);
 		},
 
-		async deleteTransformation(
-			transformation: Transformation,
-		): Promise<Result<void, DbServiceError>> {
+		async deleteTransformation(transformation: Transformation) {
 			const { error: deleteTransformationError } = await tryAsync({
 				try: () => db.transformations.delete(transformation.id),
 				catch: (error) =>
@@ -701,9 +677,7 @@ export function createDbServiceDexie({
 			return Ok(undefined);
 		},
 
-		async deleteTransformations(
-			transformations: Transformation[],
-		): Promise<Result<void, DbServiceError>> {
+		async deleteTransformations(transformations: Transformation[]) {
 			const ids = transformations.map((t) => t.id);
 			const { error: deleteTransformationsError } = await tryAsync({
 				try: () => db.transformations.bulkDelete(ids),
@@ -718,9 +692,7 @@ export function createDbServiceDexie({
 			return Ok(undefined);
 		},
 
-		async getTransformationRunById(
-			id: string,
-		): Promise<Result<TransformationRun | null, DbServiceError>> {
+		async getTransformationRunById(id: string) {
 			const { data: transformationRun, error: getTransformationRunByIdError } =
 				await tryAsync({
 					try: () => db.transformationRuns.where('id').equals(id).first(),
@@ -736,9 +708,7 @@ export function createDbServiceDexie({
 			return Ok(transformationRun ?? null);
 		},
 
-		async getTransformationRunsByTransformationId(
-			transformationId: string,
-		): Promise<Result<TransformationRun[], DbServiceError>> {
+		async getTransformationRunsByTransformationId(transformationId: string) {
 			return tryAsync({
 				try: () =>
 					db.transformationRuns
@@ -763,9 +733,7 @@ export function createDbServiceDexie({
 			});
 		},
 
-		async getTransformationRunsByRecordingId(
-			recordingId: string,
-		): Promise<Result<TransformationRun[], DbServiceError>> {
+		async getTransformationRunsByRecordingId(recordingId: string) {
 			return tryAsync({
 				try: () =>
 					db.transformationRuns
@@ -797,7 +765,7 @@ export function createDbServiceDexie({
 			transformationId: string;
 			recordingId: string | null;
 			input: string;
-		}): Promise<Result<TransformationRun, DbServiceError>> {
+		}) {
 			const now = new Date().toISOString();
 			const transformationRunWithTimestamps = {
 				id: nanoid(),
@@ -832,7 +800,7 @@ export function createDbServiceDexie({
 				id: string;
 				input: string;
 			};
-		}): Promise<Result<TransformationStepRun, DbServiceError>> {
+		}) {
 			const now = new Date().toISOString();
 			const newTransformationStepRun = {
 				id: nanoid(),
@@ -871,7 +839,7 @@ export function createDbServiceDexie({
 			run: TransformationRun;
 			stepRunId: string;
 			error: string;
-		}): Promise<Result<TransformationRunFailed, DbServiceError>> {
+		}) {
 			const now = new Date().toISOString();
 
 			// Create the failed transformation run
@@ -917,7 +885,7 @@ export function createDbServiceDexie({
 			run: TransformationRun;
 			stepRunId: string;
 			output: string;
-		}): Promise<Result<TransformationRun, DbServiceError>> {
+		}) {
 			const now = new Date().toISOString();
 
 			// Create updated transformation run with the new step runs
@@ -958,7 +926,7 @@ export function createDbServiceDexie({
 		}: {
 			run: TransformationRun;
 			output: string;
-		}): Promise<Result<TransformationRunCompleted, DbServiceError>> {
+		}) {
 			const now = new Date().toISOString();
 
 			// Create the completed transformation run
