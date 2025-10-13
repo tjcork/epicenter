@@ -11,7 +11,7 @@
 		$props();
 
 	const transformationRunsByTransformationIdQuery = createQuery(
-		rpc.transformationRuns.getTransformationRunsByTransformationId(
+		rpc.db.runs.getByTransformationId(
 			() => transformation.id,
 		).options,
 	);

@@ -75,7 +75,7 @@
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
-		services.db.cleanupExpiredRecordings({
+		services.db.recordings.cleanupExpired({
 			recordingRetentionStrategy:
 				settings.value['database.recordingRetentionStrategy'],
 			maxRecordingCount: settings.value['database.maxRecordingCount'],
