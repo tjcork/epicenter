@@ -156,9 +156,9 @@ export function createWhisperCppTranscriptionService() {
 
 						case 'FfmpegNotFoundError':
 							return WhisperingErr({
-								title: '🛠️ FFmpeg Not Installed',
+								title: '🛠️ FFmpeg Required for This Recording Format',
 								description:
-									'Whisper C++ requires FFmpeg to convert audio formats. Please install FFmpeg or switch to CPAL recording at 16kHz.',
+									'This recording is in a compressed format (webm/ogg/mp4) that requires FFmpeg. Install FFmpeg or switch to CPAL recording (which produces WAV files that work without FFmpeg).',
 								action: {
 									type: 'link',
 									label: 'Install FFmpeg',

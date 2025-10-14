@@ -45,7 +45,7 @@
 			(d) => d.id === settings.value['recording.ffmpeg.deviceId'],
 		)?.id ??
 			// Then fall back to the first available device
-			getDevicesQuery.data?.[0]?.id ??
+			getDevicesQuery.data?.at(0)?.id ??
 			// Finally, return null if no devices are available
 			null,
 	);

@@ -333,7 +333,7 @@ async function runTransformation({
 		const {
 			data: newTransformationStepRun,
 			error: addTransformationStepRunError,
-		} = await services.db.addTransformationStep({
+		} = await services.db.addRunStep({
 			run: transformationRun,
 			step: {
 				id: step.id,
@@ -362,7 +362,7 @@ async function runTransformation({
 			const {
 				data: markedFailedTransformationRun,
 				error: markTransformationRunAndRunStepAsFailedError,
-			} = await services.db.failTransformationAtStepRun({
+			} = await services.db.failRunStep({
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
 				error: handleStepResult.error,
@@ -384,7 +384,7 @@ async function runTransformation({
 		const handleStepOutput = handleStepResult.data;
 
 		const { error: markTransformationRunStepAsCompletedError } =
-			await services.db.completeTransformationStepRun({
+			await services.db.completeRunStep({
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
 				output: handleStepOutput,
@@ -408,7 +408,7 @@ async function runTransformation({
 	const {
 		data: markedCompletedTransformationRun,
 		error: markTransformationRunAsCompletedError,
-	} = await services.db.completeTransformation({
+	} = await services.db.completeRun({
 		run: transformationRun,
 		output: currentInput,
 	});

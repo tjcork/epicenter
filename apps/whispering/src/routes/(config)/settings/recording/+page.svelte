@@ -15,9 +15,6 @@
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
 		isCompressionRecommended,
-		hasLocalTranscriptionCompatibilityIssue,
-		switchToCpalAt16kHz,
-		RECORDING_COMPATIBILITY_MESSAGE,
 		COMPRESSION_RECOMMENDED_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
@@ -154,33 +151,6 @@
 					>
 						Install FFmpeg →
 					</Link>
-				</Alert.Description>
-			</Alert.Root>
-		{:else if hasLocalTranscriptionCompatibilityIssue( { isFFmpegInstalled: data.ffmpegInstalled }, )}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					Recording Compatibility Issue
-				</Alert.Title>
-				<Alert.Description>
-					{RECORDING_COMPATIBILITY_MESSAGE}
-					<div class="mt-3 space-y-3">
-						<div class="flex items-center gap-2">
-							<span class="text-sm"><strong>Option 1:</strong></span>
-							<Button
-								onclick={switchToCpalAt16kHz}
-								variant="secondary"
-								size="sm"
-							>
-								Switch to CPAL 16kHz
-							</Button>
-						</div>
-						<div class="text-sm">
-							<strong>Option 2:</strong>
-							<Link href="/install-ffmpeg">Install FFmpeg</Link>
-							to keep your current recording settings
-						</div>
-					</div>
 				</Alert.Description>
 			</Alert.Root>
 		{:else if isCompressionRecommended()}
