@@ -1,13 +1,15 @@
 mod error;
+mod model_manager;
 
 use error::TranscriptionError;
+pub use model_manager::ModelManager;
 use std::path::PathBuf;
 use std::io::Write;
 use transcribe_rs::{
     TranscriptionEngine,
     engines::{
         whisper::{WhisperEngine, WhisperInferenceParams},
-        parakeet::{ParakeetEngine, ParakeetModelParams, ParakeetInferenceParams, TimestampGranularity},
+        parakeet::{ParakeetInferenceParams, TimestampGranularity},
     },
 };
 use rubato::{Resampler, SincFixedIn, SincInterpolationType, SincInterpolationParameters, WindowFunction};
@@ -460,6 +462,7 @@ pub async fn transcribe_audio_whisper(
 pub async fn transcribe_audio_parakeet(
     audio_data: Vec<u8>,
     model_path: String,
+    model_manager: tauri::State<'_, ModelManager>,
 ) -> Result<String, TranscriptionError> {
     // Convert audio to 16kHz mono format
     let wav_data = convert_audio_for_whisper(audio_data)?;
@@ -472,28 +475,31 @@ pub async fn transcribe_audio_parakeet(
         return Ok(String::new());
     }
 
-    // Create Parakeet engine using transcribe-rs
-    let mut engine = ParakeetEngine::new();
-
-    // Load the model with int8 quantization for better performance
-    engine.load_model_with_params(&PathBuf::from(&model_path), ParakeetModelParams::int8())
-        .map_err(|e| TranscriptionError::ModelLoadError {
-            message: format!("Failed to load Parakeet model: {}", e)
-        })?;
+    // Get or load the model using the persistent model manager
+    let engine_arc = model_manager
+        .get_or_load_engine(PathBuf::from(&model_path))
+        .map_err(|e| TranscriptionError::ModelLoadError { message: e })?;
 
     let params = ParakeetInferenceParams {
         timestamp_granularity: TimestampGranularity::Segment,
         ..Default::default()
     };
 
-    // Run transcription with optimized parameters
-    let result = engine.transcribe_samples(samples, Some(params))
-        .map_err(|e| TranscriptionError::TranscriptionError {
-            message: e.to_string(),
+    // Run transcription with the persistent engine
+    let result = {
+        let mut engine_guard = engine_arc.lock().unwrap();
+        let engine = engine_guard.as_mut().ok_or_else(|| {
+            TranscriptionError::ModelLoadError {
+                message: "Model failed to load".to_string(),
+            }
         })?;
 
-    // Unload model to free memory
-    engine.unload_model();
+        engine
+            .transcribe_samples(samples, Some(params))
+            .map_err(|e| TranscriptionError::TranscriptionError {
+                message: e.to_string(),
+            })?
+    };
 
     Ok(result.text.trim().to_string())
 }
