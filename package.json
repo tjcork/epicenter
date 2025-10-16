@@ -48,7 +48,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "turbo format && biome format --write && prettier --write \"**/*.{svelte,astro,html}\"",
+		"format": "concurrently --raw --success first \"turbo format\" \"biome format --write\" \"prettier --write \\\"**/*.{svelte,astro,html}\\\"\"",
 		"format:check": "concurrently --raw \"turbo format:check\" \"biome format\" \"prettier --check \\\"**/*.{svelte,astro,html}\\\"\"",
 		"lint": "concurrently -raw \"turbo run lint\" \"eslint\" \"biome lint\"",
 		"check": "turbo run check",

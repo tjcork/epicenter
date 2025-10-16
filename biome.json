@@ -20,7 +20,9 @@
 			"!package-lock.json",
 			"!pnpm-lock.yaml",
 			"!yarn.lock",
-			"!.DS_Store"
+			"!.DS_Store",
+			"!**/*.svelte",
+			"!**/*.astro"
 		]
 	},
 	"formatter": {
