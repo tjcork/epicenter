@@ -55,9 +55,7 @@
 	},
 	"overrides": [
 		{
-			"includes": [
-				"*.svelte"
-			],
+			"includes": ["*.svelte"],
 			"linter": {
 				"rules": {
 					"style": {
