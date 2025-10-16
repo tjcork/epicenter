@@ -7,8 +7,7 @@ We actively maintain security updates for the following versions of Epicenter:
 | Version | Supported          |
 | ------- | ------------------ |
 | 7.x.x   | :white_check_mark: |
-| 6.x.x   | :white_check_mark: |
-| < 6.0   | :x:                |
+| < 7.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -18,17 +17,9 @@ We take the security of Epicenter seriously. If you believe you have found a sec
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-#### Preferred Method: GitHub Security Advisories
+For security issues, reach out to maintainers or **@braden_w** on our [Discord server](https://go.epicenter.so/discord).
 
-For the fastest response and most secure communication:
-1. Go to our [Security Advisories page](https://github.com/epicenter-md/epicenter/security/advisories)
-2. Click "New draft security advisory"
-3. Provide details about the vulnerability
-4. We'll work with you privately to assess and address the issue
-
-#### Alternative: Email
-
-You can also report vulnerabilities via email to **github@bradenwong.com**
+For feedback and fast suggestions, join our [Discord server](https://go.epicenter.so/discord) for quick responses. Our community is always active to help. Please be sure to follow the guidelines.
 
 ### What to Include in Your Report
 
@@ -60,7 +51,6 @@ Given that Epicenter is a Tauri-based desktop application that handles API keys 
 - **Communication**: We will keep you informed about our progress
 - **Collaboration**: We will work with you to understand and validate the issue
 - **Resolution**: We aim to release patches as quickly as possible, prioritizing based on severity
-- **Credit**: We're happy to credit security researchers in our release notes (unless you prefer to remain anonymous)
 
 ## Security Best Practices for Users
 
