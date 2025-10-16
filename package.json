@@ -39,7 +39,7 @@
 			"nanoid": "^5.1.5",
 			"wellcrafted": "^0.22.0",
 			"date-fns": "^4.1.0",
-			"@biomejs/biome": "^2.2.5",
+			"@biomejs/biome": "^2.2.6",
 			"turbo": "^2.5.8",
 			"concurrently": "^9.2.1"
 		}
