@@ -32,6 +32,7 @@
 	import * as Card from '@repo/ui/card';
 	import { Link } from '@repo/ui/link';
 	import { Separator } from '@repo/ui/separator';
+	import { hasNavigatorLocalTranscriptionIssue } from '../../+layout/check-ffmpeg';
 
 	const { data } = $props();
 
@@ -424,6 +425,39 @@
 						</div>
 					{/snippet}
 				</LocalModelSelector>
+
+				{#if hasNavigatorLocalTranscriptionIssue( { isFFmpegInstalled: data.ffmpegInstalled ?? false }, )}
+					<Alert.Root class="border-red-500/20 bg-red-500/5">
+						<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+						<Alert.Title class="text-red-600 dark:text-red-400">
+							Browser API Recording Requires FFmpeg
+						</Alert.Title>
+						<Alert.Description>
+							You're using the Browser API recording method, which produces
+							compressed audio that requires FFmpeg for Whisper C++
+							transcription.
+							<div class="mt-3 space-y-3">
+								<div class="text-sm">
+									<strong>Option 1:</strong>
+									<Link href="/settings/recording"
+										>Switch to CPAL recording</Link
+									>
+									for direct compatibility with local transcription
+								</div>
+								<div class="text-sm">
+									<strong>Option 2:</strong>
+									<Link href="/install-ffmpeg">Install FFmpeg</Link>
+									to keep using Browser API recording
+								</div>
+								<div class="text-sm">
+									<strong>Option 3:</strong>
+									Switch to a cloud transcription service (OpenAI, Groq, Deepgram,
+									etc.) which work with all recording methods
+								</div>
+							</div>
+						</Alert.Description>
+					</Alert.Root>
+				{/if}
 			{/if}
 		</div>
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'parakeet'}
@@ -499,6 +533,38 @@
 						</Card.Root>
 					{/snippet}
 				</LocalModelSelector>
+
+				{#if hasNavigatorLocalTranscriptionIssue( { isFFmpegInstalled: data.ffmpegInstalled ?? false }, )}
+					<Alert.Root class="border-red-500/20 bg-red-500/5">
+						<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+						<Alert.Title class="text-red-600 dark:text-red-400">
+							Browser API Recording Requires FFmpeg
+						</Alert.Title>
+						<Alert.Description>
+							You're using the Browser API recording method, which produces
+							compressed audio that requires FFmpeg for Parakeet transcription.
+							<div class="mt-3 space-y-3">
+								<div class="text-sm">
+									<strong>Option 1:</strong>
+									<Link href="/settings/recording"
+										>Switch to CPAL recording</Link
+									>
+									for direct compatibility with local transcription
+								</div>
+								<div class="text-sm">
+									<strong>Option 2:</strong>
+									<Link href="/install-ffmpeg">Install FFmpeg</Link>
+									to keep using Browser API recording
+								</div>
+								<div class="text-sm">
+									<strong>Option 3:</strong>
+									Switch to a cloud transcription service (OpenAI, Groq, Deepgram,
+									etc.) which work with all recording methods
+								</div>
+							</div>
+						</Alert.Description>
+					</Alert.Root>
+				{/if}
 			{/if}
 		</div>
 	{/if}
