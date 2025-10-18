@@ -8,7 +8,10 @@
 	"license": "ISC",
 	"author": "",
 	"workspaces": {
-		"packages": ["apps/*", "packages/*"],
+		"packages": [
+			"apps/*",
+			"packages/*"
+		],
 		"catalog": {
 			"@types/node": "^22.18.10",
 			"typescript": "^5.8.3",
@@ -53,7 +56,7 @@
 		"bump-version": "bun run scripts/bump-version.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "catalog:",
+		"@biomejs/biome": "^2.2.6",
 		"@types/node": "catalog:",
 		"concurrently": "catalog:",
 		"eslint": "^9.37.0",

@@ -1,9 +1,9 @@
-import { IS_WINDOWS } from '$lib/constants/platform';
 import { Command } from '@tauri-apps/plugin-shell';
-import { tryAsync, Err, Ok } from 'wellcrafted/result';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
+import { IS_WINDOWS } from '$lib/constants/platform';
 import type { CommandService, ShellCommand } from './types';
 import { CommandServiceErr } from './types';
-import { extractErrorMessage } from 'wellcrafted/error';
 
 export function createCommandServiceDesktop(): CommandService {
 	/**
