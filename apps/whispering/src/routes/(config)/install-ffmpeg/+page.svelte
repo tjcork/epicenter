@@ -275,7 +275,7 @@
 													</p>
 													<div class="space-y-3">
 														<Snippet
-															text="[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\ffmpeg\bin", "Machine")"
+															text="[Environment]::SetEnvironmentVariable(&quot;Path&quot;, $env:Path + &quot;;C:\ffmpeg\bin&quot;, &quot;Machine&quot;)"
 														/>
 														<p class="text-xs text-muted-foreground">
 															<strong>Note:</strong> Run PowerShell as Administrator
