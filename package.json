@@ -8,10 +8,7 @@
 	"license": "ISC",
 	"author": "",
 	"workspaces": {
-		"packages": [
-			"apps/*",
-			"packages/*"
-		],
+		"packages": ["apps/*", "packages/*"],
 		"catalog": {
 			"@types/node": "^22.18.10",
 			"typescript": "^5.8.3",
@@ -48,8 +45,8 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "biome format --write; prettier --write \"**/*.{svelte,astro,html}\"",
-		"format:check": "concurrently --raw \"turbo format:check\" \"biome format\" \"prettier --check \\\"**/*.{svelte,astro,html}\\\"\"",
+		"format": "biome check --write --linter-enabled=false; prettier --write \"**/*.{svelte,astro,html}\"",
+		"format:check": "biome ci --linter-enabled=false; prettier --check \"**/*.{svelte,astro,html}\"",
 		"lint": "concurrently -raw \"turbo run lint\" \"eslint\" \"biome lint\"",
 		"check": "turbo run check",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",
