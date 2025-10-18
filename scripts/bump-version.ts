@@ -17,10 +17,7 @@
 
 import * as fs from 'node:fs/promises';
 import { join } from 'node:path';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-
-const execAsync = promisify(exec);
+import { $ } from 'bun';
 
 /** Extract new version from command line arguments */
 const newVersion = process.argv[2];
@@ -102,12 +99,7 @@ for (const { path, type } of files) {
  */
 try {
 	console.log('\n🔄 Updating Cargo.lock...');
-	const { stderr } = await execAsync(
-		'cd apps/whispering/src-tauri && cargo update -p whispering',
-	);
-	if (stderr && !stderr.includes('Locking')) {
-		console.error(`⚠️  Cargo update warning: ${stderr}`);
-	}
+	await $`cd apps/whispering/src-tauri && cargo update -p whispering`;
 	console.log('✅ Updated Cargo.lock');
 } catch (error) {
 	console.error('❌ Failed to update Cargo.lock:', error.message);
@@ -126,8 +118,8 @@ console.log(`\n📦 Version bumped from ${oldVersion} to ${newVersion}`);
  */
 try {
 	console.log('\n📝 Committing version changes...');
-	await execAsync(`git add -A`);
-	await execAsync(`git commit -m "chore: bump version to ${newVersion}"`);
+	await $`git add -A`;
+	await $`git commit -m "chore: bump version to ${newVersion}"`;
 	console.log('✅ Committed changes');
 } catch (error) {
 	console.error('❌ Failed to commit changes:', error.message);
@@ -139,7 +131,7 @@ try {
  */
 try {
 	console.log('\n🏷️  Creating git tag...');
-	await execAsync(`git tag v${newVersion}`);
+	await $`git tag v${newVersion}`;
 	console.log(`✅ Created tag v${newVersion}`);
 } catch (error) {
 	console.error('❌ Failed to create tag:', error.message);
@@ -151,8 +143,8 @@ try {
  */
 try {
 	console.log('\n⬆️  Pushing to remote...');
-	await execAsync('git push');
-	await execAsync('git push --tags');
+	await $`git push`;
+	await $`git push --tags`;
 	console.log('✅ Pushed to remote');
 } catch (error) {
 	console.error('❌ Failed to push to remote:', error.message);
