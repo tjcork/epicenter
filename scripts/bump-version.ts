@@ -117,11 +117,46 @@ try {
 }
 
 /**
- * Display summary and next steps
+ * Display summary
  */
 console.log(`\n📦 Version bumped from ${oldVersion} to ${newVersion}`);
-console.log('\nNext steps:');
-console.log('1. Review the changes: git diff');
-console.log(`2. Commit: git commit -am "chore: bump version to ${newVersion}"`);
-console.log(`3. Tag: git tag v${newVersion}`);
-console.log('4. Push: git push && git push --tags');
+
+/**
+ * Commit the version changes
+ */
+try {
+	console.log('\n📝 Committing version changes...');
+	await execAsync(`git add -A`);
+	await execAsync(`git commit -m "chore: bump version to ${newVersion}"`);
+	console.log('✅ Committed changes');
+} catch (error) {
+	console.error('❌ Failed to commit changes:', error.message);
+	process.exit(1);
+}
+
+/**
+ * Create git tag with v prefix
+ */
+try {
+	console.log('\n🏷️  Creating git tag...');
+	await execAsync(`git tag v${newVersion}`);
+	console.log(`✅ Created tag v${newVersion}`);
+} catch (error) {
+	console.error('❌ Failed to create tag:', error.message);
+	process.exit(1);
+}
+
+/**
+ * Push to remote (both commits and tags)
+ */
+try {
+	console.log('\n⬆️  Pushing to remote...');
+	await execAsync('git push');
+	await execAsync('git push --tags');
+	console.log('✅ Pushed to remote');
+} catch (error) {
+	console.error('❌ Failed to push to remote:', error.message);
+	process.exit(1);
+}
+
+console.log(`\n🎉 Release ${newVersion} complete!`);
