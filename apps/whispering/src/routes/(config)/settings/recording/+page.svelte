@@ -16,6 +16,7 @@
 	import {
 		isCompressionRecommended,
 		COMPRESSION_RECOMMENDED_MESSAGE,
+		hasNavigatorLocalTranscriptionIssue,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
 	import { Button } from '@repo/ui/button';
@@ -33,8 +34,8 @@
 			value: 'cpal',
 			label: 'CPAL',
 			description: IS_MACOS
-				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts but creates larger files.'
-				: 'Native Rust audio method. Records uncompressed WAV format, creates larger files.',
+				? 'Native Rust audio method. Records uncompressed WAV, reliable with shortcuts. Works with all transcription methods.'
+				: 'Native Rust audio method. Records uncompressed WAV format. Works with all transcription methods.',
 		},
 		{
 			value: 'ffmpeg',
@@ -52,8 +53,8 @@
 			value: 'navigator',
 			label: 'Browser API',
 			description: IS_MACOS
-				? 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription services, but may have delays with shortcuts when app is in background (macOS AppNap).'
-				: 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription services.',
+				? 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription. Requires FFmpeg for local transcription (Whisper C++/Parakeet). May have delays with shortcuts when app is in background (macOS AppNap).'
+				: 'Web MediaRecorder API. Creates compressed files suitable for cloud transcription. Requires FFmpeg for local transcription (Whisper C++/Parakeet).',
 		},
 	];
 
@@ -64,6 +65,12 @@
 
 	const isUsingFfmpegMethod = $derived(
 		settings.value['recording.method'] === 'ffmpeg',
+	);
+
+	const localTranscriptionServiceName = $derived(
+		settings.value['transcription.selectedTranscriptionService'] === 'whispercpp'
+			? 'Whisper C++'
+			: 'Parakeet',
 	);
 </script>
 
@@ -170,6 +177,41 @@
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
+
+		{#if hasNavigatorLocalTranscriptionIssue({ isFFmpegInstalled: data.ffmpegInstalled ?? false })}
+			<Alert.Root class="border-red-500/20 bg-red-500/5">
+				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+				<Alert.Title class="text-red-600 dark:text-red-400">
+					Local Transcription Requires FFmpeg or CPAL Recording
+				</Alert.Title>
+				<Alert.Description>
+					The Browser API recording method produces compressed audio that
+					requires FFmpeg for local transcription with {localTranscriptionServiceName}.
+					<div class="mt-3 space-y-3">
+						<div class="flex items-center gap-2">
+							<span class="text-sm"><strong>Option 1:</strong></span>
+							<Button
+								onclick={() => settings.updateKey('recording.method', 'cpal')}
+								variant="secondary"
+								size="sm"
+							>
+								Switch to CPAL Recording
+							</Button>
+						</div>
+						<div class="text-sm">
+							<strong>Option 2:</strong>
+							<Link href="/install-ffmpeg">Install FFmpeg</Link>
+							to keep using Browser API recording
+						</div>
+						<div class="text-sm">
+							<strong>Option 3:</strong>
+							Switch to a cloud transcription service (OpenAI, Groq, Deepgram,
+							etc.) which work with all recording methods
+						</div>
+					</div>
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 	{/if}
 
 	{#if settings.value['recording.mode'] === 'manual'}
@@ -210,8 +252,9 @@
 				</Alert.Title>
 				<Alert.Description>
 					VAD mode uses the browser's Web Audio API for real-time voice
-					detection. Unlike manual recording, VAD mode cannot use alternative
-					recording methods and must use the browser's MediaRecorder API.
+					detection and records via the browser's MediaRecorder API. Audio is
+					encoded to uncompressed WAV format. VAD mode has its own recording
+					method and cannot use CPAL or FFmpeg.
 				</Alert.Description>
 			</Alert.Root>
 		{/if}
