@@ -64,21 +64,34 @@ pub async fn execute_command(command: String) -> Result<CommandOutput, String> {
         return Err("Empty command".to_string());
     }
 
+    println!("[Rust] execute_command: program='{}', args={:?}", program, args);
+
     let mut cmd = Command::new(&program);
     cmd.args(&args);
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
 
     #[cfg(target_os = "windows")]
-    cmd.creation_flags(CREATE_NO_WINDOW);
+    {
+        cmd.creation_flags(CREATE_NO_WINDOW);
+        println!("[Rust] execute_command: Windows - using CREATE_NO_WINDOW flag");
+    }
 
     match cmd.output() {
-        Ok(output) => Ok(CommandOutput {
-            code: output.status.code(),
-            signal: None, // Signal is Unix-specific, not available from std::process::Output
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-        }),
-        Err(e) => Err(format!("Command execution failed: {}", e)),
+        Ok(output) => {
+            let result = CommandOutput {
+                code: output.status.code(),
+                signal: None, // Signal is Unix-specific, not available from std::process::Output
+                stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+                stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+            };
+            println!("[Rust] execute_command: completed with code={:?}", result.code);
+            Ok(result)
+        }
+        Err(e) => {
+            let error_msg = format!("Command execution failed: {}", e);
+            println!("[Rust] execute_command: error - {}", error_msg);
+            Err(error_msg)
+        }
     }
 }
 
@@ -112,14 +125,27 @@ pub async fn spawn_command(command: String) -> Result<u32, String> {
         return Err("Empty command".to_string());
     }
 
+    println!("[Rust] spawn_command: program='{}', args={:?}", program, args);
+
     let mut cmd = Command::new(&program);
     cmd.args(&args);
 
     #[cfg(target_os = "windows")]
-    cmd.creation_flags(CREATE_NO_WINDOW);
+    {
+        cmd.creation_flags(CREATE_NO_WINDOW);
+        println!("[Rust] spawn_command: Windows - using CREATE_NO_WINDOW flag");
+    }
 
     match cmd.spawn() {
-        Ok(child) => Ok(child.id()),
-        Err(e) => Err(format!("Failed to spawn process: {}", e)),
+        Ok(child) => {
+            let pid = child.id();
+            println!("[Rust] spawn_command: spawned process with PID={}", pid);
+            Ok(pid)
+        }
+        Err(e) => {
+            let error_msg = format!("Failed to spawn process: {}", e);
+            println!("[Rust] spawn_command: error - {}", error_msg);
+            Err(error_msg)
+        }
     }
 }

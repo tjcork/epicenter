@@ -16,17 +16,22 @@ export function createCommandServiceDesktop(): CommandService {
 		 * @see https://github.com/epicenter-md/epicenter/issues/815
 		 */
 		async execute(command) {
+			console.log('[TS] execute: starting command:', command);
 			const { data, error } = await tryAsync({
 				try: async () => {
 					// Rust returns CommandOutput which matches ChildProcess<string> structure
-					return await invoke<ChildProcess<string>>('execute_command', { command });
+					const result = await invoke<ChildProcess<string>>('execute_command', { command });
+					console.log('[TS] execute: completed with code:', result.code);
+					return result;
 				},
-				catch: (error) =>
-					CommandServiceErr({
+				catch: (error) => {
+					console.error('[TS] execute: error:', error);
+					return CommandServiceErr({
 						message: 'Failed to execute command',
 						context: { command },
 						cause: error,
-					}),
+					});
+				},
 			});
 
 			if (error) return Err(error);
@@ -43,21 +48,27 @@ export function createCommandServiceDesktop(): CommandService {
 		 * @see https://github.com/epicenter-md/epicenter/issues/815
 		 */
 		async spawn(command) {
+			console.log('[TS] spawn: starting command:', command);
 			const { data, error } = await tryAsync({
 				try: async () => {
 					// Rust returns just the PID (u32)
 					const pid = await invoke<number>('spawn_command', { command });
+					console.log('[TS] spawn: received PID:', pid);
 
 					// Wrap the PID in a Child instance for process control
 					const { Child } = await import('@tauri-apps/plugin-shell');
-					return new Child(pid);
+					const child = new Child(pid);
+					console.log('[TS] spawn: wrapped PID in Child instance');
+					return child;
 				},
-				catch: (error) =>
-					CommandServiceErr({
+				catch: (error) => {
+					console.error('[TS] spawn: error:', error);
+					return CommandServiceErr({
 						message: `Failed to spawn command: ${extractErrorMessage(error)}`,
 						context: { command },
 						cause: error,
-					}),
+					});
+				},
 			});
 
 			if (error) return Err(error);
