@@ -7,7 +7,7 @@ export const VERSIONS = {
 	/**
 	 * Whispering application version
 	 */
-	whispering: '7.5.4',
+	whispering: '7.5.5',
 
 	/**
 	 * Epicenter CLI version
