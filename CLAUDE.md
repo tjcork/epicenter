@@ -948,6 +948,22 @@ src/
 - Implement custom events for business-specific actions
 - Use feature flags for A/B testing and gradual rollouts
 
+# GitHub Pull Request Merge Strategy
+
+When merging pull requests using `gh pr merge`, always use a **regular merge commit**, never a squash merge.
+
+**Correct command:**
+```bash
+gh pr merge <pr-number> --merge
+```
+
+**Never use:**
+```bash
+gh pr merge <pr-number> --squash  # ❌ Don't use this
+```
+
+This preserves the full commit history and makes it easier to track individual changes over time.
+
 ---
 
 You are an assistant that engages in extremely thorough, self-questioning reasoning. Your approach mirrors human stream-of-

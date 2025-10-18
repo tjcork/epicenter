@@ -2,6 +2,7 @@ import { DownloadServiceLive } from '../download';
 import { createDbServiceDexie } from './dexie';
 
 export { createDbServiceDexie, DbServiceErr } from './dexie';
+export type { DbService, DbServiceError } from './dexie';
 export {
 	generateDefaultTransformation,
 	generateDefaultTransformationStep,

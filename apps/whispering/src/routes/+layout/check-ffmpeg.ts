@@ -3,72 +3,12 @@ import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
-export const RECORDING_COMPATIBILITY_MESSAGE =
-	'Local transcription models (Whisper C++ and Parakeet) require audio in 16kHz WAV format. Install FFmpeg to convert your recordings or switch to CPAL 16kHz mode.';
-
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
-
-/**
- * Switches recording settings to CPAL at 16kHz to resolve Whisper C++ compatibility
- */
-export function switchToCpalAt16kHz() {
-	settings.update({
-		'recording.method': 'cpal',
-		'recording.cpal.sampleRate': '16000',
-	});
-	toast.success('Recording settings updated', {
-		description:
-			'Switched to CPAL recording at 16kHz for Whisper C++ compatibility',
-	});
-}
 
 function isUsingLocalTranscription(): boolean {
 	const service = settings.value['transcription.selectedTranscriptionService'];
 	return service === 'whispercpp' || service === 'parakeet';
-}
-
-function isUsing16kHz(): boolean {
-	return settings.value['recording.cpal.sampleRate'] === '16000';
-}
-
-/**
- * Checks if there's a compatibility issue between current recording settings
- * and local transcription models (Whisper C++ and Parakeet).
- *
- * Local models require audio in 16kHz mono WAV format. When incompatible settings
- * are detected, users have two options:
- * 1. Install FFmpeg to automatically convert audio to the required format
- * 2. Switch to CPAL recording at 16kHz (which natively produces compatible audio)
- *
- * Why FFmpeg status is a parameter instead of checked internally:
- * - Checking FFmpeg requires an async RPC call (rpc.ffmpeg.checkFfmpegInstalled)
- * - This function must remain synchronous for use in Svelte template conditionals
- * - By accepting FFmpeg status as a parameter, we invert control - callers fetch
- *   the async data in their appropriate context (data loader or async function body)
- *   then pass it to this pure synchronous function
- *
- * @param isFFmpegInstalled - Whether FFmpeg is installed on the system. When true,
- *                            FFmpeg can convert audio formats, resolving compatibility issues.
- *                            Callers should fetch this via rpc.ffmpeg.checkFfmpegInstalled.ensure()
- * @returns true when current settings are incompatible with local transcription models
- */
-export function hasLocalTranscriptionCompatibilityIssue({
-	isFFmpegInstalled,
-}: { isFFmpegInstalled: boolean }): boolean {
-	// If FFmpeg is installed, it can convert audio formats, so no compatibility issue
-	if (isFFmpegInstalled) return false;
-
-	// No issue if not using local transcription
-	if (!isUsingLocalTranscription()) return false;
-
-	// No issue if using CPAL at 16kHz (produces compatible audio natively)
-	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
-		return false;
-	}
-
-	// All other combinations have compatibility issues without FFmpeg
-	return true;
 }
 
 /**

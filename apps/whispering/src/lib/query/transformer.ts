@@ -14,7 +14,11 @@ import type {
 import { settings } from '$lib/stores/settings.svelte';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, isErr } from 'wellcrafted/result';
-import { interpolateTemplate, asTemplateString, type TemplateString } from '$lib/utils/template';
+import {
+	interpolateTemplate,
+	asTemplateString,
+	type TemplateString,
+} from '$lib/utils/template';
 import { defineMutation, queryClient } from './_client';
 import { transformationRunKeys } from './transformation-runs';
 import { transformationsKeys } from './transformations';
@@ -172,11 +176,11 @@ async function handleStep({
 			const provider = step['prompt_transform.inference.provider'];
 			const systemPrompt = interpolateTemplate(
 				asTemplateString(step['prompt_transform.systemPromptTemplate']),
-				{ input }
+				{ input },
 			);
 			const userPrompt = interpolateTemplate(
 				asTemplateString(step['prompt_transform.userPromptTemplate']),
-				{ input }
+				{ input },
 			);
 
 			switch (provider) {
@@ -246,24 +250,25 @@ async function handleStep({
 					return Ok(completion);
 				}
 
-				   case 'OpenRouter': {
-					   const { data: completionResponse, error: completionError } =
-						   await services.completions.openrouter.complete({
-							   apiKey: settings.value['apiKeys.openrouter'],
-							   model: step['prompt_transform.inference.provider.OpenRouter.model'],
-							   systemPrompt,
-							   userPrompt,
-						   });
+				case 'OpenRouter': {
+					const { data: completionResponse, error: completionError } =
+						await services.completions.openrouter.complete({
+							apiKey: settings.value['apiKeys.openrouter'],
+							model:
+								step['prompt_transform.inference.provider.OpenRouter.model'],
+							systemPrompt,
+							userPrompt,
+						});
 
-					   if (completionError) {
-						   return Err(completionError.message);
-					   }
+					if (completionError) {
+						return Err(completionError.message);
+					}
 
-					   return Ok(completionResponse);
-				   }
+					return Ok(completionResponse);
+				}
 
-				   default:
-					   return Err(`Unsupported provider: ${provider}`);
+				default:
+					return Err(`Unsupported provider: ${provider}`);
 			}
 		}
 
@@ -328,7 +333,7 @@ async function runTransformation({
 		const {
 			data: newTransformationStepRun,
 			error: addTransformationStepRunError,
-		} = await services.db.addTransformationStep({
+		} = await services.db.addRunStep({
 			run: transformationRun,
 			step: {
 				id: step.id,
@@ -357,7 +362,7 @@ async function runTransformation({
 			const {
 				data: markedFailedTransformationRun,
 				error: markTransformationRunAndRunStepAsFailedError,
-			} = await services.db.failTransformationAtStepRun({
+			} = await services.db.failRunStep({
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
 				error: handleStepResult.error,
@@ -379,7 +384,7 @@ async function runTransformation({
 		const handleStepOutput = handleStepResult.data;
 
 		const { error: markTransformationRunStepAsCompletedError } =
-			await services.db.completeTransformationStepRun({
+			await services.db.completeRunStep({
 				run: transformationRun,
 				stepRunId: newTransformationStepRun.id,
 				output: handleStepOutput,
@@ -403,7 +408,7 @@ async function runTransformation({
 	const {
 		data: markedCompletedTransformationRun,
 		error: markTransformationRunAsCompletedError,
-	} = await services.db.completeTransformation({
+	} = await services.db.completeRun({
 		run: transformationRun,
 		output: currentInput,
 	});

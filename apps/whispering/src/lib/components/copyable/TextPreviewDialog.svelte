@@ -1,20 +1,24 @@
 <script lang="ts">
 	import { ClipboardIcon } from '$lib/components/icons';
+	import { rpc } from '$lib/query';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
 	import * as Dialog from '@repo/ui/dialog';
 	import { Textarea } from '@repo/ui/textarea';
-	import { rpc } from '$lib/query';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { mergeProps } from 'bits-ui';
 	import WhisperingTooltip from '../WhisperingTooltip.svelte';
 
 	/**
-	 * Props for the CopyableTextDialog component.
+	 * A generic text preview component that displays text in a readonly textarea.
+	 * Clicking the preview opens a dialog with the full text and copy functionality.
+	 *
+	 * This is a low-level, reusable component. For domain-specific use cases like
+	 * transcribed text, consider creating a wrapper component (e.g., TranscribedTextDialog).
 	 *
 	 * @example
 	 * ```svelte
-	 * <CopyableTextDialog
+	 * <TextPreviewDialog
 	 *   id="transcription-1"
 	 *   title="Transcribed Text"
 	 *   text={transcriptionResult}
@@ -25,7 +29,7 @@
 	 *
 	 * @example
 	 * ```svelte
-	 * <CopyableTextDialog
+	 * <TextPreviewDialog
 	 *   id="error-1"
 	 *   title="Transformation Error"
 	 *   text={errorMessage}
@@ -44,12 +48,15 @@
 		label,
 		/** Number of rows for the preview textarea */
 		rows = 2,
+		/** Whether the dialog trigger is disabled */
+		disabled = false,
 	}: {
 		id: string;
 		title: string;
 		text: string;
 		label: string;
 		rows?: number;
+		disabled?: boolean;
 	} = $props();
 
 	let isDialogOpen = $state(false);
@@ -69,6 +76,7 @@
 						value={text}
 						style="view-transition-name: {id}"
 						{rows}
+						{disabled}
 					/>
 					<span class="sr-only">
 						{@render tooltip()}

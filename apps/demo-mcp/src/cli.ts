@@ -179,7 +179,7 @@ async function main() {
 	const argv = process.argv.slice(2);
 	const args = parseArgs(argv);
 
-	const command = args._[0] ?? 'import';
+	const command = args._.at(0) ?? 'import';
 	switch (command) {
 		case 'import':
 			{

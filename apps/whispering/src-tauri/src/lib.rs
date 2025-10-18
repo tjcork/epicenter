@@ -9,7 +9,7 @@ use recorder::commands::{
 };
 
 pub mod transcription;
-use transcription::{transcribe_audio_whisper, transcribe_audio_parakeet};
+use transcription::{transcribe_audio_whisper, transcribe_audio_parakeet, ModelManager};
 
 pub mod windows_path;
 use windows_path::fix_windows_path;
@@ -58,7 +58,8 @@ pub async fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .manage(AppData::new());
+        .manage(AppData::new())
+        .manage(ModelManager::new());
 
     #[cfg(desktop)]
     {

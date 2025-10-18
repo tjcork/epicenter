@@ -15,9 +15,6 @@
 	import VadSelectRecordingDevice from './VadSelectRecordingDevice.svelte';
 	import {
 		isCompressionRecommended,
-		hasLocalTranscriptionCompatibilityIssue,
-		switchToCpalAt16kHz,
-		RECORDING_COMPATIBILITY_MESSAGE,
 		COMPRESSION_RECOMMENDED_MESSAGE,
 	} from '../../../+layout/check-ffmpeg';
 	import { IS_MACOS, IS_LINUX, PLATFORM_TYPE } from '$lib/constants/platform';
@@ -156,33 +153,6 @@
 					</Link>
 				</Alert.Description>
 			</Alert.Root>
-		{:else if hasLocalTranscriptionCompatibilityIssue({ isFFmpegInstalled: data.ffmpegInstalled })}
-			<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-				<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-				<Alert.Title class="text-amber-600 dark:text-amber-400">
-					Recording Compatibility Issue
-				</Alert.Title>
-				<Alert.Description>
-					{RECORDING_COMPATIBILITY_MESSAGE}
-					<div class="mt-3 space-y-3">
-						<div class="flex items-center gap-2">
-							<span class="text-sm"><strong>Option 1:</strong></span>
-							<Button
-								onclick={switchToCpalAt16kHz}
-								variant="secondary"
-								size="sm"
-							>
-								Switch to CPAL 16kHz
-							</Button>
-						</div>
-						<div class="text-sm">
-							<strong>Option 2:</strong>
-							<Link href="/install-ffmpeg">Install FFmpeg</Link>
-							to keep your current recording settings
-						</div>
-					</div>
-				</Alert.Description>
-			</Alert.Root>
 		{:else if isCompressionRecommended()}
 			<Alert.Root class="border-blue-500/20 bg-blue-500/5">
 				<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
@@ -212,17 +182,39 @@
 			}
 		/>
 	{:else if settings.value['recording.mode'] === 'vad'}
-		<Alert.Root class="border-blue-500/20 bg-blue-500/5">
-			<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
-			<Alert.Title class="text-blue-600 dark:text-blue-400">
-				Voice Activated Detection Mode
-			</Alert.Title>
-			<Alert.Description>
-				VAD mode uses the browser's Web Audio API for real-time voice detection.
-				Unlike manual recording, VAD mode cannot use alternative recording
-				methods and must use the browser's MediaRecorder API.
-			</Alert.Description>
-		</Alert.Root>
+		{#if IS_LINUX}
+			<Alert.Root class="border-red-500/20 bg-red-500/5">
+				<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+				<Alert.Title class="text-red-600 dark:text-red-400">
+					VAD Mode Not Supported on Linux
+				</Alert.Title>
+				<Alert.Description>
+					Voice Activated Detection (VAD) mode requires the browser's Navigator
+					API, which is not fully supported in Tauri on Linux. Device
+					enumeration and recording will fail. Please use Manual recording mode
+					instead.
+					<Link
+						href="https://github.com/epicenter-md/epicenter/issues/839"
+						target="_blank"
+						class="font-medium underline underline-offset-4 hover:text-red-700 dark:hover:text-red-300"
+					>
+						Learn more →
+					</Link>
+				</Alert.Description>
+			</Alert.Root>
+		{:else}
+			<Alert.Root class="border-blue-500/20 bg-blue-500/5">
+				<InfoIcon class="size-4 text-blue-600 dark:text-blue-400" />
+				<Alert.Title class="text-blue-600 dark:text-blue-400">
+					Voice Activated Detection Mode
+				</Alert.Title>
+				<Alert.Description>
+					VAD mode uses the browser's Web Audio API for real-time voice
+					detection. Unlike manual recording, VAD mode cannot use alternative
+					recording methods and must use the browser's MediaRecorder API.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 
 		<VadSelectRecordingDevice
 			bind:selected={

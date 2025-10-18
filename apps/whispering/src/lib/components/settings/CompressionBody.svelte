@@ -6,10 +6,12 @@
 	import { FFMPEG_DEFAULT_COMPRESSION_OPTIONS } from '$lib/services/recorder/ffmpeg';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { cn } from '@repo/ui/utils';
-	import { RotateCcw } from '@lucide/svelte';
+	import { RotateCcw, AlertTriangle } from '@lucide/svelte';
 	import { isCompressionRecommended } from '../../../routes/+layout/check-ffmpeg';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { rpc } from '$lib/query';
+	import * as Alert from '@repo/ui/alert';
+	import { Link } from '@repo/ui/link';
 
 	// Compression preset definitions (UI only - not stored in settings)
 	const COMPRESSION_PRESETS = {
@@ -171,5 +173,19 @@
 				output.opus
 			</code>
 		</div>
+	{/if}
+
+	<!-- FFmpeg Installation Warning -->
+	{#if !isFfmpegInstalled && !isFfmpegCheckLoading}
+		<Alert.Root variant="warning">
+			<AlertTriangle class="size-4" />
+			<Alert.Title>FFmpeg Required</Alert.Title>
+			<Alert.Description>
+				Audio compression requires FFmpeg to be installed on your system. <Link
+					href="/install-ffmpeg"
+					class="font-medium underline underline-offset-4">Install FFmpeg</Link
+				> to enable this feature.
+			</Alert.Description>
+		</Alert.Root>
 	{/if}
 </div>

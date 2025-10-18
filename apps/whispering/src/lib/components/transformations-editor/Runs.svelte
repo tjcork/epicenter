@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CopyablePre from '$lib/components/copyable/CopyablePre.svelte';
-	import CopyableTextareaExpandsToDialog from '$lib/components/copyable/CopyableTextareaExpandsToDialog.svelte';
+	import TextPreviewDialog from '$lib/components/copyable/TextPreviewDialog.svelte';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
@@ -123,7 +123,7 @@
 																	: '-'}
 															</Table.Cell>
 															<Table.Cell>
-																<CopyableTextareaExpandsToDialog
+																<TextPreviewDialog
 																	id={getTransformationStepRunTransitionId({
 																		stepRunId: stepRun.id,
 																		propertyName: 'input',
@@ -135,7 +135,7 @@
 															</Table.Cell>
 															<Table.Cell>
 																{#if stepRun.status === 'completed'}
-																	<CopyableTextareaExpandsToDialog
+																	<TextPreviewDialog
 																		id={getTransformationStepRunTransitionId({
 																			stepRunId: stepRun.id,
 																			propertyName: 'output',
@@ -145,7 +145,7 @@
 																		text={stepRun.output}
 																	/>
 																{:else if stepRun.status === 'failed'}
-																	<CopyableTextareaExpandsToDialog
+																	<TextPreviewDialog
 																		id={getTransformationStepRunTransitionId({
 																			stepRunId: stepRun.id,
 																			propertyName: 'error',

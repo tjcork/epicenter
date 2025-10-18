@@ -63,7 +63,7 @@ export const WHISPER_MODELS: readonly WhisperModelConfig[] = [
 ] as const;
 
 const WhisperCppErrorType = type({
-	name: "'AudioReadError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
+	name: "'AudioReadError' | 'FfmpegNotFoundError' | 'GpuError' | 'ModelLoadError' | 'TranscriptionError'",
 	message: 'string',
 });
 
@@ -151,6 +151,18 @@ export function createWhisperCppTranscriptionService() {
 									type: 'link',
 									label: 'Configure settings',
 									href: '/settings/transcription',
+								},
+							});
+
+						case 'FfmpegNotFoundError':
+							return WhisperingErr({
+								title: '🛠️ FFmpeg Required for This Recording Format',
+								description:
+									'This recording is in a compressed format (webm/ogg/mp4) that requires FFmpeg. Install FFmpeg or switch to CPAL recording (which produces WAV files that work without FFmpeg).',
+								action: {
+									type: 'link',
+									label: 'Install FFmpeg',
+									href: '/install-ffmpeg',
 								},
 							});
 

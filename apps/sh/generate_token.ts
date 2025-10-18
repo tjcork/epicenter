@@ -63,7 +63,7 @@ async function main() {
 		return;
 	}
 
-	const userSubdomain = args[0];
+	const userSubdomain = args.at(0);
 	const userPort = Number.parseInt(args[1], 10);
 
 	try {
