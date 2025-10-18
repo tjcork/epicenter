@@ -6548,6 +6548,7 @@ dependencies = [
  "hound",
  "lazy_static",
  "nix 0.29.0",
+ "regex",
  "rubato",
  "serde",
  "serde_json",
