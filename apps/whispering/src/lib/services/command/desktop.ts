@@ -1,27 +1,25 @@
-import { IS_WINDOWS } from '$lib/constants/platform';
-import { Command } from '@tauri-apps/plugin-shell';
+import { Command, type ChildProcess } from '@tauri-apps/plugin-shell';
+import { invoke } from '@tauri-apps/api/core';
 import { tryAsync, Err, Ok } from 'wellcrafted/result';
 import type { CommandService, ShellCommand } from './types';
 import { CommandServiceErr } from './types';
 import { extractErrorMessage } from 'wellcrafted/error';
 
 export function createCommandServiceDesktop(): CommandService {
-	/**
-	 * Create a platform-specific command based on the operating system
-	 */
-	function createPlatformCommand(command: ShellCommand) {
-		return IS_WINDOWS
-			? Command.create('cmd', ['/c', command])
-			: Command.create('sh', ['-c', command]);
-	}
-
 	return {
+		/**
+		 * Execute a command and wait for it to complete.
+		 *
+		 * Commands are parsed and executed directly without shell wrappers on all platforms.
+		 * On Windows, uses CREATE_NO_WINDOW flag to prevent console window flash.
+		 *
+		 * @see https://github.com/epicenter-md/epicenter/issues/815
+		 */
 		async execute(command) {
 			const { data, error } = await tryAsync({
 				try: async () => {
-					const cmd = createPlatformCommand(command);
-					const output = await cmd.execute();
-					return output;
+					// Rust returns CommandOutput which matches ChildProcess<string> structure
+					return await invoke<ChildProcess<string>>('execute_command', { command });
 				},
 				catch: (error) =>
 					CommandServiceErr({
@@ -35,24 +33,24 @@ export function createCommandServiceDesktop(): CommandService {
 			return Ok(data);
 		},
 
+		/**
+		 * Spawn a child process without waiting for it to complete.
+		 *
+		 * Commands are parsed and executed directly without shell wrappers on all platforms.
+		 * On Windows, uses CREATE_NO_WINDOW flag to prevent console window flash.
+		 * Returns a Child instance that can be used to control the process.
+		 *
+		 * @see https://github.com/epicenter-md/epicenter/issues/815
+		 */
 		async spawn(command) {
 			const { data, error } = await tryAsync({
 				try: async () => {
-					const cmd = createPlatformCommand(command);
+					// Rust returns just the PID (u32)
+					const pid = await invoke<number>('spawn_command', { command });
 
-					// Collect stderr only for error reporting on failure
-					let stderrBuffer = '';
-					cmd.stderr.on('data', (line) => {
-						stderrBuffer += line;
-					});
-
-					cmd.on('close', (data) => {
-						if (data.code !== 0 && stderrBuffer) {
-							console.error(`Command failed with exit code ${data.code}:`, stderrBuffer);
-						}
-					});
-
-					return await cmd.spawn();
+					// Wrap the PID in a Child instance for process control
+					const { Child } = await import('@tauri-apps/plugin-shell');
+					return new Child(pid);
 				},
 				catch: (error) =>
 					CommandServiceErr({

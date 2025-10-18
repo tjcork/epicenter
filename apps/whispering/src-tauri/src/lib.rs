@@ -17,6 +17,9 @@ use windows_path::fix_windows_path;
 pub mod graceful_shutdown;
 use graceful_shutdown::send_sigint;
 
+pub mod command;
+use command::{execute_command, spawn_command};
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
@@ -81,6 +84,9 @@ pub async fn run() {
         transcribe_audio_whisper,
         transcribe_audio_parakeet,
         send_sigint,
+        // Command execution (prevents console window flash on Windows)
+        execute_command,
+        spawn_command,
     ]);
 
     let app = builder
