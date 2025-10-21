@@ -190,12 +190,15 @@ The good example explains the reasoning (deployment model categorization) withou
 
 ## Good Example (Natural, Human)
 
+```markdown
 "I was paying $30/month for a transcription app. Then I did the math: the actual API calls cost about $0.36/hour. At my usage (3-4 hours/day), I was paying $30 for what should cost $3.
 
 So I built Whispering to cut out the middleman. You bring your own API key, your audio goes directly to the provider, and you pay actual costs. No subscription, no data collection, no lock-in."
+```
 
 ## Bad Example (AI-Generated Feel)
 
+```markdown
 "**Introducing Whispering** - A revolutionary transcription solution that empowers users with unprecedented control.
 
 **Key Benefits:**
@@ -205,6 +208,7 @@ So I built Whispering to cut out the middleman. You bring your own API key, your
 - **Flexible**: Multiple provider options available
 
 **Why Whispering?** We believe transcription should be accessible to everyone..."
+```
 
 ## The Difference
 
