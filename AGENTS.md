@@ -1,4 +1,4 @@
-# TypeScript Project Rules
+# Epicenter Project Rules
 
 ## External File Loading
 
