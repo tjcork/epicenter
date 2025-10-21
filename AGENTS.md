@@ -12,10 +12,29 @@ Instructions:
 
 ## Development Guidelines
 
-For TypeScript code style and best practices: @docs/typescript-guidelines.md
-For React component architecture and hooks patterns: @docs/react-patterns.md
-For REST API design and error handling: @docs/api-standards.md
-For testing strategies and coverage requirements: @test/testing-guidelines.md
+Load these domain-specific guidelines only when working in their respective domains:
+
+**Language & Framework:**
+
+- TypeScript code style and best practices: @rules/typescript.md
+- Svelte patterns, TanStack Query, component composition: @rules/svelte.md
+- Rust to TypeScript error handling (Tauri): @rules/rust.md
+
+**Development Practices:**
+
+- wellcrafted trySync/tryAsync error handling: @rules/error-handling.md
+- CSS, Tailwind, shadcn-svelte styling: @rules/styling.md (load when @rules/svelte.md is loaded)
+
+**Tools & Workflows:**
+
+- Git commits, PRs, conventional commits: @rules/git.md
+- GitHub issue responses, community interaction: @rules/github.md
+- PostHog analytics integration: @rules/posthog.md
+
+**Content & Communication:**
+
+- Technical writing, README guidelines, punctuation: @rules/documentation.md
+- LinkedIn, Reddit, Twitter post guidelines: @rules/social-media.md
 
 ## General Guidelines
 
