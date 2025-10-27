@@ -6537,7 +6537,7 @@ dependencies = [
 
 [[package]]
 name = "whispering"
-version = "7.5.3"
+version = "7.5.5"
 dependencies = [
  "accessibility-sys",
  "core-foundation-sys",
@@ -6548,6 +6548,7 @@ dependencies = [
  "hound",
  "lazy_static",
  "nix 0.29.0",
+ "regex",
  "rubato",
  "serde",
  "serde_json",

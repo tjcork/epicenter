@@ -6,9 +6,34 @@ import { settings } from '$lib/stores/settings.svelte';
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
 
+export const NAVIGATOR_LOCAL_TRANSCRIPTION_MESSAGE =
+	'Browser API recording produces compressed audio that requires FFmpeg for local transcription. Switch to CPAL recording or install FFmpeg.';
+
+export const RECORDING_COMPATIBILITY_MESSAGE =
+	'Browser API recording produces compressed audio that requires FFmpeg for local transcription. Switch to CPAL recording, install FFmpeg, or use a cloud transcription service.';
+
 function isUsingLocalTranscription(): boolean {
 	const service = settings.value['transcription.selectedTranscriptionService'];
 	return service === 'whispercpp' || service === 'parakeet';
+}
+
+/**
+ * Checks if the current recording + transcription configuration will work
+ * @returns true if Navigator recording is used with local transcription but FFmpeg is not installed
+ */
+export function hasNavigatorLocalTranscriptionIssue({
+	isFFmpegInstalled,
+}: {
+	isFFmpegInstalled: boolean;
+}): boolean {
+	if (!window.__TAURI_INTERNALS__) return false;
+
+	const isUsingNavigator = settings.value['recording.method'] === 'navigator';
+	const isUsingLocalTranscription =
+		settings.value['transcription.selectedTranscriptionService'] === 'whispercpp' ||
+		settings.value['transcription.selectedTranscriptionService'] === 'parakeet';
+
+	return isUsingNavigator && isUsingLocalTranscription && !isFFmpegInstalled;
 }
 
 /**
@@ -72,7 +97,7 @@ export async function checkLocalTranscriptionCompatibility() {
 
 	// Check if there are compatibility issues with local transcription
 	if (
-		!hasLocalTranscriptionCompatibilityIssue({
+		!hasNavigatorLocalTranscriptionIssue({
 			isFFmpegInstalled: ffmpegInstalled ?? false,
 		})
 	)

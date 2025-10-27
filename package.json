@@ -2,7 +2,7 @@
 	"name": "epicenter",
 	"type": "module",
 	"private": true,
-	"version": "7.5.3",
+	"version": "7.5.5",
 	"description": "",
 	"keywords": [],
 	"license": "ISC",
@@ -39,7 +39,7 @@
 			"nanoid": "^5.1.5",
 			"wellcrafted": "^0.22.0",
 			"date-fns": "^4.1.0",
-			"@biomejs/biome": "^2.2.5",
+			"@biomejs/biome": "^2.2.6",
 			"turbo": "^2.5.8",
 			"concurrently": "^9.2.1"
 		}
@@ -48,15 +48,15 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "turbo format && biome format --write && prettier --write \"**/*.{svelte,astro,html}\"",
-		"format:check": "concurrently --raw \"turbo format:check\" \"biome format\" \"prettier --check \\\"**/*.{svelte,astro,html}\\\"\"",
+		"format": "biome check --write --linter-enabled=false; prettier --write \"**/*.{svelte,astro,html}\"",
+		"format:check": "biome ci --linter-enabled=false; prettier --check \"**/*.{svelte,astro,html}\"",
 		"lint": "concurrently -raw \"turbo run lint\" \"eslint\" \"biome lint\"",
 		"check": "turbo run check",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",
 		"bump-version": "bun run scripts/bump-version.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "catalog:",
+		"@biomejs/biome": "^2.2.6",
 		"@types/node": "catalog:",
 		"concurrently": "catalog:",
 		"eslint": "^9.37.0",

@@ -16,6 +16,9 @@ export async function hashPassword(
 export function verifyPassword({
 	password,
 	hash,
-}: { password: Password; hash: HashedPassword }): Promise<boolean> {
+}: {
+	password: Password;
+	hash: HashedPassword;
+}): Promise<boolean> {
 	return verifyPasswordBetterAuth({ password, hash });
 }
