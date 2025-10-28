@@ -48,8 +48,8 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"format": "biome check --write --linter-enabled=false; prettier --write \"**/*.{astro,html}\"",
-		"format:check": "biome ci --linter-enabled=false; prettier --check \"**/*.{astro,html}\"",
+		"format": "biome check --write --linter-enabled=false; prettier --write \"**/*.{svelte,astro,html}\"",
+		"format:check": "biome ci --linter-enabled=false; prettier --check \"**/*.{svelte,astro,html}\"",
 		"lint": "concurrently -raw \"turbo run lint\" \"eslint\" \"biome lint\"",
 		"check": "turbo run check",
 		"format-and-lint": "concurrently \"bun run format\" \"bun run lint\"",
