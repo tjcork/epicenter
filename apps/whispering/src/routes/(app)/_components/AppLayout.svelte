@@ -2,9 +2,7 @@
 	import * as Dialog from '@repo/ui/dialog';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onDestroy, onMount } from 'svelte';
-	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { commandCallbacks } from '$lib/commands';
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
@@ -84,22 +82,6 @@
 		});
 	});
 
-	const TOASTER_SETTINGS = {
-		position: 'bottom-right',
-		richColors: true,
-		duration: 5000,
-		visibleToasts: 5,
-		toastOptions: {
-			classes: {
-				toast: 'flex flex-wrap *:data-content:flex-1',
-				icon: 'shrink-0',
-				actionButton: 'w-full mt-3 inline-flex justify-center',
-				closeButton: 'w-full mt-3 inline-flex justify-center',
-			},
-		},
-		closeButton: true,
-	} satisfies ToasterProps;
-
 	let { children } = $props();
 </script>
 
@@ -123,13 +105,6 @@
 	{@render children()}
 </div>
 
-<Toaster
-	offset={16}
-	class="xs:block hidden"
-	theme={mode.current}
-	{...TOASTER_SETTINGS}
-/>
-<ModeWatcher />
 <ConfirmationDialog />
 <MoreDetailsDialog />
 <NotificationLog />

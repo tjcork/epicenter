@@ -3,10 +3,27 @@
 	import { queryClient } from '$lib/query/_client';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	import { ModeWatcher } from 'mode-watcher';
+	import { ModeWatcher, mode } from 'mode-watcher';
+	import { Toaster, type ToasterProps } from 'svelte-sonner';
 	import '@repo/ui/app.css';
 
 	let { children } = $props();
+
+	const TOASTER_SETTINGS = {
+		position: 'bottom-right',
+		richColors: true,
+		duration: 5000,
+		visibleToasts: 5,
+		toastOptions: {
+			classes: {
+				toast: 'flex flex-wrap *:data-content:flex-1',
+				icon: 'shrink-0',
+				actionButton: 'w-full mt-3 inline-flex justify-center',
+				closeButton: 'w-full mt-3 inline-flex justify-center',
+			},
+		},
+		closeButton: true,
+	} satisfies ToasterProps;
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -28,6 +45,12 @@
 	{@render children()}
 </QueryClientProvider>
 
+<Toaster
+	offset={16}
+	class="xs:block hidden"
+	theme={mode.current}
+	{...TOASTER_SETTINGS}
+/>
 <ModeWatcher />
 <SvelteQueryDevtools client={queryClient} buttonPosition="bottom-left" />
 
