@@ -21,14 +21,9 @@
 			"!pnpm-lock.yaml",
 			"!yarn.lock",
 			"!.DS_Store",
+			"!**/*.svelte",
 			"!**/*.astro"
 		]
-	},
-	"html": {
-		"experimentalFullSupportEnabled": true,
-		"formatter": {
-			"indentScriptAndStyle": false
-		}
 	},
 	"formatter": {
 		"enabled": true,
