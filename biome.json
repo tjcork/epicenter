@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.1/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -21,9 +21,14 @@
 			"!pnpm-lock.yaml",
 			"!yarn.lock",
 			"!.DS_Store",
-			"!**/*.svelte",
 			"!**/*.astro"
 		]
+	},
+	"html": {
+		"experimentalFullSupportEnabled": true,
+		"formatter": {
+			"indentScriptAndStyle": false
+		}
 	},
 	"formatter": {
 		"enabled": true,
