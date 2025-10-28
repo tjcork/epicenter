@@ -71,13 +71,9 @@ export async function migrateModelPaths(): Promise<void> {
 				return;
 			}
 
-			if (await exists(newPath)) {
-				const oldContents = await readDir(oldPath);
-				if (oldContents.length === 0) {
-					console.log('[Migration] Legacy whisper-models is empty, already migrated');
-					return;
-				}
-				console.warn('[Migration] Both whisper-models and models/whisper exist, manual intervention needed');
+			const oldContents = await readDir(oldPath);
+			if (oldContents.length === 0) {
+				console.log('[Migration] Legacy whisper-models is empty, already migrated');
 				return;
 			}
 
@@ -87,9 +83,27 @@ export async function migrateModelPaths(): Promise<void> {
 				await mkdir(modelsDir, { recursive: true });
 			}
 
-			console.log('[Migration] Moving whisper-models -> models/whisper');
-			await rename(oldPath, newPath);
-			console.log('[Migration] Successfully migrated whisper-models');
+			if (await exists(newPath)) {
+				// Merge: move individual model files from old to new location
+				console.log('[Migration] Merging whisper-models into models/whisper');
+				let movedCount = 0;
+				for (const entry of oldContents) {
+					const oldFilePath = await join(oldPath, entry.name);
+					const newFilePath = await join(newPath, entry.name);
+
+					// Only move if file doesn't already exist in new location
+					if (!(await exists(newFilePath))) {
+						await rename(oldFilePath, newFilePath);
+						movedCount++;
+					}
+				}
+				console.log(`[Migration] Merged ${movedCount} models from whisper-models`);
+			} else {
+				// New path doesn't exist, simply rename the entire directory
+				console.log('[Migration] Moving whisper-models -> models/whisper');
+				await rename(oldPath, newPath);
+				console.log('[Migration] Successfully migrated whisper-models');
+			}
 		},
 		catch: (error) => {
 			console.error('[Migration] Failed to migrate whisper-models (non-fatal):', error);
@@ -108,13 +122,9 @@ export async function migrateModelPaths(): Promise<void> {
 				return;
 			}
 
-			if (await exists(newPath)) {
-				const oldContents = await readDir(oldPath);
-				if (oldContents.length === 0) {
-					console.log('[Migration] Legacy parakeet-models is empty, already migrated');
-					return;
-				}
-				console.warn('[Migration] Both parakeet-models and models/parakeet exist, manual intervention needed');
+			const oldContents = await readDir(oldPath);
+			if (oldContents.length === 0) {
+				console.log('[Migration] Legacy parakeet-models is empty, already migrated');
 				return;
 			}
 
@@ -124,9 +134,27 @@ export async function migrateModelPaths(): Promise<void> {
 				await mkdir(modelsDir, { recursive: true });
 			}
 
-			console.log('[Migration] Moving parakeet-models -> models/parakeet');
-			await rename(oldPath, newPath);
-			console.log('[Migration] Successfully migrated parakeet-models');
+			if (await exists(newPath)) {
+				// Merge: move individual model directories from old to new location
+				console.log('[Migration] Merging parakeet-models into models/parakeet');
+				let movedCount = 0;
+				for (const entry of oldContents) {
+					const oldModelPath = await join(oldPath, entry.name);
+					const newModelPath = await join(newPath, entry.name);
+
+					// Only move if model doesn't already exist in new location
+					if (!(await exists(newModelPath))) {
+						await rename(oldModelPath, newModelPath);
+						movedCount++;
+					}
+				}
+				console.log(`[Migration] Merged ${movedCount} models from parakeet-models`);
+			} else {
+				// New path doesn't exist, simply rename the entire directory
+				console.log('[Migration] Moving parakeet-models -> models/parakeet');
+				await rename(oldPath, newPath);
+				console.log('[Migration] Successfully migrated parakeet-models');
+			}
 		},
 		catch: (error) => {
 			console.error('[Migration] Failed to migrate parakeet-models (non-fatal):', error);
