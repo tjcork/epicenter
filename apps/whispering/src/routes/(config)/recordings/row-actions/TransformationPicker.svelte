@@ -1,49 +1,28 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { nanoid } from 'nanoid/non-secure';
 	import WhisperingButton from '$lib/components/WhisperingButton.svelte';
-	import { Badge } from '@repo/ui/badge';
-	import * as Command from '@repo/ui/command';
+	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
-	import { rpc } from '$lib/query';
-	import type { Transformation } from '$lib/services/db';
-	import { createQuery } from '@tanstack/svelte-query';
 	import { LayersIcon } from '@lucide/svelte';
-
-	const transformationsQuery = createQuery(
-		rpc.db.transformations.getAll.options,
-	);
-
-	const transformations = $derived(transformationsQuery.data ?? []);
+	import { rpc } from '$lib/query';
+	import { createMutation } from '@tanstack/svelte-query';
 
 	const combobox = useCombobox();
 
-	let {
-		class: className,
-		onSelect,
-	}: {
-		class?: string;
-		onSelect: (transformation: Transformation) => void;
-	} = $props();
-</script>
+	const transformRecording = createMutation(
+		rpc.transformer.transformRecording.options,
+	);
 
-{#snippet renderTransformationIdTitle(transformation: Transformation)}
-	<div class="flex items-center gap-2">
-		<Badge variant="id" class="shrink-0 max-w-16 truncate">
-			{transformation.id}
-		</Badge>
-		<span class="font-medium truncate">
-			{transformation.title}
-		</span>
-	</div>
-{/snippet}
+	let { recordingId }: { recordingId: string } = $props();
+</script>
 
 <Popover.Root bind:open={combobox.open}>
 	<Popover.Trigger bind:ref={combobox.triggerRef}>
 		{#snippet child({ props })}
 			<WhisperingButton
 				{...props}
-				class={className}
 				tooltipContent="Run a post-processing transformation to run on your recording"
 				role="combobox"
 				aria-expanded={combobox.open}
@@ -55,41 +34,50 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="w-80 max-w-xl p-0">
-		<Command.Root loop>
-			<Command.Input placeholder="Select transcription post-processing..." />
-			<Command.Empty>No transformation found.</Command.Empty>
-			<Command.Group class="overflow-y-auto max-h-[400px]">
-				{#each transformations as transformation (transformation.id)}
-					<Command.Item
-						value="${transformation.id} - ${transformation.title} - ${transformation.description}"
-						onSelect={() => {
-							onSelect(transformation);
-							combobox.closeAndFocusTrigger();
-						}}
-						class="flex items-center gap-2 p-2"
-					>
-						<div class="flex flex-col min-w-0">
-							{@render renderTransformationIdTitle(transformation)}
-							{#if transformation.description}
-								<span class="text-sm text-muted-foreground line-clamp-2">
-									{transformation.description}
-								</span>
-							{/if}
-						</div>
-					</Command.Item>
-				{/each}
-			</Command.Group>
-			<Command.Item
-				value="Manage transformations"
-				onSelect={() => {
-					goto('/transformations');
-					combobox.closeAndFocusTrigger();
-				}}
-				class="rounded-none p-2 bg-muted/50 text-muted-foreground"
-			>
-				<LayersIcon class="size-4 mx-2.5" />
-				Manage transformations
-			</Command.Item>
-		</Command.Root>
+		<TransformationPickerBody
+			onSelect={(transformation) => {
+				combobox.closeAndFocusTrigger();
+
+				const toastId = nanoid();
+				rpc.notify.loading.execute({
+					id: toastId,
+					title: '🔄 Running transformation...',
+					description:
+						'Applying your selected transformation to the transcribed text...',
+				});
+
+				transformRecording.mutate(
+					{ recordingId, transformation },
+					{
+						onError: (error) => rpc.notify.error.execute(error),
+						onSuccess: (transformationRun) => {
+							if (transformationRun.status === 'failed') {
+								rpc.notify.error.execute({
+									title: '⚠️ Transformation error',
+									description: transformationRun.error,
+									action: {
+										type: 'more-details',
+										error: transformationRun.error,
+									},
+								});
+								return;
+							}
+
+							rpc.sound.playSoundIfEnabled.execute('transformationComplete');
+
+							rpc.delivery.deliverTransformationResult.execute({
+								text: transformationRun.output,
+								toastId,
+							});
+						},
+					},
+				);
+			}}
+			onSelectManageTransformations={() => {
+				combobox.closeAndFocusTrigger();
+				goto('/transformations');
+			}}
+			placeholder="Select transcription post-processing..."
+		/>
 	</Popover.Content>
 </Popover.Root>

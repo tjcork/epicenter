@@ -1,19 +1,25 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { commandCallbacks } from '$lib/commands';
-	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
-	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
-	import NotificationLog from '$lib/components/NotificationLog.svelte';
-	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
-	import { rpc } from '$lib/query';
-	import * as services from '$lib/services';
-	import { settings } from '$lib/stores/settings.svelte';
+	import * as Dialog from '@repo/ui/dialog';
 	// import { extension } from '@repo/extension';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { ModeWatcher, mode } from 'mode-watcher';
 	import { onDestroy, onMount } from 'svelte';
 	import { Toaster, type ToasterProps } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { commandCallbacks } from '$lib/commands';
+	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
+	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
+	import TransformationPickerDialog from '$lib/components/TransformationPickerDialog.svelte';
+	import NotificationLog from '$lib/components/NotificationLog.svelte';
+	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
+	import { rpc } from '$lib/query';
+	import * as services from '$lib/services';
+	import { settings } from '$lib/stores/settings.svelte';
 	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
+	import {
+		checkCompressionRecommendation,
+		checkFfmpegRecordingMethodCompatibility,
+	} from './check-ffmpeg';
 	import { checkForUpdates } from './check-for-updates';
 	import {
 		resetGlobalShortcutsToDefaultIfDuplicates,
@@ -21,16 +27,12 @@
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
 	} from './register-commands';
-	import { registerOnboarding } from './register-onboarding';
-	import {
-		checkFfmpegRecordingMethodCompatibility,
-		checkCompressionRecommendation,
-	} from './check-ffmpeg';
 	import {
 		registerAccessibilityPermission,
 		registerMicrophonePermission,
 	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { registerOnboarding } from './register-onboarding';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -43,6 +45,7 @@
 	onMount(async () => {
 		window.commands = commandCallbacks;
 		window.goto = goto;
+
 		syncLocalShortcutsWithSettings();
 		resetLocalShortcutsToDefaultIfDuplicates();
 		await checkFfmpegRecordingMethodCompatibility();
@@ -132,6 +135,8 @@
 <MoreDetailsDialog />
 <NotificationLog />
 <UpdateDialog />
+
+<TransformationPickerDialog />
 
 <style>
 	:global(body) {

@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid/non-secure';
 import { Err, Ok } from 'wellcrafted/result';
-import { fromTaggedError } from '$lib/result';
+import { fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { rpc } from './';
@@ -10,9 +10,11 @@ import { delivery } from './delivery';
 import { notify } from './notify';
 import { recorder } from './recorder';
 import { sound } from './sound';
+import { text } from './text';
 import { transcription } from './transcription';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
+import { transformationPickerDialog } from '$lib/components/TransformationPickerDialog.svelte';
 
 // Track manual recording start time for duration calculation
 let manualRecordingStartTime: number | null = null;
@@ -409,6 +411,38 @@ export const commands = {
 				processedCount: validFiles.length,
 				skippedCount: invalidFiles.length,
 			});
+		},
+	}),
+
+	// Transform clipboard text
+	transformClipboard: defineMutation({
+		mutationKey: ['commands', 'transformClipboard'] as const,
+		resultMutationFn: async () => {
+			// Read clipboard
+			const { data: clipboardText, error: readError } =
+				await text.readFromClipboard.execute();
+
+			if (readError) {
+				notify.error.execute({
+					title: '❌ Failed to read clipboard',
+					description: readError.message,
+					action: { type: 'more-details', error: readError },
+				});
+				return Err(readError);
+			}
+
+			if (!clipboardText?.trim()) {
+				const emptyClipboardError = WhisperingErr({
+					title: 'Empty clipboard',
+					description: 'Please copy some text before running a transformation.',
+				});
+				notify.info.execute(emptyClipboardError);
+				return Err(emptyClipboardError);
+			}
+
+			// Open transformation picker
+			transformationPickerDialog.open(clipboardText);
+			return Ok(undefined);
 		},
 	}),
 };

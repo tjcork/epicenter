@@ -2,6 +2,10 @@ import * as services from '$lib/services';
 import { defineMutation } from './_client';
 
 export const text = {
+	readFromClipboard: defineMutation({
+		mutationKey: ['text', 'readFromClipboard'],
+		resultMutationFn: () => services.text.readFromClipboard(),
+	}),
 	copyToClipboard: defineMutation({
 		mutationKey: ['text', 'copyToClipboard'],
 		resultMutationFn: ({ text }: { text: string }) =>
