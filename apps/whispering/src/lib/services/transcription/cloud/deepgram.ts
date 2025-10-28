@@ -112,14 +112,10 @@ export function createDeepgramTranscriptionService({
 				params.append('language', options.outputLanguage);
 			}
 
-			if (options.prompt) {
-				const promptParameter = options.modelName
-    					.toLowerCase()
-    					.startsWith('nova-3')
-    					? 'keyterm'
-    					: 'keywords';
-    				params.append(promptParameter, options.prompt);
-			}
+		if (options.prompt) {
+			const isNova3 = options.modelName.toLowerCase().includes('nova-3');
+			params.append(isNova3 ? 'keyterm' : 'keywords', options.prompt);
+		}
 
 			// Send raw audio data directly as recommended by Deepgram docs
 			const { data: deepgramResponse, error: postError } =
