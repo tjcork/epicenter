@@ -273,8 +273,3 @@ export const db = {
 			}),
 	},
 };
-
-// For backward compatibility during migration, export the old key names
-export const recordingKeys = dbKeys.recordings;
-export const transformationsKeys = dbKeys.transformations;
-export const transformationRunKeys = dbKeys.runs;
