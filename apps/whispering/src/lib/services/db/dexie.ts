@@ -1,11 +1,11 @@
-import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
-import { rpc } from '$lib/query';
-import type { DownloadService } from '$lib/services/download';
-import type { Settings } from '$lib/settings';
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
 import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
 import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
+import { rpc } from '$lib/query';
+import type { DownloadService } from '$lib/services/download';
+import type { Settings } from '$lib/settings';
 import type {
 	Recording,
 	RecordingsDbSchemaV1,
@@ -346,7 +346,9 @@ export type DbService = {
 		getById(id: string): Promise<Result<Recording | null, DbServiceError>>;
 		create(recording: Recording): Promise<Result<Recording, DbServiceError>>;
 		update(recording: Recording): Promise<Result<Recording, DbServiceError>>;
-		delete(recordings: Recording | Recording[]): Promise<Result<void, DbServiceError>>;
+		delete(
+			recordings: Recording | Recording[],
+		): Promise<Result<void, DbServiceError>>;
 		cleanupExpired(params: {
 			recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
 			maxRecordingCount: Settings['database.maxRecordingCount'];
@@ -355,26 +357,52 @@ export type DbService = {
 	transformations: {
 		getAll(): Promise<Result<Transformation[], DbServiceError>>;
 		getById(id: string): Promise<Result<Transformation | null, DbServiceError>>;
-		create(transformation: Transformation): Promise<Result<Transformation, DbServiceError>>;
-		update(transformation: Transformation): Promise<Result<Transformation, DbServiceError>>;
-		delete(transformations: Transformation | Transformation[]): Promise<Result<void, DbServiceError>>;
+		create(
+			transformation: Transformation,
+		): Promise<Result<Transformation, DbServiceError>>;
+		update(
+			transformation: Transformation,
+		): Promise<Result<Transformation, DbServiceError>>;
+		delete(
+			transformations: Transformation | Transformation[],
+		): Promise<Result<void, DbServiceError>>;
 	};
 	runs: {
-		getById(id: string): Promise<Result<TransformationRun | null, DbServiceError>>;
-		getByTransformationId(transformationId: string): Promise<Result<TransformationRun[], DbServiceError>>;
-		getByRecordingId(recordingId: string): Promise<Result<TransformationRun[], DbServiceError>>;
+		getById(
+			id: string,
+		): Promise<Result<TransformationRun | null, DbServiceError>>;
+		getByTransformationId(
+			transformationId: string,
+		): Promise<Result<TransformationRun[], DbServiceError>>;
+		getByRecordingId(
+			recordingId: string,
+		): Promise<Result<TransformationRun[], DbServiceError>>;
 		create(params: {
 			transformationId: string;
 			recordingId: string | null;
 			input: string;
 		}): Promise<Result<TransformationRun, DbServiceError>>;
-		addStep(run: TransformationRun, step: {
-			id: string;
-			input: string;
-		}): Promise<Result<TransformationStepRun, DbServiceError>>;
-		failStep(run: TransformationRun, stepRunId: string, error: string): Promise<Result<TransformationRunFailed, DbServiceError>>;
-		completeStep(run: TransformationRun, stepRunId: string, output: string): Promise<Result<TransformationRun, DbServiceError>>;
-		complete(run: TransformationRun, output: string): Promise<Result<TransformationRunCompleted, DbServiceError>>;
+		addStep(
+			run: TransformationRun,
+			step: {
+				id: string;
+				input: string;
+			},
+		): Promise<Result<TransformationStepRun, DbServiceError>>;
+		failStep(
+			run: TransformationRun,
+			stepRunId: string,
+			error: string,
+		): Promise<Result<TransformationRunFailed, DbServiceError>>;
+		completeStep(
+			run: TransformationRun,
+			stepRunId: string,
+			output: string,
+		): Promise<Result<TransformationRun, DbServiceError>>;
+		complete(
+			run: TransformationRun,
+			output: string,
+		): Promise<Result<TransformationRunCompleted, DbServiceError>>;
 	};
 };
 
@@ -510,7 +538,9 @@ export function createDbServiceDexie({
 			},
 
 			delete: async (recordings: Recording | Recording[]) => {
-				const recordingsArray = Array.isArray(recordings) ? recordings : [recordings];
+				const recordingsArray = Array.isArray(recordings)
+					? recordings
+					: [recordings];
 				const ids = recordingsArray.map((r) => r.id);
 				const { error: deleteRecordingsError } = await tryAsync({
 					try: () => db.recordings.bulkDelete(ids),
@@ -643,7 +673,9 @@ export function createDbServiceDexie({
 			},
 
 			delete: async (transformations: Transformation | Transformation[]) => {
-				const transformationsArray = Array.isArray(transformations) ? transformations : [transformations];
+				const transformationsArray = Array.isArray(transformations)
+					? transformations
+					: [transformations];
 				const ids = transformationsArray.map((t) => t.id);
 				const { error: deleteTransformationsError } = await tryAsync({
 					try: () => db.transformations.bulkDelete(ids),
@@ -661,16 +693,18 @@ export function createDbServiceDexie({
 
 		runs: {
 			getById: async (id: string) => {
-				const { data: transformationRun, error: getTransformationRunByIdError } =
-					await tryAsync({
-						try: () => db.transformationRuns.where('id').equals(id).first(),
-						catch: (error) =>
-							DbServiceErr({
-								message: 'Error getting transformation run by id from Dexie',
-								context: { id },
-								cause: error,
-							}),
-					});
+				const {
+					data: transformationRun,
+					error: getTransformationRunByIdError,
+				} = await tryAsync({
+					try: () => db.transformationRuns.where('id').equals(id).first(),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting transformation run by id from Dexie',
+							context: { id },
+							cause: error,
+						}),
+				});
 				if (getTransformationRunByIdError)
 					return Err(getTransformationRunByIdError);
 				return Ok(transformationRun ?? null);
@@ -768,7 +802,7 @@ export function createDbServiceDexie({
 				step: {
 					id: string;
 					input: string;
-				}
+				},
 			) => {
 				const now = new Date().toISOString();
 				const newTransformationStepRun = {
@@ -803,7 +837,7 @@ export function createDbServiceDexie({
 			failStep: async (
 				run: TransformationRun,
 				stepRunId: string,
-				error: string
+				error: string,
 			) => {
 				const now = new Date().toISOString();
 
@@ -845,7 +879,7 @@ export function createDbServiceDexie({
 			completeStep: async (
 				run: TransformationRun,
 				stepRunId: string,
-				output: string
+				output: string,
 			) => {
 				const now = new Date().toISOString();
 
@@ -881,10 +915,7 @@ export function createDbServiceDexie({
 				return Ok(updatedRun);
 			},
 
-			complete: async (
-				run: TransformationRun,
-				output: string
-			) => {
+			complete: async (run: TransformationRun, output: string) => {
 				const now = new Date().toISOString();
 
 				// Create the completed transformation run
@@ -899,7 +930,8 @@ export function createDbServiceDexie({
 					try: () => db.transformationRuns.put(completedRun),
 					catch: (error) =>
 						DbServiceErr({
-							message: 'Error updating transformation run as completed in Dexie',
+							message:
+								'Error updating transformation run as completed in Dexie',
 							context: { run, output },
 							cause: error,
 						}),

@@ -9,8 +9,8 @@ import type { Recording } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { rpc } from './';
 import { defineMutation, queryClient } from './_client';
-import { notify } from './notify';
 import { db } from './db';
+import { notify } from './notify';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,

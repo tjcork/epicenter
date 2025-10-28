@@ -30,9 +30,7 @@
 		rpc.transformer.transformRecording.options,
 	);
 
-	const deleteRecording = createMutation(
-		rpc.db.recordings.delete.options,
-	);
+	const deleteRecording = createMutation(rpc.db.recordings.delete.options);
 
 	const downloadRecording = createMutation(
 		rpc.download.downloadRecording.options,
@@ -41,9 +39,7 @@
 	let { recordingId }: { recordingId: string } = $props();
 
 	const latestTransformationRunByRecordingIdQuery = createQuery(
-		rpc.db.runs.getLatestByRecordingId(
-			() => recordingId,
-		).options,
+		rpc.db.runs.getLatestByRecordingId(() => recordingId).options,
 	);
 
 	const recordingQuery = createQuery(

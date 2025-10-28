@@ -10,8 +10,7 @@
 	let { recordingId }: { recordingId: string } = $props();
 
 	const transformationRunsByRecordingIdQuery = createQuery(
-		rpc.db.runs.getByRecordingId(() => recordingId)
-			.options,
+		rpc.db.runs.getByRecordingId(() => recordingId).options,
 	);
 
 	let isOpen = $state(false);

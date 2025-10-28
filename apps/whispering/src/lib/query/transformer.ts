@@ -79,9 +79,7 @@ export const transformer = {
 			const transformationOutputResult = await getTransformationOutput();
 
 			queryClient.invalidateQueries({
-				queryKey: dbKeys.runs.byTransformationId(
-					transformation.id,
-				),
+				queryKey: dbKeys.runs.byTransformationId(transformation.id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: dbKeys.transformations.byId(transformation.id),
@@ -133,9 +131,7 @@ export const transformer = {
 				queryKey: dbKeys.runs.byRecordingId(recordingId),
 			});
 			queryClient.invalidateQueries({
-				queryKey: dbKeys.runs.byTransformationId(
-					transformation.id,
-				),
+				queryKey: dbKeys.runs.byTransformationId(transformation.id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: dbKeys.transformations.byId(transformation.id),

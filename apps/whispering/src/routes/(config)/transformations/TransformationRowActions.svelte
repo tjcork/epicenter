@@ -14,8 +14,7 @@
 	);
 
 	const transformationQuery = createQuery(
-		rpc.db.transformations.getById(() => transformationId)
-			.options,
+		rpc.db.transformations.getById(() => transformationId).options,
 	);
 	const transformation = $derived(transformationQuery.data);
 </script>

@@ -40,9 +40,7 @@
 		rpc.recorder.getRecorderState.options,
 	);
 	const getVadStateQuery = createQuery(rpc.vadRecorder.getVadState.options);
-	const latestRecordingQuery = createQuery(
-		rpc.db.recordings.getLatest.options,
-	);
+	const latestRecordingQuery = createQuery(rpc.db.recordings.getLatest.options);
 
 	const latestRecording = $derived<Recording>(
 		latestRecordingQuery.data ?? {

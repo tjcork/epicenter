@@ -1,8 +1,12 @@
-import * as services from '$lib/services';
-import type { Recording, Transformation, TransformationRun } from '$lib/services/db';
-import { settings } from '$lib/stores/settings.svelte';
 import type { Accessor } from '@tanstack/svelte-query';
 import { Err, Ok } from 'wellcrafted/result';
+import * as services from '$lib/services';
+import type {
+	Recording,
+	Transformation,
+	TransformationRun,
+} from '$lib/services/db';
+import { settings } from '$lib/stores/settings.svelte';
 import { defineMutation, defineQuery, queryClient } from './_client';
 
 /**
@@ -19,7 +23,8 @@ export const dbKeys = {
 		byId: (id: string) => ['db', 'transformations', id] as const,
 	},
 	runs: {
-		byTransformationId: (id: string) => ['db', 'runs', 'transformationId', id] as const,
+		byTransformationId: (id: string) =>
+			['db', 'runs', 'transformationId', id] as const,
 		byRecordingId: (id: string) => ['db', 'runs', 'recordingId', id] as const,
 	},
 };
@@ -69,10 +74,13 @@ export const db = {
 				const { data, error } = await services.db.recordings.create(recording);
 				if (error) return Err(error);
 
-				queryClient.setQueryData<Recording[]>(dbKeys.recordings.all, (oldData) => {
-					if (!oldData) return [recording];
-					return [...oldData, recording];
-				});
+				queryClient.setQueryData<Recording[]>(
+					dbKeys.recordings.all,
+					(oldData) => {
+						if (!oldData) return [recording];
+						return [...oldData, recording];
+					},
+				);
 				queryClient.setQueryData<Recording>(
 					dbKeys.recordings.byId(recording.id),
 					recording,
@@ -94,12 +102,15 @@ export const db = {
 				const { data, error } = await services.db.recordings.update(recording);
 				if (error) return Err(error);
 
-				queryClient.setQueryData<Recording[]>(dbKeys.recordings.all, (oldData) => {
-					if (!oldData) return [recording];
-					return oldData.map((item) =>
-						item.id === recording.id ? recording : item,
-					);
-				});
+				queryClient.setQueryData<Recording[]>(
+					dbKeys.recordings.all,
+					(oldData) => {
+						if (!oldData) return [recording];
+						return oldData.map((item) =>
+							item.id === recording.id ? recording : item,
+						);
+					},
+				);
 				queryClient.setQueryData<Recording>(
 					dbKeys.recordings.byId(recording.id),
 					recording,
@@ -115,15 +126,20 @@ export const db = {
 		delete: defineMutation({
 			mutationKey: ['db', 'recordings', 'delete'] as const,
 			resultMutationFn: async (recordings: Recording | Recording[]) => {
-				const recordingsArray = Array.isArray(recordings) ? recordings : [recordings];
+				const recordingsArray = Array.isArray(recordings)
+					? recordings
+					: [recordings];
 				const { error } = await services.db.recordings.delete(recordingsArray);
 				if (error) return Err(error);
 
-				queryClient.setQueryData<Recording[]>(dbKeys.recordings.all, (oldData) => {
-					if (!oldData) return [];
-					const deletedIds = new Set(recordingsArray.map((r) => r.id));
-					return oldData.filter((item) => !deletedIds.has(item.id));
-				});
+				queryClient.setQueryData<Recording[]>(
+					dbKeys.recordings.all,
+					(oldData) => {
+						if (!oldData) return [];
+						const deletedIds = new Set(recordingsArray.map((r) => r.id));
+						return oldData.filter((item) => !deletedIds.has(item.id));
+					},
+				);
 				for (const recording of recordingsArray) {
 					queryClient.removeQueries({
 						queryKey: dbKeys.recordings.byId(recording.id),
@@ -210,8 +226,12 @@ export const db = {
 
 		delete: defineMutation({
 			mutationKey: ['db', 'transformations', 'delete'] as const,
-			resultMutationFn: async (transformations: Transformation | Transformation[]) => {
-				const transformationsArray = Array.isArray(transformations) ? transformations : [transformations];
+			resultMutationFn: async (
+				transformations: Transformation | Transformation[],
+			) => {
+				const transformationsArray = Array.isArray(transformations)
+					? transformations
+					: [transformations];
 				const { error } =
 					await services.db.transformations.delete(transformationsArray);
 				if (error) return Err(error);
@@ -253,22 +273,19 @@ export const db = {
 		getByTransformationId: (id: Accessor<string>) =>
 			defineQuery({
 				queryKey: dbKeys.runs.byTransformationId(id()),
-				resultQueryFn: () =>
-					services.db.runs.getByTransformationId(id()),
+				resultQueryFn: () => services.db.runs.getByTransformationId(id()),
 			}),
 
 		getByRecordingId: (recordingId: Accessor<string>) =>
 			defineQuery({
 				queryKey: dbKeys.runs.byRecordingId(recordingId()),
-				resultQueryFn: () =>
-					services.db.runs.getByRecordingId(recordingId()),
+				resultQueryFn: () => services.db.runs.getByRecordingId(recordingId()),
 			}),
 
 		getLatestByRecordingId: (recordingId: Accessor<string>) =>
 			defineQuery({
 				queryKey: dbKeys.runs.byRecordingId(recordingId()),
-				resultQueryFn: () =>
-					services.db.runs.getByRecordingId(recordingId()),
+				resultQueryFn: () => services.db.runs.getByRecordingId(recordingId()),
 				select: (data) => data.at(0),
 			}),
 	},

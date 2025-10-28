@@ -5,9 +5,9 @@ import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { rpc } from './';
 import { defineMutation } from './_client';
+import { db } from './db';
 import { delivery } from './delivery';
 import { notify } from './notify';
-import { db } from './db';
 import { recorder } from './recorder';
 import { sound } from './sound';
 import { transcription } from './transcription';
@@ -505,9 +505,7 @@ async function processRecordingPipeline({
 	// Check if transformation is valid if specified
 	if (!transformationId) return;
 	const { data: transformation, error: getTransformationError } =
-		await db.transformations
-			.getById(() => transformationId)
-			.fetch();
+		await db.transformations.getById(() => transformationId).fetch();
 
 	const transformationNoLongerExists = !transformation;
 
