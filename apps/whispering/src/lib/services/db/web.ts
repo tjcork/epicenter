@@ -1,11 +1,10 @@
 import Dexie, { type Transaction } from 'dexie';
 import { nanoid } from 'nanoid/non-secure';
-import { createTaggedError, extractErrorMessage } from 'wellcrafted/error';
-import { Err, Ok, type Result, tryAsync } from 'wellcrafted/result';
+import { extractErrorMessage } from 'wellcrafted/error';
+import { Err, Ok, tryAsync } from 'wellcrafted/result';
 import { moreDetailsDialog } from '$lib/components/MoreDetailsDialog.svelte';
 import { rpc } from '$lib/query';
 import type { DownloadService } from '$lib/services/download';
-import type { Settings } from '$lib/settings';
 import type {
 	Recording,
 	RecordingsDbSchemaV1,
@@ -23,10 +22,8 @@ import type {
 	TransformationStepRunFailed,
 	TransformationStepRunRunning,
 } from './models';
-
-export const { DbServiceError, DbServiceErr } =
-	createTaggedError('DbServiceError');
-export type DbServiceError = ReturnType<typeof DbServiceError>;
+import type { DbService } from './types';
+import { DbServiceErr } from './types';
 
 const DB_NAME = 'RecordingDB';
 
@@ -338,75 +335,7 @@ const recordingWithSerializedAudioToRecording = (
 	return { ...rest, blob };
 };
 
-export type DbService = {
-	recordings: {
-		getAll(): Promise<Result<Recording[], DbServiceError>>;
-		getLatest(): Promise<Result<Recording | null, DbServiceError>>;
-		getTranscribingIds(): Promise<Result<string[], DbServiceError>>;
-		getById(id: string): Promise<Result<Recording | null, DbServiceError>>;
-		create(recording: Recording): Promise<Result<Recording, DbServiceError>>;
-		update(recording: Recording): Promise<Result<Recording, DbServiceError>>;
-		delete(
-			recordings: Recording | Recording[],
-		): Promise<Result<void, DbServiceError>>;
-		cleanupExpired(params: {
-			recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
-			maxRecordingCount: Settings['database.maxRecordingCount'];
-		}): Promise<Result<void, DbServiceError>>;
-	};
-	transformations: {
-		getAll(): Promise<Result<Transformation[], DbServiceError>>;
-		getById(id: string): Promise<Result<Transformation | null, DbServiceError>>;
-		create(
-			transformation: Transformation,
-		): Promise<Result<Transformation, DbServiceError>>;
-		update(
-			transformation: Transformation,
-		): Promise<Result<Transformation, DbServiceError>>;
-		delete(
-			transformations: Transformation | Transformation[],
-		): Promise<Result<void, DbServiceError>>;
-	};
-	runs: {
-		getById(
-			id: string,
-		): Promise<Result<TransformationRun | null, DbServiceError>>;
-		getByTransformationId(
-			transformationId: string,
-		): Promise<Result<TransformationRun[], DbServiceError>>;
-		getByRecordingId(
-			recordingId: string,
-		): Promise<Result<TransformationRun[], DbServiceError>>;
-		create(params: {
-			transformationId: string;
-			recordingId: string | null;
-			input: string;
-		}): Promise<Result<TransformationRun, DbServiceError>>;
-		addStep(
-			run: TransformationRun,
-			step: {
-				id: string;
-				input: string;
-			},
-		): Promise<Result<TransformationStepRun, DbServiceError>>;
-		failStep(
-			run: TransformationRun,
-			stepRunId: string,
-			error: string,
-		): Promise<Result<TransformationRunFailed, DbServiceError>>;
-		completeStep(
-			run: TransformationRun,
-			stepRunId: string,
-			output: string,
-		): Promise<Result<TransformationRun, DbServiceError>>;
-		complete(
-			run: TransformationRun,
-			output: string,
-		): Promise<Result<TransformationRunCompleted, DbServiceError>>;
-	};
-};
-
-export function createDbServiceDexie({
+export function createDbServiceWeb({
 	DownloadService,
 }: {
 	DownloadService: DownloadService;
