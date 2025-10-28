@@ -14,7 +14,7 @@ import { text } from './text';
 import { transcription } from './transcription';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
-import { transformationPickerDialog } from '$lib/components/TransformationPickerDialog.svelte';
+import { toggleTransformationPicker } from '$lib/tauri/transformationPickerWindow';
 
 // Track manual recording start time for duration calculation
 let manualRecordingStartTime: number | null = null;
@@ -418,30 +418,8 @@ export const commands = {
 	transformClipboard: defineMutation({
 		mutationKey: ['commands', 'transformClipboard'] as const,
 		resultMutationFn: async () => {
-			// Read clipboard
-			const { data: clipboardText, error: readError } =
-				await text.readFromClipboard.execute();
-
-			if (readError) {
-				notify.error.execute({
-					title: '❌ Failed to read clipboard',
-					description: readError.message,
-					action: { type: 'more-details', error: readError },
-				});
-				return Err(readError);
-			}
-
-			if (!clipboardText?.trim()) {
-				const emptyClipboardError = WhisperingErr({
-					title: 'Empty clipboard',
-					description: 'Please copy some text before running a transformation.',
-				});
-				notify.info.execute(emptyClipboardError);
-				return Err(emptyClipboardError);
-			}
-
-			// Open transformation picker
-			transformationPickerDialog.open(clipboardText);
+			// Open transformation picker (it will read clipboard itself)
+			await toggleTransformationPicker();
 			return Ok(undefined);
 		},
 	}),

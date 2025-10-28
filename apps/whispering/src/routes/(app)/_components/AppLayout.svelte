@@ -9,30 +9,29 @@
 	import { commandCallbacks } from '$lib/commands';
 	import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
 	import MoreDetailsDialog from '$lib/components/MoreDetailsDialog.svelte';
-	import TransformationPickerDialog from '$lib/components/TransformationPickerDialog.svelte';
 	import NotificationLog from '$lib/components/NotificationLog.svelte';
 	import UpdateDialog from '$lib/components/UpdateDialog.svelte';
 	import { rpc } from '$lib/query';
 	import * as services from '$lib/services';
 	import { settings } from '$lib/stores/settings.svelte';
-	import { syncWindowAlwaysOnTopWithRecorderState } from './alwaysOnTop.svelte';
+	import { syncWindowAlwaysOnTopWithRecorderState } from '../_layout-utils/alwaysOnTop.svelte';
 	import {
 		checkCompressionRecommendation,
 		checkFfmpegRecordingMethodCompatibility,
-	} from './check-ffmpeg';
-	import { checkForUpdates } from './check-for-updates';
+	} from '../_layout-utils/check-ffmpeg';
+	import { checkForUpdates } from '../_layout-utils/check-for-updates';
 	import {
 		resetGlobalShortcutsToDefaultIfDuplicates,
 		resetLocalShortcutsToDefaultIfDuplicates,
 		syncGlobalShortcutsWithSettings,
 		syncLocalShortcutsWithSettings,
-	} from './register-commands';
+	} from '../_layout-utils/register-commands';
 	import {
 		registerAccessibilityPermission,
 		registerMicrophonePermission,
-	} from './register-permissions';
-	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
-	import { registerOnboarding } from './register-onboarding';
+	} from '../_layout-utils/register-permissions';
+	import { syncIconWithRecorderState } from '../_layout-utils/syncIconWithRecorderState.svelte';
+	import { registerOnboarding } from '../_layout-utils/register-onboarding';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -135,8 +134,6 @@
 <MoreDetailsDialog />
 <NotificationLog />
 <UpdateDialog />
-
-<TransformationPickerDialog />
 
 <style>
 	:global(body) {
