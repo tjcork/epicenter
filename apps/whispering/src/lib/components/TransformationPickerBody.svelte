@@ -51,32 +51,43 @@
 {/snippet}
 
 <Command.Root loop class={className}>
-	<Command.Input {placeholder} />
-	<Command.Empty>No transformation found.</Command.Empty>
-	<Command.Group class="overflow-y-auto max-h-[400px]">
+	<Command.Input {placeholder} class="h-11 border-0 border-b focus:ring-0 text-base" autofocus />
+	<Command.Empty class="py-12 text-center">
+		<div class="flex flex-col items-center gap-2">
+			<LayersIcon class="size-8 text-muted-foreground/30" />
+			<p class="text-sm text-muted-foreground">No transformations found.</p>
+			<p class="text-xs text-muted-foreground/70">Try a different search term.</p>
+		</div>
+	</Command.Empty>
+	<div class="relative">
+		<Command.Group class="overflow-y-auto min-h-[180px] max-h-[360px] p-2">
 		{#each transformations as transformation (transformation.id)}
 			<Command.Item
 				value="${transformation.id} - ${transformation.title} - ${transformation.description}"
 				onSelect={() => onSelect(transformation)}
-				class="flex items-center gap-2 p-2"
+				class="flex items-center gap-3 p-3 rounded-md cursor-pointer"
 			>
-				<div class="flex flex-col min-w-0">
+				<div class="flex flex-col min-w-0 gap-0.5">
 					{@render renderTransformationIdTitle(transformation)}
 					{#if transformation.description}
-						<span class="text-sm text-muted-foreground line-clamp-2">
+						<span class="text-xs text-muted-foreground/70 line-clamp-1">
 							{transformation.description}
 						</span>
 					{/if}
 				</div>
 			</Command.Item>
 		{/each}
-	</Command.Group>
+		</Command.Group>
+		<!-- Scroll fade indicator -->
+		<div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+	</div>
+	<Command.Separator />
 	<Command.Item
 		value="Manage transformations"
 		onSelect={onSelectManageTransformations}
-		class="rounded-none p-2 bg-muted/50 text-muted-foreground"
+		class="rounded-none border-0 p-3 bg-muted/30 text-muted-foreground hover:bg-muted/50 transition-colors"
 	>
-		<LayersIcon class="size-4 mx-2.5" />
+		<LayersIcon class="size-4 mr-2.5" />
 		Manage transformations
 	</Command.Item>
 </Command.Root>

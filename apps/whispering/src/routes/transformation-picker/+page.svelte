@@ -36,25 +36,40 @@
 	});
 </script>
 
-<div class="flex h-screen flex-col">
-	<div class="space-y-2 px-6 pt-6 pb-4">
-		<h2 class="text-2xl font-semibold">Transform Clipboard</h2>
-		<p class="text-sm text-muted-foreground">
-			Select a transformation to apply to your clipboard text
-		</p>
-	</div>
+<div class="flex h-screen flex-col items-center bg-background">
+	<div class="w-full max-w-2xl flex flex-col h-full">
+		<div class="space-y-1 px-6 pt-4 pb-3">
+			<div class="flex items-baseline justify-between">
+				<h2 class="text-lg font-medium text-foreground/90">Transform Clipboard</h2>
+				<div class="flex items-center gap-2 text-xs text-muted-foreground/60">
+					<kbd class="px-1.5 py-0.5 rounded bg-muted text-[10px]">↵</kbd>
+					<span>select</span>
+					<kbd class="px-1.5 py-0.5 rounded bg-muted text-[10px] ml-2">Esc</kbd>
+					<span>close</span>
+				</div>
+			</div>
+			<p class="text-xs text-muted-foreground/80">
+				Select a transformation to apply to your clipboard text
+			</p>
+		</div>
 
 	{#if clipboardQuery.isPending}
-		<div class="flex min-h-32 items-center justify-center px-6">
-			<p class="text-sm text-muted-foreground">Reading clipboard...</p>
+		<div class="flex h-20 items-center justify-center px-6">
+			<p class="text-xs text-muted-foreground">Reading clipboard...</p>
 		</div>
 	{:else}
-		<div class="px-6 pb-4">
-			<Textarea
-				value={clipboardText}
-				readonly
-				class="min-h-32 resize-none font-mono text-sm"
-			/>
+		<div class="px-6 pb-3">
+			<div class="relative">
+				<Textarea
+					value={clipboardText}
+					readonly
+					class="max-h-20 resize-none font-mono text-xs leading-relaxed border-muted-foreground/20 bg-muted/30"
+					placeholder="Your clipboard content will appear here..."
+				/>
+				<div class="absolute bottom-2 right-3 text-[10px] text-muted-foreground/50 pointer-events-none font-mono">
+					{clipboardText.length} chars
+				</div>
+			</div>
 		</div>
 	{/if}
 
@@ -99,4 +114,5 @@
 		}}
 		placeholder="Search transformations..."
 	/>
+	</div>
 </div>
