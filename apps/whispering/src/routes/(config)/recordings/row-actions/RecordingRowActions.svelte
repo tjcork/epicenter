@@ -20,6 +20,7 @@
 	import EditRecordingModal from './EditRecordingModal.svelte';
 	import TransformationPicker from './TransformationPicker.svelte';
 	import ViewTransformationRunsDialog from './ViewTransformationRunsDialog.svelte';
+	import { nanoid } from 'nanoid/non-secure';
 
 	const transcribeRecording = createMutation(
 		rpc.transcription.transcribeRecording.options,
