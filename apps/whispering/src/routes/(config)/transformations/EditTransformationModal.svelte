@@ -9,15 +9,20 @@
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createMutation } from '@tanstack/svelte-query';
-	import { HistoryIcon, Loader2Icon, PlayIcon, TrashIcon } from '@lucide/svelte';
+	import {
+		HistoryIcon,
+		Loader2Icon,
+		PlayIcon,
+		TrashIcon,
+	} from '@lucide/svelte';
 	import MarkTransformationActiveButton from './MarkTransformationActiveButton.svelte';
 
 	const updateTransformation = createMutation(
-		rpc.transformations.mutations.updateTransformation.options,
+		rpc.db.transformations.update.options,
 	);
 
 	const deleteTransformation = createMutation(
-		rpc.transformations.mutations.deleteTransformation.options,
+		rpc.db.transformations.delete.options,
 	);
 
 	let {

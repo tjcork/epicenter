@@ -11,33 +11,43 @@
 		DeepgramApiKeyInput,
 		ElevenLabsApiKeyInput,
 		GroqApiKeyInput,
+		MistralApiKeyInput,
 		OpenAiApiKeyInput,
 	} from '$lib/components/settings';
-	import WhisperModelSelector from '$lib/components/settings/WhisperModelSelector.svelte';
+	import LocalModelSelector from '$lib/components/settings/LocalModelSelector.svelte';
+	import TranscriptionServiceSelect from '$lib/components/settings/TranscriptionServiceSelect.svelte';
 	import { SUPPORTED_LANGUAGES_OPTIONS } from '$lib/constants/languages';
-	import {
-		DEEPGRAM_TRANSCRIPTION_MODELS,
-		ELEVENLABS_TRANSCRIPTION_MODELS,
-		GROQ_MODELS,
-		OPENAI_TRANSCRIPTION_MODELS,
-		TRANSCRIPTION_SERVICE_OPTIONS,
-	} from '$lib/constants/transcription';
+	import { DEEPGRAM_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/deepgram';
+	import { ELEVENLABS_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/elevenlabs';
+	import { GROQ_MODELS } from '$lib/services/transcription/cloud/groq';
+	import { MISTRAL_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/mistral';
+	import { OPENAI_TRANSCRIPTION_MODELS } from '$lib/services/transcription/cloud/openai';
+	import { PARAKEET_MODELS } from '$lib/services/transcription/local/parakeet';
+	import { WHISPER_MODELS } from '$lib/services/transcription/local/whispercpp';
 	import { settings } from '$lib/stores/settings.svelte';
 	import { CheckIcon, InfoIcon } from '@lucide/svelte';
 	import * as Alert from '@repo/ui/alert';
 	import { Badge } from '@repo/ui/badge';
 	import { Button } from '@repo/ui/button';
 	import * as Card from '@repo/ui/card';
-	import { Checkbox } from '@repo/ui/checkbox';
 	import { Link } from '@repo/ui/link';
 	import { Separator } from '@repo/ui/separator';
-	import {
-		hasRecordingCompatibilityIssue,
-		switchToCpalAt16kHz,
-		RECORDING_COMPATIBILITY_MESSAGE,
-	} from '../../../+layout/check-ffmpeg';
+	import { hasNavigatorLocalTranscriptionIssue } from '../../../+layout/check-ffmpeg';
 
 	const { data } = $props();
+
+	// Prompt and temperature are not supported for local models like transcribe-rs (whispercpp/parakeet)
+	const isPromptAndTemperatureNotSupported = $derived(
+		settings.value['transcription.selectedTranscriptionService'] ===
+			'whispercpp' ||
+			settings.value['transcription.selectedTranscriptionService'] ===
+				'parakeet',
+	);
+
+	// Parakeet doesn't support language selection (auto-detect only)
+	const isLanguageSelectionSupported = $derived(
+		settings.value['transcription.selectedTranscriptionService'] !== 'parakeet',
+	);
 </script>
 
 <svelte:head>
@@ -53,10 +63,9 @@
 	</div>
 	<Separator />
 
-	<LabeledSelect
+	<TranscriptionServiceSelect
 		id="selected-transcription-service"
 		label="Transcription Service"
-		items={TRANSCRIPTION_SERVICE_OPTIONS}
 		bind:selected={
 			() => settings.value['transcription.selectedTranscriptionService'],
 			(selected) =>
@@ -65,7 +74,6 @@
 					selected,
 				)
 		}
-		placeholder="Select a transcription service"
 	/>
 
 	{#if settings.value['transcription.selectedTranscriptionService'] === 'OpenAI'}
@@ -137,6 +145,35 @@
 			renderOption={renderModelOption}
 		/>
 		<DeepgramApiKeyInput />
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'Mistral'}
+		<LabeledSelect
+			id="mistral-model"
+			label="Mistral Model"
+			items={MISTRAL_TRANSCRIPTION_MODELS.map((model) => ({
+				value: model.name,
+				label: model.name,
+				...model,
+			}))}
+			bind:selected={
+				() => settings.value['transcription.mistral.model'],
+				(selected) =>
+					settings.updateKey('transcription.mistral.model', selected)
+			}
+			renderOption={renderModelOption}
+		>
+			{#snippet description()}
+				You can find more details about Voxtral speech understanding in the <Button
+					variant="link"
+					class="px-0.3 py-0.2 h-fit"
+					href="https://mistral.ai/news/voxtral/"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Mistral docs
+				</Button>.
+			{/snippet}
+		</LabeledSelect>
+		<MistralApiKeyInput />
 	{:else if settings.value['transcription.selectedTranscriptionService'] === 'ElevenLabs'}
 		<LabeledSelect
 			id="elevenlabs-model"
@@ -333,36 +370,201 @@
 		<div class="space-y-4">
 			<!-- Whisper Model Selector Component -->
 			{#if window.__TAURI_INTERNALS__}
-				<WhisperModelSelector />
-			{/if}
+				<LocalModelSelector
+					models={WHISPER_MODELS}
+					title="Whisper Model"
+					description="Select a pre-built model or browse for your own. Models run locally for private, offline transcription."
+					fileSelectionMode="file"
+					fileExtensions={['bin', 'gguf', 'ggml']}
+					bind:value={
+						() => settings.value['transcription.whispercpp.modelPath'],
+						(v) => settings.updateKey('transcription.whispercpp.modelPath', v)
+					}
+				>
+					{#snippet prebuiltFooter()}
+						<p class="text-sm text-muted-foreground">
+							Models are downloaded from{' '}
+							<Link
+								href="https://huggingface.co/ggerganov/whisper.cpp"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Hugging Face
+							</Link>
+							{' '}and stored locally in your app data directory. Quantized
+							models offer smaller sizes with minimal quality loss.
+						</p>
+					{/snippet}
 
-			{#if hasRecordingCompatibilityIssue() && !data.ffmpegInstalled}
-				<Alert.Root class="border-amber-500/20 bg-amber-500/5">
-					<InfoIcon class="size-4 text-amber-600 dark:text-amber-400" />
-					<Alert.Title class="text-amber-600 dark:text-amber-400">
-						Recording Compatibility Issue
-					</Alert.Title>
-					<Alert.Description>
-						{RECORDING_COMPATIBILITY_MESSAGE}
-						<div class="mt-3 space-y-3">
-							<div class="flex items-center gap-2">
-								<span class="text-sm"><strong>Option 1:</strong></span>
-								<Button
-									onclick={switchToCpalAt16kHz}
-									variant="secondary"
-									size="sm"
-								>
-									Switch to CPAL 16kHz
-								</Button>
-							</div>
-							<div class="text-sm">
-								<strong>Option 2:</strong>
-								<Link href="/install-ffmpeg">Install FFmpeg</Link>
-								to keep your current recording settings
-							</div>
+					{#snippet manualInstructions()}
+						<div>
+							<p class="text-sm font-medium mb-2">
+								<span class="text-muted-foreground">Step 1:</span> Download a Whisper
+								model
+							</p>
+							<ul class="ml-6 mt-2 space-y-2 text-sm text-muted-foreground">
+								<li class="list-disc">
+									Visit the{' '}
+									<Link
+										href="https://huggingface.co/ggerganov/whisper.cpp/tree/main"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										model repository
+									</Link>
+								</li>
+								<li class="list-disc">
+									Download any model file (e.g., ggml-base.en.bin for
+									English-only)
+								</li>
+								<li class="list-disc">
+									Quantized models (q5_0, q8_0) offer smaller sizes with minimal
+									quality loss
+								</li>
+							</ul>
 						</div>
-					</Alert.Description>
-				</Alert.Root>
+					{/snippet}
+				</LocalModelSelector>
+
+				{#if hasNavigatorLocalTranscriptionIssue( { isFFmpegInstalled: data.ffmpegInstalled ?? false }, )}
+					<Alert.Root class="border-red-500/20 bg-red-500/5">
+						<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+						<Alert.Title class="text-red-600 dark:text-red-400">
+							Browser API Recording Requires FFmpeg
+						</Alert.Title>
+						<Alert.Description>
+							You're using the Browser API recording method, which produces
+							compressed audio that requires FFmpeg for Whisper C++
+							transcription.
+							<div class="mt-3 space-y-3">
+								<div class="text-sm">
+									<strong>Option 1:</strong>
+									<Link href="/settings/recording"
+										>Switch to CPAL recording</Link
+									>
+									for direct compatibility with local transcription
+								</div>
+								<div class="text-sm">
+									<strong>Option 2:</strong>
+									<Link href="/install-ffmpeg">Install FFmpeg</Link>
+									to keep using Browser API recording
+								</div>
+								<div class="text-sm">
+									<strong>Option 3:</strong>
+									Switch to a cloud transcription service (OpenAI, Groq, Deepgram,
+									etc.) which work with all recording methods
+								</div>
+							</div>
+						</Alert.Description>
+					</Alert.Root>
+				{/if}
+			{/if}
+		</div>
+	{:else if settings.value['transcription.selectedTranscriptionService'] === 'parakeet'}
+		<div class="space-y-4">
+			<!-- Parakeet Model Selector Component -->
+			{#if window.__TAURI_INTERNALS__}
+				<LocalModelSelector
+					models={PARAKEET_MODELS}
+					title="Parakeet Model"
+					description="Parakeet is an NVIDIA NeMo model optimized for fast local transcription. It automatically detects the language and doesn't support manual language selection."
+					fileSelectionMode="directory"
+					bind:value={
+						() => settings.value['transcription.parakeet.modelPath'],
+						(v) => settings.updateKey('transcription.parakeet.modelPath', v)
+					}
+				>
+					{#snippet prebuiltFooter()}
+						<p class="text-sm text-muted-foreground">
+							Models are downloaded from{' '}
+							<Link
+								href="https://github.com/epicenter-md/epicenter/releases/tag/models/parakeet-tdt-0.6b-v3-int8"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								GitHub releases
+							</Link>
+							{' '}and stored in your app data directory. The pre-packaged
+							archive contains the NVIDIA Parakeet model with INT8 quantization
+							and is extracted after download.
+						</p>
+					{/snippet}
+
+					{#snippet manualInstructions()}
+						<Card.Root class="bg-muted/50">
+							<Card.Content class="p-4">
+								<h4 class="mb-2 text-sm font-medium">
+									Getting Parakeet Models
+								</h4>
+								<ul class="space-y-2 text-sm text-muted-foreground">
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Download pre-built models from the "Pre-built Models" tab
+										</span>
+									</li>
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Or download from{' '}
+											<Link
+												href="https://github.com/NVIDIA/NeMo"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												NVIDIA NeMo
+											</Link>
+										</span>
+									</li>
+									<li class="flex items-start gap-2">
+										<span
+											class="mt-0.5 block size-1.5 rounded-full bg-muted-foreground/50"
+										/>
+										<span>
+											Parakeet models are directories containing ONNX files
+										</span>
+									</li>
+								</ul>
+							</Card.Content>
+						</Card.Root>
+					{/snippet}
+				</LocalModelSelector>
+
+				{#if hasNavigatorLocalTranscriptionIssue( { isFFmpegInstalled: data.ffmpegInstalled ?? false }, )}
+					<Alert.Root class="border-red-500/20 bg-red-500/5">
+						<InfoIcon class="size-4 text-red-600 dark:text-red-400" />
+						<Alert.Title class="text-red-600 dark:text-red-400">
+							Browser API Recording Requires FFmpeg
+						</Alert.Title>
+						<Alert.Description>
+							You're using the Browser API recording method, which produces
+							compressed audio that requires FFmpeg for Parakeet transcription.
+							<div class="mt-3 space-y-3">
+								<div class="text-sm">
+									<strong>Option 1:</strong>
+									<Link href="/settings/recording"
+										>Switch to CPAL recording</Link
+									>
+									for direct compatibility with local transcription
+								</div>
+								<div class="text-sm">
+									<strong>Option 2:</strong>
+									<Link href="/install-ffmpeg">Install FFmpeg</Link>
+									to keep using Browser API recording
+								</div>
+								<div class="text-sm">
+									<strong>Option 3:</strong>
+									Switch to a cloud transcription service (OpenAI, Groq, Deepgram,
+									etc.) which work with all recording methods
+								</div>
+							</div>
+						</Alert.Description>
+					</Alert.Root>
+				{/if}
 			{/if}
 		</div>
 	{/if}
@@ -379,6 +581,10 @@
 			(selected) => settings.updateKey('transcription.outputLanguage', selected)
 		}
 		placeholder="Select a language"
+		disabled={!isLanguageSelectionSupported}
+		description={!isLanguageSelectionSupported
+			? 'Parakeet automatically detects the language'
+			: undefined}
 	/>
 
 	<LabeledInput
@@ -393,7 +599,10 @@
 			() => settings.value['transcription.temperature'],
 			(value) => settings.updateKey('transcription.temperature', value)
 		}
-		description="Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."
+		description={isPromptAndTemperatureNotSupported
+			? 'Temperature is not supported for local models (transcribe-rs)'
+			: "Controls randomness in the model's output. 0 is focused and deterministic, 1 is more creative."}
+		disabled={isPromptAndTemperatureNotSupported}
 	/>
 
 	<LabeledTextarea
@@ -404,7 +613,10 @@
 			() => settings.value['transcription.prompt'],
 			(value) => settings.updateKey('transcription.prompt', value)
 		}
-		description="Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules."
+		description={isPromptAndTemperatureNotSupported
+			? 'System prompt is not supported for local models (transcribe-rs)'
+			: 'Helps transcription service (e.g., Whisper) better recognize specific terms, names, or context during initial transcription. Not for text transformations - use the Transformations tab for post-processing rules.'}
+		disabled={isPromptAndTemperatureNotSupported}
 	/>
 </div>
 

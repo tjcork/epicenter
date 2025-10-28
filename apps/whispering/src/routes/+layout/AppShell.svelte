@@ -22,12 +22,16 @@
 		syncLocalShortcutsWithSettings,
 	} from './register-commands';
 	import { registerOnboarding } from './register-onboarding';
-	import { checkFfmpeg } from './check-ffmpeg';
+	import {
+		checkFfmpegRecordingMethodCompatibility,
+		checkCompressionRecommendation,
+	} from './check-ffmpeg';
 	import {
 		registerAccessibilityPermission,
 		registerMicrophonePermission,
 	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { migrateModelPaths } from './migration';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -42,8 +46,12 @@
 		window.goto = goto;
 		syncLocalShortcutsWithSettings();
 		resetLocalShortcutsToDefaultIfDuplicates();
-		await checkFfmpeg();
+		await checkFfmpegRecordingMethodCompatibility();
+		await checkCompressionRecommendation();
 		if (window.__TAURI_INTERNALS__) {
+			// Run one-time migrations before other operations
+			await migrateModelPaths();
+
 			syncGlobalShortcutsWithSettings();
 			resetGlobalShortcutsToDefaultIfDuplicates();
 			await checkForUpdates();
@@ -71,7 +79,7 @@
 	$effect(() => {
 		getRecorderStateQuery.data;
 		getVadStateQuery.data;
-		services.db.cleanupExpiredRecordings({
+		services.db.recordings.cleanupExpired({
 			recordingRetentionStrategy:
 				settings.value['database.recordingRetentionStrategy'],
 			maxRecordingCount: settings.value['database.maxRecordingCount'],

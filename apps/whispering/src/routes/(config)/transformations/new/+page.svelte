@@ -8,7 +8,7 @@
 	import { createMutation } from '@tanstack/svelte-query';
 
 	const createTransformation = createMutation(
-		rpc.transformations.mutations.createTransformation.options,
+		rpc.db.transformations.create.options,
 	);
 
 	let transformation = $state(generateDefaultTransformation());

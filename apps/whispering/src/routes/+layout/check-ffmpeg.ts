@@ -3,50 +3,38 @@ import { goto } from '$app/navigation';
 import { rpc } from '$lib/query';
 import { settings } from '$lib/stores/settings.svelte';
 
-export const RECORDING_COMPATIBILITY_MESSAGE =
-	'Whisper C++ requires audio in 16kHz WAV format. Install FFmpeg to convert your recordings or switch to CPAL 16kHz mode.';
-
 export const COMPRESSION_RECOMMENDED_MESSAGE =
 	"Since you're using CPAL recording with cloud transcription, we recommend enabling audio compression to reduce file sizes and upload times.";
 
-/**
- * Switches recording settings to CPAL at 16kHz to resolve Whisper C++ compatibility
- */
-export function switchToCpalAt16kHz() {
-	settings.update({
-		'recording.method': 'cpal',
-		'recording.cpal.sampleRate': '16000',
-	});
-	toast.success('Recording settings updated', {
-		description:
-			'Switched to CPAL recording at 16kHz for Whisper C++ compatibility',
-	});
+export const NAVIGATOR_LOCAL_TRANSCRIPTION_MESSAGE =
+	'Browser API recording produces compressed audio that requires FFmpeg for local transcription. Switch to CPAL recording or install FFmpeg.';
+
+export const RECORDING_COMPATIBILITY_MESSAGE =
+	'Browser API recording produces compressed audio that requires FFmpeg for local transcription. Switch to CPAL recording, install FFmpeg, or use a cloud transcription service.';
+
+function isUsingLocalTranscription(): boolean {
+	const service = settings.value['transcription.selectedTranscriptionService'];
+	return service === 'whispercpp' || service === 'parakeet';
 }
 
-function isUsingWhisperCpp(): boolean {
-	return (
+/**
+ * Checks if the current recording + transcription configuration will work
+ * @returns true if Navigator recording is used with local transcription but FFmpeg is not installed
+ */
+export function hasNavigatorLocalTranscriptionIssue({
+	isFFmpegInstalled,
+}: {
+	isFFmpegInstalled: boolean;
+}): boolean {
+	if (!window.__TAURI_INTERNALS__) return false;
+
+	const isUsingNavigator = settings.value['recording.method'] === 'navigator';
+	const isUsingLocalTranscription =
 		settings.value['transcription.selectedTranscriptionService'] ===
-		'whispercpp'
-	);
-}
+			'whispercpp' ||
+		settings.value['transcription.selectedTranscriptionService'] === 'parakeet';
 
-function isUsing16kHz(): boolean {
-	return settings.value['recording.cpal.sampleRate'] === '16000';
-}
-
-/**
- * Checks if there's a compatibility issue between recording and transcription settings.
- * This occurs when using Whisper C++ with any recording method except CPAL at 16kHz.
- * @returns true when there's a compatibility issue that needs to be resolved
- */
-export function hasRecordingCompatibilityIssue(): boolean {
-	if (!isUsingWhisperCpp()) return false;
-
-	if (settings.value['recording.method'] === 'cpal' && isUsing16kHz()) {
-		return false; // CPAL at 16kHz with Whisper C++ doesn't need FFmpeg
-	}
-
-	return true; // All other Whisper C++ combinations need FFmpeg
+	return isUsingNavigator && isUsingLocalTranscription && !isFFmpegInstalled;
 }
 
 /**
@@ -56,61 +44,107 @@ export function hasRecordingCompatibilityIssue(): boolean {
 export function isCompressionRecommended(): boolean {
 	return (
 		settings.value['recording.method'] === 'cpal' &&
-		!isUsingWhisperCpp() &&
+		!isUsingLocalTranscription() &&
 		!settings.value['transcription.compressionEnabled']
 	);
 }
 
 /**
- * Checks for FFmpeg installation and shows an appropriate toast based on current settings.
+ * Checks if FFmpeg recording method is selected but FFmpeg is not installed.
+ * Shows a warning toast prompting the user to install FFmpeg when this incompatibility is detected.
  *
- * REQUIRED: Whisper C++ + any method except CPAL at 16kHz
- * RECOMMENDED: When compression is recommended (CPAL + cloud transcription + compression not enabled)
+ * This function is specifically for validating the FFmpeg recording method selection.
+ * It ensures users who have explicitly chosen FFmpeg as their recording method have it installed.
+ *
+ * @returns Promise<void> - Shows toast notification if FFmpeg method is selected but not installed
  */
-export async function checkFfmpeg() {
+export async function checkFfmpegRecordingMethodCompatibility() {
 	if (!window.__TAURI_INTERNALS__) return;
+
+	// Only check if FFmpeg recording method is selected
+	if (settings.value['recording.method'] !== 'ffmpeg') return;
 
 	const { data: ffmpegInstalled } =
 		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
 	if (ffmpegInstalled) return; // FFmpeg is installed, all good
 
 	// FFmpeg recording method selected but not installed
-	if (settings.value['recording.method'] === 'ffmpeg') {
-		toast.warning('FFmpeg Required for FFmpeg Recording Method', {
-			description:
-				'You have selected FFmpeg as your recording method, but FFmpeg is not installed.',
-			action: {
-				label: 'Install FFmpeg',
-				onClick: () => goto('/install-ffmpeg'),
-			},
-			duration: 15000,
-		});
-		return;
-	}
+	toast.warning('FFmpeg Required for FFmpeg Recording Method', {
+		description:
+			'You have selected FFmpeg as your recording method, but FFmpeg is not installed.',
+		action: {
+			label: 'Install FFmpeg',
+			onClick: () => goto('/install-ffmpeg'),
+		},
+		duration: 15000,
+	});
+}
 
-	// Recording compatibility issue with Whisper C++ (except CPAL at 16kHz)
-	if (hasRecordingCompatibilityIssue()) {
-		toast.warning('Recording Settings Incompatible', {
-			description: RECORDING_COMPATIBILITY_MESSAGE,
-			action: {
-				label: 'Go to Recording Settings',
-				onClick: () => goto('/settings/recording'),
-			},
-			duration: 15000,
-		});
-		return;
-	}
+/**
+ * Checks for compatibility issues between local transcription models and current recording settings.
+ * Shows a warning toast with resolution options when incompatible settings are detected.
+ *
+ * Local transcription models (Whisper C++ and Parakeet) require audio in 16kHz mono WAV format.
+ * This function detects when current recording settings won't produce compatible audio and offers
+ * two solutions: installing FFmpeg for automatic conversion or switching to CPAL at 16kHz.
+ *
+ * @returns Promise<void> - Shows toast notification if local transcription has compatibility issues
+ */
+export async function checkLocalTranscriptionCompatibility() {
+	if (!window.__TAURI_INTERNALS__) return;
 
-	// FFmpeg is RECOMMENDED for compression (CPAL + cloud transcription + compression not enabled)
-	if (isCompressionRecommended()) {
-		toast.info('Enable Compression for Faster Uploads', {
-			description: COMPRESSION_RECOMMENDED_MESSAGE,
-			action: {
-				label: 'Go to Transcription Settings',
-				onClick: () => goto('/settings/transcription'),
-			},
-			duration: 10000,
-		});
+	const { data: ffmpegInstalled } =
+		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+
+	// Check if there are compatibility issues with local transcription
+	if (
+		!hasNavigatorLocalTranscriptionIssue({
+			isFFmpegInstalled: ffmpegInstalled ?? false,
+		})
+	)
 		return;
-	}
+
+	// Recording compatibility issue with local transcription models
+	toast.warning('Recording Settings Incompatible', {
+		description: RECORDING_COMPATIBILITY_MESSAGE,
+		action: {
+			label: 'Go to Recording Settings',
+			onClick: () => goto('/settings/recording'),
+		},
+		duration: 15000,
+	});
+}
+
+/**
+ * Checks if audio compression should be recommended for optimal cloud transcription performance.
+ * Shows an info toast suggesting compression when using CPAL recording with cloud services.
+ *
+ * Compression is recommended when:
+ * - Using CPAL recording method (which produces uncompressed WAV files)
+ * - Using cloud transcription services (not local models)
+ * - Compression is not already enabled
+ *
+ * This helps reduce file sizes and upload times for cloud transcription services.
+ *
+ * @returns Promise<void> - Shows toast notification if compression is recommended
+ */
+export async function checkCompressionRecommendation() {
+	if (!window.__TAURI_INTERNALS__) return;
+
+	// Check if compression should be recommended
+	if (!isCompressionRecommended()) return;
+
+	const { data: ffmpegInstalled } =
+		await rpc.ffmpeg.checkFfmpegInstalled.ensure();
+	if (ffmpegInstalled) return; // FFmpeg is required for compression
+
+	// FFmpeg is RECOMMENDED for compression
+	toast.info('Enable Compression for Faster Uploads', {
+		description: COMPRESSION_RECOMMENDED_MESSAGE,
+		action: {
+			label: 'Go to Transcription Settings',
+			onClick: () => goto('/settings/transcription'),
+		},
+		duration: 10000,
+	});
 }

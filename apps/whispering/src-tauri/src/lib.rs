@@ -8,14 +8,18 @@ use recorder::commands::{
     get_current_recording_id, init_recording_session, start_recording, stop_recording, AppData,
 };
 
-pub mod whisper_cpp;
-use whisper_cpp::transcribe_with_whisper_cpp;
+pub mod transcription;
+use transcription::{transcribe_audio_whisper, transcribe_audio_parakeet, ModelManager};
 
 pub mod windows_path;
 use windows_path::fix_windows_path;
 
 pub mod graceful_shutdown;
 use graceful_shutdown::send_sigint;
+
+pub mod command;
+use command::{execute_command, spawn_command};
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
@@ -54,7 +58,8 @@ pub async fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .manage(AppData::new());
+        .manage(AppData::new())
+        .manage(ModelManager::new());
 
     #[cfg(desktop)]
     {
@@ -77,9 +82,12 @@ pub async fn run() {
         start_recording,
         stop_recording,
         cancel_recording,
-        // Whisper transcription
-        transcribe_with_whisper_cpp,
+        transcribe_audio_whisper,
+        transcribe_audio_parakeet,
         send_sigint,
+        // Command execution (prevents console window flash on Windows)
+        execute_command,
+        spawn_command,
     ]);
 
     let app = builder

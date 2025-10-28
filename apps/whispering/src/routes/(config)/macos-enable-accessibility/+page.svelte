@@ -5,7 +5,7 @@
 	import { SettingsIcon, CheckIcon, ArrowLeft } from '@lucide/svelte';
 	import * as services from '$lib/services';
 	import { toast } from 'svelte-sonner';
-	import { Command } from '@tauri-apps/plugin-shell';
+	import { asShellCommand } from '$lib/services/command/types';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
@@ -28,21 +28,13 @@
 	}
 
 	async function openSystemSettings() {
-		try {
-			// Try opening System Settings directly (works on macOS 13+)
-			const command = Command.create('open', [
-				'x-apple.systemsettings:com.apple.SystemSettings.extension',
-			]);
-			await command.execute();
+		// Try opening System Settings directly (works on macOS 13+)
+		const { error: commandError } = await services.command.execute(
+			asShellCommand('open x-apple.systemsettings:com.apple.SystemSettings.extension'),
+		);
 
-			// Show helpful toast since we can't open directly to accessibility
-			toast.info('System Settings Opened', {
-				description:
-					'Navigate to Privacy & Security > Accessibility to grant permissions.',
-				duration: 8000,
-			});
-		} catch (error) {
-			console.error('Failed to open System Settings:', error);
+		if (commandError) {
+			console.error('Failed to open System Settings:', commandError);
 
 			// Fallback: Show detailed instructions
 			toast.info('Open System Settings Manually', {
@@ -50,7 +42,15 @@
 					'Click Apple menu → System Settings → Privacy & Security → Accessibility',
 				duration: 10000,
 			});
+			return;
 		}
+
+		// Show helpful toast since we can't open directly to accessibility
+		toast.info('System Settings Opened', {
+			description:
+				'Navigate to Privacy & Security > Accessibility to grant permissions.',
+			duration: 8000,
+		});
 	}
 </script>
 
@@ -63,8 +63,9 @@
 		<Card.Header>
 			<Card.Title class="text-xl">MacOS Accessibility</Card.Title>
 			<Card.Description class="leading-7">
-				Follow the steps below to re-enable Whispering in your macOS Accessibility settings. 
-				This often is needed after installing new versions of Whispering due to a macOS bug.
+				Follow the steps below to re-enable Whispering in your macOS
+				Accessibility settings. This often is needed after installing new
+				versions of Whispering due to a macOS bug.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
@@ -85,7 +86,7 @@
 					<!-- Direct video for web version -->
 					<video
 						class="max-w-md rounded-lg border"
-						src="https://github.com/epicenter-so/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
+						src="https://github.com/epicenter-md/epicenter/releases/download/_assets/macos_enable_accessibility.mp4"
 						autoplay
 						loop
 						controls

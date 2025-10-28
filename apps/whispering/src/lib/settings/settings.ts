@@ -29,6 +29,7 @@
  * - Easy to add/remove/rename settings
  */
 
+import { type ZodBoolean, type ZodString, z } from 'zod';
 import type { Command } from '$lib/commands';
 import {
 	BITRATE_VALUES_KBPS,
@@ -38,20 +39,20 @@ import {
 import { CommandOrAlt, CommandOrControl } from '$lib/constants/keyboard';
 import { SUPPORTED_LANGUAGES } from '$lib/constants/languages';
 import type { WhisperingSoundNames } from '$lib/constants/sounds';
-import { TRANSCRIPTION_SERVICE_IDS } from '$lib/constants/transcription';
-import type { ElevenLabsModel } from '$lib/services/transcription/elevenlabs';
-import type { GroqModel } from '$lib/services/transcription/groq';
-import type { OpenAIModel } from '$lib/services/transcription/openai';
 import { ALWAYS_ON_TOP_VALUES } from '$lib/constants/ui';
-import { asDeviceIdentifier } from '$lib/services/types';
 import {
+	FFMPEG_DEFAULT_COMPRESSION_OPTIONS,
 	FFMPEG_DEFAULT_GLOBAL_OPTIONS,
 	FFMPEG_DEFAULT_INPUT_OPTIONS,
 	FFMPEG_DEFAULT_OUTPUT_OPTIONS,
-	FFMPEG_DEFAULT_COMPRESSION_OPTIONS,
 } from '$lib/services/recorder/ffmpeg';
-import { type ZodBoolean, type ZodString, z } from 'zod';
-import type { DeepgramModel } from '$lib/services/transcription/deepgram';
+import type { DeepgramModel } from '$lib/services/transcription/cloud/deepgram';
+import type { ElevenLabsModel } from '$lib/services/transcription/cloud/elevenlabs';
+import type { GroqModel } from '$lib/services/transcription/cloud/groq';
+import type { MistralModel } from '$lib/services/transcription/cloud/mistral';
+import type { OpenAIModel } from '$lib/services/transcription/cloud/openai';
+import { TRANSCRIPTION_SERVICE_IDS } from '$lib/services/transcription/registry';
+import { asDeviceIdentifier } from '$lib/services/types';
 
 /**
  * The main settings schema that defines all application settings.
@@ -193,11 +194,16 @@ export const settingsSchema = z.object({
 		.string()
 		.transform((val) => val as (string & {}) | DeepgramModel['name'])
 		.default('nova-3' satisfies DeepgramModel['name']),
+	'transcription.mistral.model': z
+		.string()
+		.transform((val) => val as (string & {}) | MistralModel['name'])
+		.default('voxtral-mini-latest' satisfies MistralModel['name']),
 	'transcription.speaches.baseUrl': z.string().default('http://localhost:8000'),
 	'transcription.speaches.modelId': z
 		.string()
 		.default('Systran/faster-distil-whisper-small.en'),
 	'transcription.whispercpp.modelPath': z.string().default(''),
+	'transcription.parakeet.modelPath': z.string().default(''),
 
 	'transformations.selectedTransformationId': z
 		.string()
@@ -215,6 +221,7 @@ export const settingsSchema = z.object({
 	'apiKeys.google': z.string().default(''),
 	'apiKeys.deepgram': z.string().default(''),
 	'apiKeys.elevenlabs': z.string().default(''),
+	'apiKeys.mistral': z.string().default(''),
 	'apiKeys.openrouter': z.string().default(''),
 
 	// Analytics settings

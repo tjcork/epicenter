@@ -536,7 +536,7 @@ Whispering now supports direct file uploads! 🎙️
 
 Simply drag and drop (or click to browse) your audio files for instant transcription, with your model of choice.
 
-Free open-source app: https://github.com/epicenter-so/epicenter
+Free open-source app: https://github.com/epicenter-md/epicenter
 ```
 
 ### Bad (AI-Generated Feel)
@@ -552,7 +552,7 @@ Built with the same philosophy of transparency and user control, you pay only ac
 
 Ready to revolutionize your workflow? Try it now!
 
-🔗 GitHub: https://github.com/epicenter-so/epicenter
+🔗 GitHub: https://github.com/epicenter-md/epicenter
 
 #OpenSource #Productivity #Innovation #DeveloperTools #Transcription
 ```
@@ -582,7 +582,7 @@ The component handles web drag-and-drop, but since Whispering is a Tauri desktop
 
 You can see the [full implementation here](link) (note that the code is still somewhat messy by my standards; it is slated for cleanup!).
 
-Whispering is a large, open-source, production Svelte 5 + Tauri app: https://github.com/epicenter-so/epicenter
+Whispering is a large, open-source, production Svelte 5 + Tauri app: https://github.com/epicenter-md/epicenter
 
 Feel free to check it out for more patterns! If you're building Svelte 5 apps and need file uploads, definitely check out shadcn-svelte-extras. Not affiliated, it just saved me hours of implementation time.
 
@@ -947,6 +947,22 @@ src/
 - Use PostHog's autocapture for basic interaction tracking
 - Implement custom events for business-specific actions
 - Use feature flags for A/B testing and gradual rollouts
+
+# GitHub Pull Request Merge Strategy
+
+When merging pull requests using `gh pr merge`, always use a **regular merge commit**, never a squash merge.
+
+**Correct command:**
+```bash
+gh pr merge <pr-number> --merge
+```
+
+**Never use:**
+```bash
+gh pr merge <pr-number> --squash  # ❌ Don't use this
+```
+
+This preserves the full commit history and makes it easier to track individual changes over time.
 
 ---
 
