@@ -339,77 +339,71 @@ const recordingWithSerializedAudioToRecording = (
 };
 
 export type DbService = {
-	getAllRecordings(): Promise<Result<Recording[], DbServiceError>>;
-	getLatestRecording(): Promise<Result<Recording | null, DbServiceError>>;
-	getTranscribingRecordingIds(): Promise<Result<string[], DbServiceError>>;
-	getRecordingById(
-		id: string,
-	): Promise<Result<Recording | null, DbServiceError>>;
-	createRecording(
-		recording: Recording,
-	): Promise<Result<Recording, DbServiceError>>;
-	updateRecording(
-		recording: Recording,
-	): Promise<Result<Recording, DbServiceError>>;
-	deleteRecording(recording: Recording): Promise<Result<void, DbServiceError>>;
-	deleteRecordings(
-		recordingsToDelete: Recording[],
-	): Promise<Result<void, DbServiceError>>;
-	cleanupExpiredRecordings(params: {
-		recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
-		maxRecordingCount: Settings['database.maxRecordingCount'];
-	}): Promise<Result<void, DbServiceError>>;
-	getAllTransformations(): Promise<Result<Transformation[], DbServiceError>>;
-	getTransformationById(
-		id: string,
-	): Promise<Result<Transformation | null, DbServiceError>>;
-	createTransformation(
-		transformation: Transformation,
-	): Promise<Result<Transformation, DbServiceError>>;
-	updateTransformation(
-		transformation: Transformation,
-	): Promise<Result<Transformation, DbServiceError>>;
-	deleteTransformation(
-		transformation: Transformation,
-	): Promise<Result<void, DbServiceError>>;
-	deleteTransformations(
-		transformations: Transformation[],
-	): Promise<Result<void, DbServiceError>>;
-	getTransformationRunById(
-		id: string,
-	): Promise<Result<TransformationRun | null, DbServiceError>>;
-	getTransformationRunsByTransformationId(
-		transformationId: string,
-	): Promise<Result<TransformationRun[], DbServiceError>>;
-	getTransformationRunsByRecordingId(
-		recordingId: string,
-	): Promise<Result<TransformationRun[], DbServiceError>>;
-	createTransformationRun(params: {
-		transformationId: string;
-		recordingId: string | null;
-		input: string;
-	}): Promise<Result<TransformationRun, DbServiceError>>;
-	addRunStep(params: {
-		run: TransformationRun;
-		step: {
-			id: string;
+	recordings: {
+		getAll(): Promise<Result<Recording[], DbServiceError>>;
+		getLatest(): Promise<Result<Recording | null, DbServiceError>>;
+		getTranscribingIds(): Promise<Result<string[], DbServiceError>>;
+		getById(id: string): Promise<Result<Recording | null, DbServiceError>>;
+		create(recording: Recording): Promise<Result<Recording, DbServiceError>>;
+		update(recording: Recording): Promise<Result<Recording, DbServiceError>>;
+		delete(
+			recordings: Recording | Recording[],
+		): Promise<Result<void, DbServiceError>>;
+		cleanupExpired(params: {
+			recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
+			maxRecordingCount: Settings['database.maxRecordingCount'];
+		}): Promise<Result<void, DbServiceError>>;
+	};
+	transformations: {
+		getAll(): Promise<Result<Transformation[], DbServiceError>>;
+		getById(id: string): Promise<Result<Transformation | null, DbServiceError>>;
+		create(
+			transformation: Transformation,
+		): Promise<Result<Transformation, DbServiceError>>;
+		update(
+			transformation: Transformation,
+		): Promise<Result<Transformation, DbServiceError>>;
+		delete(
+			transformations: Transformation | Transformation[],
+		): Promise<Result<void, DbServiceError>>;
+	};
+	runs: {
+		getById(
+			id: string,
+		): Promise<Result<TransformationRun | null, DbServiceError>>;
+		getByTransformationId(
+			transformationId: string,
+		): Promise<Result<TransformationRun[], DbServiceError>>;
+		getByRecordingId(
+			recordingId: string,
+		): Promise<Result<TransformationRun[], DbServiceError>>;
+		create(params: {
+			transformationId: string;
+			recordingId: string | null;
 			input: string;
-		};
-	}): Promise<Result<TransformationStepRun, DbServiceError>>;
-	failRunStep(params: {
-		run: TransformationRun;
-		stepRunId: string;
-		error: string;
-	}): Promise<Result<TransformationRunFailed, DbServiceError>>;
-	completeRunStep(params: {
-		run: TransformationRun;
-		stepRunId: string;
-		output: string;
-	}): Promise<Result<TransformationRun, DbServiceError>>;
-	completeRun(params: {
-		run: TransformationRun;
-		output: string;
-	}): Promise<Result<TransformationRunCompleted, DbServiceError>>;
+		}): Promise<Result<TransformationRun, DbServiceError>>;
+		addStep(
+			run: TransformationRun,
+			step: {
+				id: string;
+				input: string;
+			},
+		): Promise<Result<TransformationStepRun, DbServiceError>>;
+		failStep(
+			run: TransformationRun,
+			stepRunId: string,
+			error: string,
+		): Promise<Result<TransformationRunFailed, DbServiceError>>;
+		completeStep(
+			run: TransformationRun,
+			stepRunId: string,
+			output: string,
+		): Promise<Result<TransformationRun, DbServiceError>>;
+		complete(
+			run: TransformationRun,
+			output: string,
+		): Promise<Result<TransformationRunCompleted, DbServiceError>>;
+	};
 };
 
 export function createDbServiceDexie({
@@ -419,306 +413,290 @@ export function createDbServiceDexie({
 }): DbService {
 	const db = new WhisperingDatabase({ DownloadService });
 	return {
-		getAllRecordings: async () => {
-			return tryAsync({
-				try: async () => {
-					const recordings = await db.recordings
-						.orderBy('timestamp')
-						.reverse()
-						.toArray();
-					return Dexie.waitFor(
-						Promise.all(
-							recordings.map(recordingWithSerializedAudioToRecording),
-						),
-					);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting all recordings from Dexie',
-						cause: error,
-					}),
-			});
-		},
+		recordings: {
+			getAll: async () => {
+				return tryAsync({
+					try: async () => {
+						const recordings = await db.recordings
+							.orderBy('timestamp')
+							.reverse()
+							.toArray();
+						return Dexie.waitFor(
+							Promise.all(
+								recordings.map(recordingWithSerializedAudioToRecording),
+							),
+						);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting all recordings from Dexie',
+							cause: error,
+						}),
+				});
+			},
 
-		getLatestRecording: async () => {
-			return tryAsync({
-				try: async () => {
-					const latestRecording = await db.recordings
-						.orderBy('timestamp')
-						.reverse()
-						.first();
-					if (!latestRecording) return null;
-					return recordingWithSerializedAudioToRecording(latestRecording);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting latest recording from Dexie',
-						cause: error,
-					}),
-			});
-		},
+			getLatest: async () => {
+				return tryAsync({
+					try: async () => {
+						const latestRecording = await db.recordings
+							.orderBy('timestamp')
+							.reverse()
+							.first();
+						if (!latestRecording) return null;
+						return recordingWithSerializedAudioToRecording(latestRecording);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting latest recording from Dexie',
+							cause: error,
+						}),
+				});
+			},
 
-		getTranscribingRecordingIds: async () => {
-			return tryAsync({
-				try: () =>
-					db.recordings
-						.where('transcriptionStatus')
-						.equals('TRANSCRIBING' satisfies Recording['transcriptionStatus'])
-						.primaryKeys(),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting transcribing recording ids from Dexie',
-						cause: error,
-					}),
-			});
-		},
+			getTranscribingIds: async () => {
+				return tryAsync({
+					try: () =>
+						db.recordings
+							.where('transcriptionStatus')
+							.equals('TRANSCRIBING' satisfies Recording['transcriptionStatus'])
+							.primaryKeys(),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting transcribing recording ids from Dexie',
+							cause: error,
+						}),
+				});
+			},
 
-		getRecordingById: async (id: string) => {
-			return tryAsync({
-				try: async () => {
-					const maybeRecording = await db.recordings.get(id);
-					if (!maybeRecording) return null;
-					return recordingWithSerializedAudioToRecording(maybeRecording);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting recording by id from Dexie',
-						context: { id },
-						cause: error,
-					}),
-			});
-		},
+			getById: async (id: string) => {
+				return tryAsync({
+					try: async () => {
+						const maybeRecording = await db.recordings.get(id);
+						if (!maybeRecording) return null;
+						return recordingWithSerializedAudioToRecording(maybeRecording);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting recording by id from Dexie',
+							context: { id },
+							cause: error,
+						}),
+				});
+			},
 
-		createRecording: async (recording: Recording) => {
-			const now = new Date().toISOString();
-			const recordingWithTimestamps = {
-				...recording,
-				createdAt: now,
-				updatedAt: now,
-			} satisfies Recording;
+			create: async (recording: Recording) => {
+				const now = new Date().toISOString();
+				const recordingWithTimestamps = {
+					...recording,
+					createdAt: now,
+					updatedAt: now,
+				} satisfies Recording;
 
-			const dbRecording = await recordingToRecordingWithSerializedAudio(
-				recordingWithTimestamps,
-			);
+				const dbRecording = await recordingToRecordingWithSerializedAudio(
+					recordingWithTimestamps,
+				);
 
-			const { error: createRecordingError } = await tryAsync({
-				try: async () => {
-					await db.recordings.add(dbRecording);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error adding recording to Dexie',
-						context: { recording },
-						cause: error,
-					}),
-			});
-			if (createRecordingError) return Err(createRecordingError);
-			return Ok(recordingWithTimestamps);
-		},
+				const { error: createRecordingError } = await tryAsync({
+					try: async () => {
+						await db.recordings.add(dbRecording);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error adding recording to Dexie',
+							context: { recording },
+							cause: error,
+						}),
+				});
+				if (createRecordingError) return Err(createRecordingError);
+				return Ok(recordingWithTimestamps);
+			},
 
-		updateRecording: async (recording: Recording) => {
-			const now = new Date().toISOString();
-			const recordingWithTimestamp = {
-				...recording,
-				updatedAt: now,
-			} satisfies Recording;
+			update: async (recording: Recording) => {
+				const now = new Date().toISOString();
+				const recordingWithTimestamp = {
+					...recording,
+					updatedAt: now,
+				} satisfies Recording;
 
-			const dbRecording = await recordingToRecordingWithSerializedAudio(
-				recordingWithTimestamp,
-			);
+				const dbRecording = await recordingToRecordingWithSerializedAudio(
+					recordingWithTimestamp,
+				);
 
-			const { error: updateRecordingError } = await tryAsync({
-				try: async () => {
-					await db.recordings.put(dbRecording);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error updating recording in Dexie',
-						context: { recording },
-						cause: error,
-					}),
-			});
-			if (updateRecordingError) return Err(updateRecordingError);
-			return Ok(recordingWithTimestamp);
-		},
+				const { error: updateRecordingError } = await tryAsync({
+					try: async () => {
+						await db.recordings.put(dbRecording);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error updating recording in Dexie',
+							context: { recording },
+							cause: error,
+						}),
+				});
+				if (updateRecordingError) return Err(updateRecordingError);
+				return Ok(recordingWithTimestamp);
+			},
 
-		deleteRecording: async (recording: Recording) => {
-			const { error: deleteRecordingError } = await tryAsync({
-				try: async () => {
-					await db.recordings.delete(recording.id);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error deleting recording from Dexie',
-						context: { recording },
-						cause: error,
-					}),
-			});
-			if (deleteRecordingError) return Err(deleteRecordingError);
-			return Ok(undefined);
-		},
+			delete: async (recordings: Recording | Recording[]) => {
+				const recordingsArray = Array.isArray(recordings)
+					? recordings
+					: [recordings];
+				const ids = recordingsArray.map((r) => r.id);
+				const { error: deleteRecordingsError } = await tryAsync({
+					try: () => db.recordings.bulkDelete(ids),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error deleting recordings from Dexie',
+							context: { recordings },
+							cause: error,
+						}),
+				});
+				if (deleteRecordingsError) return Err(deleteRecordingsError);
+				return Ok(undefined);
+			},
 
-		deleteRecordings: async (recordingsToDelete: Recording[]) => {
-			const ids = recordingsToDelete.map((r) => r.id);
-			const { error: deleteRecordingsError } = await tryAsync({
-				try: () => db.recordings.bulkDelete(ids),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error deleting recordings from Dexie',
-						context: { recordingsToDelete },
-						cause: error,
-					}),
-			});
-			if (deleteRecordingsError) return Err(deleteRecordingsError);
-			return Ok(undefined);
-		},
+			/**
+			 * Checks and deletes expired recordings based on current settings.
+			 * This should be called:
+			 * 1. On initial load
+			 * 2. Before adding new recordings
+			 * 3. When retention settings change
+			 */
+			cleanupExpired: async ({
+				recordingRetentionStrategy,
+				maxRecordingCount,
+			}: {
+				recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
+				maxRecordingCount: Settings['database.maxRecordingCount'];
+			}) => {
+				switch (recordingRetentionStrategy) {
+					case 'keep-forever': {
+						return Ok(undefined);
+					}
+					case 'limit-count': {
+						const { data: count, error: countError } = await tryAsync({
+							try: () => db.recordings.count(),
+							catch: (error) =>
+								DbServiceErr({
+									message:
+										'Unable to get recording count while cleaning up old recordings',
+									context: { maxRecordingCount, recordingRetentionStrategy },
+									cause: error,
+								}),
+						});
+						if (countError) return Err(countError);
+						if (count === 0) return Ok(undefined);
 
-		/**
-		 * Checks and deletes expired recordings based on current settings.
-		 * This should be called:
-		 * 1. On initial load
-		 * 2. Before adding new recordings
-		 * 3. When retention settings change
-		 */
-		cleanupExpiredRecordings: async ({
-			recordingRetentionStrategy,
-			maxRecordingCount,
-		}: {
-			recordingRetentionStrategy: Settings['database.recordingRetentionStrategy'];
-			maxRecordingCount: Settings['database.maxRecordingCount'];
-		}) => {
-			switch (recordingRetentionStrategy) {
-				case 'keep-forever': {
-					return Ok(undefined);
+						const maxCount = Number.parseInt(maxRecordingCount);
+
+						if (count <= maxCount) return Ok(undefined);
+
+						return tryAsync({
+							try: async () => {
+								const idsToDelete = await db.recordings
+									.orderBy('createdAt')
+									.limit(count - maxCount)
+									.primaryKeys();
+								await db.recordings.bulkDelete(idsToDelete);
+							},
+							catch: (error) =>
+								DbServiceErr({
+									message: 'Unable to clean up old recordings',
+									context: { count, maxCount, recordingRetentionStrategy },
+									cause: error,
+								}),
+						});
+					}
 				}
-				case 'limit-count': {
-					const { data: count, error: countError } = await tryAsync({
-						try: () => db.recordings.count(),
-						catch: (error) =>
-							DbServiceErr({
-								message:
-									'Unable to get recording count while cleaning up old recordings',
-								context: { maxRecordingCount, recordingRetentionStrategy },
-								cause: error,
-							}),
-					});
-					if (countError) return Err(countError);
-					if (count === 0) return Ok(undefined);
+			},
+		}, // End of recordings namespace
 
-					const maxCount = Number.parseInt(maxRecordingCount);
+		transformations: {
+			getAll: async () => {
+				return tryAsync({
+					try: () => db.transformations.toArray(),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting all transformations from Dexie',
+							cause: error,
+						}),
+				});
+			},
 
-					if (count <= maxCount) return Ok(undefined);
+			getById: async (id: string) => {
+				return tryAsync({
+					try: async () => {
+						const maybeTransformation =
+							(await db.transformations.get(id)) ?? null;
+						return maybeTransformation;
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error getting transformation by id from Dexie',
+							context: { id },
+							cause: error,
+						}),
+				});
+			},
 
-					return tryAsync({
-						try: async () => {
-							const idsToDelete = await db.recordings
-								.orderBy('createdAt')
-								.limit(count - maxCount)
-								.primaryKeys();
-							await db.recordings.bulkDelete(idsToDelete);
-						},
-						catch: (error) =>
-							DbServiceErr({
-								message: 'Unable to clean up old recordings',
-								context: { count, maxCount, recordingRetentionStrategy },
-								cause: error,
-							}),
-					});
-				}
-			}
-		},
-		getAllTransformations: async () => {
-			return tryAsync({
-				try: () => db.transformations.toArray(),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting all transformations from Dexie',
-						cause: error,
-					}),
-			});
-		},
+			create: async (transformation: Transformation) => {
+				const { error: createTransformationError } = await tryAsync({
+					try: () => db.transformations.add(transformation),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error adding transformation to Dexie',
+							context: { transformation },
+							cause: error,
+						}),
+				});
+				if (createTransformationError) return Err(createTransformationError);
+				return Ok(transformation);
+			},
 
-		getTransformationById: async (id: string) => {
-			return tryAsync({
-				try: async () => {
-					const maybeTransformation =
-						(await db.transformations.get(id)) ?? null;
-					return maybeTransformation;
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error getting transformation by id from Dexie',
-						context: { id },
-						cause: error,
-					}),
-			});
-		},
+			update: async (transformation: Transformation) => {
+				const now = new Date().toISOString();
+				const transformationWithTimestamp = {
+					...transformation,
+					updatedAt: now,
+				} satisfies Transformation;
+				const { error: updateTransformationError } = await tryAsync({
+					try: () => db.transformations.put(transformationWithTimestamp),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error updating transformation in Dexie',
+							context: { transformation },
+							cause: error,
+						}),
+				});
+				if (updateTransformationError) return Err(updateTransformationError);
+				return Ok(transformationWithTimestamp);
+			},
 
-		createTransformation: async (transformation: Transformation) => {
-			const { error: createTransformationError } = await tryAsync({
-				try: () => db.transformations.add(transformation),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error adding transformation to Dexie',
-						context: { transformation },
-						cause: error,
-					}),
-			});
-			if (createTransformationError) return Err(createTransformationError);
-			return Ok(transformation);
-		},
+			delete: async (transformations: Transformation | Transformation[]) => {
+				const transformationsArray = Array.isArray(transformations)
+					? transformations
+					: [transformations];
+				const ids = transformationsArray.map((t) => t.id);
+				const { error: deleteTransformationsError } = await tryAsync({
+					try: () => db.transformations.bulkDelete(ids),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error deleting transformations from Dexie',
+							context: { transformations },
+							cause: error,
+						}),
+				});
+				if (deleteTransformationsError) return Err(deleteTransformationsError);
+				return Ok(undefined);
+			},
+		}, // End of transformations namespace
 
-		updateTransformation: async (transformation: Transformation) => {
-			const now = new Date().toISOString();
-			const transformationWithTimestamp = {
-				...transformation,
-				updatedAt: now,
-			} satisfies Transformation;
-			const { error: updateTransformationError } = await tryAsync({
-				try: () => db.transformations.put(transformationWithTimestamp),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error updating transformation in Dexie',
-						context: { transformation },
-						cause: error,
-					}),
-			});
-			if (updateTransformationError) return Err(updateTransformationError);
-			return Ok(transformationWithTimestamp);
-		},
-
-		deleteTransformation: async (transformation: Transformation) => {
-			const { error: deleteTransformationError } = await tryAsync({
-				try: () => db.transformations.delete(transformation.id),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error deleting transformation from Dexie',
-						context: { transformation },
-						cause: error,
-					}),
-			});
-			if (deleteTransformationError) return Err(deleteTransformationError);
-			return Ok(undefined);
-		},
-
-		deleteTransformations: async (transformations: Transformation[]) => {
-			const ids = transformations.map((t) => t.id);
-			const { error: deleteTransformationsError } = await tryAsync({
-				try: () => db.transformations.bulkDelete(ids),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error deleting transformations from Dexie',
-						context: { transformations },
-						cause: error,
-					}),
-			});
-			if (deleteTransformationsError) return Err(deleteTransformationsError);
-			return Ok(undefined);
-		},
-
-		getTransformationRunById: async (id: string) => {
-			const { data: transformationRun, error: getTransformationRunByIdError } =
-				await tryAsync({
+		runs: {
+			getById: async (id: string) => {
+				const {
+					data: transformationRun,
+					error: getTransformationRunByIdError,
+				} = await tryAsync({
 					try: () => db.transformationRuns.where('id').equals(id).first(),
 					catch: (error) =>
 						DbServiceErr({
@@ -727,257 +705,242 @@ export function createDbServiceDexie({
 							cause: error,
 						}),
 				});
-			if (getTransformationRunByIdError)
-				return Err(getTransformationRunByIdError);
-			return Ok(transformationRun ?? null);
-		},
+				if (getTransformationRunByIdError)
+					return Err(getTransformationRunByIdError);
+				return Ok(transformationRun ?? null);
+			},
 
-		getTransformationRunsByTransformationId: async (
-			transformationId: string,
-		) => {
-			return tryAsync({
-				try: async () => {
-					const runs = await db.transformationRuns
-						.where('transformationId')
-						.equals(transformationId)
-						.reverse()
-						.toArray();
+			getByTransformationId: async (transformationId: string) => {
+				return tryAsync({
+					try: async () => {
+						const runs = await db.transformationRuns
+							.where('transformationId')
+							.equals(transformationId)
+							.reverse()
+							.toArray();
 
-					if (!runs) return [];
+						if (!runs) return [];
 
-					return runs.sort(
-						(a, b) =>
-							new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
-					);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message:
-							'Error getting transformation runs by transformation id from Dexie',
-						context: { transformationId },
-						cause: error,
-					}),
-			});
-		},
+						return runs.sort(
+							(a, b) =>
+								new Date(b.startedAt).getTime() -
+								new Date(a.startedAt).getTime(),
+						);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message:
+								'Error getting transformation runs by transformation id from Dexie',
+							context: { transformationId },
+							cause: error,
+						}),
+				});
+			},
 
-		getTransformationRunsByRecordingId: async (recordingId: string) => {
-			return tryAsync({
-				try: async () => {
-					const runs = await db.transformationRuns
-						.where('recordingId')
-						.equals(recordingId)
-						.toArray();
+			getByRecordingId: async (recordingId: string) => {
+				return tryAsync({
+					try: async () => {
+						const runs = await db.transformationRuns
+							.where('recordingId')
+							.equals(recordingId)
+							.toArray();
 
-					if (!runs) return [];
+						if (!runs) return [];
 
-					return runs.sort(
-						(a, b) =>
-							new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
-					);
-				},
-				catch: (error) =>
-					DbServiceErr({
-						message:
-							'Error getting transformation runs by recording id from Dexie',
-						context: { recordingId },
-						cause: error,
-					}),
-			});
-		},
+						return runs.sort(
+							(a, b) =>
+								new Date(b.startedAt).getTime() -
+								new Date(a.startedAt).getTime(),
+						);
+					},
+					catch: (error) =>
+						DbServiceErr({
+							message:
+								'Error getting transformation runs by recording id from Dexie',
+							context: { recordingId },
+							cause: error,
+						}),
+				});
+			},
 
-		createTransformationRun: async ({
-			transformationId,
-			recordingId,
-			input,
-		}: {
-			transformationId: string;
-			recordingId: string | null;
-			input: string;
-		}) => {
-			const now = new Date().toISOString();
-			const transformationRunWithTimestamps = {
-				id: nanoid(),
+			create: async ({
 				transformationId,
 				recordingId,
 				input,
-				startedAt: now,
-				completedAt: null,
-				status: 'running',
-				stepRuns: [],
-			} satisfies TransformationRunRunning;
-			const { error: createTransformationRunError } = await tryAsync({
-				try: () => db.transformationRuns.add(transformationRunWithTimestamps),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error adding transformation run to Dexie',
-						context: { transformationId, recordingId, input },
-						cause: error,
-					}),
-			});
-			if (createTransformationRunError)
-				return Err(createTransformationRunError);
-			return Ok(transformationRunWithTimestamps);
-		},
-
-		addRunStep: async ({
-			run,
-			step,
-		}: {
-			run: TransformationRun;
-			step: {
-				id: string;
+			}: {
+				transformationId: string;
+				recordingId: string | null;
 				input: string;
-			};
-		}) => {
-			const now = new Date().toISOString();
-			const newTransformationStepRun = {
-				id: nanoid(),
-				stepId: step.id,
-				input: step.input,
-				startedAt: now,
-				completedAt: null,
-				status: 'running',
-			} satisfies TransformationStepRunRunning;
+			}) => {
+				const now = new Date().toISOString();
+				const transformationRunWithTimestamps = {
+					id: nanoid(),
+					transformationId,
+					recordingId,
+					input,
+					startedAt: now,
+					completedAt: null,
+					status: 'running',
+					stepRuns: [],
+				} satisfies TransformationRunRunning;
+				const { error: createTransformationRunError } = await tryAsync({
+					try: () => db.transformationRuns.add(transformationRunWithTimestamps),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error adding transformation run to Dexie',
+							context: { transformationId, recordingId, input },
+							cause: error,
+						}),
+				});
+				if (createTransformationRunError)
+					return Err(createTransformationRunError);
+				return Ok(transformationRunWithTimestamps);
+			},
 
-			const updatedRun: TransformationRun = {
-				...run,
-				stepRuns: [...run.stepRuns, newTransformationStepRun],
-			};
+			addStep: async (
+				run: TransformationRun,
+				step: {
+					id: string;
+					input: string;
+				},
+			) => {
+				const now = new Date().toISOString();
+				const newTransformationStepRun = {
+					id: nanoid(),
+					stepId: step.id,
+					input: step.input,
+					startedAt: now,
+					completedAt: null,
+					status: 'running',
+				} satisfies TransformationStepRunRunning;
 
-			const { error: addStepRunToTransformationRunError } = await tryAsync({
-				try: () => db.transformationRuns.put(updatedRun),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error adding step run to transformation run in Dexie',
-						context: { run, step },
-						cause: error,
+				const updatedRun: TransformationRun = {
+					...run,
+					stepRuns: [...run.stepRuns, newTransformationStepRun],
+				};
+
+				const { error: addStepRunToTransformationRunError } = await tryAsync({
+					try: () => db.transformationRuns.put(updatedRun),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error adding step run to transformation run in Dexie',
+							context: { run, step },
+							cause: error,
+						}),
+				});
+				if (addStepRunToTransformationRunError)
+					return Err(addStepRunToTransformationRunError);
+
+				return Ok(newTransformationStepRun);
+			},
+
+			failStep: async (
+				run: TransformationRun,
+				stepRunId: string,
+				error: string,
+			) => {
+				const now = new Date().toISOString();
+
+				// Create the failed transformation run
+				const failedRun: TransformationRunFailed = {
+					...run,
+					status: 'failed',
+					completedAt: now,
+					error,
+					stepRuns: run.stepRuns.map((stepRun) => {
+						if (stepRun.id === stepRunId) {
+							const failedStepRun: TransformationStepRunFailed = {
+								...stepRun,
+								status: 'failed',
+								completedAt: now,
+								error,
+							};
+							return failedStepRun;
+						}
+						return stepRun;
 					}),
-			});
-			if (addStepRunToTransformationRunError)
-				return Err(addStepRunToTransformationRunError);
+				};
 
-			return Ok(newTransformationStepRun);
-		},
+				const { error: updateTransformationStepRunError } = await tryAsync({
+					try: () => db.transformationRuns.put(failedRun),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error updating transformation run as failed in Dexie',
+							context: { run, stepId: stepRunId, error },
+							cause: error,
+						}),
+				});
+				if (updateTransformationStepRunError)
+					return Err(updateTransformationStepRunError);
 
-		failRunStep: async ({
-			run,
-			stepRunId,
-			error,
-		}: {
-			run: TransformationRun;
-			stepRunId: string;
-			error: string;
-		}) => {
-			const now = new Date().toISOString();
+				return Ok(failedRun);
+			},
 
-			// Create the failed transformation run
-			const failedRun: TransformationRunFailed = {
-				...run,
-				status: 'failed',
-				completedAt: now,
-				error,
-				stepRuns: run.stepRuns.map((stepRun) => {
-					if (stepRun.id === stepRunId) {
-						const failedStepRun: TransformationStepRunFailed = {
-							...stepRun,
-							status: 'failed',
-							completedAt: now,
-							error,
-						};
-						return failedStepRun;
-					}
-					return stepRun;
-				}),
-			};
+			completeStep: async (
+				run: TransformationRun,
+				stepRunId: string,
+				output: string,
+			) => {
+				const now = new Date().toISOString();
 
-			const { error: updateTransformationStepRunError } = await tryAsync({
-				try: () => db.transformationRuns.put(failedRun),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error updating transformation run as failed in Dexie',
-						context: { run, stepId: stepRunId, error },
-						cause: error,
+				// Create updated transformation run with the new step runs
+				const updatedRun: TransformationRun = {
+					...run,
+					stepRuns: run.stepRuns.map((stepRun) => {
+						if (stepRun.id === stepRunId) {
+							const completedStepRun: TransformationStepRunCompleted = {
+								...stepRun,
+								status: 'completed',
+								completedAt: now,
+								output,
+							};
+							return completedStepRun;
+						}
+						return stepRun;
 					}),
-			});
-			if (updateTransformationStepRunError)
-				return Err(updateTransformationStepRunError);
+				};
 
-			return Ok(failedRun);
-		},
+				const { error: updateTransformationStepRunError } = await tryAsync({
+					try: () => db.transformationRuns.put(updatedRun),
+					catch: (error) =>
+						DbServiceErr({
+							message: 'Error updating transformation step run status in Dexie',
+							context: { run, stepId: stepRunId, output },
+							cause: error,
+						}),
+				});
+				if (updateTransformationStepRunError)
+					return Err(updateTransformationStepRunError);
 
-		completeRunStep: async ({
-			run,
-			stepRunId,
-			output,
-		}: {
-			run: TransformationRun;
-			stepRunId: string;
-			output: string;
-		}) => {
-			const now = new Date().toISOString();
+				return Ok(updatedRun);
+			},
 
-			// Create updated transformation run with the new step runs
-			const updatedRun: TransformationRun = {
-				...run,
-				stepRuns: run.stepRuns.map((stepRun) => {
-					if (stepRun.id === stepRunId) {
-						const completedStepRun: TransformationStepRunCompleted = {
-							...stepRun,
-							status: 'completed',
-							completedAt: now,
-							output,
-						};
-						return completedStepRun;
-					}
-					return stepRun;
-				}),
-			};
+			complete: async (run: TransformationRun, output: string) => {
+				const now = new Date().toISOString();
 
-			const { error: updateTransformationStepRunError } = await tryAsync({
-				try: () => db.transformationRuns.put(updatedRun),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error updating transformation step run status in Dexie',
-						context: { run, stepId: stepRunId, output },
-						cause: error,
-					}),
-			});
-			if (updateTransformationStepRunError)
-				return Err(updateTransformationStepRunError);
+				// Create the completed transformation run
+				const completedRun: TransformationRunCompleted = {
+					...run,
+					status: 'completed',
+					completedAt: now,
+					output,
+				};
 
-			return Ok(updatedRun);
-		},
+				const { error: updateTransformationStepRunError } = await tryAsync({
+					try: () => db.transformationRuns.put(completedRun),
+					catch: (error) =>
+						DbServiceErr({
+							message:
+								'Error updating transformation run as completed in Dexie',
+							context: { run, output },
+							cause: error,
+						}),
+				});
+				if (updateTransformationStepRunError)
+					return Err(updateTransformationStepRunError);
 
-		completeRun: async ({
-			run,
-			output,
-		}: {
-			run: TransformationRun;
-			output: string;
-		}) => {
-			const now = new Date().toISOString();
-
-			// Create the completed transformation run
-			const completedRun: TransformationRunCompleted = {
-				...run,
-				status: 'completed',
-				completedAt: now,
-				output,
-			};
-
-			const { error: updateTransformationStepRunError } = await tryAsync({
-				try: () => db.transformationRuns.put(completedRun),
-				catch: (error) =>
-					DbServiceErr({
-						message: 'Error updating transformation run as completed in Dexie',
-						context: { run, output },
-						cause: error,
-					}),
-			});
-			if (updateTransformationStepRunError)
-				return Err(updateTransformationStepRunError);
-
-			return Ok(completedRun);
-		},
+				return Ok(completedRun);
+			},
+		}, // End of runs namespace
 	};
 }

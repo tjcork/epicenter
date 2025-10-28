@@ -5,13 +5,12 @@ import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { rpc } from './';
 import { defineMutation } from './_client';
+import { db } from './db';
 import { delivery } from './delivery';
 import { notify } from './notify';
 import { recorder } from './recorder';
-import { recordings } from './recordings';
 import { sound } from './sound';
 import { transcription } from './transcription';
-import { transformations } from './transformations';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
 
@@ -439,7 +438,7 @@ async function processRecordingPipeline({
 	const newRecordingId = nanoid();
 
 	const { data: createdRecording, error: createRecordingError } =
-		await recordings.createRecording.execute({
+		await db.recordings.create.execute({
 			id: newRecordingId,
 			title: '',
 			subtitle: '',
@@ -506,9 +505,7 @@ async function processRecordingPipeline({
 	// Check if transformation is valid if specified
 	if (!transformationId) return;
 	const { data: transformation, error: getTransformationError } =
-		await transformations.queries
-			.getTransformationById(() => transformationId)
-			.fetch();
+		await db.transformations.getById(() => transformationId).fetch();
 
 	const transformationNoLongerExists = !transformation;
 

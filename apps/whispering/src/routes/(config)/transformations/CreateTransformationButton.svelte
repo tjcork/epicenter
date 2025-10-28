@@ -10,7 +10,7 @@
 	import { PlusIcon } from '@lucide/svelte';
 
 	const createTransformation = createMutation(
-		rpc.transformations.mutations.createTransformation.options,
+		rpc.db.transformations.create.options,
 	);
 
 	let isDialogOpen = $state(false);

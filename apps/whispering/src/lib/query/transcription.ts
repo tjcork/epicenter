@@ -9,8 +9,8 @@ import type { Recording } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
 import { rpc } from './';
 import { defineMutation, queryClient } from './_client';
+import { db } from './db';
 import { notify } from './notify';
-import { recordings } from './recordings';
 
 const transcriptionKeys = {
 	isTranscribing: ['transcription', 'isTranscribing'] as const,
@@ -36,7 +36,7 @@ export const transcription = {
 				});
 			}
 			const { error: setRecordingTranscribingError } =
-				await recordings.updateRecording.execute({
+				await db.recordings.update.execute({
 					...recording,
 					transcriptionStatus: 'TRANSCRIBING',
 				});
@@ -55,7 +55,7 @@ export const transcription = {
 				await transcribeBlob(recording.blob);
 			if (transcribeError) {
 				const { error: setRecordingTranscribingError } =
-					await recordings.updateRecording.execute({
+					await db.recordings.update.execute({
 						...recording,
 						transcriptionStatus: 'FAILED',
 					});
@@ -74,7 +74,7 @@ export const transcription = {
 			}
 
 			const { error: setRecordingTranscribedTextError } =
-				await recordings.updateRecording.execute({
+				await db.recordings.update.execute({
 					...recording,
 					transcribedText,
 					transcriptionStatus: 'DONE',

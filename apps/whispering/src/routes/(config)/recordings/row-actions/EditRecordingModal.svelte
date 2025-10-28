@@ -13,13 +13,9 @@
 	import { PencilIcon as EditIcon, Loader2Icon } from '@lucide/svelte';
 	import { onDestroy } from 'svelte';
 
-	const updateRecording = createMutation(
-		rpc.recordings.updateRecording.options,
-	);
+	const updateRecording = createMutation(rpc.db.recordings.update.options);
 
-	const deleteRecording = createMutation(
-		rpc.recordings.deleteRecording.options,
-	);
+	const deleteRecording = createMutation(rpc.db.recordings.delete.options);
 
 	let { recording }: { recording: Recording } = $props();
 

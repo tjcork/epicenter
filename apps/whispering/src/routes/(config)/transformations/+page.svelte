@@ -37,10 +37,10 @@
 	import TransformationRowActions from './TransformationRowActions.svelte';
 
 	const transformationsQuery = createQuery(
-		rpc.transformations.queries.getAllTransformations.options,
+		rpc.db.transformations.getAll.options,
 	);
 	const deleteTransformations = createMutation(
-		rpc.transformations.mutations.deleteTransformations.options,
+		rpc.db.transformations.delete.options,
 	);
 
 	const columns: ColumnDef<Transformation>[] = [
