@@ -1,6 +1,6 @@
 import type { DownloadService } from '$lib/services/download';
-import { createDbServiceWeb } from './web';
 import type { DbService } from './types';
+import { createDbServiceWeb } from './web';
 
 export function createDbServiceDesktop({
 	DownloadService,
