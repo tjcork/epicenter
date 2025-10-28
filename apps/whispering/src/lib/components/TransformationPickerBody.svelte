@@ -1,16 +1,22 @@
 <script lang="ts">
 	import { Badge } from '@repo/ui/badge';
 	import * as Command from '@repo/ui/command';
+	import { Kbd } from '@repo/ui/kbd';
 	import { rpc } from '$lib/query';
 	import type { Transformation } from '$lib/services/db';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { LayersIcon } from '@lucide/svelte';
+	import { PLATFORM_TYPE } from '$lib/constants/platform';
+	import { onMount } from 'svelte';
 
 	const transformationsQuery = createQuery(
 		rpc.db.transformations.getAll.options,
 	);
 
 	const transformations = $derived(transformationsQuery.data ?? []);
+
+	const isMac = PLATFORM_TYPE === 'macos';
+	const modifierKey = isMac ? '⌘' : 'Ctrl';
 
 	let {
 		onSelect,
@@ -37,6 +43,25 @@
 		 */
 		class?: string;
 	} = $props();
+
+	// Keyboard shortcut handler for Cmd/Ctrl + 0-9
+	onMount(() => {
+		function handleKeyDown(e: KeyboardEvent) {
+			const isCmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+			if (isCmdOrCtrl && e.key >= '0' && e.key <= '9') {
+				e.preventDefault();
+				const index = e.key === '0' ? 9 : parseInt(e.key) - 1; // 0 maps to 10th item
+
+				if (transformations[index]) {
+					onSelect(transformations[index]);
+				}
+			}
+		}
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	});
 </script>
 
 {#snippet renderTransformationIdTitle(transformation: Transformation)}
@@ -54,11 +79,11 @@
 	<Command.Input {placeholder} />
 	<Command.Empty>No transformation found.</Command.Empty>
 	<Command.Group class="overflow-y-auto max-h-[400px]">
-		{#each transformations as transformation (transformation.id)}
+		{#each transformations as transformation, index (transformation.id)}
 			<Command.Item
 				value="${transformation.id} - ${transformation.title} - ${transformation.description}"
 				onSelect={() => onSelect(transformation)}
-				class="flex items-center gap-2 p-2"
+				class="flex items-center justify-between gap-2 p-2"
 			>
 				<div class="flex flex-col min-w-0">
 					{@render renderTransformationIdTitle(transformation)}
@@ -68,6 +93,11 @@
 						</span>
 					{/if}
 				</div>
+				{#if index < 10}
+					<Kbd class="ml-auto shrink-0">
+						{modifierKey}{index === 9 ? '0' : index + 1}
+					</Kbd>
+				{/if}
 			</Command.Item>
 		{/each}
 	</Command.Group>
