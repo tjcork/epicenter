@@ -31,6 +31,7 @@
 		registerMicrophonePermission,
 	} from './register-permissions';
 	import { syncIconWithRecorderState } from './syncIconWithRecorderState.svelte';
+	import { migrateModelPaths } from './migration';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -48,6 +49,9 @@
 		await checkFfmpegRecordingMethodCompatibility();
 		await checkCompressionRecommendation();
 		if (window.__TAURI_INTERNALS__) {
+			// Run one-time migrations before other operations
+			await migrateModelPaths();
+
 			syncGlobalShortcutsWithSettings();
 			resetGlobalShortcutsToDefaultIfDuplicates();
 			await checkForUpdates();
