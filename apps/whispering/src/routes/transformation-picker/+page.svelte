@@ -36,8 +36,8 @@
 	});
 </script>
 
-<div class="flex h-screen flex-col gap-4 p-6">
-	<div class="space-y-2">
+<div class="flex h-screen flex-col">
+	<div class="space-y-2 px-6 pt-6 pb-4">
 		<h2 class="text-2xl font-semibold">Transform Clipboard</h2>
 		<p class="text-sm text-muted-foreground">
 			Select a transformation to apply to your clipboard text
@@ -45,18 +45,21 @@
 	</div>
 
 	{#if clipboardQuery.isPending}
-		<div class="flex min-h-32 items-center justify-center">
+		<div class="flex min-h-32 items-center justify-center px-6">
 			<p class="text-sm text-muted-foreground">Reading clipboard...</p>
 		</div>
 	{:else}
-		<Textarea
-			value={clipboardText}
-			readonly
-			class="min-h-32 resize-none font-mono text-sm"
-		/>
+		<div class="px-6 pb-4">
+			<Textarea
+				value={clipboardText}
+				readonly
+				class="min-h-32 resize-none font-mono text-sm"
+			/>
+		</div>
 	{/if}
 
 	<TransformationPickerBody
+		class="flex-1 rounded-none border-t"
 		onSelect={async (transformation) => {
 			if (!clipboardText) return;
 

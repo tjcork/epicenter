@@ -16,6 +16,7 @@
 		onSelect,
 		onSelectManageTransformations,
 		placeholder,
+		class: className,
 	}: {
 		/**
 		 * Called when a transformation is selected from the list.
@@ -31,6 +32,10 @@
 		 * Placeholder text shown in the search input field.
 		 */
 		placeholder: string;
+		/**
+		 * Optional class name to apply to the command root
+		 */
+		class?: string;
 	} = $props();
 </script>
 
@@ -45,7 +50,7 @@
 	</div>
 {/snippet}
 
-<Command.Root loop>
+<Command.Root loop class={className}>
 	<Command.Input {placeholder} />
 	<Command.Empty>No transformation found.</Command.Empty>
 	<Command.Group class="overflow-y-auto max-h-[400px]">
