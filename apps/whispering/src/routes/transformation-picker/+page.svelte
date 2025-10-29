@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { emit } from '@tauri-apps/api/event';
 	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import { rpc } from '$lib/query';
 	import { hideTransformationPicker } from '$lib/tauri/transformationPickerWindow';
@@ -122,7 +122,7 @@
 				onSelectManageTransformations={async () => {
 					combobox.closeAndFocusTrigger();
 					await hideTransformationPicker();
-					goto('/transformations');
+					await emit('navigate-main-window', { path: '/transformations' });
 				}}
 				placeholder="Search transformations..."
 			/>
