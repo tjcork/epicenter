@@ -1,0 +1,62 @@
+name: build-windows
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  tauri:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: apps/whispering
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Rust (MSVC) toolchain for Tauri
+      - name: Setup Rust (MSVC)
+        run: |
+          rustup toolchain install stable-x86_64-pc-windows-msvc
+          rustup default stable-x86_64-pc-windows-msvc
+
+      # WiX is needed to produce the MSI on Windows
+      - name: Install WiX Toolset
+        run: choco install wixtoolset -y
+
+      # Install Bun (Windows)
+      - name: Install Bun
+        run: |
+          iwr https://bun.sh/install.ps1 -UseBasicParsing | iex
+          echo "$env:USERPROFILE\.bun\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      # Cache Bun + node_modules (Bun uses bun.lockb)
+      - name: Cache Bun + node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            apps/whispering/node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('apps/whispering/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      # Install JS deps with Bun
+      - name: Install dependencies
+        run: bun i
+
+      # Build the Windows executable/installer using the repo's scripts
+      - name: Build (Tauri)
+        run: bun tauri build
+
+      # Upload artifacts (EXE/MSI + raw release exe)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            apps/whispering/target/release/*.exe
+            apps/whispering/target/**/bundle/**/*.msi
+            apps/whispering/target/**/bundle/**/*.exe
