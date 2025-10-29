@@ -1,4 +1,5 @@
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { emit } from '@tauri-apps/api/event';
 import { Ok, tryAsync } from 'wellcrafted/result';
 
 const WINDOW_LABEL = 'transformation-picker';
@@ -22,9 +23,11 @@ export async function toggleTransformationPicker(): Promise<void> {
 			// Hide it
 			await existingWindow.hide();
 		} else {
-			// Show and focus it
+			// Show the window
 			await existingWindow.show();
-			await existingWindow.setFocus();
+
+			// Emit event to tell the page to open the combobox
+			await emit('transformation-picker-open-combobox');
 		}
 		windowInstance = existingWindow;
 	} else {
@@ -43,10 +46,6 @@ export async function toggleTransformationPicker(): Promise<void> {
 		});
 
 		// Handle window creation events
-		windowInstance.once('tauri://created', () => {
-			console.log('Transformation picker window created successfully');
-		});
-
 		windowInstance.once('tauri://error', (error) => {
 			console.error('Failed to create transformation picker window:', error);
 			windowInstance = null;

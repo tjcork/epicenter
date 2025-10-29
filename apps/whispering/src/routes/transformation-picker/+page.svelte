@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { emit } from '@tauri-apps/api/event';
+	import { onMount, onDestroy } from 'svelte';
+	import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event';
+	import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import { rpc } from '$lib/query';
 	import { hideTransformationPicker } from '$lib/tauri/transformationPickerWindow';
@@ -20,7 +22,30 @@
 
 	const clipboardText = $derived(clipboardQuery.data ?? '');
 
-	// Auto-open popover when window opens
+	let unlistenOpenCombobox: UnlistenFn | null = null;
+
+	// Listen for event to open combobox
+	onMount(async () => {
+		unlistenOpenCombobox = await listen(
+			'transformation-picker-open-combobox',
+			() => {
+				// Try to focus the window
+				const currentWindow = WebviewWindow.getCurrent();
+				currentWindow.setFocus().catch(() => {
+					// setFocus often fails on macOS, ignore the error
+				});
+
+				// Open the combobox
+				combobox.open = true;
+			},
+		);
+	});
+
+	onDestroy(() => {
+		unlistenOpenCombobox?.();
+	});
+
+	// Auto-open popover when clipboard has text
 	$effect(() => {
 		if (clipboardQuery.isSuccess && clipboardText.trim()) {
 			combobox.open = true;
