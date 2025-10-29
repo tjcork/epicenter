@@ -45,7 +45,7 @@ jobs:
       - name: build frontend
         run: bun --filter @repo/whispering build
 
-      # Use tauri-action just to build (no release metadata/notes/signing)
+      # Build Tauri app (uses repo-level secrets for signing)
       - name: Tauri build
         uses: tauri-apps/tauri-action@v0
         with:
@@ -53,8 +53,11 @@ jobs:
           args: ''  # no special target for Windows
         env:
           CI: true
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
