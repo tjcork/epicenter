@@ -30,6 +30,7 @@
 	} from '../_layout-utils/register-permissions';
 	import { syncIconWithRecorderState } from '../_layout-utils/syncIconWithRecorderState.svelte';
 	import { registerOnboarding } from '../_layout-utils/register-onboarding';
+	import { migrateModelPaths } from '../_layout-utils/migration';
 
 	const getRecorderStateQuery = createQuery(
 		rpc.recorder.getRecorderState.options,
@@ -48,6 +49,9 @@
 		await checkFfmpegRecordingMethodCompatibility();
 		await checkCompressionRecommendation();
 		if (window.__TAURI_INTERNALS__) {
+			// Run one-time migrations before other operations
+			await migrateModelPaths();
+
 			syncGlobalShortcutsWithSettings();
 			resetGlobalShortcutsToDefaultIfDuplicates();
 			await checkForUpdates();
