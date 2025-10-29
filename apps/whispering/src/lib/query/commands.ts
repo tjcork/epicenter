@@ -3,7 +3,7 @@ import { Err, Ok } from 'wellcrafted/result';
 import { fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
-import { toggleTransformationPicker } from '$lib/tauri/transformationPickerWindow';
+import { toggleTransformationPicker } from '../../routes/transformation-picker/transformationPickerWindow.tauri';
 import { rpc } from './';
 import { defineMutation } from './_client';
 import { db } from './db';

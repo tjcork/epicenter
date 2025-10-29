@@ -4,7 +4,7 @@
 	import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import { rpc } from '$lib/query';
-	import { hideTransformationPicker } from '$lib/tauri/transformationPickerWindow';
+	import { hideTransformationPicker } from './transformationPickerWindow.tauri';
 	import { Textarea } from '@repo/ui/textarea';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
