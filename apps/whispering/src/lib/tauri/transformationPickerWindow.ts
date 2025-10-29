@@ -57,7 +57,7 @@ export async function toggleTransformationPicker(): Promise<void> {
  * Hides the transformation picker window (doesn't destroy it for fast re-opening)
  */
 export async function hideTransformationPicker(): Promise<void> {
-	const existingWindow = await await WebviewWindow.getByLabel(WINDOW_LABEL);
+	const existingWindow = await WebviewWindow.getByLabel(WINDOW_LABEL);
 	if (existingWindow) {
 		try {
 			await existingWindow.hide();
