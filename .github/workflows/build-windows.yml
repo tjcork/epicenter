@@ -45,24 +45,21 @@ jobs:
       - name: build frontend
         run: bun --filter @repo/whispering build
 
-      # Build Tauri app (uses repo-level secrets for signing)
-      - name: Tauri build
+      # Build Tauri app -> MSI only
+      - name: Tauri build (MSI only)
         uses: tauri-apps/tauri-action@v0
         with:
           projectPath: 'apps/whispering'
-          args: ''  # no special target for Windows
+          args: '--bundles msi' 
         env:
           CI: true
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-      - name: Upload artifacts
-        if: always()
+      # Upload just the MSI as a single artifact
+      - name: Upload MSI
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build
-          path: |
-            apps/whispering/src-tauri/target/release/*.exe
-            apps/whispering/src-tauri/target/**/bundle/**/*.msi
-            apps/whispering/src-tauri/target/**/bundle/**/*.exe
+          name: windows-msi
+          path: apps/whispering/src-tauri/target/release/bundle/msi/*.msi
           retention-days: 14
