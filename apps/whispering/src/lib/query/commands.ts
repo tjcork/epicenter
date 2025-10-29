@@ -3,7 +3,7 @@ import { Err, Ok } from 'wellcrafted/result';
 import { fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
-import * as transformationPickerWindow from '../../routes/transformation-picker/transformationPickerWindow.tauri';
+import * as transformClipboardWindow from '../../routes/transform-clipboard/transformClipboardWindow.tauri';
 import { rpc } from './';
 import { defineMutation } from './_client';
 import { db } from './db';
@@ -418,7 +418,7 @@ export const commands = {
 	openTransformationPicker: defineMutation({
 		mutationKey: ['commands', 'openTransformationPicker'] as const,
 		resultMutationFn: async () => {
-			await transformationPickerWindow.toggle();
+			await transformClipboardWindow.toggle();
 			return Ok(undefined);
 		},
 	}),

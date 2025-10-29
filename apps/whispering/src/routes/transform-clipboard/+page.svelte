@@ -4,7 +4,7 @@
 	import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import { rpc } from '$lib/query';
-	import * as transformationPickerWindow from './transformationPickerWindow.tauri';
+	import * as transformClipboardWindow from './transformClipboardWindow.tauri';
 	import { Textarea } from '@repo/ui/textarea';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
@@ -27,7 +27,7 @@
 	// Listen for event to open combobox
 	onMount(async () => {
 		unlistenOpenCombobox = await listen(
-			'transformation-picker-open-combobox',
+			'transform-clipboard-open-combobox',
 			() => {
 				// Try to focus the window
 				const currentWindow = WebviewWindow.getCurrent();
@@ -61,7 +61,7 @@
 				description: clipboardQuery.error.message,
 				action: { type: 'more-details', error: clipboardQuery.error },
 			});
-			void transformationPickerWindow.hide();
+			void transformClipboardWindow.hide();
 		}
 
 		if (clipboardQuery.isSuccess && !clipboardQuery.data?.trim()) {
@@ -69,7 +69,7 @@
 				title: 'Empty clipboard',
 				description: 'Please copy some text before running a transformation.',
 			});
-			void transformationPickerWindow.hide();
+			void transformClipboardWindow.hide();
 		}
 	});
 </script>
@@ -131,7 +131,7 @@
 
 					if (transformError) {
 						rpc.notify.error.execute({ id: toastId, ...transformError });
-						await transformationPickerWindow.hide();
+						await transformClipboardWindow.hide();
 						return;
 					}
 
@@ -142,11 +142,11 @@
 						toastId,
 					});
 
-					await transformationPickerWindow.hide();
+					await transformClipboardWindow.hide();
 				}}
 				onSelectManageTransformations={async () => {
 					combobox.closeAndFocusTrigger();
-					await transformationPickerWindow.hide();
+					await transformClipboardWindow.hide();
 					await emit('navigate-main-window', { path: '/transformations' });
 				}}
 				placeholder="Search transformations..."
