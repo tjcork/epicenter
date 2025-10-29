@@ -61,9 +61,7 @@ export async function hideTransformationPicker(): Promise<void> {
 	const existingWindow = await WebviewWindow.getByLabel(WINDOW_LABEL);
 	if (existingWindow) {
 		await tryAsync({
-			try: async () => {
-				await existingWindow.hide();
-			},
+			try: () => existingWindow.hide(),
 			catch: (error) => {
 				console.error('Error hiding transformation picker window:', error);
 				return Ok(undefined);
