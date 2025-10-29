@@ -421,9 +421,6 @@ export const commands = {
 			await toggleTransformationPicker();
 			return Ok(undefined);
 		},
-		onError: (error) => {
-			notify.error.execute(error);
-		},
 	}),
 
 	// Run selected transformation on clipboard
@@ -451,10 +448,12 @@ export const commands = {
 				await db.transformations.getById(() => transformationId).fetch();
 
 			if (getTransformationError) {
-				return fromTaggedError(getTransformationError, {
-					title: '❌ Failed to get transformation',
-					action: { type: 'more-details', error: getTransformationError },
-				});
+				return Err(
+					fromTaggedError(getTransformationError, {
+						title: '❌ Failed to get transformation',
+						action: { type: 'more-details', error: getTransformationError },
+					}),
+				);
 			}
 
 			if (!transformation) {
@@ -476,7 +475,12 @@ export const commands = {
 				await text.readFromClipboard.fetch();
 
 			if (readClipboardError) {
-				return Err(readClipboardError);
+				return Err(
+					fromTaggedError(readClipboardError, {
+						title: '❌ Failed to read clipboard',
+						action: { type: 'more-details', error: readClipboardError },
+					}),
+				);
 			}
 
 			if (!clipboardText?.trim()) {
