@@ -4,7 +4,7 @@
 	import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 	import TransformationPickerBody from '$lib/components/TransformationPickerBody.svelte';
 	import { rpc } from '$lib/query';
-	import { hideTransformationPicker } from './transformationPickerWindow.tauri';
+	import * as transformationPickerWindow from './transformationPickerWindow.tauri';
 	import { Textarea } from '@repo/ui/textarea';
 	import * as Popover from '@repo/ui/popover';
 	import { useCombobox } from '@repo/ui/hooks';
@@ -61,7 +61,7 @@
 				description: clipboardQuery.error.message,
 				action: { type: 'more-details', error: clipboardQuery.error },
 			});
-			void hideTransformationPicker();
+			void transformationPickerWindow.hide();
 		}
 
 		if (clipboardQuery.isSuccess && !clipboardQuery.data?.trim()) {
@@ -69,7 +69,7 @@
 				title: 'Empty clipboard',
 				description: 'Please copy some text before running a transformation.',
 			});
-			void hideTransformationPicker();
+			void transformationPickerWindow.hide();
 		}
 	});
 </script>
@@ -131,7 +131,7 @@
 
 					if (transformError) {
 						rpc.notify.error.execute({ id: toastId, ...transformError });
-						await hideTransformationPicker();
+						await transformationPickerWindow.hide();
 						return;
 					}
 
@@ -142,11 +142,11 @@
 						toastId,
 					});
 
-					await hideTransformationPicker();
+					await transformationPickerWindow.hide();
 				}}
 				onSelectManageTransformations={async () => {
 					combobox.closeAndFocusTrigger();
-					await hideTransformationPicker();
+					await transformationPickerWindow.hide();
 					await emit('navigate-main-window', { path: '/transformations' });
 				}}
 				placeholder="Search transformations..."

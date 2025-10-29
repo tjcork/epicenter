@@ -11,7 +11,7 @@ let windowInstance: WebviewWindow | null = null;
  * Creates window on first call, then toggles visibility for instant toggling.
  * Window reads clipboard directly when shown.
  */
-export async function toggleTransformationPicker(): Promise<void> {
+export async function toggle(): Promise<void> {
 	// Check if window already exists
 	const existingWindow = await WebviewWindow.getByLabel(WINDOW_LABEL);
 
@@ -56,7 +56,7 @@ export async function toggleTransformationPicker(): Promise<void> {
 /**
  * Hides the transformation picker window (doesn't destroy it for fast re-opening)
  */
-export async function hideTransformationPicker(): Promise<void> {
+export async function hide(): Promise<void> {
 	const existingWindow = await WebviewWindow.getByLabel(WINDOW_LABEL);
 	if (existingWindow) {
 		await tryAsync({
