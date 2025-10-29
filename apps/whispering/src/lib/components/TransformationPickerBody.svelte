@@ -18,7 +18,7 @@
 	const isMac = PLATFORM_TYPE === 'macos';
 	const modifierKey = isMac ? '⌘' : 'Ctrl';
 
-	let inputElement: HTMLInputElement | undefined;
+	let inputElement = $state<HTMLInputElement | null>(null);
 
 	let {
 		onSelect,
@@ -83,7 +83,7 @@
 {/snippet}
 
 <Command.Root loop class={className}>
-	<Command.Input {placeholder} bind:this={inputElement} />
+	<Command.Input {placeholder} bind:ref={inputElement} />
 	<Command.Empty>No transformation found.</Command.Empty>
 	<Command.Group class="overflow-y-auto max-h-[400px]">
 		{#each transformations as transformation, index (transformation.id)}
