@@ -1,4 +1,5 @@
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { tryAsync, Ok } from 'wellcrafted/result';
 
 const WINDOW_LABEL = 'transformation-picker';
 
@@ -59,10 +60,14 @@ export async function toggleTransformationPicker(): Promise<void> {
 export async function hideTransformationPicker(): Promise<void> {
 	const existingWindow = await WebviewWindow.getByLabel(WINDOW_LABEL);
 	if (existingWindow) {
-		try {
-			await existingWindow.hide();
-		} catch (error) {
-			console.error('Error hiding transformation picker window:', error);
-		}
+		await tryAsync({
+			try: async () => {
+				await existingWindow.hide();
+			},
+			catch: (error) => {
+				console.error('Error hiding transformation picker window:', error);
+				return Ok(undefined);
+			},
+		});
 	}
 }
