@@ -58,10 +58,16 @@ export const commands = [
 		callback: () => rpc.commands.toggleVadRecording.execute(undefined),
 	},
 	{
-		id: 'transformClipboard',
-		title: 'Transform clipboard text',
+		id: 'openTransformationPicker',
+		title: 'Open transformation picker',
 		on: 'Pressed',
-		callback: () => rpc.commands.transformClipboard.execute(undefined),
+		callback: () => rpc.commands.openTransformationPicker.execute(undefined),
+	},
+	{
+		id: 'runTransformationOnClipboard',
+		title: 'Run transformation on clipboard',
+		on: 'Pressed',
+		callback: () => rpc.commands.runTransformationOnClipboard.execute(undefined),
 	},
 ] as const satisfies SatisfiedCommand[];
 

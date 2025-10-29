@@ -236,7 +236,8 @@ export const settingsSchema = z.object({
 		'shortcuts.local.startVadRecording': z.string().nullable().default(null),
 		'shortcuts.local.stopVadRecording': z.string().nullable().default(null),
 		'shortcuts.local.pushToTalk': z.string().nullable().default('p'),
-		'shortcuts.local.transformClipboard': z.string().nullable().default('t'),
+		'shortcuts.local.openTransformationPicker': z.string().nullable().default('t'),
+		'shortcuts.local.runTransformationOnClipboard': z.string().nullable().default(null),
 	} satisfies Record<
 		`shortcuts.local.${Command['id']}`,
 		z.ZodDefault<z.ZodNullable<ZodString>>
@@ -263,10 +264,14 @@ export const settingsSchema = z.object({
 			.string()
 			.nullable()
 			.default(`${CommandOrAlt}+Shift+D`),
-		'shortcuts.global.transformClipboard': z
+		'shortcuts.global.openTransformationPicker': z
 			.string()
 			.nullable()
 			.default(`${CommandOrControl}+Shift+X`),
+		'shortcuts.global.runTransformationOnClipboard': z
+			.string()
+			.nullable()
+			.default(null),
 	} satisfies Record<
 		`shortcuts.global.${Command['id']}`,
 		z.ZodDefault<z.ZodNullable<ZodString>>

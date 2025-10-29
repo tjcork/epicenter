@@ -1,5 +1,5 @@
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { tryAsync, Ok } from 'wellcrafted/result';
+import { Ok, tryAsync } from 'wellcrafted/result';
 
 const WINDOW_LABEL = 'transformation-picker';
 

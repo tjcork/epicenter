@@ -3,6 +3,7 @@ import { Err, Ok } from 'wellcrafted/result';
 import { fromTaggedError, WhisperingErr } from '$lib/result';
 import { DbServiceErr } from '$lib/services/db';
 import { settings } from '$lib/stores/settings.svelte';
+import { toggleTransformationPicker } from '$lib/tauri/transformationPickerWindow';
 import { rpc } from './';
 import { defineMutation } from './_client';
 import { db } from './db';
@@ -14,7 +15,6 @@ import { text } from './text';
 import { transcription } from './transcription';
 import { transformer } from './transformer';
 import { vadRecorder } from './vad-recorder';
-import { toggleTransformationPicker } from '$lib/tauri/transformationPickerWindow';
 
 // Track manual recording start time for duration calculation
 let manualRecordingStartTime: number | null = null;
@@ -421,6 +421,9 @@ export const commands = {
 			await toggleTransformationPicker();
 			return Ok(undefined);
 		},
+		onError: (error) => {
+			notify.error.execute(error);
+		},
 	}),
 
 	// Run selected transformation on clipboard
@@ -470,10 +473,9 @@ export const commands = {
 
 			// Read clipboard text
 			const { data: clipboardText, error: readClipboardError } =
-				await text.readFromClipboard.execute(undefined);
+				await text.readFromClipboard.fetch();
 
 			if (readClipboardError) {
-				notify.error.execute(readClipboardError);
 				return Err(readClipboardError);
 			}
 
@@ -511,6 +513,9 @@ export const commands = {
 			});
 
 			return Ok(undefined);
+		},
+		onError: (error) => {
+			notify.error.execute(error);
 		},
 	}),
 };
