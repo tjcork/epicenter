@@ -84,7 +84,7 @@
 				</Button>
 			{/snippet}
 		</Popover.Trigger>
-		<Popover.Content class="w-[calc(100vw-3rem)] max-w-xl p-0">
+		<Popover.Content class="w-[--radix-popover-trigger-width] p-0">
 			<TransformationPickerBody
 				onSelect={async (transformation) => {
 					if (!clipboardText) return;
