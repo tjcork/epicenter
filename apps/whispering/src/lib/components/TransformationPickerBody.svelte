@@ -18,14 +18,13 @@
 	const isMac = PLATFORM_TYPE === 'macos';
 	const modifierKey = isMac ? '⌘' : 'Ctrl';
 
-	let inputElement: HTMLInputElement | undefined = $state();
+	let inputElement: HTMLInputElement | undefined;
 
 	let {
 		onSelect,
 		onSelectManageTransformations,
 		placeholder,
 		class: className,
-		focusInput = false,
 	}: {
 		/**
 		 * Called when a transformation is selected from the list.
@@ -45,17 +44,11 @@
 		 * Optional class name to apply to the command root
 		 */
 		class?: string;
-		/**
-		 * Whether to automatically focus the input when component mounts
-		 */
-		focusInput?: boolean;
 	} = $props();
 
-	// Focus input when requested
-	$effect(() => {
-		if (focusInput && inputElement) {
-			inputElement.focus();
-		}
+	// Auto-focus search input on mount (component is destroyed/recreated each time popover opens)
+	onMount(() => {
+		inputElement?.focus();
 	});
 
 	// Keyboard shortcut handler for Cmd/Ctrl + 0-9
@@ -90,7 +83,7 @@
 {/snippet}
 
 <Command.Root loop class={className}>
-	<Command.Input {placeholder} bind:ref={inputElement} />
+	<Command.Input {placeholder} bind:this={inputElement} />
 	<Command.Empty>No transformation found.</Command.Empty>
 	<Command.Group class="overflow-y-auto max-h-[400px]">
 		{#each transformations as transformation, index (transformation.id)}

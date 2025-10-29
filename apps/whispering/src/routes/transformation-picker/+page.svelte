@@ -23,7 +23,6 @@
 	const clipboardText = $derived(clipboardQuery.data ?? '');
 
 	let unlistenOpenCombobox: UnlistenFn | null = null;
-	let shouldFocusInput = $state(false);
 
 	// Listen for event to open combobox
 	onMount(async () => {
@@ -36,9 +35,8 @@
 					// setFocus often fails on macOS, ignore the error
 				});
 
-				// Open the combobox and focus input
+				// Open the combobox
 				combobox.open = true;
-				shouldFocusInput = true;
 			},
 		);
 	});
@@ -51,7 +49,6 @@
 	$effect(() => {
 		if (clipboardQuery.isSuccess && clipboardText.trim()) {
 			combobox.open = true;
-			shouldFocusInput = true;
 		}
 	});
 
@@ -114,7 +111,6 @@
 		</Popover.Trigger>
 		<Popover.Content class="w-[var(--bits-popover-anchor-width)] p-0">
 			<TransformationPickerBody
-				focusInput={shouldFocusInput}
 				onSelect={async (transformation) => {
 					if (!clipboardText) return;
 
