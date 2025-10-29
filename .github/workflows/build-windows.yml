@@ -1,8 +1,7 @@
 name: build-windows
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch: {}
+on: { workflow_dispatch: {} }
+
+permissions: { contents: read }
 
 jobs:
   tauri:
@@ -13,50 +12,54 @@ jobs:
         working-directory: apps/whispering
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Rust (MSVC)
+      - name: Rust (MSVC)
         run: |
           rustup toolchain install stable-x86_64-pc-windows-msvc
           rustup default stable-x86_64-pc-windows-msvc
 
-      - name: Install WiX Toolset
+      - name: Install WiX
         run: choco install wixtoolset -y
 
-      # 👉 Install Vulkan SDK and set VULKAN_SDK/PATH automatically
+      # ✅ Vulkan SDK via action (sets VULKAN_SDK + PATH)
       - name: Install Vulkan SDK
         uses: humbletim/install-vulkan-sdk@v1.2
         with:
-          version: latest
+          version: 1.4.309.0
           cache: true
+
+      # (Optional) sanity check so failures are obvious
+      - name: Verify Vulkan SDK
+        run: |
+          Write-Host "VULKAN_SDK = $env:VULKAN_SDK"
+          Test-Path "$env:VULKAN_SDK\Include\vulkan\vulkan.h" | Write-Host " header?"
+          Test-Path "$env:VULKAN_SDK\Lib\vulkan-1.lib"        | Write-Host " lib?"
 
       - name: Install Bun
         run: |
           iwr https://bun.sh/install.ps1 -UseBasicParsing | iex
           echo "$env:USERPROFILE\.bun\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Cache Bun + node_modules
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.bun
             apps/whispering/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('apps/whispering/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+          restore-keys: ${{ runner.os }}-bun-
 
-      - name: Install dependencies
+      - name: bun install
         run: bun i
 
       - name: Build (Tauri)
         run: bun tauri build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
             apps/whispering/target/release/*.exe
             apps/whispering/target/**/bundle/**/*.msi
             apps/whispering/target/**/bundle/**/*.exe
+          retention-days: 14
