@@ -414,12 +414,102 @@ export const commands = {
 		},
 	}),
 
-	// Transform clipboard text
-	transformClipboard: defineMutation({
-		mutationKey: ['commands', 'transformClipboard'] as const,
+	// Open transformation picker to select a transformation
+	openTransformationPicker: defineMutation({
+		mutationKey: ['commands', 'openTransformationPicker'] as const,
 		resultMutationFn: async () => {
-			// Open transformation picker (it will read clipboard itself)
 			await toggleTransformationPicker();
+			return Ok(undefined);
+		},
+	}),
+
+	// Run selected transformation on clipboard
+	runTransformationOnClipboard: defineMutation({
+		mutationKey: ['commands', 'runTransformationOnClipboard'] as const,
+		resultMutationFn: async () => {
+			// Get selected transformation from settings
+			const transformationId =
+				settings.value['transformations.selectedTransformationId'];
+
+			if (!transformationId) {
+				return WhisperingErr({
+					title: '⚠️ No transformation selected',
+					description: 'Please select a transformation in settings first.',
+					action: {
+						type: 'link',
+						label: 'Select a transformation',
+						href: '/transformations',
+					},
+				});
+			}
+
+			// Get the transformation
+			const { data: transformation, error: getTransformationError } =
+				await db.transformations.getById(() => transformationId).fetch();
+
+			if (getTransformationError) {
+				return fromTaggedError(getTransformationError, {
+					title: '❌ Failed to get transformation',
+					action: { type: 'more-details', error: getTransformationError },
+				});
+			}
+
+			if (!transformation) {
+				settings.updateKey('transformations.selectedTransformationId', null);
+				return WhisperingErr({
+					title: '⚠️ Transformation not found',
+					description:
+						'The selected transformation no longer exists. Please select a different one.',
+					action: {
+						type: 'link',
+						label: 'Select a transformation',
+						href: '/transformations',
+					},
+				});
+			}
+
+			// Read clipboard text
+			const { data: clipboardText, error: readClipboardError } =
+				await text.readFromClipboard.execute(undefined);
+
+			if (readClipboardError) {
+				notify.error.execute(readClipboardError);
+				return Err(readClipboardError);
+			}
+
+			if (!clipboardText?.trim()) {
+				return WhisperingErr({
+					title: '📋 Empty clipboard',
+					description: 'Please copy some text before running a transformation.',
+				});
+			}
+
+			// Run transformation
+			const toastId = nanoid();
+			notify.loading.execute({
+				id: toastId,
+				title: '🔄 Running transformation...',
+				description: 'Transforming your clipboard text...',
+			});
+
+			const { data: output, error: transformError } =
+				await transformer.transformInput.execute({
+					input: clipboardText,
+					transformation,
+				});
+
+			if (transformError) {
+				notify.error.execute({ id: toastId, ...transformError });
+				return Err(transformError);
+			}
+
+			sound.playSoundIfEnabled.execute('transformationComplete');
+
+			await delivery.deliverTransformationResult.execute({
+				text: output,
+				toastId,
+			});
+
 			return Ok(undefined);
 		},
 	}),
